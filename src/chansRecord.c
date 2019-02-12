@@ -184,6 +184,8 @@ static void monitor(chansRecord *pchans)
     char  (*unit)[8] = (char (*)[8]) pchans->eu01;
     int n = 0;
 
+    recGblResetAlarms(pchans);
+
     db_post_events(pchans,  pchans->val,  DBE_VALUE|DBE_LOG);
     db_post_events(pchans,  pchans->date, DBE_VALUE|DBE_LOG);
     db_post_events(pchans,  pchans->atim, DBE_VALUE|DBE_LOG);

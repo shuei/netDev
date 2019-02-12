@@ -125,6 +125,7 @@ LOCAL long parse_chans_response(
 			       )
 {
     struct chansRecord *pchans = (struct chansRecord *)pxx;
+    MW100 *d = (MW100 *) device;
     double *data = (double *) &pchans->ch01;
     char  (*stat)[4] = (char (*)[4]) pchans->st01;
     char  (*alrm)[8] = (char (*)[8]) pchans->al01;
@@ -134,6 +135,7 @@ LOCAL long parse_chans_response(
     int noch = pchans->noch;
     int ichan;
     int n;
+    int i;
 
     LOGMSG("devChansMW100: parse_chans_response(0x%08x,0x%08x,0x%08x,%d,0x%08x,%d)\n",
 	   pxx,*option,buf,*len,device,transaction_id,0,0,0);
@@ -213,9 +215,11 @@ LOCAL long parse_chans_response(
       {
 	pC1 = ++pC2;
 	pC2 = strchr(pC1, '\r');
+	i = d->p1 + n;
+
 	if (!pC2)
 	  {
-	    errlogPrintf("devMW100: unexpected response (no CR for ch%02d)\n", n);
+	    errlogPrintf("devMW100: unexpected response (no CR for ch%02d)\n", i);
 	    return ERROR;
 	  }
 	*pC2 = '\0';
@@ -226,28 +230,29 @@ LOCAL long parse_chans_response(
 		   unit[n],
 		   &data[n]) != 5)
 	  {
-	    errlogPrintf("devMW100: unexpected response (can't get ch%02d)\n", n);
+	    errlogPrintf("devMW100: unexpected response (can't get ch%02d)\n", i);
 	    return ERROR;
 	  }
 
 	channel[3] = '\0';
 	if (sscanf(channel, "%d", &ichan) != 1)
 	  {
-	    errlogPrintf("devMW100: unexpected response (can't get ch no:%02d)\n", n);
+	    errlogPrintf("devMW100: unexpected response (can't get ch no:%02d)\n", i);
 	    return ERROR;
 	  }
-	if (ichan != (n + 1))
+	if (ichan != i)
 	  {
 	    errlogPrintf("devMW100: unexpected response (ch no does not match (%02d,%02d))\n",
-			 ichan, (n + 1));
+			 ichan, i);
 	    return ERROR;
 	  }
 
 	if (*(++pC2) != '\n')
 	  {
-	    errlogPrintf("devMW100: unexpected response (no LF for ch%02d)\n", n);
+	    errlogPrintf("devMW100: unexpected response (no LF for ch%02d)\n", i);
 	    return ERROR;
 	  }
+
 	pchans->nord++;
       }
 
@@ -271,6 +276,8 @@ LOCAL long parse_chans_response(
 	errlogPrintf("devMW100: unexpected response (no LF for \"EN\")\n");
 	return ERROR;
       }
+
+    pchans->udf = FALSE;
 
     return OK;
 }
