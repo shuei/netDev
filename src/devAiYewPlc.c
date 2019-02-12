@@ -149,7 +149,8 @@ LOCAL long parse_ai_response(
 	}
       else
 	{
-	  float *pfloat = (float *) &u32_val;
+	  void *tmp = &u32_val;
+	  float *pfloat = (float *)tmp;
 	  pai->val = (double) *pfloat;
 	  if (ret == OK)
 	    {

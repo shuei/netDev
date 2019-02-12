@@ -144,7 +144,7 @@ LOCAL long darwin_parse_link(
       /* nothing to do */
       break;
     case DARWIN_TCP_PORT_MES:
-      for (src = addr, dst = &tmp_buf[0];
+       for (src = (uint8_t *)addr, dst = &tmp_buf[0];
 	   ( *src != '\0' ) && ( dst < tmp_buf + sizeof(tmp_buf) );)
 	{
 	  if (*src == ' ')
@@ -158,7 +158,7 @@ LOCAL long darwin_parse_link(
 	  tmp_buf[sizeof(tmp_buf) - 1] = '\0';
 	}
 
-      if (sscanf(tmp_buf, "%c%d,%c%d", &u1, &p1, &u2, &p2) != 4)
+      if (sscanf((char *)tmp_buf, "%c%d,%c%d", &u1, &p1, &u2, &p2) != 4)
 	{
 	  errlogPrintf("devDarwin: can't get parms from \"%s\"\n", addr);
 	  return ERROR;
@@ -175,9 +175,9 @@ LOCAL long darwin_parse_link(
       sprintf(d->comm_EL, "EL%c%02d,%c%02d%s",   u1, p1, u2, p2, terminator);
       sprintf(d->comm_EB, "EB %s", terminator);
 #else
-      snprintf(d->comm_EF, DARWIN_MAX_CMND_LEN - 1, "EF ,%c%02d,%c%02d%s", u1, p1, u2, p2, terminator);
-      snprintf(d->comm_EL, DARWIN_MAX_CMND_LEN - 1, "EL%c%02d,%c%02d%s",   u1, p1, u2, p2, terminator);
-      snprintf(d->comm_EB, DARWIN_MAX_CMND_LEN - 1, "EB %s", terminator);
+      snprintf((char *)d->comm_EF, DARWIN_MAX_CMND_LEN - 1, "EF ,%c%02d,%c%02d%s", u1, p1, u2, p2, terminator);
+      snprintf((char *)d->comm_EL, DARWIN_MAX_CMND_LEN - 1, "EL%c%02d,%c%02d%s",   u1, p1, u2, p2, terminator);
+      snprintf((char *)d->comm_EB, DARWIN_MAX_CMND_LEN - 1, "EB %s", terminator);
 #endif
       break;
     default:

@@ -137,7 +137,7 @@ static long process(mipwf)
 	struct miwfRecord	*mipwf;
 {
         struct wfdset   *pdset = (struct wfdset *)(mipwf->dset);
-	long		 status;
+	/* long		 status; */
 	unsigned char    pact=mipwf->pact;
 
         if( (pdset==NULL) || (pdset->read_wf==NULL) ) {
@@ -148,7 +148,8 @@ static long process(mipwf)
 
 	if ( pact && mipwf->busy ) return(0);
 
-	status=readValue(mipwf); /* read the new value */
+	/* status= */
+	readValue(mipwf); /* read the new value */
 	/* check if device support set pact */
 	if ( !pact && mipwf->pact ) return(0);
         mipwf->pact = TRUE;

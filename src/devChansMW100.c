@@ -133,7 +133,7 @@ LOCAL long parse_chans_response(
     int n;
     int i;
 
-    LOGMSG("devChansMW100: parse_chans_response(0x%08x,0x%08x,0x%08x,%d,0x%08x,%d)\n",
+    LOGMSG("devChansMW100: parse_chans_response(%8p,0x%08x,%8p,%d,%8p,%d)\n",
 	   pxx,*option,buf,*len,device,transaction_id,0,0,0);
 
     /* clear NORD */
@@ -146,7 +146,7 @@ LOCAL long parse_chans_response(
 
     /* check EA */
 
-    pC1 = buf;
+    pC1 = (char *)buf;
     pC2 = strchr(pC1, '\r');
     if (!pC2)
       {

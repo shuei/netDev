@@ -112,7 +112,7 @@ LOCAL long MW100_parse_link(
 
   if (addr)
     {
-      for (src = addr, dst = &tmp_buf[0];
+      for (src = (uint8_t *)addr, dst = &tmp_buf[0];
 	   ( *src != '\0' ) && ( dst < tmp_buf + sizeof(tmp_buf) );)
 	{
 	  if (*src == ' ')
@@ -126,7 +126,7 @@ LOCAL long MW100_parse_link(
 	  tmp_buf[sizeof(tmp_buf) - 1] = '\0';
 	}
 
-      if (sscanf(tmp_buf, "%d,%d", &p1, &p2) != 2)
+      if (sscanf((char *)tmp_buf, "%d,%d", &p1, &p2) != 2)
 	{
 	  errlogPrintf("devMW100: can't get parms from \"%s\"\n", addr);
 	  return ERROR;
@@ -147,9 +147,9 @@ LOCAL long MW100_parse_link(
 
       d->noch = p2 - p1 + 1;
 
-      sprintf(d->com_FD, "FD0,%03d,%03d%s", p1, p2, terminator);
+      sprintf((char *)d->com_FD, "FD0,%03d,%03d%s", p1, p2, terminator);
 
-      d->com_len = strlen(d->com_FD);
+      d->com_len = strlen((char *)d->com_FD);
     }
 
   return OK;

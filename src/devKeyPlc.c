@@ -32,7 +32,7 @@
 #define KEY_CMND_WRE    4
 #define KEY_CMND_LENGTH(x) ((x) == KEY_CMND_RDE || (x) == KEY_CMND_WRE) ? 18 : 12
 
-LOCAL int sizeofTypes[] = {0,1,1,2,2,4,4,4,8,2};
+//LOCAL int sizeofTypes[] = {0,1,1,2,2,4,4,4,8,2};
 
 LOCAL long key_parse_link(
 			  struct link *,
@@ -288,7 +288,7 @@ LOCAL long key_config_command(
   int nwrite;
   int n;
 
-  LOGMSG("devKeyPlc: key_config_command(0x%08x,%d,0x%08x,%d,%d,%d,0x%08x)\n",
+  LOGMSG("devKeyPlc: key_config_command(%8p,%d,%8p,%d,%d,%d,%8p)\n",
 	 buf,*len,bptr,ftvl,ndata,*option,d,0,0);
 
   if (ndata > KEY_MAX_NDATA)
@@ -331,7 +331,7 @@ LOCAL long key_config_command(
 		    cmnd_tbl_RDE_WRE[d->indx].device,
 		    cmnd_tbl_RDE_WRE[d->indx].addr_format);
 	  }
-	sprintf(buf, format, d->addr);
+	sprintf((char *)buf, format, d->addr);
       }
       break;
     case KEY_CMND_RD:
@@ -339,7 +339,7 @@ LOCAL long key_config_command(
 	sprintf(format, "RD %s%s",
 		cmnd_tbl_RDE_WRE[d->indx].device,
 		cmnd_tbl_RDE_WRE[d->indx].addr_format);
-	sprintf(buf, format, d->addr);
+	sprintf((char *)buf, format, d->addr);
       }
       break;
     case KEY_CMND_RDE:
@@ -349,7 +349,7 @@ LOCAL long key_config_command(
 		cmnd_tbl_RDE_WRE[d->indx].addr_format,
 		cmnd_tbl_RDE_WRE[d->indx].suffix,
 		n);
-	sprintf(buf, format, d->addr + d->noff);
+	sprintf((char *)buf, format, d->addr + d->noff);
       }
       break;
     case KEY_CMND_WRE:
@@ -363,7 +363,7 @@ LOCAL long key_config_command(
 		cmnd_tbl_RDE_WRE[d->indx].addr_format,
 		cmnd_tbl_RDE_WRE[d->indx].suffix,
 		n);
-	sprintf(buf, format, d->addr);
+	sprintf((char *)buf, format, d->addr);
 
 	if (fromRecordVal(
 			  temp_buf,
@@ -379,12 +379,12 @@ LOCAL long key_config_command(
 	    return ERROR;
 	  }
 
-	j = (int) strlen(buf);
+	j = (int) strlen((char *)buf);
 
 	for (i = 0; i < n; i++)
 	  {
 	    data = (unsigned int) temp_buf[i];
-	    sprintf(&buf[j + 6*i], " %05d", (int) data);
+	    sprintf((char *)&buf[j + 6*i], " %05d", (int) data);
 	  }
       }
       break;
@@ -395,8 +395,8 @@ LOCAL long key_config_command(
       }
     }
 
-  strcat(buf, "\r");
-  *len = (int) strlen(buf);
+  strcat((char *)buf, "\r");
+  *len = (int) strlen((char *)buf);
 
   return OK;
 }
@@ -421,8 +421,8 @@ LOCAL long key_parse_response(
   long ret;
   int n;
 
-  LOGMSG("devKeyPlc: key_parse_response(0x%08x,%d,0x%08x,%d,%d,%d,0x%08x)\n",
-	 buf,len,bptr,ftvl,ndata,*option,d,0,0);
+  LOGMSG("devKeyPlc: key_parse_response(%8p,%d,%8p,%d,%d,%d,%8p)\n",
+	 buf,*len,bptr,ftvl,ndata,*option,d,0,0);
 
   if (ndata > KEY_MAX_NDATA)
     {
@@ -435,7 +435,7 @@ LOCAL long key_parse_response(
       ret = 0;
     }
 
-  if (sscanf(&buf[0], "%c%c\r\n", &c1, &c2) == 2)
+  if (sscanf((char *)buf, "%c%c\r\n", &c1, &c2) == 2)
     {
       if (c1 == 'E')
 	{
@@ -459,7 +459,7 @@ LOCAL long key_parse_response(
 	}
       else if (d->cmnd == KEY_CMND_RD)
 	{
-	  if (sscanf(&buf[0], "%c\r\n", &c1) != 1)
+	  if (sscanf((char *)buf, "%c\r\n", &c1) != 1)
 	    {
 	      errlogPrintf("devKeyPlc: failed in getting bit data\n");
 	      return ERROR;
@@ -486,7 +486,7 @@ LOCAL long key_parse_response(
 
 	  for (i = 0; i < n; i++)
 	    {
-	      if (sscanf(&buf[6*i], "%05d", &data) != 1)
+	      if (sscanf((char *)&buf[6*i], "%05d", &data) != 1)
 		{
 		  errlogPrintf("devKeyPlc: failed in getting data\n");
 		  return ERROR;
@@ -502,7 +502,7 @@ LOCAL long key_parse_response(
 		}
 	      else
 		{
-		  if (strncmp(&buf[6*i + 5], "\r\n", 2))
+		  if (strncmp((char *)&buf[6*i + 5], "\r\n", 2))
 		    {
 		      errlogPrintf("devKeyPlc: illeagal terminator\n");
 		      return ERROR;

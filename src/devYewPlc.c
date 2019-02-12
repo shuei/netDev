@@ -73,8 +73,8 @@ typedef struct
 LOCAL long yew_config_command(uint8_t *, int *, void *, int, int, int *, YEW_PLC *);
 LOCAL long yew_parse_response(uint8_t *, int *, void *, int, int, int *, YEW_PLC *);
 
-LOCAL long yew_parse_event(uint8_t *, int *, void *, int, int, int *, YEW_PLC *);
-LOCAL long yew_config_response(uint8_t *, int *, void *, int, int, int *, YEW_PLC *);
+//LOCAL long yew_parse_event(uint8_t *, int *, void *, int, int, int *, YEW_PLC *);
+//LOCAL long yew_config_response(uint8_t *, int *, void *, int, int, int *, YEW_PLC *);
 
 
 int yewPlcUseTcp;
@@ -441,7 +441,7 @@ LOCAL long yew_config_command(
   uint8_t  command_type;
   uint16_t bytes_follow;
 
-  LOGMSG("devYewPlc: yew_config_command(0x%08x,%d,0x%08x,%d,%d,%d,0x%08x)\n",
+  LOGMSG("devYewPlc: yew_config_command(%8p,%d,%8p,%d,%d,%d,%8p)\n",
 	 buf,*len,bptr,ftvl,ndata,*option,d,0,0);
 
   if (ndata > YEW_MAX_NDATA)
@@ -557,14 +557,14 @@ LOCAL long yew_parse_response(
 			      YEW_PLC *d
 			      )
 {
-  int nread;
+  /* int nread; */
   int n;
   int ret;
   uint8_t  response_type;
   uint16_t number_of_data;
 
-  LOGMSG("devYewPlc: yew_parse_response(0x%08x,%d,0x%08x,%d,%d,%d,0x%08x)\n",
-	 buf,len,bptr,ftvl,ndata,*option,d,0,0);
+  LOGMSG("devYewPlc: yew_parse_response(%8p,%d,%8p,%d,%d,%d,%8p)\n",
+	 buf,*len,bptr,ftvl,ndata,*option,d,0,0);
 
   if (ndata > YEW_MAX_NDATA)
     {
@@ -577,7 +577,7 @@ LOCAL long yew_parse_response(
       ret = 0;
     }
 
-  nread  = isRead(*option)? (d->width)*n:0; 
+  /* nread  = isRead(*option)? (d->width)*n:0; */
 
   if (!d->spmod)
     {

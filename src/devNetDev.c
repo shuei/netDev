@@ -50,7 +50,7 @@ long netDevGetIoIntInfo(int cmd, struct dbCommon * pxx, IOSCANPVT *ppvt)
 {
   TRANSACTION *t;
 
-  LOGMSG("devNetDev: netDevGetIoIntInfo(\"%s\",%d,0x%08x,0x%08x)\n",
+  LOGMSG("devNetDev: netDevGetIoIntInfo(\"%s\",%d,%8p,%8p)\n",
 	 pxx->name,cmd,pxx,ppvt,0,0,0,0,0);
 
   if (!pxx->dpvt) {
@@ -107,7 +107,7 @@ long netDevInitXxRecord(
 {
   TRANSACTION *t;
 
-  LOGMSG("devNetDev: netDevInitXxRecord(\"%s\",0x%08x,%d,0x%08x,0x%08x,0x%08x)\n",
+  LOGMSG("devNetDev: netDevInitXxRecord(\"%s\",%8p,%d,%8p,%8p,%8p)\n",
 	 pxx->name,plink,option,device,parse_link,config_command,parse_response,0,0);
 
   if (!device || !parse_link ||
@@ -245,7 +245,7 @@ LOCAL void net_dev_async_completion(CALLBACK *pcb)
   struct dbCommon *pxx;
   struct rset *rset;
   
-  LOGMSG("devNetDev: net_dev_async_completion(0x%08x)\n",
+  LOGMSG("devNetDev: net_dev_async_completion(%8p)\n",
 	 pcb,0,0,0,0,0,0,0,0);
 
   callbackGetUser(pxx, pcb);
@@ -296,8 +296,8 @@ LOCAL void *net_dev_init_private(
   TRANSACTION *t;
   struct sockaddr_in peer_addr;
 
-  LOGMSG("devNetDev: net_dev_init_private(0x%08x,%d,0x%08x,0x%08x)\n",
-	 plink,option,parse_link,device,0,0,0,0,0);
+  LOGMSG("devNetDev: net_dev_init_private(%8p,%d,%8p,%8p)\n",
+	 plink,*option,parse_link,device,0,0,0,0,0);
 
   if (plink->type != INST_IO)
     {
@@ -366,7 +366,7 @@ LOCAL void sync_io_completion(CALLBACK *pcb)
 {
   epicsEventId  semId;
 
-  LOGMSG("devNetDev: sync_io_completion(0x%08x)\n",
+  LOGMSG("devNetDev: sync_io_completion(%8p)\n",
 	 pcb,0,0,0,0,0,0,0,0);
 
   callbackGetUser(semId, pcb);
@@ -434,7 +434,7 @@ netDevInitInternalIO(
 	  return NULL;
 	}
 
-      LOGMSG("devNetDev: binary semaphore 0x%08x created\n",
+      LOGMSG("devNetDev: binary semaphore %8p created\n",
 	     semId,0,0,0,0,0,0,0,0);
 
       callbackSetCallback(sync_io_completion, &t->io.async.callback);
@@ -466,7 +466,7 @@ int netDevInternalIO(
   TRANSACTION *t_org;
   epicsEventId  semId;
 
-  LOGMSG("devNetDev: netDevInternalIO(%d,0x%08x,0x%08x,%d)\n",
+  LOGMSG("devNetDev: netDevInternalIO(%d,%8p,%8p,%d)\n",
 	 option,t,device,timeout,0,0,0,0,0);
 
   if (!t || !t->record)
@@ -496,7 +496,7 @@ int netDevInternalIO(
     {
       callbackGetUser(semId, &t->io.async.callback);
 
-      LOGMSG("devNetDev: taking binary semaphore 0x%08x\n",
+      LOGMSG("devNetDev: taking binary semaphore %8p\n",
 	     semId,0,0,0,0,0,0,0,0);
 
       epicsEventMustWait(semId);
@@ -519,7 +519,7 @@ int netDevDeleteInternalIO(TRANSACTION *t)
 {
   epicsEventId  semId;
 
-  LOGMSG("devNetDev: netDevDeleteInternalIO(0x%08x)\n",
+  LOGMSG("devNetDev: netDevDeleteInternalIO(%8p)\n",
 	 t,0,0,0,0,0,0,0,0);
 
   if (!t)
@@ -533,7 +533,7 @@ int netDevDeleteInternalIO(TRANSACTION *t)
       callbackGetUser(semId, &t->io.async.callback);
       epicsEventDestroy(semId);
 
-      LOGMSG("devNetDev: binary semaphore 0x%08x deleted\n",
+      LOGMSG("devNetDev: binary semaphore %8p deleted\n",
 	     semId,0,0,0,0,0,0,0,0);
     }
 
@@ -592,7 +592,7 @@ int netDevDeleteInternalIO(TRANSACTION *t)
 uint32_t netDevGetSelfId(void)
 {
   char hostname[MAX_HOST_NAME];
-  int host_ip;
+  in_addr_t host_ip;
 
   LOGMSG("devNetDev: netDevGetSelfId()\n",0,0,0,0,0,0,0,0,0);
 
@@ -623,7 +623,7 @@ uint32_t netDevGetSelfId(void)
 #ifdef vxWorks
 long netDevGetHostId(char *hostname, int *hostid)
 {
-  LOGMSG("devNetDev: netDevGetHostId(\"%s\",0x%08x)\n", hostname, hostid,
+  LOGMSG("devNetDev: netDevGetHostId(\"%s\",%8p)\n", hostname, hostid,
 	 0,0,0,0,0,0,0);
 
   *hostid = hostGetByName(hostname);
@@ -644,7 +644,7 @@ long netDevGetHostId(char *hostname, in_addr_t *hostid)
 {
   struct hostent *hostptr;
 
-  LOGMSG("devNetDev: netDevGetHostId(\"%s\",0x%08x)\n", hostname, hostid,
+  LOGMSG("devNetDev: netDevGetHostId(\"%s\",%8p)\n", hostname, hostid,
 	 0,0,0,0,0,0,0);
 
   if ((hostptr = gethostbyname(hostname)) != NULL)
@@ -674,7 +674,7 @@ long netDevSetEvMsgLeng(struct dbCommon *pxx, int len)
 {
   TRANSACTION *t = (TRANSACTION *)pxx->dpvt;
 
-  LOGMSG("devNetDev: netDevSetEvMsgLeng(\"%s\",0x%08x)\n", pxx->name, len,
+  LOGMSG("devNetDev: netDevSetEvMsgLeng(\"%s\",%d)\n", pxx->name, len,
 	 0,0,0,0,0,0,0);
 
   if (!t)

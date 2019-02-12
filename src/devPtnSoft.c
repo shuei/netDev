@@ -67,10 +67,11 @@ static long init_record(patternRecord *pptn)
 
 static long read_wf(patternRecord *pptn)
 {
-    long status,nRequest;
+    long /* status, */nRequest;
 
     nRequest=pptn->nelm;
-    status = dbGetLink(&pptn->inp,pptn->ftvl,pptn->bptr, 0, &nRequest);
+    /* status = */
+    dbGetLink(&pptn->inp,pptn->ftvl,pptn->bptr, 0, &nRequest);
     /*If dbGetLink got no values leave things as they were*/
     if(nRequest>0) pptn->nord = nRequest;
 

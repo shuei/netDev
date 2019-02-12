@@ -15,6 +15,7 @@
  */
 
 #include <dbCommon.h>
+#include <dbAccess.h>
 #include <epicsThread.h>
 #include <recSup.h>
 #include <drvSup.h>
@@ -79,6 +80,8 @@ void do_showio(TRANSACTION *, int);
 void showrtt(const iocshArgBuf *);
 void stoprtt(const iocshArgBuf *);
 void do_showrtt(PEER *);
+
+long netDevGetHostId(char *hostname, in_addr_t *hostid);
 
 #define RECONNECT (ERROR - 1)
 #define MAX_CONNECT_RETRY  1
@@ -307,7 +310,7 @@ LOCAL long init(void)
  */
 LOCAL long create_semaphores(PEER *p)
 {
-  LOGMSG("drvNetMpf: create_semaphores(0x%08x)\n",
+  LOGMSG("drvNetMpf: create_semaphores(%8p)\n",
 	 p,0,0,0,0,0,0,0,0);
 
   if ((p->in_t_mutex =
@@ -353,7 +356,7 @@ LOCAL long spawn_io_tasks(PEER *p)
   char *recv_t_name = "tRcvTsk";
   char  task_name[32];
 
-  LOGMSG("drvNetMpf: spawn_io_tasks(0x%08x)\n",
+  LOGMSG("drvNetMpf: spawn_io_tasks(%8p)\n",
 	 p,0,0,0,0,0,0,0,0);
 
   sprintf(task_name, "%s_%d", send_t_name, p->mpf.id);
@@ -401,7 +404,7 @@ LOCAL long spawn_io_tasks(PEER *p)
  */
 LOCAL void delete_peer(PEER *p)
 {
- LOGMSG("drvNetMpf: delete_peer(0x%08x)\n",
+ LOGMSG("drvNetMpf: delete_peer(%8p)\n",
 	 p,0,0,0,0,0,0,0,0);
 
   if (p->mpf.sfd) close(p->mpf.sfd);
@@ -548,7 +551,7 @@ long drvNetMpfSendRequest(TRANSACTION *t)
 {
   PEER *p;
 
-  LOGMSG("drvNetMpf: drvNetMpfSendRequest(0x%08x)\n",
+  LOGMSG("drvNetMpf: drvNetMpfSendRequest(%8p)\n",
 	 t,0,0,0,0,0,0,0,0);
 
   if (!t)
@@ -671,7 +674,7 @@ LOCAL void reconnect(MPF_COMMON *m)
   char *inet_string;
 #endif
 
-  LOGMSG("drvNetMpf: reconnect(0x%08x)\n",m,0,0,0,0,0,0,0,0);
+  LOGMSG("drvNetMpf: reconnect(%8p)\n",m,0,0,0,0,0,0,0,0);
 
 #ifdef vxWorks
   inet_ntoa_b((struct in_addr) m->peer_addr.sin_addr, inet_string);
@@ -801,7 +804,7 @@ LOCAL int recv_msg(MPF_COMMON *m)
       do {
 	if (m->recv_len > end - cur)
 	  {
-	    errlogPrintf("drvNetMpf: receive buffer running short (requested:%d, max:%d)\n",
+	    errlogPrintf("drvNetMpf: receive buffer running short (requested:%d, max:%zd)\n",
 			 m->recv_len, end - cur);
 	    return ERROR;
 	  }
@@ -1091,7 +1094,7 @@ long drvNetMpfRegisterEvent(TRANSACTION *t)
 {
   SERVER *s;
 
-  LOGMSG("drvNetMpf: drvNetMpfRegisterEvent(0x%08x)\n",
+  LOGMSG("drvNetMpf: drvNetMpfRegisterEvent(%8p)\n",
 	 t,0,0,0,0,0,0,0,0);
 
   if (!t)
@@ -1297,7 +1300,7 @@ LOCAL long spawn_tcp_parent(SERVER *s)
   char *parent_t_name = "tTcpSrvr";
   char  task_name[32];
 
-  LOGMSG("drvNetMpf: spawn_tcp_parent(0x%08x)\n",
+  LOGMSG("drvNetMpf: spawn_tcp_parent(%8p)\n",
 	 s,0,0,0,0,0,0,0,0);
 
   sprintf(task_name, "%s", parent_t_name);
@@ -1307,8 +1310,8 @@ LOCAL long spawn_tcp_parent(SERVER *s)
 			TCP_PARENT_PRIORITY,
 			TCP_PARENT_STACK,
 			(EPICSTHREADFUNC) tcp_parent,
-			(void *) ((int) s)
-			) == (epicsThreadId) 0)
+			s
+			) == NULL)
     {
       errlogPrintf("drvNetMpf: epicsThreadCreate failed\n");
       return ERROR;
@@ -1327,7 +1330,7 @@ LOCAL long prepare_udp_server_socket(SERVER *s)
 {
   struct sockaddr_in my_addr;
 
-  LOGMSG("drvNetMpf: prepare_udp_server_socket(0x%08x)\n",
+  LOGMSG("drvNetMpf: prepare_udp_server_socket(%8p)\n",
 	 s,0,0,0,0,0,0,0,0);
 
   if ((s->mpf.sfd = socket(
@@ -1372,7 +1375,7 @@ LOCAL long spawn_server_task(SERVER *s)
   char *send_t_name = "tEvSrvr";
   char  task_name[32];
 
-  LOGMSG("drvNetMpf: spawn_server_task(0x%08x)\n",
+  LOGMSG("drvNetMpf: spawn_server_task(%8p)\n",
 	 s,0,0,0,0,0,0,0,0);
 
   sprintf(task_name, "%s_%d", send_t_name, s->mpf.id);
@@ -1406,7 +1409,7 @@ LOCAL void delete_server(SERVER *s)
    * This function should be called only before
    * the server is added to the serverList.
    */
-  LOGMSG("drvNetMpf: delete_server(0x%08x)\n",
+  LOGMSG("drvNetMpf: delete_server(%8p)\n",
 	 s,0,0,0,0,0,0,0,0);
 
   if (s->parent)
@@ -1773,7 +1776,7 @@ void peerShow(const iocshArgBuf *args)
 #ifdef vxWorks
       inet_ntoa_b((struct in_addr) p->mpf.peer_addr.sin_addr, inet_string);
 #else
-      inet_string = inet_ntoa((struct in_addr) p->mpf.peer_addr.sin_addr);
+      inet_string = inet_ntoa(p->mpf.peer_addr.sin_addr);
 #endif
       printf("  ------------------------------\n");
       printf("  id:                %d\n", p->mpf.id);
@@ -1782,19 +1785,19 @@ void peerShow(const iocshArgBuf *args)
       printf("  addrss_family:     0x%04x\n", p->mpf.peer_addr.sin_family);
       printf("  intenet_addr:      %s\n", inet_string);
       printf("  port_number:       0x%04x\n", ntohs(p->mpf.peer_addr.sin_port));
-      printf("  in_transaction:    %d\n", (int) p->in_transaction);
-      printf("  in_t_mutex_sem_id: 0x%08x\n", (int) p->in_t_mutex);
+      printf("  in_transaction:    %8p\n", p->in_transaction);
+      printf("  in_t_mutex_sem_id: %8p\n", p->in_t_mutex);
       printf("  num_requests:      %d\n", ellCount(&p->reqQueue));
-      printf("  reqQ_mutex_sem_id: 0x%08x\n", (int) p->reqQ_mutex);
-      printf("  req_queued_sem_id: 0x%08x\n", (int) p->req_queued);
-      printf("  next_cycle_sem_id: 0x%08x\n", (int) p->next_cycle);
-      printf("  watchdog_id:       0x%08x\n", (int) p->wd_id);
-      printf("  send_task_id:      0x%08x\n", (int) p->send_tid);
-      printf("  recv_task_id:      0x%08x\n", (int) p->recv_tid);
+      printf("  reqQ_mutex_sem_id: %8p\n", p->reqQ_mutex);
+      printf("  req_queued_sem_id: %8p\n", p->req_queued);
+      printf("  next_cycle_sem_id: %8p\n", p->next_cycle);
+      printf("  watchdog_id:       %8p\n", p->wd_id);
+      printf("  send_task_id:      %8p\n", p->send_tid);
+      printf("  recv_task_id:      %8p\n", p->recv_tid);
       printf("  send_msg_len:      %d\n", p->mpf.send_len);
       printf("  recv_msg_len:      %d\n", p->mpf.recv_len);
-      printf("  send_buf_addr:     0x%08x\n", (int) p->mpf.send_buf);
-      printf("  recv_buf_addr:     0x%08x\n", (int) p->mpf.recv_buf);
+      printf("  send_buf_addr:     %8p\n", p->mpf.send_buf);
+      printf("  recv_buf_addr:     %8p\n", p->mpf.recv_buf);
     }
 
   if (args[1].ival > 1)
@@ -1873,7 +1876,7 @@ void serverShow(const iocshArgBuf *args)
 #ifdef vxWorks
       inet_ntoa_b((struct in_addr) s->mpf.sender_addr.sin_addr, inet_string);
 #else
-      inet_string = inet_ntoa((struct in_addr) s->mpf.sender_addr.sin_addr);
+      inet_string = inet_ntoa(s->mpf.sender_addr.sin_addr);
 #endif
       printf("  ------------------------------\n");
       printf("  id:                  %d\n", s->mpf.id);
@@ -1884,12 +1887,12 @@ void serverShow(const iocshArgBuf *args)
       printf("  last_client(inaddr): %s\n", inet_string);
       printf("  last_client(port):   0x%04x\n", ntohs(s->mpf.sender_addr.sin_port));
       printf("  num_event_acceptor:  %d\n", ellCount(&s->eventQueue));
-      printf("  evQ_mutex_sem_id:    0x%08x\n", (int) s->eventQ_mutex);
-      printf("  server_task_id:      0x%08x\n", (int) s->server_tid);
+      printf("  evQ_mutex_sem_id:    %8p\n", s->eventQ_mutex);
+      printf("  server_task_id:      %8p\n", s->server_tid);
       printf("  send_msg_len:        %d\n", s->mpf.send_len);
       printf("  recv_msg_len:        %d\n", s->mpf.recv_len);
-      printf("  send_buf:            0x%08x\n", (int) s->mpf.send_buf);
-      printf("  recv_buff_addr:      0x%08x\n", (int) s->mpf.recv_buf);
+      printf("  send_buf:            %8p\n", s->mpf.send_buf);
+      printf("  recv_buff_addr:      %8p\n", s->mpf.recv_buf);
     }
 
   if (args[1].ival > 1)
@@ -2348,7 +2351,7 @@ void do_showio(TRANSACTION *t, int dir)
 	  {
 	    errlogPrintf("%s message for \"%s\" to %s (%s, %s)\n",
 			 act[dir],
-			 pm->precord,
+			 pm->precord->name,
 			 row[isWrite(t->option)],
 			 pro[isTcp(t->option)],
 			 iot[isEvent(t->option)]);

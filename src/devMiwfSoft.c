@@ -77,11 +77,11 @@ static long init_record(miwfRecord *pmiwf)
   }
   return(0);
 }
-#undef chekc_link(type,msg)
+#undef chekc_link
 
 static long read_wf(miwfRecord *pmiwf)
 {
-    long status,nRequest;
+   long /* status,*/ nRequest;
     struct link *plink;
 
     nRequest=pmiwf->nelm;
@@ -112,7 +112,8 @@ static long read_wf(miwfRecord *pmiwf)
 		"devMiwfSoft (read_wf) Illegal SELN field");
 	return(S_db_badField);
     }
-    status = dbGetLink(plink,pmiwf->ftvl,pmiwf->bptr, 0,&nRequest);
+    /* status = */
+    dbGetLink(plink,pmiwf->ftvl,pmiwf->bptr, 0,&nRequest);
     /*If dbGetLink got no values leave things as they were*/
     if(nRequest>0) pmiwf->nord = nRequest;
 

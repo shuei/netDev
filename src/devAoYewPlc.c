@@ -111,7 +111,8 @@ LOCAL long config_ao_command(
       else
 	{
 	  float flt_val = (float) pao->val;
-	  u32_val = *((uint32_t *) &flt_val);
+	  void *tmp = &flt_val;
+	  u32_val = *(uint32_t *)tmp;
 	}
 
       u16_val[0] = u32_val >>  0;

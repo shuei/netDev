@@ -142,7 +142,7 @@ static long process(struct patternRecord *pptn)
 	long             *plong   = (long *)  pptn->rptr;
 	unsigned long    *pulong  = (unsigned long *)  pptn->rptr;
 	double           *bptr = pptn->bptr;
-	long		 status;
+	/* long		 status; */
 	int              i;
 	   
         if( (pdset==NULL) || (pdset->read_ptn==NULL) ) {
@@ -153,7 +153,8 @@ static long process(struct patternRecord *pptn)
 
 	if ( pact && pptn->busy ) return(0);
 
-	status=readValue(pptn); /* read the new value */
+	/* status= */
+	readValue(pptn); /* read the new value */
 
 	for (i=0; i < pptn->nelm; i++) {
 	    switch (pptn->ftvl) {
@@ -175,7 +176,7 @@ static long process(struct patternRecord *pptn)
 	    case DBF_ULONG:
 	        bptr[i] = (double) ((pptn->eslo) * (pulong[i]));
 	        break;
-	    defalut:
+	    default:
 	        /* never reach here */
 	        break;
 	    }

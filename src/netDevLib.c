@@ -144,7 +144,7 @@ long parseLinkPlcCommon(
   unsigned long size;
   char *buf;
 
-  LOGMSG("devNetDev: parseLinkPlcCommon(0x%08x,0x%08x,0x%08x,0x%08x,0x%08x,0x%08x)\n",
+  LOGMSG("devNetDev: parseLinkPlcCommon(%8p,%8p,%8p,%8p,%8p,%8p)\n",
 	 plink,peer_addr,route,unit,type,addr,0,0,0);
 
   /*
@@ -171,7 +171,7 @@ long parseLinkPlcCommon(
 
   strncpy(buf, plink->value.instio.string, size);
   buf[size - 1] = '\0';
-  LOGMSG("devNetDev: buf[%d]: %s\n",size,buf,0,0,0,0,0,0,0);
+  LOGMSG("devNetDev: buf[%ld]: %s\n",size,buf,0,0,0,0,0,0,0);
 
   pc0 = strchr(buf, '&');
   if (pc0)
@@ -189,7 +189,7 @@ long parseLinkPlcCommon(
       pc1 = strchr(pc0, ')');
       if (!pc1)
 	{
-	  LOGMSG("devNetDev: pc0:0x%08x, pc1:0x%08x\n",pc0,pc1,0,0,0,0,0,0,0);
+	  LOGMSG("devNetDev: pc0:%8p, pc1:%8p\n",pc0,pc1,0,0,0,0,0,0,0);
 	  errlogPrintf("devNetDev: can't get port\n");
 	  return ERROR;
 	}
@@ -334,7 +334,7 @@ long toRecordVal(
 		 int   swap
 		 )
 {
-  LOGMSG("devNetDev: toRecordVal(0x%08x,%d,%d,0x%08x,%d,%d,%d)\n",
+  LOGMSG("devNetDev: toRecordVal(%8p,%d,%d,%8p,%d,%d,%d)\n",
 	 bptr,noff,ftvl,buf,width,ndata,swap,0,0);
 
   switch (ftvl)
@@ -377,7 +377,7 @@ LOCAL long toCharVal(
 {
   int i;
 
-  LOGMSG("devNetDev: toCharVal(0x%08x,%d,0x%08x,%d,%d)\n",
+  LOGMSG("devNetDev: toCharVal(%8p,%d,%8p,%d,%d)\n",
 	 to,noff,from,width,ndata,0,0,0,0);
 
   to += noff;
@@ -390,7 +390,7 @@ LOCAL long toCharVal(
 
 	for (i=0; i < ndata; i++)
 	  {
-	    if (swap) swap_bytes(p);
+	    if (swap) swap_bytes((uint16_t *)p);
 
 	    if ((*p & 0xff80) &&
 		(*p & 0xff80) != 0xff80)
@@ -435,7 +435,7 @@ LOCAL long toShortVal(
 {
   int i;
 
-  LOGMSG("devNetDev: toShortVal(0x%08x,%d,0x%08x,%d,%d)\n",
+  LOGMSG("devNetDev: toShortVal(%8p,%d,%8p,%d,%d)\n",
 	 to,noff,from,width,ndata,0,0,0,0);
 
   to += noff;
@@ -448,7 +448,7 @@ LOCAL long toShortVal(
 
 	for (i=0; i < ndata; i++)
 	  {
-	    if (swap) swap_bytes(p);
+	    if (swap) swap_bytes((uint16_t *)p);
 	    *to++ = (int16_t) *p++;
 	  }
       }
@@ -485,7 +485,7 @@ LOCAL long toLongVal(
 {
   int i;
 
-  LOGMSG("devNetDev: toLongVal(0x%08x,%d,0x%08x,%d,%d,%d)\n",
+  LOGMSG("devNetDev: toLongVal(%8p,%d,%8p,%d,%d,%d)\n",
 	 to,noff,from,width,ndata,swap,0,0,0);
 
   to += noff;
@@ -498,7 +498,7 @@ LOCAL long toLongVal(
 
 	for (i=0; i < ndata; i++)
 	  {
-	    if (swap) swap_bytes(p);
+	    if (swap) swap_bytes((uint16_t *)p);
 	    *to++ = (int32_t) *p++;
 	  }
       }
@@ -539,7 +539,7 @@ LOCAL long toUcharVal(
 {
   int i;
 
-  LOGMSG("devNetDev: toUcharVal(0x%08x,%d,0x%08x,%d,%d)\n",
+  LOGMSG("devNetDev: toUcharVal(%8p,%d,%8p,%d,%d)\n",
 	 to,noff,from,width,ndata,0,0,0,0);
 
   to += noff;
@@ -596,7 +596,7 @@ LOCAL long toUshortVal(
 {
   int i;
 
-  LOGMSG("devNetDev: toUshortVal(0x%08x,%d,0x%08x,%d,%d)\n",
+  LOGMSG("devNetDev: toUshortVal(%8p,%d,%8p,%d,%d)\n",
 	 to,noff,from,width,ndata,0,0,0,0);
 
   to += noff;
@@ -646,7 +646,7 @@ LOCAL long toUlongVal(
 {
   int i;
 
-  LOGMSG("devNetDev: toUlongVal(0x%08x,%d,0x%08x,%d,%d,%d)\n",
+  LOGMSG("devNetDev: toUlongVal(%8p,%d,%8p,%d,%d,%d)\n",
 	 to,noff,from,width,ndata,swap,0,0,0);
 
   to += noff;
@@ -699,7 +699,7 @@ long fromRecordVal(
 		   int   swap
 		   )
 {
-  LOGMSG("devNetDev: fromRecordVal(0x%08x,%d,0x%08x,%d,%d,%d,%d)\n",
+  LOGMSG("devNetDev: fromRecordVal(%8p,%d,%8p,%d,%d,%d,%d)\n",
 	 buf,width,bptr,noff,ftvl,ndata,swap,0,0);
 
   switch (ftvl) 
@@ -742,7 +742,7 @@ LOCAL long fromCharVal(
 {
   int i;
 
-  LOGMSG("devNetDev: fromCharVal(0x%08x,0x%08x,%d,%d,%d)\n",
+  LOGMSG("devNetDev: fromCharVal(%8p,%8p,%d,%d,%d)\n",
 	 to,from,noff,width,ndata,0,0,0,0);
 
   from += noff;
@@ -756,7 +756,7 @@ LOCAL long fromCharVal(
 	for (i=0; i < ndata; i++)
 	  {
 	    *p = (int16_t) *from++;
-	    if (swap) swap_bytes(p);
+	    if (swap) swap_bytes((uint16_t *)p);
 	    p++;
 	  }
       }
@@ -793,7 +793,7 @@ LOCAL long fromShortVal(
 {
   int i;
 
-  LOGMSG("devNetDev: fromUsohrtVal(0x%08x,0x%08x,%d,%d,%d)\n",
+  LOGMSG("devNetDev: fromUsohrtVal(%8p,%8p,%d,%d,%d)\n",
 	 to,from,noff,width,ndata,0,0,0,0);
 
   from += noff;
@@ -807,7 +807,7 @@ LOCAL long fromShortVal(
 	for (i=0; i < ndata; i++)
 	  {
 	    *p = (int16_t) *from++;
-	    if (swap) swap_bytes(p);
+	    if (swap) swap_bytes((uint16_t *)p);
 	    p++;
 	  }
       }
@@ -851,7 +851,7 @@ LOCAL long fromLongVal(
 {
   int i;
 
-  LOGMSG("devNetDev: fromLongVal(0x%08x,0x%08x,%d,%d,%d,%d)\n",
+  LOGMSG("netDevLib: fromLongVal(%8p,%8p,%d,%d,%d,%d)\n",
 	 to,from,noff,width,ndata,swap,0,0,0);
 
   from += noff;
@@ -872,7 +872,7 @@ LOCAL long fromLongVal(
 	      }
 
 	    *p = (int16_t) *from++;
-	    if (swap) swap_bytes(p);
+	    if (swap) swap_bytes((uint16_t *)p);
 	    p++;
 	  }
       }
@@ -920,7 +920,7 @@ LOCAL long fromUcharVal(
 {
   int i;
 
-  LOGMSG("devNetDev: fromUcharVal(0x%08x,0x%08x,%d,%d,%d)\n",
+  LOGMSG("devNetDev: fromUcharVal(%8p,%8p,%d,%d,%d)\n",
 	 to,from,noff,width,ndata,0,0,0,0);
 
   from += noff;
@@ -971,7 +971,7 @@ LOCAL long fromUshortVal(
 {
   int i;
 
-  LOGMSG("devNetDev: fromUsohrtVal(0x%08x,0x%08x,%d,%d,%d)\n",
+  LOGMSG("devNetDev: fromUsohrtVal(%8p,%8p,%d,%d,%d)\n",
 	 to,from,noff,width,ndata,0,0,0,0);
 
   from += noff;
@@ -1028,7 +1028,7 @@ LOCAL long fromUlongVal(
 {
   int i;
 
-  LOGMSG("devNetDev: fromUlongVal(0x%08x,0x%08x,%d,%d,%d,%d)\n",
+  LOGMSG("devNetDev: fromUlongVal(%8p,%8p,%d,%d,%d,%d)\n",
 	 to,from,noff,width,ndata,swap,0,0,0);
 
   from += noff;

@@ -86,9 +86,9 @@ LOCAL long config_so_command(
         return ERROR;
       }
 
-    sprintf(buf, "%s", pso->val);
-    strcat(buf, terminator);
-    *len = strlen(buf);
+    sprintf((char *)buf, "%s", pso->val);
+    strcat((char *)buf, terminator);
+    *len = strlen((char *)buf);
 
     return 0;
 }
@@ -106,10 +106,10 @@ LOCAL long parse_so_response(
 {
     int code;
 
-    LOGMSG("devSoMW100: parse_so_response(0x%08x,0x%08x,0x%08x,%d,0x%08x,%d)\n",
+    LOGMSG("devSoMW100: parse_so_response(%8p,0x%08x,%8p,%d,%8p,%d)\n",
 	   pxx,*option,buf,*len,device,transaction_id,0,0,0);
 
-    if (sscanf(buf, "E%d\r\n", &code) != 1)
+    if (sscanf((char *)buf, "E%d\r\n", &code) != 1)
       {
 	errlogPrintf("parse_so_response: failed to read returned error code\n");
         return ERROR;

@@ -42,7 +42,7 @@ INTEGERDSET devChannelsDarwin = {
 };
 
 epicsExportAddress(dset, devChannelsDarwin);
-
+void swap_bytes(uint16_t *);
 
 
 LOCAL long init_chan_record(struct channelsRecord *pchan)
@@ -64,7 +64,7 @@ LOCAL long init_chan_record(struct channelsRecord *pchan)
         return ERROR;
     }
 
-    if (!pchan->nelm > MAX_NUM_CHANNELS)
+    if (pchan->nelm > MAX_NUM_CHANNELS)
       {
 	errlogPrintf("devDarwin: too many number of elements\n");
         return ERROR;
@@ -155,13 +155,13 @@ LOCAL long config_chan_command(
 	return ERROR;
       }
 
-    if (*len < (nbytes = strlen(command)))
+    if (*len < (nbytes = strlen((char *)command)))
       {
 	errlogPrintf("devDarwin: buffer is running short\n");
 	return ERROR;
       }
 
-    memcpy(buf, command, strlen(command));
+    memcpy(buf, command, strlen((char *)command));
     *len = nbytes;
 
     return resp_length;
@@ -190,20 +190,20 @@ LOCAL long parse_chan_response(
     int data_length = CAHNNEL_OFFSET(nelm, alst) - TIME_STAMP_OFFSET;
     int n, m;
 
-    LOGMSG("devChanDarwin: parse_chan_response(0x%08x,0x%08x,0x%08x,%d,0x%08x,%d)\n",
+    LOGMSG("devChanDarwin: parse_chan_response(%8p,0x%08x,%8p,%d,%8p,%d)\n",
 	   pxx,*option,buf,*len,device,transaction_id,0,0,0);
 
 
     if (strncmp(pchan->mode, "EF", 2) == 0)
       {
-        p = (uint8_t *) buf + DATA_LENGTH_OFFSET;
+        p = buf + DATA_LENGTH_OFFSET;
 	if (DARWIN_NEEDS_SWAP)
 	  {
 	    /* printf("swapping Data Length\n"); */
-	    swap_bytes(p);
+	    swap_bytes((uint16_t *)p);
 	  }
 
-	if ( *((uint16_t *) p) == 0 )
+	if (p == 0)
 	  {
 	    errlogPrintf("parse_chan_response: found zero Data Length (\"%s\")\n", pchan->name);
 	    return ERROR;
@@ -226,7 +226,7 @@ LOCAL long parse_chan_response(
 #endif
 	for (n = 0; n < nelm; n++)
 	  {
-	    p = (uint8_t *) buf + CAHNNEL_OFFSET(n,alst); /* p points to Unit No. */
+	    p = buf + CAHNNEL_OFFSET(n,alst); /* p points to Unit No. */
 
 	    if ( d->unit && (*p != d->unit) )
 	      {
@@ -256,7 +256,7 @@ LOCAL long parse_chan_response(
 			(p[0]) & 0x0f, (p[0] >> 4) & 0x0f,
 			(p[1]) & 0x0f, (p[1] >> 4) & 0x0f);
 #else
-		snprintf(((uint8_t *) albp) + ALARM_MSG_SIZE*( n ),
+		snprintf(albp + ALARM_MSG_SIZE*( n ),
 			 MAX_STRING_SIZE,
 			 "L1: %d, L2: %d, L3: %d, L4: %d",
 			 (p[0]) & 0x0f, (p[0] >> 4) & 0x0f,
@@ -266,7 +266,7 @@ LOCAL long parse_chan_response(
 	    p = buf + DATA_OFFSET(n,alst); /* p points to Data on CH */
 	    if (DARWIN_NEEDS_SWAP)
 	      {
-		swap_bytes(p);
+		swap_bytes((uint16_t *)p);
 	      }
 	    bptr[n] = (double) *((short *) p); 
 
@@ -287,7 +287,7 @@ LOCAL long parse_chan_response(
 	int pos;
 	int n = 0;
 
-	if (strncmp(buf, "E1", 2) == 0)
+	if (strncmp((char *)buf, "E1", 2) == 0)
 	  {
 	    errlogPrintf("parse_chan_response: got error response (E1)\n");
 	    strncpy(pchan->mode, "EF", 2);
@@ -295,7 +295,7 @@ LOCAL long parse_chan_response(
 	  }
 
 	do {
-	  if (sscanf(buf, "%c%c%3d%6c,%1d\r\n", &sps, &sts, &chan, unit, &pos) != 5)
+	  if (sscanf((char *)buf, "%c%c%3d%6c,%1d\r\n", &sps, &sts, &chan, unit, &pos) != 5)
 	    {
 	      errlogPrintf("parse_chan_response:EL failed to read Unit/Position\n");
 	      strncpy(pchan->mode, "EF", 2);
@@ -357,7 +357,7 @@ LOCAL long parse_chan_response(
       {
 	int code;
 
-	if (sscanf(buf, "E%d\r\n", &code) != 1)
+	if (sscanf((char *)buf, "E%d\r\n", &code) != 1)
 	  {
 	    errlogPrintf("parse_chan_response: failed to read returned error code\n");
 	    strncpy(pchan->mode, "EF", 2);

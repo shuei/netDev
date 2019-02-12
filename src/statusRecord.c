@@ -121,7 +121,7 @@ static long process(pst)
 	struct statusRecord	*pst;
 {
         struct statusdset   *pdset = (struct statusdset *)(pst->dset);
-	long		 status;
+	/* long		 status; */
 	unsigned char    pact=pst->pact;
 
         if( (pdset==NULL) || (pdset->read_status==NULL) ) {
@@ -130,7 +130,8 @@ static long process(pst)
                 return(S_dev_missingSup);
         }
 
-	status=readValue(pst); /* read the new value */
+    /* status= */
+    readValue(pst); /* read the new value */
 	/* check if device support set pact */
 	if ( !pact && pst->pact ) return(0);
         pst->pact = TRUE;
@@ -200,16 +201,15 @@ static void monitor(pst)
 static long readValue(pst)
         struct statusRecord *pst;
 {
-        long            status;
-	long		nRequest;
+        long            status = 0; // avoid use of uninitialized value; is this OK?
+//	long		nRequest;
         struct statusdset   *pdset = (struct statusdset *) (pst->dset);
-
 
         if (pst->pact == TRUE){
                 status=(*pdset->read_status)(pst);
-                return(status);
+                return(status); /* it seems that return value is not used at all */
         }
 
-        return(status);
+        return(status); /* it seems that return value is not used at all */
 }
 
