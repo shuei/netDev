@@ -21,9 +21,7 @@
 #ifndef EPICS_REVISION
 #include <epicsVersion.h>
 #endif
-#if EPICS_REVISION == 14 && EPICS_MODIFICATION >= 2
 #include <epicsExport.h>
-#endif
 
 /***************************************************************
  * Status (command/response IO)
@@ -42,9 +40,7 @@ INTEGERDSET devStatusYewPlc = {
   read_status
 };
 
-#if EPICS_REVISION == 14 && EPICS_MODIFICATION >= 2
 epicsExportAddress(dset, devStatusYewPlc);
-#endif
 
 static uint16_t *u16_val;
 

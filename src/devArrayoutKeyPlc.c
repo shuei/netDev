@@ -18,9 +18,7 @@
 #ifndef EPICS_REVISION
 #include <epicsVersion.h>
 #endif
-#if EPICS_REVISION == 14 && EPICS_MODIFICATION >= 2
 #include <epicsExport.h>
-#endif
 
 /***************************************************************
  * Arrayout (command/response IO)
@@ -39,9 +37,7 @@ INTEGERDSET devAroKeyPlc = {
   write_arrayout
 };
 
-#if EPICS_REVISION == 14 && EPICS_MODIFICATION >= 2
 epicsExportAddress(dset, devAroKeyPlc);
-#endif
 
 
 LOCAL long init_arrayout_record(struct arrayoutRecord *pao)

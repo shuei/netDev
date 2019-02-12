@@ -21,9 +21,7 @@
 #ifndef EPICS_REVISION
 #include <epicsVersion.h>
 #endif
-#if EPICS_REVISION == 14 && EPICS_MODIFICATION >= 2
 #include <epicsExport.h>
-#endif
 
 #define MW100_FDCMD_BUFSIZE  256
 #define MW100_SERVER_PORT    34318

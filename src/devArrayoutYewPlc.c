@@ -21,9 +21,7 @@
 #ifndef EPICS_REVISION
 #include <epicsVersion.h>
 #endif
-#if EPICS_REVISION == 14 && EPICS_MODIFICATION >= 2
 #include <epicsExport.h>
-#endif
 
 static uint16_t *u16_val;
 
@@ -44,9 +42,7 @@ INTEGERDSET devAroYewPlc = {
   write_arrayout
 };
 
-#if EPICS_REVISION == 14 && EPICS_MODIFICATION >= 2
 epicsExportAddress(dset, devAroYewPlc);
-#endif
 
 
 LOCAL long init_arrayout_record(struct arrayoutRecord *paro)

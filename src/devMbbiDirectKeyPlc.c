@@ -18,9 +18,7 @@
 #ifndef EPICS_REVISION
 #include <epicsVersion.h>
 #endif
-#if EPICS_REVISION == 14 && EPICS_MODIFICATION >= 2
 #include <epicsExport.h>
-#endif
 
 /***************************************************************
  * Mult-bit binary input (command/response IO)
@@ -39,9 +37,7 @@ INTEGERDSET devMbbiDirectKeyPlc = {
   read_mbbiDirect
 };
 
-#if EPICS_REVISION == 14 && EPICS_MODIFICATION >= 2
 epicsExportAddress(dset, devMbbiDirectKeyPlc);
-#endif
 
 
 LOCAL long init_mbbiDirect_record( struct mbbiDirectRecord *pMbbiDirect )

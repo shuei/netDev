@@ -25,9 +25,7 @@
 #ifndef EPICS_REVISION
 #include <epicsVersion.h>
 #endif
-#if EPICS_REVISION == 14 && EPICS_MODIFICATION >= 2
 #include <epicsExport.h>
-#endif
 
 /***************************************************************
  * Analog input (command/response IO)
@@ -48,9 +46,7 @@ FLOATDSET devAiYewPlc = {
   ai_linear_convert
 };
 
-#if EPICS_REVISION == 14 && EPICS_MODIFICATION >= 2
 epicsExportAddress(dset, devAiYewPlc);
-#endif
 
 
 LOCAL long init_ai_record(struct aiRecord *pai)

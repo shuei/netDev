@@ -32,9 +32,7 @@
 #ifndef EPICS_REVISION
 #include <epicsVersion.h>
 #endif
-#if EPICS_REVISION == 14 && EPICS_MODIFICATION >= 2
 #include <epicsExport.h>
-#endif
 
 /* Create RSET - Record Support Entry Table */
 #define report NULL
@@ -75,9 +73,7 @@ struct rset chansRSET={
 	get_control_double,
 	get_alarm_double};
 
-#if EPICS_REVISION == 14 && EPICS_MODIFICATION >= 2
 epicsExportAddress(rset, chansRSET);
-#endif
 
 
 typedef struct chans_dset { /* chans dset */

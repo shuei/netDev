@@ -32,9 +32,7 @@
 #ifndef EPICS_REVISION
 #include <epicsVersion.h>
 #endif
-#if EPICS_REVISION == 14 && EPICS_MODIFICATION >= 2
 #include <epicsExport.h>
-#endif
 
 /* Create RSET - Record Support Entry Table */
 #define report NULL
@@ -75,9 +73,7 @@ struct rset channelsRSET={
 	get_control_double,
 	get_alarm_double};
 
-#if EPICS_REVISION == 14 && EPICS_MODIFICATION >= 2
 epicsExportAddress(rset, channelsRSET);
-#endif
 
 
 #define ALARM_MSG_SIZE  MAX_STRING_SIZE

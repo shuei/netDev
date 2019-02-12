@@ -18,9 +18,7 @@
 #ifndef EPICS_REVISION
 #include <epicsVersion.h>
 #endif
-#if EPICS_REVISION == 14 && EPICS_MODIFICATION >= 2
 #include <epicsExport.h>
-#endif
 
 /***************************************************************
  * Waveform (command/response IO)
@@ -39,9 +37,7 @@ INTEGERDSET devWfKeyPlc = {
   read_waveform
 };
 
-#if EPICS_REVISION == 14 && EPICS_MODIFICATION >= 2
 epicsExportAddress(dset, devWfKeyPlc);
-#endif
 
 
 LOCAL long init_waveform_record(struct waveformRecord *pwf)

@@ -25,9 +25,7 @@
 #ifndef EPICS_REVISION
 #include <epicsVersion.h>
 #endif
-#if EPICS_REVISION == 14 && EPICS_MODIFICATION >= 2
 #include <epicsExport.h>
-#endif
 
 #define DARWIN_MAX_CMND_LEN 256
 #define DARWIN_TCP_PORT_SET 34150

@@ -21,9 +21,7 @@
 #ifndef EPICS_REVISION
 #include <epicsVersion.h>
 #endif
-#if EPICS_REVISION == 14 && EPICS_MODIFICATION >= 2
 #include <epicsExport.h>
-#endif
 
 /***************************************************************
  * Mult-bit binary output (command/response IO)
@@ -42,9 +40,7 @@ INTEGERDSET devMbboDirectYewPlc = {
   write_mbboDirect
 };
 
-#if EPICS_REVISION == 14 && EPICS_MODIFICATION >= 2
 epicsExportAddress(dset, devMbboDirectYewPlc);
-#endif
 
 
 LOCAL long init_mbboDirect_record(struct mbboDirectRecord *pMbboDirect)

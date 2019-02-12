@@ -21,9 +21,7 @@
 #ifndef EPICS_REVISION
 #include <epicsVersion.h>
 #endif
-#if EPICS_REVISION == 14 && EPICS_MODIFICATION >= 2
 #include <epicsExport.h>
-#endif
 
 /***************************************************************
  * Binary input (command/response IO)
@@ -42,9 +40,7 @@ INTEGERDSET devBiYewPlc = {
   read_bi
 };
 
-#if EPICS_REVISION == 14 && EPICS_MODIFICATION >= 2
 epicsExportAddress(dset, devBiYewPlc);
-#endif
 
 
 LOCAL long init_bi_record(struct biRecord *pbi)

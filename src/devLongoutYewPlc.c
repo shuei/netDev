@@ -21,9 +21,7 @@
 #ifndef EPICS_REVISION
 #include <epicsVersion.h>
 #endif
-#if EPICS_REVISION == 14 && EPICS_MODIFICATION >= 2
 #include <epicsExport.h>
-#endif
 
 /***************************************************************
  * Long output (command/respons IO)
@@ -42,9 +40,7 @@ INTEGERDSET devLoYewPlc = {
   write_longout
 };
 
-#if EPICS_REVISION == 14 && EPICS_MODIFICATION >= 2
 epicsExportAddress(dset, devLoYewPlc);
-#endif
 
 
 LOCAL long init_longout_record(struct longoutRecord *plongout)

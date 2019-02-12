@@ -21,9 +21,7 @@
 #ifndef EPICS_REVISION
 #include <epicsVersion.h>
 #endif
-#if EPICS_REVISION == 14 && EPICS_MODIFICATION >= 2
 #include <epicsExport.h>
-#endif
 
 /***************************************************************
  * Waveform (command/response IO)
@@ -42,9 +40,7 @@ INTEGERDSET devWfYewPlc = {
   read_waveform
 };
 
-#if EPICS_REVISION == 14 && EPICS_MODIFICATION >= 2
 epicsExportAddress(dset, devWfYewPlc);
-#endif
 
 static uint16_t *u16_val;
 

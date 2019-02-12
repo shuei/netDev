@@ -18,9 +18,7 @@
 #ifndef EPICS_REVISION
 #include <epicsVersion.h>
 #endif
-#if EPICS_REVISION == 14 && EPICS_MODIFICATION >= 2
 #include <epicsExport.h>
-#endif
 
 /***************************************************************
  * Binary output (command/response IO)
@@ -39,9 +37,7 @@ INTEGERDSET devBoKeyPlc = {
   write_bo
 };
 
-#if EPICS_REVISION == 14 && EPICS_MODIFICATION >= 2
 epicsExportAddress(dset, devBoKeyPlc);
-#endif
 
 
 LOCAL long init_bo_record(struct boRecord *pbo)

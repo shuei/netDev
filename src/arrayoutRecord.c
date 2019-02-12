@@ -57,9 +57,7 @@
 #include "arrayoutRecord.h"
 #undef  GEN_SIZE_OFFSET
 
-#if EPICS_REVISION == 14 && EPICS_MODIFICATION >= 2
 #include <epicsExport.h>
-#endif
 
 /* Create RSET - Record Support Entry Table*/
 #define report NULL
@@ -80,11 +78,7 @@ static long get_graphic_double();
 static long get_control_double();
 #define get_alarm_double NULL
 
-#if EPICS_REVISION == 14 && EPICS_MODIFICATION >= 2
 rset arrayoutRSET={
-#else
-struct rset arrayoutRSET={
-#endif
 	RSETNUMBER,
 	report,
 	initialize,
@@ -104,9 +98,7 @@ struct rset arrayoutRSET={
 	get_control_double,
 	get_alarm_double };
 
-#if EPICS_REVISION == 14 && EPICS_MODIFICATION >= 2
 epicsExportAddress(rset, arrayoutRSET);
-#endif
 
 struct arodset { /* arrayout dset */
         long            number;

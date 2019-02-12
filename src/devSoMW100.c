@@ -17,9 +17,7 @@
 #ifndef EPICS_REVISION
 #include <epicsVersion.h>
 #endif
-#if EPICS_REVISION == 14 && EPICS_MODIFICATION >= 2
 #include <epicsExport.h>
-#endif
 
 /***************************************************************
  * String output (command/respons IO)
@@ -38,9 +36,7 @@ INTEGERDSET devSoMW100 = {
   write_so
 };
 
-#if EPICS_REVISION == 14 && EPICS_MODIFICATION >= 2
 epicsExportAddress(dset, devSoMW100);
-#endif
 
 
 LOCAL long init_so_record(struct stringoutRecord *pso)

@@ -22,9 +22,7 @@
 #ifndef EPICS_REVISION
 #include <epicsVersion.h>
 #endif
-#if EPICS_REVISION == 14 && EPICS_MODIFICATION >= 2
 #include <epicsExport.h>
-#endif
 
 /***************************************************************
  * Analog output (command/response IO)
@@ -45,9 +43,7 @@ FLOATDSET devAoYewPlc = {
   ao_linear_convert
 };
 
-#if EPICS_REVISION == 14 && EPICS_MODIFICATION >= 2
 epicsExportAddress(dset, devAoYewPlc);
-#endif
 
 
 LOCAL long init_ao_record(struct aoRecord *pao)

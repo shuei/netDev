@@ -16,9 +16,7 @@
 #ifndef EPICS_REVISION
 #include <epicsVersion.h>
 #endif
-#if EPICS_REVISION == 14 && EPICS_MODIFICATION >= 2
 #include <epicsExport.h>
-#endif
 
 /* cmtout = not debub
 #define DEBUG
@@ -43,9 +41,7 @@ INTEGERDSET devChannelsDarwin = {
     read_chan
 };
 
-#if EPICS_REVISION == 14 && EPICS_MODIFICATION >= 2
 epicsExportAddress(dset, devChannelsDarwin);
-#endif
 
 
 
