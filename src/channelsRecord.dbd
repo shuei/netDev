@@ -1,0 +1,2043 @@
+#******************************************************************************
+#*                         COPYRIGHT NOTIFICATION
+#*
+#* Copyright (c) All rights reserved
+#*
+#* EPICS BASE Versions 3.13.7
+#* and higher are distributed subject to a Software License Agreement found
+#* in file LICENSE that is included with this distribution.
+#* This work is based on waveformRecord.dbd
+#******************************************************************************
+recordtype(channels) {
+	include "dbCommon.dbd" 
+	field(INP,DBF_INLINK) {
+		prompt("Input Specification")
+		promptgroup(GUI_INPUTS)
+		special(SPC_NOMOD)
+		interest(1)
+	}
+	field(VAL,DBF_NOACCESS) {
+		prompt("Value")
+		asl(ASL0)
+		special(SPC_DBADDR)
+		pp(TRUE)
+		extra("void *		val")
+	}
+	field(PREC,DBF_SHORT) {
+		prompt("Display Precision")
+		promptgroup(GUI_DISPLAY)
+		interest(1)
+	}
+	field(NELM,DBF_ULONG) {
+		prompt("Number of Elements")
+		promptgroup(GUI_WAVE)
+		special(SPC_NOMOD)
+		interest(1)
+		initial("1")
+	}
+	field(NORD,DBF_ULONG) {
+		prompt("Number elements read")
+		special(SPC_NOMOD)
+	}
+	field(MODE,DBF_STRING) {
+		prompt("Operation Mode")
+		promptgroup(GUI_INPUTS)
+                pp(TRUE)
+		size(4)
+		interest(1)
+	}
+	field(ALST,DBF_UCHAR) {
+		prompt("Alarm Status")
+		interest(1)
+	}
+	field(BODR,DBF_UCHAR) {
+		prompt("Byte Order")
+		interest(1)
+	}
+	field(TSMP,DBF_STRING) {
+		prompt("Acquisition time")
+		interest(1)
+		size(40)
+		interest(1)
+	}
+	field(CH01,DBF_DOUBLE) {
+		prompt("Channel 01")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH02,DBF_DOUBLE) {
+		prompt("Channel 02")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH03,DBF_DOUBLE) {
+		prompt("Channel 03")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH04,DBF_DOUBLE) {
+		prompt("Channel 04")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH05,DBF_DOUBLE) {
+		prompt("Channel 05")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH06,DBF_DOUBLE) {
+		prompt("Channel 06")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH07,DBF_DOUBLE) {
+		prompt("Channel 07")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH08,DBF_DOUBLE) {
+		prompt("Channel 08")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH09,DBF_DOUBLE) {
+		prompt("Channel 09")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH10,DBF_DOUBLE) {
+		prompt("Channel 10")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH11,DBF_DOUBLE) {
+		prompt("Channel 11")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH12,DBF_DOUBLE) {
+		prompt("Channel 12")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH13,DBF_DOUBLE) {
+		prompt("Channel 13")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH14,DBF_DOUBLE) {
+		prompt("Channel 14")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH15,DBF_DOUBLE) {
+		prompt("Channel 15")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH16,DBF_DOUBLE) {
+		prompt("Channel 16")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH17,DBF_DOUBLE) {
+		prompt("Channel 17")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH18,DBF_DOUBLE) {
+		prompt("Channel 18")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH19,DBF_DOUBLE) {
+		prompt("Channel 19")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH20,DBF_DOUBLE) {
+		prompt("Channel 20")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH21,DBF_DOUBLE) {
+		prompt("Channel 21")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH22,DBF_DOUBLE) {
+		prompt("Channel 22")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH23,DBF_DOUBLE) {
+		prompt("Channel 23")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH24,DBF_DOUBLE) {
+		prompt("Channel 24")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH25,DBF_DOUBLE) {
+		prompt("Channel 25")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH26,DBF_DOUBLE) {
+		prompt("Channel 26")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH27,DBF_DOUBLE) {
+		prompt("Channel 27")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH28,DBF_DOUBLE) {
+		prompt("Channel 28")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH29,DBF_DOUBLE) {
+		prompt("Channel 29")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH30,DBF_DOUBLE) {
+		prompt("Channel 30")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH31,DBF_DOUBLE) {
+		prompt("Channel 31")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH32,DBF_DOUBLE) {
+		prompt("Channel 32")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH33,DBF_DOUBLE) {
+		prompt("Channel 33")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH34,DBF_DOUBLE) {
+		prompt("Channel 34")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH35,DBF_DOUBLE) {
+		prompt("Channel 35")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH36,DBF_DOUBLE) {
+		prompt("Channel 36")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH37,DBF_DOUBLE) {
+		prompt("Channel 37")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH38,DBF_DOUBLE) {
+		prompt("Channel 38")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH39,DBF_DOUBLE) {
+		prompt("Channel 39")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH40,DBF_DOUBLE) {
+		prompt("Channel 40")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH41,DBF_DOUBLE) {
+		prompt("Channel 41")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH42,DBF_DOUBLE) {
+		prompt("Channel 42")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH43,DBF_DOUBLE) {
+		prompt("Channel 43")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH44,DBF_DOUBLE) {
+		prompt("Channel 44")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH45,DBF_DOUBLE) {
+		prompt("Channel 45")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH46,DBF_DOUBLE) {
+		prompt("Channel 46")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH47,DBF_DOUBLE) {
+		prompt("Channel 47")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH48,DBF_DOUBLE) {
+		prompt("Channel 48")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH49,DBF_DOUBLE) {
+		prompt("Channel 49")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH50,DBF_DOUBLE) {
+		prompt("Channel 50")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH51,DBF_DOUBLE) {
+		prompt("Channel 51")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH52,DBF_DOUBLE) {
+		prompt("Channel 52")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH53,DBF_DOUBLE) {
+		prompt("Channel 53")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH54,DBF_DOUBLE) {
+		prompt("Channel 54")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH55,DBF_DOUBLE) {
+		prompt("Channel 55")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH56,DBF_DOUBLE) {
+		prompt("Channel 56")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH57,DBF_DOUBLE) {
+		prompt("Channel 57")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH58,DBF_DOUBLE) {
+		prompt("Channel 58")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH59,DBF_DOUBLE) {
+		prompt("Channel 59")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH60,DBF_DOUBLE) {
+		prompt("Channel 60")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH61,DBF_DOUBLE) {
+		prompt("Channel 61")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH62,DBF_DOUBLE) {
+		prompt("Channel 62")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH63,DBF_DOUBLE) {
+		prompt("Channel 63")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH64,DBF_DOUBLE) {
+		prompt("Channel 64")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH65,DBF_DOUBLE) {
+		prompt("Channel 65")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH66,DBF_DOUBLE) {
+		prompt("Channel 66")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH67,DBF_DOUBLE) {
+		prompt("Channel 67")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH68,DBF_DOUBLE) {
+		prompt("Channel 68")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH69,DBF_DOUBLE) {
+		prompt("Channel 69")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH70,DBF_DOUBLE) {
+		prompt("Channel 70")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH71,DBF_DOUBLE) {
+		prompt("Channel 71")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH72,DBF_DOUBLE) {
+		prompt("Channel 72")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH73,DBF_DOUBLE) {
+		prompt("Channel 73")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH74,DBF_DOUBLE) {
+		prompt("Channel 74")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH75,DBF_DOUBLE) {
+		prompt("Channel 75")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH76,DBF_DOUBLE) {
+		prompt("Channel 76")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH77,DBF_DOUBLE) {
+		prompt("Channel 77")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH78,DBF_DOUBLE) {
+		prompt("Channel 78")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH79,DBF_DOUBLE) {
+		prompt("Channel 79")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH80,DBF_DOUBLE) {
+		prompt("Channel 80")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH81,DBF_DOUBLE) {
+		prompt("Channel 81")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH82,DBF_DOUBLE) {
+		prompt("Channel 82")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH83,DBF_DOUBLE) {
+		prompt("Channel 83")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH84,DBF_DOUBLE) {
+		prompt("Channel 84")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH85,DBF_DOUBLE) {
+		prompt("Channel 85")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH86,DBF_DOUBLE) {
+		prompt("Channel 86")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH87,DBF_DOUBLE) {
+		prompt("Channel 87")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH88,DBF_DOUBLE) {
+		prompt("Channel 88")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH89,DBF_DOUBLE) {
+		prompt("Channel 89")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH90,DBF_DOUBLE) {
+		prompt("Channel 90")
+		interest(1)
+		pp(TRUE)
+	}
+	field(AL01,DBF_STRING) {
+		prompt("Alarm Status: CH01")
+		interest(1)
+		pp(TRUE)
+		size(40)
+	}
+	field(AL02,DBF_STRING) {
+		prompt("Alarm Status: CH02")
+		interest(1)
+		pp(TRUE)
+		size(40)
+	}
+	field(AL03,DBF_STRING) {
+		prompt("Alarm Status: CH03")
+		interest(1)
+		pp(TRUE)
+		size(40)
+	}
+	field(AL04,DBF_STRING) {
+		prompt("Alarm Status: CH04")
+		interest(1)
+		pp(TRUE)
+		size(40)
+	}
+	field(AL05,DBF_STRING) {
+		prompt("Alarm Status: CH05")
+		interest(1)
+		pp(TRUE)
+		size(40)
+	}
+	field(AL06,DBF_STRING) {
+		prompt("Alarm Status: CH06")
+		interest(1)
+		pp(TRUE)
+		size(40)
+	}
+	field(AL07,DBF_STRING) {
+		prompt("Alarm Status: CH07")
+		interest(1)
+		pp(TRUE)
+		size(40)
+	}
+	field(AL08,DBF_STRING) {
+		prompt("Alarm Status: CH08")
+		interest(1)
+		pp(TRUE)
+		size(40)
+	}
+	field(AL09,DBF_STRING) {
+		prompt("Alarm Status: CH09")
+		interest(1)
+		pp(TRUE)
+		size(40)
+	}
+	field(AL10,DBF_STRING) {
+		prompt("Alarm Status: CH10")
+		interest(1)
+		pp(TRUE)
+		size(40)
+	}
+	field(AL11,DBF_STRING) {
+		prompt("Alarm Status: CH11")
+		interest(1)
+		pp(TRUE)
+		size(40)
+	}
+	field(AL12,DBF_STRING) {
+		prompt("Alarm Status: CH12")
+		interest(1)
+		pp(TRUE)
+		size(40)
+	}
+	field(AL13,DBF_STRING) {
+		prompt("Alarm Status: CH13")
+		interest(1)
+		pp(TRUE)
+		size(40)
+	}
+	field(AL14,DBF_STRING) {
+		prompt("Alarm Status: CH14")
+		interest(1)
+		pp(TRUE)
+		size(40)
+	}
+	field(AL15,DBF_STRING) {
+		prompt("Alarm Status: CH15")
+		interest(1)
+		pp(TRUE)
+		size(40)
+	}
+	field(AL16,DBF_STRING) {
+		prompt("Alarm Status: CH16")
+		interest(1)
+		pp(TRUE)
+		size(40)
+	}
+	field(AL17,DBF_STRING) {
+		prompt("Alarm Status: CH17")
+		interest(1)
+		pp(TRUE)
+		size(40)
+	}
+	field(AL18,DBF_STRING) {
+		prompt("Alarm Status: CH18")
+		interest(1)
+		pp(TRUE)
+		size(40)
+	}
+	field(AL19,DBF_STRING) {
+		prompt("Alarm Status: CH19")
+		interest(1)
+		pp(TRUE)
+		size(40)
+	}
+	field(AL20,DBF_STRING) {
+		prompt("Alarm Status: CH20")
+		interest(1)
+		pp(TRUE)
+		size(40)
+	}
+	field(AL21,DBF_STRING) {
+		prompt("Alarm Status: CH21")
+		interest(1)
+		pp(TRUE)
+		size(40)
+	}
+	field(AL22,DBF_STRING) {
+		prompt("Alarm Status: CH22")
+		interest(1)
+		pp(TRUE)
+		size(40)
+	}
+	field(AL23,DBF_STRING) {
+		prompt("Alarm Status: CH23")
+		interest(1)
+		pp(TRUE)
+		size(40)
+	}
+	field(AL24,DBF_STRING) {
+		prompt("Alarm Status: CH24")
+		interest(1)
+		pp(TRUE)
+		size(40)
+	}
+	field(AL25,DBF_STRING) {
+		prompt("Alarm Status: CH25")
+		interest(1)
+		pp(TRUE)
+		size(40)
+	}
+	field(AL26,DBF_STRING) {
+		prompt("Alarm Status: CH26")
+		interest(1)
+		pp(TRUE)
+		size(40)
+	}
+	field(AL27,DBF_STRING) {
+		prompt("Alarm Status: CH27")
+		interest(1)
+		pp(TRUE)
+		size(40)
+	}
+	field(AL28,DBF_STRING) {
+		prompt("Alarm Status: CH28")
+		interest(1)
+		pp(TRUE)
+		size(40)
+	}
+	field(AL29,DBF_STRING) {
+		prompt("Alarm Status: CH29")
+		interest(1)
+		pp(TRUE)
+		size(40)
+	}
+	field(AL30,DBF_STRING) {
+		prompt("Alarm Status: CH30")
+		interest(1)
+		pp(TRUE)
+		size(40)
+	}
+	field(AL31,DBF_STRING) {
+		prompt("Alarm Status: CH31")
+		interest(1)
+		pp(TRUE)
+		size(40)
+	}
+	field(AL32,DBF_STRING) {
+		prompt("Alarm Status: CH32")
+		interest(1)
+		pp(TRUE)
+		size(40)
+	}
+	field(AL33,DBF_STRING) {
+		prompt("Alarm Status: CH33")
+		interest(1)
+		pp(TRUE)
+		size(40)
+	}
+	field(AL34,DBF_STRING) {
+		prompt("Alarm Status: CH34")
+		interest(1)
+		pp(TRUE)
+		size(40)
+	}
+	field(AL35,DBF_STRING) {
+		prompt("Alarm Status: CH35")
+		interest(1)
+		pp(TRUE)
+		size(40)
+	}
+	field(AL36,DBF_STRING) {
+		prompt("Alarm Status: CH36")
+		interest(1)
+		pp(TRUE)
+		size(40)
+	}
+	field(AL37,DBF_STRING) {
+		prompt("Alarm Status: CH37")
+		interest(1)
+		pp(TRUE)
+		size(40)
+	}
+	field(AL38,DBF_STRING) {
+		prompt("Alarm Status: CH38")
+		interest(1)
+		pp(TRUE)
+		size(40)
+	}
+	field(AL39,DBF_STRING) {
+		prompt("Alarm Status: CH39")
+		interest(1)
+		pp(TRUE)
+		size(40)
+	}
+	field(AL40,DBF_STRING) {
+		prompt("Alarm Status: CH40")
+		interest(1)
+		pp(TRUE)
+		size(40)
+	}
+	field(AL41,DBF_STRING) {
+		prompt("Alarm Status: CH41")
+		interest(1)
+		pp(TRUE)
+		size(40)
+	}
+	field(AL42,DBF_STRING) {
+		prompt("Alarm Status: CH42")
+		interest(1)
+		pp(TRUE)
+		size(40)
+	}
+	field(AL43,DBF_STRING) {
+		prompt("Alarm Status: CH43")
+		interest(1)
+		pp(TRUE)
+		size(40)
+	}
+	field(AL44,DBF_STRING) {
+		prompt("Alarm Status: CH44")
+		interest(1)
+		pp(TRUE)
+		size(40)
+	}
+	field(AL45,DBF_STRING) {
+		prompt("Alarm Status: CH45")
+		interest(1)
+		pp(TRUE)
+		size(40)
+	}
+	field(AL46,DBF_STRING) {
+		prompt("Alarm Status: CH46")
+		interest(1)
+		pp(TRUE)
+		size(40)
+	}
+	field(AL47,DBF_STRING) {
+		prompt("Alarm Status: CH47")
+		interest(1)
+		pp(TRUE)
+		size(40)
+	}
+	field(AL48,DBF_STRING) {
+		prompt("Alarm Status: CH48")
+		interest(1)
+		pp(TRUE)
+		size(40)
+	}
+	field(AL49,DBF_STRING) {
+		prompt("Alarm Status: CH49")
+		interest(1)
+		pp(TRUE)
+		size(40)
+	}
+	field(AL50,DBF_STRING) {
+		prompt("Alarm Status: CH50")
+		interest(1)
+		pp(TRUE)
+		size(40)
+	}
+	field(AL51,DBF_STRING) {
+		prompt("Alarm Status: CH51")
+		interest(1)
+		pp(TRUE)
+		size(40)
+	}
+	field(AL52,DBF_STRING) {
+		prompt("Alarm Status: CH52")
+		interest(1)
+		pp(TRUE)
+		size(40)
+	}
+	field(AL53,DBF_STRING) {
+		prompt("Alarm Status: CH53")
+		interest(1)
+		pp(TRUE)
+		size(40)
+	}
+	field(AL54,DBF_STRING) {
+		prompt("Alarm Status: CH54")
+		interest(1)
+		pp(TRUE)
+		size(40)
+	}
+	field(AL55,DBF_STRING) {
+		prompt("Alarm Status: CH55")
+		interest(1)
+		pp(TRUE)
+		size(40)
+	}
+	field(AL56,DBF_STRING) {
+		prompt("Alarm Status: CH56")
+		interest(1)
+		pp(TRUE)
+		size(40)
+	}
+	field(AL57,DBF_STRING) {
+		prompt("Alarm Status: CH57")
+		interest(1)
+		pp(TRUE)
+		size(40)
+	}
+	field(AL58,DBF_STRING) {
+		prompt("Alarm Status: CH58")
+		interest(1)
+		pp(TRUE)
+		size(40)
+	}
+	field(AL59,DBF_STRING) {
+		prompt("Alarm Status: CH59")
+		interest(1)
+		pp(TRUE)
+		size(40)
+	}
+	field(AL60,DBF_STRING) {
+		prompt("Alarm Status: CH60")
+		interest(1)
+		pp(TRUE)
+		size(40)
+	}
+	field(AL61,DBF_STRING) {
+		prompt("Alarm Status: CH61")
+		interest(1)
+		pp(TRUE)
+		size(40)
+	}
+	field(AL62,DBF_STRING) {
+		prompt("Alarm Status: CH62")
+		interest(1)
+		pp(TRUE)
+		size(40)
+	}
+	field(AL63,DBF_STRING) {
+		prompt("Alarm Status: CH63")
+		interest(1)
+		pp(TRUE)
+		size(40)
+	}
+	field(AL64,DBF_STRING) {
+		prompt("Alarm Status: CH64")
+		interest(1)
+		pp(TRUE)
+		size(40)
+	}
+	field(AL65,DBF_STRING) {
+		prompt("Alarm Status: CH65")
+		interest(1)
+		pp(TRUE)
+		size(40)
+	}
+	field(AL66,DBF_STRING) {
+		prompt("Alarm Status: CH66")
+		interest(1)
+		pp(TRUE)
+		size(40)
+	}
+	field(AL67,DBF_STRING) {
+		prompt("Alarm Status: CH67")
+		interest(1)
+		pp(TRUE)
+		size(40)
+	}
+	field(AL68,DBF_STRING) {
+		prompt("Alarm Status: CH68")
+		interest(1)
+		pp(TRUE)
+		size(40)
+	}
+	field(AL69,DBF_STRING) {
+		prompt("Alarm Status: CH69")
+		interest(1)
+		pp(TRUE)
+		size(40)
+	}
+	field(AL70,DBF_STRING) {
+		prompt("Alarm Status: CH70")
+		interest(1)
+		pp(TRUE)
+		size(40)
+	}
+	field(AL71,DBF_STRING) {
+		prompt("Alarm Status: CH71")
+		interest(1)
+		pp(TRUE)
+		size(40)
+	}
+	field(AL72,DBF_STRING) {
+		prompt("Alarm Status: CH72")
+		interest(1)
+		pp(TRUE)
+		size(40)
+	}
+	field(AL73,DBF_STRING) {
+		prompt("Alarm Status: CH73")
+		interest(1)
+		pp(TRUE)
+		size(40)
+	}
+	field(AL74,DBF_STRING) {
+		prompt("Alarm Status: CH74")
+		interest(1)
+		pp(TRUE)
+		size(40)
+	}
+	field(AL75,DBF_STRING) {
+		prompt("Alarm Status: CH75")
+		interest(1)
+		pp(TRUE)
+		size(40)
+	}
+	field(AL76,DBF_STRING) {
+		prompt("Alarm Status: CH76")
+		interest(1)
+		pp(TRUE)
+		size(40)
+	}
+	field(AL77,DBF_STRING) {
+		prompt("Alarm Status: CH77")
+		interest(1)
+		pp(TRUE)
+		size(40)
+	}
+	field(AL78,DBF_STRING) {
+		prompt("Alarm Status: CH78")
+		interest(1)
+		pp(TRUE)
+		size(40)
+	}
+	field(AL79,DBF_STRING) {
+		prompt("Alarm Status: CH79")
+		interest(1)
+		pp(TRUE)
+		size(40)
+	}
+	field(AL80,DBF_STRING) {
+		prompt("Alarm Status: CH80")
+		interest(1)
+		pp(TRUE)
+		size(40)
+	}
+	field(AL81,DBF_STRING) {
+		prompt("Alarm Status: CH81")
+		interest(1)
+		pp(TRUE)
+		size(40)
+	}
+	field(AL82,DBF_STRING) {
+		prompt("Alarm Status: CH82")
+		interest(1)
+		pp(TRUE)
+		size(40)
+	}
+	field(AL83,DBF_STRING) {
+		prompt("Alarm Status: CH83")
+		interest(1)
+		pp(TRUE)
+		size(40)
+	}
+	field(AL84,DBF_STRING) {
+		prompt("Alarm Status: CH84")
+		interest(1)
+		pp(TRUE)
+		size(40)
+	}
+	field(AL85,DBF_STRING) {
+		prompt("Alarm Status: CH85")
+		interest(1)
+		pp(TRUE)
+		size(40)
+	}
+	field(AL86,DBF_STRING) {
+		prompt("Alarm Status: CH86")
+		interest(1)
+		pp(TRUE)
+		size(40)
+	}
+	field(AL87,DBF_STRING) {
+		prompt("Alarm Status: CH87")
+		interest(1)
+		pp(TRUE)
+		size(40)
+	}
+	field(AL88,DBF_STRING) {
+		prompt("Alarm Status: CH88")
+		interest(1)
+		pp(TRUE)
+		size(40)
+	}
+	field(AL89,DBF_STRING) {
+		prompt("Alarm Status: CH89")
+		interest(1)
+		pp(TRUE)
+		size(40)
+	}
+	field(AL90,DBF_STRING) {
+		prompt("Alarm Status: CH90")
+		interest(1)
+		pp(TRUE)
+		size(40)
+	}
+	field(EU01,DBF_STRING) {
+		prompt("Engineering Unit 01")
+		interest(1)
+		pp(TRUE)
+		size(8)
+	}
+	field(EU02,DBF_STRING) {
+		prompt("Engineering Unit 02")
+		interest(1)
+		pp(TRUE)
+		size(8)
+	}
+	field(EU03,DBF_STRING) {
+		prompt("Engineering Unit 03")
+		interest(1)
+		pp(TRUE)
+		size(8)
+	}
+	field(EU04,DBF_STRING) {
+		prompt("Engineering Unit 04")
+		interest(1)
+		pp(TRUE)
+		size(8)
+	}
+	field(EU05,DBF_STRING) {
+		prompt("Engineering Unit 05")
+		interest(1)
+		pp(TRUE)
+		size(8)
+	}
+	field(EU06,DBF_STRING) {
+		prompt("Engineering Unit 06")
+		interest(1)
+		pp(TRUE)
+		size(8)
+	}
+	field(EU07,DBF_STRING) {
+		prompt("Engineering Unit 07")
+		interest(1)
+		pp(TRUE)
+		size(8)
+	}
+	field(EU08,DBF_STRING) {
+		prompt("Engineering Unit 08")
+		interest(1)
+		pp(TRUE)
+		size(8)
+	}
+	field(EU09,DBF_STRING) {
+		prompt("Engineering Unit 09")
+		interest(1)
+		pp(TRUE)
+		size(8)
+	}
+	field(EU10,DBF_STRING) {
+		prompt("Engineering Unit 10")
+		interest(1)
+		pp(TRUE)
+		size(8)
+	}
+	field(EU11,DBF_STRING) {
+		prompt("Engineering Unit 11")
+		interest(1)
+		pp(TRUE)
+		size(8)
+	}
+	field(EU12,DBF_STRING) {
+		prompt("Engineering Unit 12")
+		interest(1)
+		pp(TRUE)
+		size(8)
+	}
+	field(EU13,DBF_STRING) {
+		prompt("Engineering Unit 13")
+		interest(1)
+		pp(TRUE)
+		size(8)
+	}
+	field(EU14,DBF_STRING) {
+		prompt("Engineering Unit 14")
+		interest(1)
+		pp(TRUE)
+		size(8)
+	}
+	field(EU15,DBF_STRING) {
+		prompt("Engineering Unit 15")
+		interest(1)
+		pp(TRUE)
+		size(8)
+	}
+	field(EU16,DBF_STRING) {
+		prompt("Engineering Unit 16")
+		interest(1)
+		pp(TRUE)
+		size(8)
+	}
+	field(EU17,DBF_STRING) {
+		prompt("Engineering Unit 17")
+		interest(1)
+		pp(TRUE)
+		size(8)
+	}
+	field(EU18,DBF_STRING) {
+		prompt("Engineering Unit 18")
+		interest(1)
+		pp(TRUE)
+		size(8)
+	}
+	field(EU19,DBF_STRING) {
+		prompt("Engineering Unit 19")
+		interest(1)
+		pp(TRUE)
+		size(8)
+	}
+	field(EU20,DBF_STRING) {
+		prompt("Engineering Unit 20")
+		interest(1)
+		pp(TRUE)
+		size(8)
+	}
+	field(EU21,DBF_STRING) {
+		prompt("Engineering Unit 21")
+		interest(1)
+		pp(TRUE)
+		size(8)
+	}
+	field(EU22,DBF_STRING) {
+		prompt("Engineering Unit 22")
+		interest(1)
+		pp(TRUE)
+		size(8)
+	}
+	field(EU23,DBF_STRING) {
+		prompt("Engineering Unit 23")
+		interest(1)
+		pp(TRUE)
+		size(8)
+	}
+	field(EU24,DBF_STRING) {
+		prompt("Engineering Unit 24")
+		interest(1)
+		pp(TRUE)
+		size(8)
+	}
+	field(EU25,DBF_STRING) {
+		prompt("Engineering Unit 25")
+		interest(1)
+		pp(TRUE)
+		size(8)
+	}
+	field(EU26,DBF_STRING) {
+		prompt("Engineering Unit 26")
+		interest(1)
+		pp(TRUE)
+		size(8)
+	}
+	field(EU27,DBF_STRING) {
+		prompt("Engineering Unit 27")
+		interest(1)
+		pp(TRUE)
+		size(8)
+	}
+	field(EU28,DBF_STRING) {
+		prompt("Engineering Unit 28")
+		interest(1)
+		pp(TRUE)
+		size(8)
+	}
+	field(EU29,DBF_STRING) {
+		prompt("Engineering Unit 29")
+		interest(1)
+		pp(TRUE)
+		size(8)
+	}
+	field(EU30,DBF_STRING) {
+		prompt("Engineering Unit 30")
+		interest(1)
+		pp(TRUE)
+		size(8)
+	}
+	field(EU31,DBF_STRING) {
+		prompt("Engineering Unit 31")
+		interest(1)
+		pp(TRUE)
+		size(8)
+	}
+	field(EU32,DBF_STRING) {
+		prompt("Engineering Unit 32")
+		interest(1)
+		pp(TRUE)
+		size(8)
+	}
+	field(EU33,DBF_STRING) {
+		prompt("Engineering Unit 33")
+		interest(1)
+		pp(TRUE)
+		size(8)
+	}
+	field(EU34,DBF_STRING) {
+		prompt("Engineering Unit 34")
+		interest(1)
+		pp(TRUE)
+		size(8)
+	}
+	field(EU35,DBF_STRING) {
+		prompt("Engineering Unit 35")
+		interest(1)
+		pp(TRUE)
+		size(8)
+	}
+	field(EU36,DBF_STRING) {
+		prompt("Engineering Unit 36")
+		interest(1)
+		pp(TRUE)
+		size(8)
+	}
+	field(EU37,DBF_STRING) {
+		prompt("Engineering Unit 37")
+		interest(1)
+		pp(TRUE)
+		size(8)
+	}
+	field(EU38,DBF_STRING) {
+		prompt("Engineering Unit 38")
+		interest(1)
+		pp(TRUE)
+		size(8)
+	}
+	field(EU39,DBF_STRING) {
+		prompt("Engineering Unit 39")
+		interest(1)
+		pp(TRUE)
+		size(8)
+	}
+	field(EU40,DBF_STRING) {
+		prompt("Engineering Unit 40")
+		interest(1)
+		pp(TRUE)
+		size(8)
+	}
+	field(EU41,DBF_STRING) {
+		prompt("Engineering Unit 41")
+		interest(1)
+		pp(TRUE)
+		size(8)
+	}
+	field(EU42,DBF_STRING) {
+		prompt("Engineering Unit 42")
+		interest(1)
+		pp(TRUE)
+		size(8)
+	}
+	field(EU43,DBF_STRING) {
+		prompt("Engineering Unit 43")
+		interest(1)
+		pp(TRUE)
+		size(8)
+	}
+	field(EU44,DBF_STRING) {
+		prompt("Engineering Unit 44")
+		interest(1)
+		pp(TRUE)
+		size(8)
+	}
+	field(EU45,DBF_STRING) {
+		prompt("Engineering Unit 45")
+		interest(1)
+		pp(TRUE)
+		size(8)
+	}
+	field(EU46,DBF_STRING) {
+		prompt("Engineering Unit 46")
+		interest(1)
+		pp(TRUE)
+		size(8)
+	}
+	field(EU47,DBF_STRING) {
+		prompt("Engineering Unit 47")
+		interest(1)
+		pp(TRUE)
+		size(8)
+	}
+	field(EU48,DBF_STRING) {
+		prompt("Engineering Unit 48")
+		interest(1)
+		pp(TRUE)
+		size(8)
+	}
+	field(EU49,DBF_STRING) {
+		prompt("Engineering Unit 49")
+		interest(1)
+		pp(TRUE)
+		size(8)
+	}
+	field(EU50,DBF_STRING) {
+		prompt("Engineering Unit 50")
+		interest(1)
+		pp(TRUE)
+		size(8)
+	}
+	field(EU51,DBF_STRING) {
+		prompt("Engineering Unit 51")
+		interest(1)
+		pp(TRUE)
+		size(8)
+	}
+	field(EU52,DBF_STRING) {
+		prompt("Engineering Unit 52")
+		interest(1)
+		pp(TRUE)
+		size(8)
+	}
+	field(EU53,DBF_STRING) {
+		prompt("Engineering Unit 53")
+		interest(1)
+		pp(TRUE)
+		size(8)
+	}
+	field(EU54,DBF_STRING) {
+		prompt("Engineering Unit 54")
+		interest(1)
+		pp(TRUE)
+		size(8)
+	}
+	field(EU55,DBF_STRING) {
+		prompt("Engineering Unit 55")
+		interest(1)
+		pp(TRUE)
+		size(8)
+	}
+	field(EU56,DBF_STRING) {
+		prompt("Engineering Unit 56")
+		interest(1)
+		pp(TRUE)
+		size(8)
+	}
+	field(EU57,DBF_STRING) {
+		prompt("Engineering Unit 57")
+		interest(1)
+		pp(TRUE)
+		size(8)
+	}
+	field(EU58,DBF_STRING) {
+		prompt("Engineering Unit 58")
+		interest(1)
+		pp(TRUE)
+		size(8)
+	}
+	field(EU59,DBF_STRING) {
+		prompt("Engineering Unit 59")
+		interest(1)
+		pp(TRUE)
+		size(8)
+	}
+	field(EU60,DBF_STRING) {
+		prompt("Engineering Unit 60")
+		interest(1)
+		pp(TRUE)
+		size(8)
+	}
+	field(EU61,DBF_STRING) {
+		prompt("Engineering Unit 61")
+		interest(1)
+		pp(TRUE)
+		size(8)
+	}
+	field(EU62,DBF_STRING) {
+		prompt("Engineering Unit 62")
+		interest(1)
+		pp(TRUE)
+		size(8)
+	}
+	field(EU63,DBF_STRING) {
+		prompt("Engineering Unit 63")
+		interest(1)
+		pp(TRUE)
+		size(8)
+	}
+	field(EU64,DBF_STRING) {
+		prompt("Engineering Unit 64")
+		interest(1)
+		pp(TRUE)
+		size(8)
+	}
+	field(EU65,DBF_STRING) {
+		prompt("Engineering Unit 65")
+		interest(1)
+		pp(TRUE)
+		size(8)
+	}
+	field(EU66,DBF_STRING) {
+		prompt("Engineering Unit 66")
+		interest(1)
+		pp(TRUE)
+		size(8)
+	}
+	field(EU67,DBF_STRING) {
+		prompt("Engineering Unit 67")
+		interest(1)
+		pp(TRUE)
+		size(8)
+	}
+	field(EU68,DBF_STRING) {
+		prompt("Engineering Unit 68")
+		interest(1)
+		pp(TRUE)
+		size(8)
+	}
+	field(EU69,DBF_STRING) {
+		prompt("Engineering Unit 69")
+		interest(1)
+		pp(TRUE)
+		size(8)
+	}
+	field(EU70,DBF_STRING) {
+		prompt("Engineering Unit 70")
+		interest(1)
+		pp(TRUE)
+		size(8)
+	}
+	field(EU71,DBF_STRING) {
+		prompt("Engineering Unit 71")
+		interest(1)
+		pp(TRUE)
+		size(8)
+	}
+	field(EU72,DBF_STRING) {
+		prompt("Engineering Unit 72")
+		interest(1)
+		pp(TRUE)
+		size(8)
+	}
+	field(EU73,DBF_STRING) {
+		prompt("Engineering Unit 73")
+		interest(1)
+		pp(TRUE)
+		size(8)
+	}
+	field(EU74,DBF_STRING) {
+		prompt("Engineering Unit 74")
+		interest(1)
+		pp(TRUE)
+		size(8)
+	}
+	field(EU75,DBF_STRING) {
+		prompt("Engineering Unit 75")
+		interest(1)
+		pp(TRUE)
+		size(8)
+	}
+	field(EU76,DBF_STRING) {
+		prompt("Engineering Unit 76")
+		interest(1)
+		pp(TRUE)
+		size(8)
+	}
+	field(EU77,DBF_STRING) {
+		prompt("Engineering Unit 77")
+		interest(1)
+		pp(TRUE)
+		size(8)
+	}
+	field(EU78,DBF_STRING) {
+		prompt("Engineering Unit 78")
+		interest(1)
+		pp(TRUE)
+		size(8)
+	}
+	field(EU79,DBF_STRING) {
+		prompt("Engineering Unit 79")
+		interest(1)
+		pp(TRUE)
+		size(8)
+	}
+	field(EU80,DBF_STRING) {
+		prompt("Engineering Unit 80")
+		interest(1)
+		pp(TRUE)
+		size(8)
+	}
+	field(EU81,DBF_STRING) {
+		prompt("Engineering Unit 81")
+		interest(1)
+		pp(TRUE)
+		size(8)
+	}
+	field(EU82,DBF_STRING) {
+		prompt("Engineering Unit 82")
+		interest(1)
+		pp(TRUE)
+		size(8)
+	}
+	field(EU83,DBF_STRING) {
+		prompt("Engineering Unit 83")
+		interest(1)
+		pp(TRUE)
+		size(8)
+	}
+	field(EU84,DBF_STRING) {
+		prompt("Engineering Unit 84")
+		interest(1)
+		pp(TRUE)
+		size(8)
+	}
+	field(EU85,DBF_STRING) {
+		prompt("Engineering Unit 85")
+		interest(1)
+		pp(TRUE)
+		size(8)
+	}
+	field(EU86,DBF_STRING) {
+		prompt("Engineering Unit 86")
+		interest(1)
+		pp(TRUE)
+		size(8)
+	}
+	field(EU87,DBF_STRING) {
+		prompt("Engineering Unit 87")
+		interest(1)
+		pp(TRUE)
+		size(8)
+	}
+	field(EU88,DBF_STRING) {
+		prompt("Engineering Unit 88")
+		interest(1)
+		pp(TRUE)
+		size(8)
+	}
+	field(EU89,DBF_STRING) {
+		prompt("Engineering Unit 89")
+		interest(1)
+		pp(TRUE)
+		size(8)
+	}
+	field(EU90,DBF_STRING) {
+		prompt("Engineering Unit 90")
+		interest(1)
+		pp(TRUE)
+		size(8)
+	}
+	field(PP01,DBF_SHORT) {
+		prompt("Point Position 01")
+		interest(1)
+		pp(TRUE)
+	}
+	field(PP02,DBF_SHORT) {
+		prompt("Point Position 02")
+		interest(1)
+		pp(TRUE)
+	}
+	field(PP03,DBF_SHORT) {
+		prompt("Point Position 03")
+		interest(1)
+		pp(TRUE)
+	}
+	field(PP04,DBF_SHORT) {
+		prompt("Point Position 04")
+		interest(1)
+		pp(TRUE)
+	}
+	field(PP05,DBF_SHORT) {
+		prompt("Point Position 05")
+		interest(1)
+		pp(TRUE)
+	}
+	field(PP06,DBF_SHORT) {
+		prompt("Point Position 06")
+		interest(1)
+		pp(TRUE)
+	}
+	field(PP07,DBF_SHORT) {
+		prompt("Point Position 07")
+		interest(1)
+		pp(TRUE)
+	}
+	field(PP08,DBF_SHORT) {
+		prompt("Point Position 08")
+		interest(1)
+		pp(TRUE)
+	}
+	field(PP09,DBF_SHORT) {
+		prompt("Point Position 09")
+		interest(1)
+		pp(TRUE)
+	}
+	field(PP10,DBF_SHORT) {
+		prompt("Point Position 10")
+		interest(1)
+		pp(TRUE)
+	}
+	field(PP11,DBF_SHORT) {
+		prompt("Point Position 11")
+		interest(1)
+		pp(TRUE)
+	}
+	field(PP12,DBF_SHORT) {
+		prompt("Point Position 12")
+		interest(1)
+		pp(TRUE)
+	}
+	field(PP13,DBF_SHORT) {
+		prompt("Point Position 13")
+		interest(1)
+		pp(TRUE)
+	}
+	field(PP14,DBF_SHORT) {
+		prompt("Point Position 14")
+		interest(1)
+		pp(TRUE)
+	}
+	field(PP15,DBF_SHORT) {
+		prompt("Point Position 15")
+		interest(1)
+		pp(TRUE)
+	}
+	field(PP16,DBF_SHORT) {
+		prompt("Point Position 16")
+		interest(1)
+		pp(TRUE)
+	}
+	field(PP17,DBF_SHORT) {
+		prompt("Point Position 17")
+		interest(1)
+		pp(TRUE)
+	}
+	field(PP18,DBF_SHORT) {
+		prompt("Point Position 18")
+		interest(1)
+		pp(TRUE)
+	}
+	field(PP19,DBF_SHORT) {
+		prompt("Point Position 19")
+		interest(1)
+		pp(TRUE)
+	}
+	field(PP20,DBF_SHORT) {
+		prompt("Point Position 20")
+		interest(1)
+		pp(TRUE)
+	}
+	field(PP21,DBF_SHORT) {
+		prompt("Point Position 21")
+		interest(1)
+		pp(TRUE)
+	}
+	field(PP22,DBF_SHORT) {
+		prompt("Point Position 22")
+		interest(1)
+		pp(TRUE)
+	}
+	field(PP23,DBF_SHORT) {
+		prompt("Point Position 23")
+		interest(1)
+		pp(TRUE)
+	}
+	field(PP24,DBF_SHORT) {
+		prompt("Point Position 24")
+		interest(1)
+		pp(TRUE)
+	}
+	field(PP25,DBF_SHORT) {
+		prompt("Point Position 25")
+		interest(1)
+		pp(TRUE)
+	}
+	field(PP26,DBF_SHORT) {
+		prompt("Point Position 26")
+		interest(1)
+		pp(TRUE)
+	}
+	field(PP27,DBF_SHORT) {
+		prompt("Point Position 27")
+		interest(1)
+		pp(TRUE)
+	}
+	field(PP28,DBF_SHORT) {
+		prompt("Point Position 28")
+		interest(1)
+		pp(TRUE)
+	}
+	field(PP29,DBF_SHORT) {
+		prompt("Point Position 29")
+		interest(1)
+		pp(TRUE)
+	}
+	field(PP30,DBF_SHORT) {
+		prompt("Point Position 30")
+		interest(1)
+		pp(TRUE)
+	}
+	field(PP31,DBF_SHORT) {
+		prompt("Point Position 31")
+		interest(1)
+		pp(TRUE)
+	}
+	field(PP32,DBF_SHORT) {
+		prompt("Point Position 32")
+		interest(1)
+		pp(TRUE)
+	}
+	field(PP33,DBF_SHORT) {
+		prompt("Point Position 33")
+		interest(1)
+		pp(TRUE)
+	}
+	field(PP34,DBF_SHORT) {
+		prompt("Point Position 34")
+		interest(1)
+		pp(TRUE)
+	}
+	field(PP35,DBF_SHORT) {
+		prompt("Point Position 35")
+		interest(1)
+		pp(TRUE)
+	}
+	field(PP36,DBF_SHORT) {
+		prompt("Point Position 36")
+		interest(1)
+		pp(TRUE)
+	}
+	field(PP37,DBF_SHORT) {
+		prompt("Point Position 37")
+		interest(1)
+		pp(TRUE)
+	}
+	field(PP38,DBF_SHORT) {
+		prompt("Point Position 38")
+		interest(1)
+		pp(TRUE)
+	}
+	field(PP39,DBF_SHORT) {
+		prompt("Point Position 39")
+		interest(1)
+		pp(TRUE)
+	}
+	field(PP40,DBF_SHORT) {
+		prompt("Point Position 40")
+		interest(1)
+		pp(TRUE)
+	}
+	field(PP41,DBF_SHORT) {
+		prompt("Point Position 41")
+		interest(1)
+		pp(TRUE)
+	}
+	field(PP42,DBF_SHORT) {
+		prompt("Point Position 42")
+		interest(1)
+		pp(TRUE)
+	}
+	field(PP43,DBF_SHORT) {
+		prompt("Point Position 43")
+		interest(1)
+		pp(TRUE)
+	}
+	field(PP44,DBF_SHORT) {
+		prompt("Point Position 44")
+		interest(1)
+		pp(TRUE)
+	}
+	field(PP45,DBF_SHORT) {
+		prompt("Point Position 45")
+		interest(1)
+		pp(TRUE)
+	}
+	field(PP46,DBF_SHORT) {
+		prompt("Point Position 46")
+		interest(1)
+		pp(TRUE)
+	}
+	field(PP47,DBF_SHORT) {
+		prompt("Point Position 47")
+		interest(1)
+		pp(TRUE)
+	}
+	field(PP48,DBF_SHORT) {
+		prompt("Point Position 48")
+		interest(1)
+		pp(TRUE)
+	}
+	field(PP49,DBF_SHORT) {
+		prompt("Point Position 49")
+		interest(1)
+		pp(TRUE)
+	}
+	field(PP50,DBF_SHORT) {
+		prompt("Point Position 50")
+		interest(1)
+		pp(TRUE)
+	}
+	field(PP51,DBF_SHORT) {
+		prompt("Point Position 51")
+		interest(1)
+		pp(TRUE)
+	}
+	field(PP52,DBF_SHORT) {
+		prompt("Point Position 52")
+		interest(1)
+		pp(TRUE)
+	}
+	field(PP53,DBF_SHORT) {
+		prompt("Point Position 53")
+		interest(1)
+		pp(TRUE)
+	}
+	field(PP54,DBF_SHORT) {
+		prompt("Point Position 54")
+		interest(1)
+		pp(TRUE)
+	}
+	field(PP55,DBF_SHORT) {
+		prompt("Point Position 55")
+		interest(1)
+		pp(TRUE)
+	}
+	field(PP56,DBF_SHORT) {
+		prompt("Point Position 56")
+		interest(1)
+		pp(TRUE)
+	}
+	field(PP57,DBF_SHORT) {
+		prompt("Point Position 57")
+		interest(1)
+		pp(TRUE)
+	}
+	field(PP58,DBF_SHORT) {
+		prompt("Point Position 58")
+		interest(1)
+		pp(TRUE)
+	}
+	field(PP59,DBF_SHORT) {
+		prompt("Point Position 59")
+		interest(1)
+		pp(TRUE)
+	}
+	field(PP60,DBF_SHORT) {
+		prompt("Point Position 60")
+		interest(1)
+		pp(TRUE)
+	}
+	field(PP61,DBF_SHORT) {
+		prompt("Point Position 61")
+		interest(1)
+		pp(TRUE)
+	}
+	field(PP62,DBF_SHORT) {
+		prompt("Point Position 62")
+		interest(1)
+		pp(TRUE)
+	}
+	field(PP63,DBF_SHORT) {
+		prompt("Point Position 63")
+		interest(1)
+		pp(TRUE)
+	}
+	field(PP64,DBF_SHORT) {
+		prompt("Point Position 64")
+		interest(1)
+		pp(TRUE)
+	}
+	field(PP65,DBF_SHORT) {
+		prompt("Point Position 65")
+		interest(1)
+		pp(TRUE)
+	}
+	field(PP66,DBF_SHORT) {
+		prompt("Point Position 66")
+		interest(1)
+		pp(TRUE)
+	}
+	field(PP67,DBF_SHORT) {
+		prompt("Point Position 67")
+		interest(1)
+		pp(TRUE)
+	}
+	field(PP68,DBF_SHORT) {
+		prompt("Point Position 68")
+		interest(1)
+		pp(TRUE)
+	}
+	field(PP69,DBF_SHORT) {
+		prompt("Point Position 69")
+		interest(1)
+		pp(TRUE)
+	}
+	field(PP70,DBF_SHORT) {
+		prompt("Point Position 70")
+		interest(1)
+		pp(TRUE)
+	}
+	field(PP71,DBF_SHORT) {
+		prompt("Point Position 71")
+		interest(1)
+		pp(TRUE)
+	}
+	field(PP72,DBF_SHORT) {
+		prompt("Point Position 72")
+		interest(1)
+		pp(TRUE)
+	}
+	field(PP73,DBF_SHORT) {
+		prompt("Point Position 73")
+		interest(1)
+		pp(TRUE)
+	}
+	field(PP74,DBF_SHORT) {
+		prompt("Point Position 74")
+		interest(1)
+		pp(TRUE)
+	}
+	field(PP75,DBF_SHORT) {
+		prompt("Point Position 75")
+		interest(1)
+		pp(TRUE)
+	}
+	field(PP76,DBF_SHORT) {
+		prompt("Point Position 76")
+		interest(1)
+		pp(TRUE)
+	}
+	field(PP77,DBF_SHORT) {
+		prompt("Point Position 77")
+		interest(1)
+		pp(TRUE)
+	}
+	field(PP78,DBF_SHORT) {
+		prompt("Point Position 78")
+		interest(1)
+		pp(TRUE)
+	}
+	field(PP79,DBF_SHORT) {
+		prompt("Point Position 79")
+		interest(1)
+		pp(TRUE)
+	}
+	field(PP80,DBF_SHORT) {
+		prompt("Point Position 80")
+		interest(1)
+		pp(TRUE)
+	}
+	field(PP81,DBF_SHORT) {
+		prompt("Point Position 81")
+		interest(1)
+		pp(TRUE)
+	}
+	field(PP82,DBF_SHORT) {
+		prompt("Point Position 82")
+		interest(1)
+		pp(TRUE)
+	}
+	field(PP83,DBF_SHORT) {
+		prompt("Point Position 83")
+		interest(1)
+		pp(TRUE)
+	}
+	field(PP84,DBF_SHORT) {
+		prompt("Point Position 84")
+		interest(1)
+		pp(TRUE)
+	}
+	field(PP85,DBF_SHORT) {
+		prompt("Point Position 85")
+		interest(1)
+		pp(TRUE)
+	}
+	field(PP86,DBF_SHORT) {
+		prompt("Point Position 86")
+		interest(1)
+		pp(TRUE)
+	}
+	field(PP87,DBF_SHORT) {
+		prompt("Point Position 87")
+		interest(1)
+		pp(TRUE)
+	}
+	field(PP88,DBF_SHORT) {
+		prompt("Point Position 88")
+		interest(1)
+		pp(TRUE)
+	}
+	field(PP89,DBF_SHORT) {
+		prompt("Point Position 89")
+		interest(1)
+		pp(TRUE)
+	}
+	field(PP90,DBF_SHORT) {
+		prompt("Point Position 90")
+		interest(1)
+		pp(TRUE)
+	}
+}

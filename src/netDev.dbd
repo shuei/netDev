@@ -1,0 +1,34 @@
+include arrayoutRecord.dbd
+include patternRecord.dbd
+include miwfRecord.dbd
+include statusRecord.dbd
+include channelsRecord.dbd
+include chansRecord.dbd
+device(pattern,CONSTANT,devPtnSoft,"Soft Channel")
+device(miwf,CONSTANT,devMiwfSoft,"Soft Channel")
+device(ai,INST_IO,devAiYewPlc,"Yew Plc")
+device(ao,INST_IO,devAoYewPlc,"Yew Plc")
+device(bi,INST_IO,devBiYewPlc,"Yew Plc")
+device(bo,INST_IO,devBoYewPlc,"Yew Plc")
+device(longin,INST_IO,devLiYewPlc,"Yew Plc")
+device(longout,INST_IO,devLoYewPlc,"Yew Plc")
+device(mbbiDirect,INST_IO,devMbbiDirectYewPlc,"Yew Plc")
+device(mbboDirect,INST_IO,devMbboDirectYewPlc,"Yew Plc")
+device(waveform,INST_IO,devWfYewPlc,"Yew Plc")
+device(pattern,INST_IO,devPtnYewPlc,"Yew Plc")
+device(arrayout,INST_IO,devAroYewPlc,"Yew Plc")
+device(stringout,INST_IO, devSoMW100, "MW100")
+device(chans, INST_IO, devChansMW100, "MW100")
+device(stringout,INST_IO, devSoDarwin,   "Darwin")
+device(channels, INST_IO, devChannelsDarwin, "Darwin")
+device(ai,INST_IO,devAiKeyPlc,"Key Plc")
+device(ao,INST_IO,devAoKeyPlc,"Key Plc")
+device(bi,INST_IO,devBiKeyPlc,"Key Plc")
+device(bo,INST_IO,devBoKeyPlc,"Key Plc")
+device(longin,INST_IO,devLiKeyPlc,"Key Plc")
+device(longout,INST_IO,devLoKeyPlc,"Key Plc")
+device(mbbiDirect,INST_IO,devMbbiDirectKeyPlc,"Key Plc")
+device(mbboDirect,INST_IO,devMbboDirectKeyPlc,"Key Plc")
+device(waveform,INST_IO,devWfKeyPlc,"Key Plc")
+device(arrayout,INST_IO,devAroKeyPlc,"Key Plc")
+driver(drvNetMpf)

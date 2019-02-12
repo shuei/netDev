@@ -1,0 +1,357 @@
+#******************************************************************************
+#*                         COPYRIGHT NOTIFICATION
+#*
+#* Copyright (c) All rights reserved
+#*
+#* EPICS BASE Versions 3.13.7
+#* and higher are distributed subject to a Software License Agreement found
+#* in file LICENSE that is included with this distribution.
+#* This work is based on waveformRecord.dbd
+#******************************************************************************
+recordtype(status) {
+	include "dbCommon.dbd" 
+	field(INP,DBF_INLINK) {
+		prompt("Input Specification")
+		promptgroup(GUI_INPUTS)
+		special(SPC_NOMOD)
+		interest(1)
+	}
+	field(VAL,DBF_NOACCESS) {
+		prompt("Value")
+		asl(ASL0)
+		special(SPC_DBADDR)
+		pp(TRUE)
+		extra("void *		val")
+	}
+	field(NELM,DBF_ULONG) {
+		prompt("Number of Elements")
+		promptgroup(GUI_WAVE)
+		special(SPC_NOMOD)
+		interest(1)
+		initial("1")
+	}
+	field(NORD,DBF_ULONG) {
+		prompt("Number elements read")
+		special(SPC_NOMOD)
+	}
+	field(CH01,DBF_USHORT) {
+		prompt("Channel 01")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH02,DBF_USHORT) {
+		prompt("Channel 02")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH03,DBF_USHORT) {
+		prompt("Channel 03")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH04,DBF_USHORT) {
+		prompt("Channel 04")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH05,DBF_USHORT) {
+		prompt("Channel 05")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH06,DBF_USHORT) {
+		prompt("Channel 06")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH07,DBF_USHORT) {
+		prompt("Channel 07")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH08,DBF_USHORT) {
+		prompt("Channel 08")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH09,DBF_USHORT) {
+		prompt("Channel 09")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH10,DBF_USHORT) {
+		prompt("Channel 10")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH11,DBF_USHORT) {
+		prompt("Channel 11")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH12,DBF_USHORT) {
+		prompt("Channel 12")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH13,DBF_USHORT) {
+		prompt("Channel 13")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH14,DBF_USHORT) {
+		prompt("Channel 14")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH15,DBF_USHORT) {
+		prompt("Channel 15")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH16,DBF_USHORT) {
+		prompt("Channel 16")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH17,DBF_USHORT) {
+		prompt("Channel 17")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH18,DBF_USHORT) {
+		prompt("Channel 18")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH19,DBF_USHORT) {
+		prompt("Channel 19")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH20,DBF_USHORT) {
+		prompt("Channel 20")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH21,DBF_USHORT) {
+		prompt("Channel 21")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH22,DBF_USHORT) {
+		prompt("Channel 22")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH23,DBF_USHORT) {
+		prompt("Channel 23")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH24,DBF_USHORT) {
+		prompt("Channel 24")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH25,DBF_USHORT) {
+		prompt("Channel 25")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH26,DBF_USHORT) {
+		prompt("Channel 26")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH27,DBF_USHORT) {
+		prompt("Channel 27")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH28,DBF_USHORT) {
+		prompt("Channel 28")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH29,DBF_USHORT) {
+		prompt("Channel 29")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH30,DBF_USHORT) {
+		prompt("Channel 30")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH31,DBF_USHORT) {
+		prompt("Channel 31")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH32,DBF_USHORT) {
+		prompt("Channel 32")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH33,DBF_USHORT) {
+		prompt("Channel 33")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH34,DBF_USHORT) {
+		prompt("Channel 34")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH35,DBF_USHORT) {
+		prompt("Channel 35")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH36,DBF_USHORT) {
+		prompt("Channel 36")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH37,DBF_USHORT) {
+		prompt("Channel 37")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH38,DBF_USHORT) {
+		prompt("Channel 38")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH39,DBF_USHORT) {
+		prompt("Channel 39")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH40,DBF_USHORT) {
+		prompt("Channel 40")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH41,DBF_USHORT) {
+		prompt("Channel 41")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH42,DBF_USHORT) {
+		prompt("Channel 42")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH43,DBF_USHORT) {
+		prompt("Channel 43")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH44,DBF_USHORT) {
+		prompt("Channel 44")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH45,DBF_USHORT) {
+		prompt("Channel 45")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH46,DBF_USHORT) {
+		prompt("Channel 46")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH47,DBF_USHORT) {
+		prompt("Channel 47")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH48,DBF_USHORT) {
+		prompt("Channel 48")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH49,DBF_USHORT) {
+		prompt("Channel 49")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH50,DBF_USHORT) {
+		prompt("Channel 50")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH51,DBF_USHORT) {
+		prompt("Channel 51")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH52,DBF_USHORT) {
+		prompt("Channel 52")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH53,DBF_USHORT) {
+		prompt("Channel 53")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH54,DBF_USHORT) {
+		prompt("Channel 54")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH55,DBF_USHORT) {
+		prompt("Channel 55")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH56,DBF_USHORT) {
+		prompt("Channel 56")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH57,DBF_USHORT) {
+		prompt("Channel 57")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH58,DBF_USHORT) {
+		prompt("Channel 58")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH59,DBF_USHORT) {
+		prompt("Channel 59")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH60,DBF_USHORT) {
+		prompt("Channel 60")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH61,DBF_USHORT) {
+		prompt("Channel 61")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH62,DBF_USHORT) {
+		prompt("Channel 62")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH63,DBF_USHORT) {
+		prompt("Channel 63")
+		interest(1)
+		pp(TRUE)
+	}
+	field(CH64,DBF_USHORT) {
+		prompt("Channel 64")
+		interest(1)
+		pp(TRUE)
+	}
+}
