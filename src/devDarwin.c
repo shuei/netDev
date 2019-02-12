@@ -98,7 +98,8 @@ LOCAL long darwin_parse_link(
   char *route, *type, *lopt;
   uint8_t tmp_buf[DARWIN_MAX_CMND_LEN];
   uint8_t *src, *dst;
-  int u1, u2, p1, p2;
+  char u1, u2;
+  int p1, p2;
 
   if (parseLinkPlcCommon(
 			 plink,
