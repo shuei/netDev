@@ -259,7 +259,6 @@ LOCAL long yew_parse_link(struct link *plink,
         /* CPU Module */
         switch (d->width) {
         case 1:
-        {
             switch (d->type) {
             case  'X':    /* input relay         */
                 if (isWrite(*option)) {
@@ -279,10 +278,8 @@ LOCAL long yew_parse_link(struct link *plink,
                              d->type, d->width);
                 return ERROR;
             }
-        }
-        break;
+            break;
         case 2:
-        {
             switch (d->type) {
             case  'X':    /* input relay         */
             case 0x20:    /* timer set           */
@@ -315,7 +312,6 @@ LOCAL long yew_parse_link(struct link *plink,
                 errlogPrintf("devYewPlc: unknown device type \'%c\'\n", d->type);
                 return ERROR;
             }
-        }
         break;
         default:
             errlogPrintf("devYewPlc: illeagal data width %d\n", d->width);
