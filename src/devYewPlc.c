@@ -300,6 +300,7 @@ LOCAL long yew_parse_link(struct link *plink,
             case  'L':    /* link relay          */
             case  'D':    /* data register       */
             case  'B':    /* file register       */
+            case  'F':    /* cache register       */
             case  'R':    /* shared register     */
             case  'V':    /* index regigister    */
             case  'Z':    /* special regigister  */
