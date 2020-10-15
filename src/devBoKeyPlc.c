@@ -29,82 +29,72 @@ LOCAL long config_bo_command(struct dbCommon *, int *, uint8_t *, int *, void *,
 LOCAL long parse_bo_response(struct dbCommon *, int *, uint8_t *, int *, void *, int);
 
 INTEGERDSET devBoKeyPlc = {
-  5,
-  NULL,
-  netDevInit,
-  init_bo_record,
-  NULL,
-  write_bo
+    5,
+    NULL,
+    netDevInit,
+    init_bo_record,
+    NULL,
+    write_bo
 };
 
 epicsExportAddress(dset, devBoKeyPlc);
 
-
 LOCAL long init_bo_record(struct boRecord *pbo)
 {
-  pbo->mask = 1;
+    pbo->mask = 1;
 
-  return netDevInitXxRecord(
-			    (struct dbCommon *) pbo,
-			    &pbo->out,
-			    MPF_WRITE | KEY_GET_PROTO | DEFAULT_TIMEOUT,
-			    key_calloc(0, KEY_CMND_ST_RS),
-			    key_parse_link,
-			    config_bo_command,
-			    parse_bo_response
-			    );
+    return netDevInitXxRecord((struct dbCommon *) pbo,
+                              &pbo->out,
+                              MPF_WRITE | KEY_GET_PROTO | DEFAULT_TIMEOUT,
+                              key_calloc(0, KEY_CMND_ST_RS),
+                              key_parse_link,
+                              config_bo_command,
+                              parse_bo_response
+                              );
 }
-
 
 LOCAL long write_bo(struct boRecord *pbo)
 {
-  return netDevReadWriteXx((struct dbCommon *) pbo);
+    return netDevReadWriteXx((struct dbCommon *) pbo);
 }
 
 
-LOCAL long config_bo_command(
-			     struct dbCommon *pxx,
-			     int *option,
-			     uint8_t *buf,
-			     int *len,
-			     void *device,
-			     int transaction_id
-			     )
+LOCAL long config_bo_command(struct dbCommon *pxx,
+                             int *option,
+                             uint8_t *buf,
+                             int *len,
+                             void *device,
+                             int transaction_id
+                             )
 {
-  struct boRecord *pbo = (struct boRecord *)pxx;
+    struct boRecord *pbo = (struct boRecord *)pxx;
 
-  return key_config_command(
-			    buf,
-			    len,
-			    &pbo->rval,
-			    DBF_ULONG,
-			    1,
-			    option,
-			    (KEY_PLC *) device
-			    );
-} 
-
-
-LOCAL long parse_bo_response(
-			     struct dbCommon *pxx,
-			     int *option,
-			     uint8_t *buf,
-			     int *len,
-			     void *device,
-			     int transaction_id
-			     )
-{
-  struct boRecord *pbo = (struct boRecord *)pxx;
-
-  return key_parse_response(
-			    buf,
-			    len,
-			    &pbo->rval,
-			    DBF_ULONG,
-			    1,
-			    option,
-			    (KEY_PLC *) device
-			    );
+    return key_config_command(buf,
+                              len,
+                              &pbo->rval,
+                              DBF_ULONG,
+                              1,
+                              option,
+                              (KEY_PLC *) device
+                              );
 }
 
+LOCAL long parse_bo_response(struct dbCommon *pxx,
+                             int *option,
+                             uint8_t *buf,
+                             int *len,
+                             void *device,
+                             int transaction_id
+                             )
+{
+    struct boRecord *pbo = (struct boRecord *)pxx;
 
+    return key_parse_response(buf,
+                              len,
+                              &pbo->rval,
+                              DBF_ULONG,
+                              1,
+                              option,
+                              (KEY_PLC *) device
+                              );
+}

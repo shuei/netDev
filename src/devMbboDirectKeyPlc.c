@@ -29,84 +29,73 @@ LOCAL long config_mbboDirect_command(struct dbCommon *, int *, uint8_t *, int *,
 LOCAL long parse_mbboDirect_response(struct dbCommon *, int *, uint8_t *, int *, void *, int);
 
 INTEGERDSET devMbboDirectKeyPlc = {
-  5,
-  NULL,
-  netDevInit,
-  init_mbboDirect_record,
-  NULL,
-  write_mbboDirect
+    5,
+    NULL,
+    netDevInit,
+    init_mbboDirect_record,
+    NULL,
+    write_mbboDirect
 };
 
 epicsExportAddress(dset, devMbboDirectKeyPlc);
 
-
 LOCAL long init_mbboDirect_record(struct mbboDirectRecord *pMbboDirect)
 {
-  pMbboDirect->nobt = 16;
-  pMbboDirect->mask = 0xFFFF;
-  pMbboDirect->shft = 0;
+    pMbboDirect->nobt = 16;
+    pMbboDirect->mask = 0xFFFF;
+    pMbboDirect->shft = 0;
 
-  return netDevInitXxRecord(
-			    (struct dbCommon *) pMbboDirect,
-			    &pMbboDirect->out,
-			    MPF_WRITE | KEY_GET_PROTO | DEFAULT_TIMEOUT,
-			    key_calloc(0, KEY_CMND_WRE),
-			    key_parse_link,
-			    config_mbboDirect_command,
-			    parse_mbboDirect_response
-			    );
+    return netDevInitXxRecord((struct dbCommon *) pMbboDirect,
+                              &pMbboDirect->out,
+                              MPF_WRITE | KEY_GET_PROTO | DEFAULT_TIMEOUT,
+                              key_calloc(0, KEY_CMND_WRE),
+                              key_parse_link,
+                              config_mbboDirect_command,
+                              parse_mbboDirect_response
+                              );
 }
-
 
 LOCAL long write_mbboDirect(struct mbboDirectRecord *pMbboDirect)
 {
-  return netDevReadWriteXx((struct dbCommon *) pMbboDirect);
+    return netDevReadWriteXx((struct dbCommon *) pMbboDirect);
 }
 
-
-LOCAL long config_mbboDirect_command(
-				     struct dbCommon *pxx,
-				     int *option,
-				     uint8_t *buf,
-				     int *len,
-				     void *device,
-				     int transaction_id
-				     )
+LOCAL long config_mbboDirect_command(struct dbCommon *pxx,
+                                     int *option,
+                                     uint8_t *buf,
+                                     int *len,
+                                     void *device,
+                                     int transaction_id
+                                     )
 {
-  struct mbboDirectRecord *pmbboDirect = (struct mbboDirectRecord *)pxx;
+    struct mbboDirectRecord *pmbboDirect = (struct mbboDirectRecord *)pxx;
 
-  return key_config_command(
-			    buf,
-			    len,
-			    &pmbboDirect->rval,
-			    DBF_ULONG,
-			    1,
-			    option,
-			    (KEY_PLC *) device
-			    );
-} 
-
-
-LOCAL long parse_mbboDirect_response(
-				     struct dbCommon *pxx,
-				     int *option,
-				     uint8_t *buf,
-				     int *len,
-				     void *device,
-				     int transaction_id
-				     )
-{
-  struct mbboDirectRecord *pmbboDirect = (struct mbboDirectRecord *)pxx;
-
-  return key_parse_response(
-			    buf,
-			    len,
-			    &pmbboDirect->rval,
-			    DBF_ULONG,
-			    1,
-			    option,
-			    (KEY_PLC *) device
-			    );
+    return key_config_command(buf,
+                              len,
+                              &pmbboDirect->rval,
+                              DBF_ULONG,
+                              1,
+                              option,
+                              (KEY_PLC *) device
+                              );
 }
 
+LOCAL long parse_mbboDirect_response(struct dbCommon *pxx,
+                                     int *option,
+                                     uint8_t *buf,
+                                     int *len,
+                                     void *device,
+                                     int transaction_id
+                                     )
+{
+    struct mbboDirectRecord *pmbboDirect = (struct mbboDirectRecord *)pxx;
 
+    return key_parse_response(buf,
+                              len,
+                              &pmbboDirect->rval,
+                              DBF_ULONG,
+                              1,
+                              option,
+                              (KEY_PLC *) device
+                              );
+}

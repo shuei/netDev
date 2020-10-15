@@ -27,44 +27,44 @@
 /* Create the dset for devPtnSoft */
 static long init_record();
 static long read_wf();
+
 struct {
-	long		number;
-	DEVSUPFUN	report;
-	DEVSUPFUN	init;
-	DEVSUPFUN	init_record;
-	DEVSUPFUN	get_ioint_info;
-	DEVSUPFUN	read_wf;
+    long        number;
+    DEVSUPFUN    report;
+    DEVSUPFUN    init;
+    DEVSUPFUN    init_record;
+    DEVSUPFUN    get_ioint_info;
+    DEVSUPFUN    read_wf;
 }devPtnSoft={
-	5,
-	NULL,
-	NULL,
-	init_record,
-	NULL,
-	read_wf
+    5,
+    NULL,
+    NULL,
+    init_record,
+    NULL,
+    read_wf
 };
 epicsExportAddress(dset,devPtnSoft);
-
 
 static long init_record(patternRecord *pptn)
 {
-
     /* wf.inp must be a CONSTANT or a PV_LINK or a DB_LINK or a CA_LINK*/
     switch (pptn->inp.type) {
     case (CONSTANT) :
-	pptn->nord = 0;
-	break;
+        pptn->nord = 0;
+        break;
     case (PV_LINK) :
     case (DB_LINK) :
     case (CA_LINK) :
-	break;
+        break;
     default :
-	recGblRecordError(S_db_badField,(void *)pptn,
-		"devPtnSoft (init_record) Illegal INP field");
-	return(S_db_badField);
+        recGblRecordError(S_db_badField,(void *)pptn,
+                          "devPtnSoft (init_record) Illegal INP field");
+        return S_db_badField;
     }
-    return(0);
+
+    return 0;
 }
-
+
 static long read_wf(patternRecord *pptn)
 {
     long /* status, */nRequest;
@@ -73,7 +73,9 @@ static long read_wf(patternRecord *pptn)
     /* status = */
     dbGetLink(&pptn->inp,pptn->ftvl,pptn->bptr, 0, &nRequest);
     /*If dbGetLink got no values leave things as they were*/
-    if(nRequest>0) pptn->nord = nRequest;
+    if (nRequest>0) {
+        pptn->nord = nRequest;
+    }
 
-    return(0);
+    return 0;
 }

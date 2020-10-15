@@ -31,103 +31,91 @@ LOCAL long config_ao_command(struct dbCommon *, int *, uint8_t *, int *, void *,
 LOCAL long parse_ao_response(struct dbCommon *, int *, uint8_t *, int *, void *, int);
 
 FLOATDSET devAoKeyPlc = {
-  6,
-  NULL,
-  netDevInit,
-  init_ao_record,
-  NULL,
-  write_ao,
-  ao_linear_convert
+    6,
+    NULL,
+    netDevInit,
+    init_ao_record,
+    NULL,
+    write_ao,
+    ao_linear_convert
 };
 
 epicsExportAddress(dset, devAoKeyPlc);
 
-
 LOCAL long init_ao_record(struct aoRecord *pao)
 {
-  if (pao->linr == menuConvertLINEAR)
-    {
-      pao->eslo = (pao->eguf - pao->egul) / 0xFFFF;
-      pao->roff = 0;
+    if (pao->linr == menuConvertLINEAR) {
+        pao->eslo = (pao->eguf - pao->egul) / 0xFFFF;
+        pao->roff = 0;
     }
 
-  return netDevInitXxRecord(
-			    (struct dbCommon *) pao,
-			    &pao->out,
-			    MPF_WRITE | KEY_GET_PROTO | DEFAULT_TIMEOUT,
-			    key_calloc(0, KEY_CMND_WRE),
-			    key_parse_link,
-			    config_ao_command,
-			    parse_ao_response
-			    );
+    return netDevInitXxRecord((struct dbCommon *) pao,
+                              &pao->out,
+                              MPF_WRITE | KEY_GET_PROTO | DEFAULT_TIMEOUT,
+                              key_calloc(0, KEY_CMND_WRE),
+                              key_parse_link,
+                              config_ao_command,
+                              parse_ao_response
+                              );
 }
-
 
 LOCAL long write_ao(struct aoRecord *pao)
 {
-  return netDevReadWriteXx((struct dbCommon *) pao);
+    return netDevReadWriteXx((struct dbCommon *) pao);
 }
-
 
 LOCAL long ao_linear_convert(struct aoRecord *pao, int after)
 {
-  if (!after) return OK;
-
-  if (pao->linr == menuConvertLINEAR)
-    {
-      pao->eslo = (pao->eguf - pao->egul) / 0xFFFF;
-      pao->roff = 0;
+    if (!after) {
+        return OK;
     }
 
-  return OK;
+    if (pao->linr == menuConvertLINEAR) {
+        pao->eslo = (pao->eguf - pao->egul) / 0xFFFF;
+        pao->roff = 0;
+    }
+
+    return OK;
 }
 
-
-LOCAL long config_ao_command(
-			     struct dbCommon *pxx,
-			     int *option,
-			     uint8_t *buf,
-			     int *len,
-			     void *device,
-			     int transaction_id
-			     )
+LOCAL long config_ao_command(struct dbCommon *pxx,
+                             int *option,
+                             uint8_t *buf,
+                             int *len,
+                             void *device,
+                             int transaction_id
+                             )
 {
-  struct aoRecord *pao = (struct aoRecord *)pxx;
-  KEY_PLC *d = (KEY_PLC *) device;
+    struct aoRecord *pao = (struct aoRecord *)pxx;
+    KEY_PLC *d = (KEY_PLC *) device;
 
-  return key_config_command(
-			    buf,
-			    len,
-			    &pao->rval,
-			    DBF_LONG,
-			    1,
-			    option,
-			    d
-			    );
-} 
-
-
-LOCAL long parse_ao_response(
-			     struct dbCommon *pxx,
-			     int *option,
-			     uint8_t *buf,
-			     int *len,
-			     void *device,
-			     int transaction_id
-			     )
-{
-  struct aoRecord *pao = (struct aoRecord *)pxx;
-  KEY_PLC *d = (KEY_PLC *) device;
-
-  return key_parse_response(
-			    buf,
-			    len,
-			    &pao->rval, /* not referenced */
-			    DBF_ULONG,  /* not referenced */
-			    1,
-			    option,
-			    d
-			    );
+    return key_config_command(buf,
+                              len,
+                              &pao->rval,
+                              DBF_LONG,
+                              1,
+                              option,
+                              d
+                              );
 }
 
+LOCAL long parse_ao_response(struct dbCommon *pxx,
+                             int *option,
+                             uint8_t *buf,
+                             int *len,
+                             void *device,
+                             int transaction_id
+                             )
+{
+    struct aoRecord *pao = (struct aoRecord *)pxx;
+    KEY_PLC *d = (KEY_PLC *) device;
 
+    return key_parse_response(buf,
+                              len,
+                              &pao->rval, /* not referenced */
+                              DBF_ULONG,  /* not referenced */
+                              1,
+                              option,
+                              d
+                              );
+}

@@ -53,89 +53,90 @@ static long get_precision ();
 #define get_control_double NULL
 #define get_alarm_double NULL
 
-struct rset chansRSET={
-	RSETNUMBER,
-	report,
-	initialize,
-	init_record,
-	process,
-	special,
-	get_value,
-	cvt_dbaddr,
-	get_array_info,
-	put_array_info,
-	get_units,
-	get_precision,
-	get_enum_str,
-	get_enum_strs,
-	put_enum_str,
-	get_graphic_double,
-	get_control_double,
-	get_alarm_double};
+struct rset chansRSET = {
+    RSETNUMBER,
+    report,
+    initialize,
+    init_record,
+    process,
+    special,
+    get_value,
+    cvt_dbaddr,
+    get_array_info,
+    put_array_info,
+    get_units,
+    get_precision,
+    get_enum_str,
+    get_enum_strs,
+    put_enum_str,
+    get_graphic_double,
+    get_control_double,
+    get_alarm_double
+};
 
 epicsExportAddress(rset, chansRSET);
 
-
 typedef struct chans_dset { /* chans dset */
-	long		number;
-	DEVSUPFUN	dev_report;
-	DEVSUPFUN	init;
-	DEVSUPFUN	init_record; /*returns: (-1,0)=>(failure,success)*/
-	DEVSUPFUN	get_ioint_info;
-	DEVSUPFUN	read_chans;
+    long      number;
+    DEVSUPFUN dev_report;
+    DEVSUPFUN init;
+    DEVSUPFUN init_record; /*returns: (-1,0)=>(failure,success)*/
+    DEVSUPFUN get_ioint_info;
+    DEVSUPFUN read_chans;
 } chans_dset;
 
 static void checkAlarms(chansRecord *pchans);
 static void monitor(chansRecord *pchans);
 
-
-
-static long init_record(void *precord,int pass)
+static long init_record(void *precord, int pass)
 {
     chansRecord *pchans = (chansRecord *)precord;
+
+    if (pass == 0) {
+        return 0;
+    }
+
     chans_dset  *pdset;
-
-    long status;
-
-    if (pass==0) {
-        return(0);
-    }
-    if(!(pdset = (chans_dset *)(pchans->dset))) {
+    if (!(pdset = (chans_dset *)(pchans->dset))) {
         recGblRecordError(S_dev_noDSET, (void *)pchans, "chans: No DSET");
-	return(S_dev_noDSET);
+        return S_dev_noDSET;
     }
+
     /* must have read_chans function defined */
-    if( (pdset->number < 5) || (pdset->read_chans == NULL) ) {
+    if ((pdset->number < 5) || (pdset->read_chans == NULL)) {
         recGblRecordError(S_dev_missingSup, (void *)pchans, "chans: Bad DSET");
-	return(S_dev_missingSup);
+        return S_dev_missingSup;
     }
 
-    if( pdset->init_record ) {
-        if((status=(*pdset->init_record)(pchans))) return(status);
+    if (pdset->init_record) {
+        long status;
+        if ((status=(*pdset->init_record)(pchans))) {
+            return status;
+        }
     }
 
-    return(0);
+    return 0;
 }
 
-
-
 static long process(void *precord)
 {
     chansRecord *pchans = (chansRecord *)precord;
     chans_dset  *pdset = (chans_dset *)(pchans->dset);
-    long status;
-    unsigned char  pact=pchans->pact;
 
-    if( (pdset==NULL) || (pdset->read_chans==NULL) ) {
+    if ((pdset==NULL) || (pdset->read_chans==NULL)) {
         pchans->pact=TRUE;
-	recGblRecordError(S_dev_missingSup,(void *)pchans,"read_chans");
-	return(S_dev_missingSup);
+        recGblRecordError(S_dev_missingSup,(void *)pchans,"read_chans");
+        return S_dev_missingSup;
     }
 
     /* pact must not be set until after calling device support */
-    status=(*pdset->read_chans)(pchans);
+    unsigned char pact = pchans->pact;
+    long status = (*pdset->read_chans)(pchans);
+
     /* check if device support set pact */
-    if ( !pact && pchans->pact ) return(0);
+    if (!pact && pchans->pact) {
+        return 0;
+    }
     pchans->pact = TRUE;
 
     recGblGetTimeStamp(pchans);
@@ -148,30 +149,26 @@ static long process(void *precord)
 
     pchans->pact=FALSE;
 
-    return(status);
+    return status;
 }
 
-
 static long get_precision(DBADDR *paddr, long *precision)
 {
     chansRecord *pchans=(chansRecord *)paddr->precord;
 
     *precision = pchans->prec;
-    if (paddr->pfield == (void *) &pchans->ch01) return(0);
+    if (paddr->pfield == (void *) &pchans->ch01) {
+        return 0;
+    }
     recGblGetPrec(paddr,precision);
-    return(0);
+    return 0;
 }
 
-
-
 static void checkAlarms(chansRecord *pchans)
 {
-
   return;
 }
 
-
-
 static void monitor(chansRecord *pchans)
 {
     double *data = (double *) &pchans->ch01;
@@ -187,32 +184,30 @@ static void monitor(chansRecord *pchans)
     db_post_events(pchans,  pchans->atim, DBE_VALUE|DBE_LOG);
 
     for (n = 0; n < pchans->noch; n++) {
-      /*
-	printf("&data[%02d]= 0x%08x\n", n, &data[n]);
-      */
-      db_post_events(pchans, &data[n], DBE_VALUE|DBE_LOG);
-      db_post_events(pchans,  stat[n], DBE_VALUE|DBE_LOG);
-      db_post_events(pchans,  alrm[n], DBE_VALUE|DBE_LOG);
-      db_post_events(pchans,  unit[n], DBE_VALUE|DBE_LOG);
+        /*
+          printf("&data[%02d]= 0x%08x\n", n, &data[n]);
+        */
+        db_post_events(pchans, &data[n], DBE_VALUE|DBE_LOG);
+        db_post_events(pchans,  stat[n], DBE_VALUE|DBE_LOG);
+        db_post_events(pchans,  alrm[n], DBE_VALUE|DBE_LOG);
+        db_post_events(pchans,  unit[n], DBE_VALUE|DBE_LOG);
     }
 
     return;
 }
 
-
-
 static long cvt_dbaddr(struct dbAddr *paddr)
 {
     chansRecord *pchans = (chansRecord *) paddr->precord;
 
     if (paddr->pfield == &pchans->val) {
         paddr->pfield         = (void *) &pchans->ch01;
-	paddr->no_elements    = (long) pchans->noch;
-	paddr->field_type     = DBF_DOUBLE;
-	paddr->field_size     = sizeof(double);
-	paddr->dbr_field_type = DBR_DOUBLE;
-	return(0);
+        paddr->no_elements    = (long) pchans->noch;
+        paddr->field_type     = DBF_DOUBLE;
+        paddr->field_size     = sizeof(double);
+        paddr->dbr_field_type = DBR_DOUBLE;
+        return 0;
     }
 
-    return(-1);
+    return -1;
 }

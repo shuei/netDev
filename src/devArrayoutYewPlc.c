@@ -13,15 +13,15 @@
  * -----------------
  * 2005/08/22 jio
  *  passing option flag to Link Field Parser was changed from by value to
- * by pointer  
+ * by pointer
  */
 
 #include        <arrayoutRecord.h>
 
-#ifndef EPICS_REVISION
-#include <epicsVersion.h>
-#endif
-#include <epicsExport.h>
+//#ifndef EPICS_REVISION
+//#include <epicsVersion.h>
+//#endif
+//#include <epicsExport.h>
 
 static uint16_t *u16_val;
 
@@ -34,114 +34,100 @@ LOCAL long config_arrayout_command(struct dbCommon *, int *, uint8_t *, int *, v
 LOCAL long parse_arrayout_response(struct dbCommon *, int *, uint8_t *, int *, void *, int);
 
 INTEGERDSET devAroYewPlc = {
-  5,
-  NULL,
-  netDevInit,
-  init_arrayout_record,
-  NULL,
-  write_arrayout
+    5,
+    NULL,
+    netDevInit,
+    init_arrayout_record,
+    NULL,
+    write_arrayout
 };
 
 epicsExportAddress(dset, devAroYewPlc);
 
-
 LOCAL long init_arrayout_record(struct arrayoutRecord *paro)
 {
-  u16_val = (uint16_t *) calloc(2*paro->nelm, sizeofTypes[DBF_USHORT]);
+    u16_val = (uint16_t *) calloc(2*paro->nelm, sizeofTypes[DBF_USHORT]);
 
-  if (!u16_val)
-    {
-      errlogPrintf("devWaveformYewPlc: calloc failed\n");
-      return ERROR;
+    if (!u16_val) {
+        errlogPrintf("devWaveformYewPlc: calloc failed\n");
+        return ERROR;
     }
 
-  return netDevInitXxRecord(
-			    (struct dbCommon *) paro,
-			    &paro->out,
-			    MPF_WRITE | YEW_GET_PROTO | DEFAULT_TIMEOUT,
-			    yew_calloc(0, 0, 0, 2),
-			    yew_parse_link,
-			    config_arrayout_command,
-			    parse_arrayout_response
-			    );
+    return netDevInitXxRecord((struct dbCommon *) paro,
+                              &paro->out,
+                              MPF_WRITE | YEW_GET_PROTO | DEFAULT_TIMEOUT,
+                              yew_calloc(0, 0, 0, 2),
+                              yew_parse_link,
+                              config_arrayout_command,
+                              parse_arrayout_response
+                              );
 }
-
 
 LOCAL long write_arrayout(struct arrayoutRecord *paro)
 {
-  TRANSACTION *t = (TRANSACTION *) paro->dpvt;
-  YEW_PLC *d = (YEW_PLC *) t->device;
+    TRANSACTION *t = (TRANSACTION *) paro->dpvt;
+    YEW_PLC *d = (YEW_PLC *) t->device;
 
-  /*
-   * make sure that those below are cleared in the event that
-   * a multi-step transfer is terminated by an error in the
-   * middle of transacton
-   */
-  d->nleft = 0;
-  d->noff = 0;
+    /*
+     * make sure that those below are cleared in the event that
+     * a multi-step transfer is terminated by an error in the
+     * middle of transacton
+     */
+    d->nleft = 0;
+    d->noff = 0;
 
-  return netDevReadWriteXx((struct dbCommon *) paro);
+    return netDevReadWriteXx((struct dbCommon *) paro);
 }
 
-
-LOCAL long config_arrayout_command(
-				   struct dbCommon *pxx,
-				   int *option,
-				   uint8_t *buf,
-				   int *len,
-				   void *device,
-				   int transaction_id
-				   )
+LOCAL long config_arrayout_command(struct dbCommon *pxx,
+                                   int *option,
+                                   uint8_t *buf,
+                                   int *len,
+                                   void *device,
+                                   int transaction_id
+                                   )
 {
-  struct arrayoutRecord *paro = (struct arrayoutRecord *)pxx;
-  YEW_PLC *d = (YEW_PLC *) device;
+    struct arrayoutRecord *paro = (struct arrayoutRecord *)pxx;
+    YEW_PLC *d = (YEW_PLC *) device;
 
-  return yew_config_command(
-			    buf,
-			    len,
-			    paro->bptr,
-			    paro->ftvl,
-			    paro->nelm,
-			    option,
-			    d
-			    );
-} 
+    return yew_config_command(buf,
+                              len,
+                              paro->bptr,
+                              paro->ftvl,
+                              paro->nelm,
+                              option,
+                              d
+                              );
+}
 
-
-LOCAL long parse_arrayout_response(
-				   struct dbCommon *pxx,
-				   int *option,
-				   uint8_t *buf,
-				   int *len,
-				   void *device,
-				   int transaction_id
-				   )
+LOCAL long parse_arrayout_response(struct dbCommon *pxx,
+                                   int *option,
+                                   uint8_t *buf,
+                                   int *len,
+                                   void *device,
+                                   int transaction_id
+                                   )
 {
-  struct arrayoutRecord *paro = (struct arrayoutRecord *)pxx;
-  YEW_PLC *d = (YEW_PLC *) device;
-  long ret;
+    struct arrayoutRecord *paro = (struct arrayoutRecord *)pxx;
+    YEW_PLC *d = (YEW_PLC *) device;
+    long ret = yew_parse_response(buf,
+                                  len,
+                                  paro->bptr,
+                                  paro->ftvl,
+                                  paro->nelm,
+                                  option,
+                                  d
+                                  );
 
-  ret = yew_parse_response(
-			   buf,
-			   len,
-			   paro->bptr,
-			   paro->ftvl,
-			   paro->nelm,
-			   option,
-			   d
-			   );
-
-  switch (ret)
-    {
+    switch (ret) {
     case NOT_DONE:
-      paro->nowt = d->noff;
+        paro->nowt = d->noff;
+        // why we don't have break here?
     case 0:
-      paro->nowt = paro->nelm;
+        paro->nowt = paro->nelm;
     default:
-      ;
+        ;
     }
 
-  return ret;
+    return ret;
 }
-
-

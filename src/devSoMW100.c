@@ -28,63 +28,57 @@ LOCAL long config_so_command(struct dbCommon *, int *, uint8_t *, int *, void *,
 LOCAL long parse_so_response(struct dbCommon *, int *, uint8_t *, int *, void *, int);
 
 INTEGERDSET devSoMW100 = {
-  5,
-  NULL,
-  netDevInit,
-  init_so_record,
-  NULL,
-  write_so
+    5,
+    NULL,
+    netDevInit,
+    init_so_record,
+    NULL,
+    write_so
 };
 
 epicsExportAddress(dset, devSoMW100);
 
-
 LOCAL long init_so_record(struct stringoutRecord *pso)
 {
-  LOGMSG("devSoMW100: init_so_record(\"%s\")\n",
-	 pso->name,0,0,0,0,0,0,0,0);
+    LOGMSG("devSoMW100: init_so_record(\"%s\")\n",
+           pso->name,0,0,0,0,0,0,0,0);
 
-  return netDevInitXxRecord(
-			    (struct dbCommon *) pso,
-			    &pso->out,
-			    MPF_WRITE | MPF_TCP | MW100_TIMEOUT,
-			    MW100_calloc(),
-			    MW100_parse_link,
-			    config_so_command,
-			    parse_so_response
-			    );
+    return netDevInitXxRecord((struct dbCommon *) pso,
+                              &pso->out,
+                              MPF_WRITE | MPF_TCP | MW100_TIMEOUT,
+                              MW100_calloc(),
+                              MW100_parse_link,
+                              config_so_command,
+                              parse_so_response
+                              );
 }
-
 
 LOCAL long write_so(struct stringoutRecord *pso)
 {
     LOGMSG("devSoMW100: write_so(\"%s\")\n",
-	   pso->name,0,0,0,0,0,0,0,0);
+           pso->name,0,0,0,0,0,0,0,0);
 
     return netDevReadWriteXx((struct dbCommon *) pso);
 }
 
-
-LOCAL long config_so_command(
-			     struct dbCommon *pxx,
-			     int *option,
-			     uint8_t *buf,
-			     int *len,
-			     void *device,
-			     int transaction_id
-			     )
+LOCAL long config_so_command(struct dbCommon *pxx,
+                             int *option,
+                             uint8_t *buf,
+                             int *len,
+                             void *device,
+                             int transaction_id
+                             )
 {
     stringoutRecord *pso = (stringoutRecord *) pxx;
     char terminator[3] = "\r\n";
 
     LOGMSG("devSoMW100: config_so_command(\"%s\")\n",
-	   pxx->name,0,0,0,0,0,0,0,0);
+           pxx->name,0,0,0,0,0,0,0,0);
 
-    if (*len < strlen(pso->val) + strlen(terminator) + 1)
-      {
+    if (*len < strlen(pso->val) + strlen(terminator) + 1) {
         errlogPrintf("devMW100: buffer is running short\n");
         return ERROR;
-      }
+    }
 
     sprintf((char *)buf, "%s", pso->val);
     strcat((char *)buf, terminator);
@@ -93,33 +87,28 @@ LOCAL long config_so_command(
     return 0;
 }
 
-
-
-LOCAL long parse_so_response(
-			     struct dbCommon *pxx,
-			     int *option,
-			     uint8_t *buf,
-			     int *len,
-			     void *device,
-			     int transaction_id
-			     )
+LOCAL long parse_so_response(struct dbCommon *pxx,
+                             int *option,
+                             uint8_t *buf,
+                             int *len,
+                             void *device,
+                             int transaction_id
+                             )
 {
     int code;
 
     LOGMSG("devSoMW100: parse_so_response(%8p,0x%08x,%8p,%d,%8p,%d)\n",
-	   pxx,*option,buf,*len,device,transaction_id,0,0,0);
+           pxx,*option,buf,*len,device,transaction_id,0,0,0);
 
-    if (sscanf((char *)buf, "E%d\r\n", &code) != 1)
-      {
-	errlogPrintf("parse_so_response: failed to read returned error code\n");
+    if (sscanf((char *)buf, "E%d\r\n", &code) != 1) {
+        errlogPrintf("parse_so_response: failed to read returned error code\n");
         return ERROR;
-      }
+    }
 
-    if (code)
-      {
-	errlogPrintf("parse_so_response: error code %d returned\n", code);
+    if (code) {
+        errlogPrintf("parse_so_response: error code %d returned\n", code);
         return ERROR;
-      }
+    }
 
     return OK;
 }

@@ -13,15 +13,15 @@
  * -----------------
  * 2005/08/22 jio
  *  passing option flag to Link Field Parser was changed from by value to
- * by pointer  
+ * by pointer
  */
 
 #include        <biRecord.h>
 
-#ifndef EPICS_REVISION
-#include <epicsVersion.h>
-#endif
-#include <epicsExport.h>
+//#ifndef EPICS_REVISION
+//#include <epicsVersion.h>
+//#endif
+//#include <epicsExport.h>
 
 /***************************************************************
  * Binary input (command/response IO)
@@ -32,82 +32,71 @@ LOCAL long config_bi_command(struct dbCommon *, int *, uint8_t *, int *, void *,
 LOCAL long parse_bi_response(struct dbCommon *, int *, uint8_t *, int *, void *, int);
 
 INTEGERDSET devBiYewPlc = {
-  5,
-  NULL,
-  netDevInit,
-  init_bi_record,
-  NULL,
-  read_bi
+    5,
+    NULL,
+    netDevInit,
+    init_bi_record,
+    NULL,
+    read_bi
 };
 
 epicsExportAddress(dset, devBiYewPlc);
 
-
 LOCAL long init_bi_record(struct biRecord *pbi)
 {
-  pbi->mask = 1;
+    pbi->mask = 1;
 
-  return netDevInitXxRecord(
-			    (struct dbCommon *) pbi,
-			    &pbi->inp,
-			    MPF_READ | YEW_GET_PROTO | DEFAULT_TIMEOUT,
-			    yew_calloc(0, 0, 0, 1),
-			    yew_parse_link,
-			    config_bi_command,
-			    parse_bi_response
-			    );
+    return netDevInitXxRecord((struct dbCommon *) pbi,
+                              &pbi->inp,
+                              MPF_READ | YEW_GET_PROTO | DEFAULT_TIMEOUT,
+                              yew_calloc(0, 0, 0, 1),
+                              yew_parse_link,
+                              config_bi_command,
+                              parse_bi_response
+                              );
 }
-
 
 LOCAL long read_bi(struct biRecord *pbi)
 {
-  return netDevReadWriteXx((struct dbCommon *) pbi);
+    return netDevReadWriteXx((struct dbCommon *) pbi);
 }
 
-
-LOCAL long config_bi_command(
-			     struct dbCommon *pxx,
-			     int *option,
-			     uint8_t *buf,
-			     int *len,
-			     void *device,
-			     int transaction_id
-			     )
+LOCAL long config_bi_command(struct dbCommon *pxx,
+                             int *option,
+                             uint8_t *buf,
+                             int *len,
+                             void *device,
+                             int transaction_id
+                             )
 {
-  struct biRecord *pbi = (struct biRecord *)pxx;
+    struct biRecord *pbi = (struct biRecord *)pxx;
 
-  return yew_config_command(
-			    buf,
-			    len,
-			    &pbi->rval,
-			    DBF_ULONG,
-			    1,
-			    option,
-			    (YEW_PLC *) device
-			    );
-} 
-
-
-LOCAL long parse_bi_response(
-			     struct dbCommon *pxx,
-			     int *option,
-			     uint8_t *buf,
-			     int *len,
-			     void *device,
-			     int transaction_id
-)
-{
-  struct biRecord *pbi = (struct biRecord *)pxx;
-
-  return yew_parse_response(
-			    buf,
-			    len,
-			    &pbi->rval,
-			    DBF_ULONG,
-			    1,
-			    option,
-			    (YEW_PLC *) device
-			    );
+    return yew_config_command(buf,
+                              len,
+                              &pbi->rval,
+                              DBF_ULONG,
+                              1,
+                              option,
+                              (YEW_PLC *) device
+                              );
 }
 
+LOCAL long parse_bi_response(struct dbCommon *pxx,
+                             int *option,
+                             uint8_t *buf,
+                             int *len,
+                             void *device,
+                             int transaction_id
+                             )
+{
+    struct biRecord *pbi = (struct biRecord *)pxx;
 
+    return yew_parse_response(buf,
+                              len,
+                              &pbi->rval,
+                              DBF_ULONG,
+                              1,
+                              option,
+                              (YEW_PLC *) device
+                              );
+}

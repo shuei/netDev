@@ -125,98 +125,98 @@
 #define NUM_MPF_VAR           256
 
 typedef struct {
-  double     timeout;
-  int        timeout_flag;
-  CALLBACK   callback;
-  uint32_t   send_counter;
-  uint32_t   cancel_counter;
-  uint32_t   timeout_counter;
-  uint32_t   receive_counter;
+    double             timeout;
+    int                timeout_flag;
+    CALLBACK           callback;
+    uint32_t           send_counter;
+    uint32_t           cancel_counter;
+    uint32_t           timeout_counter;
+    uint32_t           receive_counter;
 } ASYNC_IO;
 
 
 typedef struct {
-  IOSCANPVT           ioscanpvt;
-  struct sockaddr_in  client_addr;
-  int                 ev_msg_len;
+    IOSCANPVT          ioscanpvt;
+    struct sockaddr_in client_addr;
+    int                ev_msg_len;
 } IO_EVENT;
 
 
 typedef struct {
-  ELLNODE            node;
-  struct dbCommon   *record;
-  void              *facility;
-  int                option;
-  int                transaction_id;
-  void              *device;
-  int                ret;
-  long             (*config_command)();
-  long             (*parse_response)();
-  union {
-    ASYNC_IO async;
-    IO_EVENT event;
-  } io;
-  struct sockaddr_in peer_addr; /* for OMRON ETN01 support */
+    ELLNODE            node;
+    struct dbCommon   *record;
+    void              *facility;
+    int                option;
+    int                transaction_id;
+    void              *device;
+    int                ret;
+    long             (*config_command)();
+    long             (*parse_response)();
+    union {
+        ASYNC_IO async;
+        IO_EVENT event;
+    } io;
+    struct sockaddr_in peer_addr; /* for OMRON ETN01 support */
 } TRANSACTION;
 
 
 typedef struct {
-  ELLNODE            node;
-  int                id;
-  int                option;
-  int                sfd;
-  struct sockaddr_in peer_addr;
-  struct sockaddr_in sender_addr;
-  uint32_t           counter;
-  int                show_msg;
-  int                send_len;
-  int                recv_len;
-  uint8_t           *send_buf;
-  uint8_t           *recv_buf;
-  int                mpf_var[NUM_MPF_VAR];
+    ELLNODE            node;
+    int                id;
+    int                option;
+    int                sfd;
+    struct sockaddr_in peer_addr;
+    struct sockaddr_in sender_addr;
+    uint32_t           counter;
+    int                show_msg;
+    int                send_len;
+    int                recv_len;
+    uint8_t           *send_buf;
+    uint8_t           *recv_buf;
+    int                mpf_var[NUM_MPF_VAR];
 } MPF_COMMON;
 
 typedef struct {
-  MPF_COMMON         mpf;
-  TRANSACTION       *in_transaction;
-  epicsMutexId       in_t_mutex;
-  ELLLIST            reqQueue;
-  epicsMutexId       reqQ_mutex;
-  epicsEventId       req_queued;
-  epicsEventId       next_cycle;
-  epicsTimerId       wd_id;
-  epicsThreadId      send_tid;
-  epicsThreadId      recv_tid;
-  int                tmo_event;
-  int                event_num;
-  epicsTimeStamp     send_time;
-  epicsTimeStamp     recv_time;
+    MPF_COMMON         mpf;
+    TRANSACTION       *in_transaction;
+    epicsMutexId       in_t_mutex;
+    ELLLIST            reqQueue;
+    epicsMutexId       reqQ_mutex;
+    epicsEventId       req_queued;
+    epicsEventId       next_cycle;
+    epicsTimerId       wd_id;
+    epicsThreadId      send_tid;
+    epicsThreadId      recv_tid;
+    int                tmo_event;
+    int                event_num;
+    epicsTimeStamp     send_time;
+    epicsTimeStamp     recv_time;
 } PEER;
 
 typedef struct {
-  MPF_COMMON         mpf;
-  unsigned short     port;
-  ELLLIST            eventQueue;
-  epicsMutexId       eventQ_mutex;
-  epicsThreadId      server_tid;
-  void              *parent;
+    MPF_COMMON         mpf;
+    unsigned short     port;
+    ELLLIST            eventQueue;
+    epicsMutexId       eventQ_mutex;
+    epicsThreadId      server_tid;
+    void              *parent;
 } SERVER;
 
 typedef struct {
-  ELLNODE            node;
-  struct sockaddr_in peer_addr;
-  int                option;
-  int                is_bin;
+    ELLNODE            node;
+    struct sockaddr_in peer_addr;
+    int                option;
+    int                is_bin;
 } MSG_BY_IP;
 
 typedef struct {
-  ELLNODE            node;
-  dbCommon          *precord;
+    ELLNODE            node;
+    dbCommon          *precord;
 } MSG_BY_PV;
 
 typedef struct {
-  ELLNODE            node;
-  struct sockaddr_in peer_addr;
+    ELLNODE            node;
+    struct sockaddr_in peer_addr;
 } RTT_ITEM;
 
 
@@ -261,7 +261,3 @@ dump_msg( (arg1), (arg2), (arg3), ((MPF_COMMON *) (arg0))->show_msg );}
 #else
 #define DUMP_MSG(arg0, arg1, arg2, arg3)
 #endif
-
-
-
-

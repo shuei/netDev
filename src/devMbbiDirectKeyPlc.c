@@ -13,7 +13,7 @@
  * -----------------
  */
 
-#include        <mbbiDirectRecord.h>
+#include <mbbiDirectRecord.h>
 
 #ifndef EPICS_REVISION
 #include <epicsVersion.h>
@@ -29,84 +29,74 @@ LOCAL long config_mbbiDirect_command(struct dbCommon *, int *, uint8_t *, int *,
 LOCAL long parse_mbbiDirect_response(struct dbCommon *, int *, uint8_t *, int *, void *, int);
 
 INTEGERDSET devMbbiDirectKeyPlc = {
-  5,
-  NULL,
-  netDevInit,
-  init_mbbiDirect_record,
-  NULL,
-  read_mbbiDirect
+    5,
+    NULL,
+    netDevInit,
+    init_mbbiDirect_record,
+    NULL,
+    read_mbbiDirect
 };
 
 epicsExportAddress(dset, devMbbiDirectKeyPlc);
 
-
 LOCAL long init_mbbiDirect_record( struct mbbiDirectRecord *pMbbiDirect )
 {
-  pMbbiDirect->nobt = 16;
-  pMbbiDirect->mask = 0xFFFF;
-  pMbbiDirect->shft = 0;
+    pMbbiDirect->nobt = 16;
+    pMbbiDirect->mask = 0xFFFF;
+    pMbbiDirect->shft = 0;
 
-  return netDevInitXxRecord(
-			    (struct dbCommon *) pMbbiDirect,
-			    &pMbbiDirect->inp,
-			    MPF_READ | KEY_GET_PROTO | DEFAULT_TIMEOUT,
-			    key_calloc(0, KEY_CMND_RDE),
-			    key_parse_link,
-			    config_mbbiDirect_command,
-			    parse_mbbiDirect_response
-			    );
+    return netDevInitXxRecord((struct dbCommon *) pMbbiDirect,
+                              &pMbbiDirect->inp,
+                              MPF_READ | KEY_GET_PROTO | DEFAULT_TIMEOUT,
+                              key_calloc(0, KEY_CMND_RDE),
+                              key_parse_link,
+                              config_mbbiDirect_command,
+                              parse_mbbiDirect_response
+                              );
 }
-
 
 LOCAL long read_mbbiDirect(struct mbbiDirectRecord *pMbbiDirect)
 {
-  return netDevReadWriteXx((struct dbCommon *) pMbbiDirect);
+    return netDevReadWriteXx((struct dbCommon *) pMbbiDirect);
 }
 
 
-LOCAL long config_mbbiDirect_command(
-				     struct dbCommon *pxx,
-				     int *option,
-				     uint8_t *buf,
-				     int *len,
-				     void *device,
-				     int transaction_id
-				     )
+LOCAL long config_mbbiDirect_command(struct dbCommon *pxx,
+                                     int *option,
+                                     uint8_t *buf,
+                                     int *len,
+                                     void *device,
+                                     int transaction_id
+                                     )
 {
-  struct mbbiDirectRecord *pmbbiDirect = (struct mbbiDirectRecord *)pxx;
+    struct mbbiDirectRecord *pmbbiDirect = (struct mbbiDirectRecord *)pxx;
 
-  return key_config_command(
-			    buf,
-			    len,
-			    &pmbbiDirect->rval,
-			    DBF_ULONG,
-			    1,
-			    option,
-			    (KEY_PLC *) device
-			    );
-} 
-
-
-LOCAL long parse_mbbiDirect_response(
-				     struct dbCommon *pxx,
-				     int *option,
-				     uint8_t *buf,
-				     int *len,
-				     void *device,
-				     int transaction_id
-				     )
-{
-  struct mbbiDirectRecord *pmbbiDirect = (struct mbbiDirectRecord *)pxx;
-
-  return key_parse_response(
-			    buf,
-			    len,
-			    &pmbbiDirect->rval,
-			    DBF_ULONG,
-			    1,
-			    option,
-			    (KEY_PLC *) device
-			    );
+    return key_config_command(buf,
+                              len,
+                              &pmbbiDirect->rval,
+                              DBF_ULONG,
+                              1,
+                              option,
+                              (KEY_PLC *) device
+                              );
 }
 
+LOCAL long parse_mbbiDirect_response(struct dbCommon *pxx,
+                                     int *option,
+                                     uint8_t *buf,
+                                     int *len,
+                                     void *device,
+                                     int transaction_id
+                                     )
+{
+    struct mbbiDirectRecord *pmbbiDirect = (struct mbbiDirectRecord *)pxx;
 
+    return key_parse_response(buf,
+                              len,
+                              &pmbbiDirect->rval,
+                              DBF_ULONG,
+                              1,
+                              option,
+                              (KEY_PLC *) device
+                              );
+}
