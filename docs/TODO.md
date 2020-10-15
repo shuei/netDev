@@ -7,6 +7,7 @@ ToDo list for netDev
 - [ ] BCD support for YewPlc
 - [ ] Clean up treatment of options in devYewPlc.c: lopt/dword/fdpat
 - [ ] Add '&D' option to support double precision
+- [ ] Check if NaN with '&D' option.
 - [ ] Consider SMOO and ASLO/AOFF fields on ai/ao records with '&F' (and '&D') option
 - [ ] Add support for aai/aao records
 - [ ] Mark patternRecord as obsolete.
