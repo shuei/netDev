@@ -18,6 +18,7 @@
  * made all integer data signed
  */
 
+#include <math.h>
 #include <aiRecord.h>
 #include <menuConvert.h>
 
@@ -137,6 +138,8 @@ LOCAL long parse_ai_response(struct dbCommon *pxx,
             float *pfloat = (float *)tmp;
             pai->val = (double) *pfloat;
             if (ret == OK) {
+                pai->udf = FALSE;
+                pai->udf = isnan(pai->val);
                 ret = 2; /* Don't convert */
             }
         }
