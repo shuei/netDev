@@ -22,15 +22,12 @@
  */
 
 #include <ctype.h>
+
 #include <dbFldTypes.h>
+#include <epicsExport.h>
 
 #include "drvNetMpf.h"
 #include "devNetDev.h"
-
-//#ifndef EPICS_REVISION
-//#  include <epicsVersion.h>
-//#endif
-#include <epicsExport.h>
 
 #define YEW_CMND_LENGTH(x) ((x) ? 10 : 12)
 #define YEW_DATA_OFFSET  4
@@ -109,18 +106,18 @@ LOCAL void *yew_calloc(int unit,
     return d;
 }
 
-#include        "devAiYewPlc.c"
-#include        "devAoYewPlc.c"
-#include        "devBiYewPlc.c"
-#include        "devBoYewPlc.c"
-#include        "devLonginYewPlc.c"
-#include        "devLongoutYewPlc.c"
-#include        "devMbbiDirectYewPlc.c"
-#include        "devMbboDirectYewPlc.c"
-#include        "devWaveformYewPlc.c"
-#include        "devArrayoutYewPlc.c"
-#include        "devPatternYewPlc.c"
-#include        "devStatusYewPlc.c"
+#include "devAiYewPlc.c"
+#include "devAoYewPlc.c"
+#include "devBiYewPlc.c"
+#include "devBoYewPlc.c"
+#include "devLonginYewPlc.c"
+#include "devLongoutYewPlc.c"
+#include "devMbbiDirectYewPlc.c"
+#include "devMbboDirectYewPlc.c"
+#include "devWaveformYewPlc.c"
+#include "devArrayoutYewPlc.c"
+#include "devPatternYewPlc.c"
+#include "devStatusYewPlc.c"
 
 /*********************************************************************************
  * Link field parser for both command/response I/O and event driven I/O
@@ -154,8 +151,7 @@ LOCAL long yew_parse_link(struct link *plink,
 
     if (!peer_addr->sin_port) {
         peer_addr->sin_port = htons(YEW_DEFAULT_PORT);
-        LOGMSG("devYewPlc: port: 0x%04x\n",ntohs(peer_addr->sin_port),
-               0,0,0,0,0,0,0,0);
+        LOGMSG("devYewPlc: port: 0x%04x\n",ntohs(peer_addr->sin_port),0,0,0,0,0,0,0,0);
     }
 
     if (protocol) {
@@ -274,8 +270,7 @@ LOCAL long yew_parse_link(struct link *plink,
             case  'L':    /* link relay          */
                 break;
             default:
-                errlogPrintf("devYewPlc: illeagal device specification \'%c\' (width %d)\n",
-                             d->type, d->width);
+                errlogPrintf("devYewPlc: illeagal device specification \'%c\' (width %d)\n", d->type, d->width);
                 return ERROR;
             }
             break;
@@ -343,14 +338,9 @@ LOCAL long yew_config_command(uint8_t *buf,    /* driver buf addr     */
                               YEW_PLC *d
                               )
 {
-    int nwrite;
+    LOGMSG("devYewPlc: yew_config_command(%8p,%d,%8p,%d,%d,%d,%8p)\n",buf,*len,bptr,ftvl,ndata,*option,d,0,0);
+
     int n;
-    uint8_t  command_type;
-    uint16_t bytes_follow;
-
-    LOGMSG("devYewPlc: yew_config_command(%8p,%d,%8p,%d,%d,%d,%8p)\n",
-           buf,*len,bptr,ftvl,ndata,*option,d,0,0);
-
     if (ndata > YEW_MAX_NDATA) {
         if (!d->noff) {
             /* for the first time */
@@ -362,12 +352,15 @@ LOCAL long yew_config_command(uint8_t *buf,    /* driver buf addr     */
         n = ndata;
     }
 
-    nwrite = isWrite(*option) ? (d->width)*n : 0;
+    int nwrite = isWrite(*option) ? (d->width)*n : 0;
 
     if (*len < YEW_CMND_LENGTH(d->spmod) + nwrite) {
         errlogPrintf("devYewPlc: buffer is running short\n");
         return ERROR;
     }
+
+    uint8_t  command_type;
+    uint16_t bytes_follow;
 
     if (!d->spmod) {
         /* CPU Module */
@@ -440,15 +433,10 @@ LOCAL long yew_parse_response(uint8_t *buf,    /* driver buf addr     */
                               YEW_PLC *d
                               )
 {
-    /* int nread; */
+    LOGMSG("devYewPlc: yew_parse_response(%8p,%d,%8p,%d,%d,%d,%8p)\n",buf,*len,bptr,ftvl,ndata,*option,d,0,0);
+
     int n;
     int ret;
-    uint8_t  response_type;
-    uint16_t number_of_data;
-
-    LOGMSG("devYewPlc: yew_parse_response(%8p,%d,%8p,%d,%d,%d,%8p)\n",
-           buf,*len,bptr,ftvl,ndata,*option,d,0,0);
-
     if (ndata > YEW_MAX_NDATA) {
         n   = (d->nleft > YEW_MAX_NDATA) ? YEW_MAX_NDATA : d->nleft;
         ret = (d->nleft > YEW_MAX_NDATA) ? NOT_DONE : 0;
@@ -457,7 +445,10 @@ LOCAL long yew_parse_response(uint8_t *buf,    /* driver buf addr     */
         ret = 0;
     }
 
-    /* nread  = isRead(*option)? (d->width)*n:0; */
+    // int nread  = isRead(*option)? (d->width)*n:0;
+
+    uint8_t  response_type;
+    uint16_t number_of_data;
 
     if (!d->spmod) {
         /* CPU Module */

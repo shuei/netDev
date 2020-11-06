@@ -16,12 +16,8 @@
  * by pointer
  */
 
-#include        <longoutRecord.h>
-
-//#ifndef EPICS_REVISION
-//#include <epicsVersion.h>
-//#endif
-//#include <epicsExport.h>
+#include <epicsExport.h>
+#include <longoutRecord.h>
 
 /***************************************************************
  * Long output (command/respons IO)

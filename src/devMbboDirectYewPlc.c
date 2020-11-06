@@ -16,12 +16,8 @@
  * by pointer
  */
 
-#include        <mbboDirectRecord.h>
-
-//#ifndef EPICS_REVISION
-//#include <epicsVersion.h>
-//#endif
-//#include <epicsExport.h>
+#include <epicsExport.h>
+#include <mbboDirectRecord.h>
 
 /***************************************************************
  * Mult-bit binary output (command/response IO)

@@ -12,11 +12,9 @@
 /* Modification Log:
  * -----------------
  */
-#include <channelsRecord.h>
-#ifndef EPICS_REVISION
-#include <epicsVersion.h>
-#endif
+
 #include <epicsExport.h>
+#include <channelsRecord.h>
 
 /* cmtout = not debub
 #define DEBUG

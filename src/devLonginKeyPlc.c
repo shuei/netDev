@@ -13,12 +13,8 @@
  * -----------------
  */
 
-#include        <longinRecord.h>
-
-#ifndef EPICS_REVISION
-#include <epicsVersion.h>
-#endif
 #include <epicsExport.h>
+#include <longinRecord.h>
 
 /***************************************************************
  * Long input (command/response IO)

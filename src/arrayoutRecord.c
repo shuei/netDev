@@ -20,7 +20,7 @@
 #  include <types.h>
 #  include <stdioLib.h>
 #  include <lstLib.h>
-#  include  <stdlib.h>
+#  include <stdlib.h>
 #  include <string.h>
 
 #  include "dbDefs.h"
@@ -31,33 +31,33 @@
 #  include <dbFldTypes.h>
 #  include <dbScan.h>
 #  include <devSup.h>
+#  include <epicsExport.h>
 #  include <errMdef.h>
 #  include <recSup.h>
 
 #else // EPICS_REVISION >= 14
-#  include "dbDefs.h"
-#  include "epicsPrint.h"
-#  include "alarm.h"
-#  include "dbAccess.h"
-#  include "dbEvent.h"
-#  include "dbFldTypes.h"
-#  include "dbScan.h"
-#  include "devSup.h"
-#  include "errMdef.h"
-#  include "recSup.h"
-#  include "recGbl.h"
-#  include "menuOmsl.h"
-#  include "menuYesNo.h"
-
 #  include <stdlib.h>
 #  include <string.h>
+
+#  include <alarm.h>
+#  include <dbAccess.h>
+#  include <dbDefs.h>
+#  include <dbEvent.h>
+#  include <dbFldTypes.h>
+#  include <dbScan.h>
+#  include <devSup.h>
+#  include <epicsExport.h>
+#  include <epicsPrint.h>
+#  include <errMdef.h>
+#  include <recSup.h>
+#  include <recGbl.h>
+#  include <menuOmsl.h>
+#  include <menuYesNo.h>
 #endif
 
 #define GEN_SIZE_OFFSET
 #include "arrayoutRecord.h"
 #undef  GEN_SIZE_OFFSET
-
-#include <epicsExport.h>
 
 /* Create RSET - Record Support Entry Table*/
 #define report NULL
@@ -304,7 +304,6 @@ static void monitor(struct arrayoutRecord *pao)
 static long writeValue(struct arrayoutRecord *pao)
 {
     long status;
-    long nRequest;
     struct arodset *pdset = (struct arodset *) (pao->dset);
 
     if (pao->pact == TRUE) {
@@ -323,7 +322,7 @@ static long writeValue(struct arrayoutRecord *pao)
     }
 
     if (pao->simm == menuYesNoYES) {
-        nRequest=pao->nelm;
+        long nRequest = pao->nelm;
         status=dbPutLink(&(pao->siol),
                          pao->ftvl,pao->bptr,nRequest);
         /* nowt set only for db links: needed for old db_access */

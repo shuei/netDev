@@ -16,23 +16,20 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "alarm.h"
-#include "dbAccess.h"
-#include "recGbl.h"
-#include "dbEvent.h"
-#include "dbDefs.h"
-#include "dbAccess.h"
-#include "devSup.h"
-#include "errMdef.h"
-#include "recSup.h"
-#include "special.h"
+#include <alarm.h>
+#include <dbAccess.h>
+#include <dbDefs.h>
+#include <dbEvent.h>
+#include <devSup.h>
+#include <epicsExport.h>
+#include <errMdef.h>
+#include <recGbl.h>
+#include <recSup.h>
+#include <special.h>
+
 #define GEN_SIZE_OFFSET
 #include "channelsRecord.h"
 #undef  GEN_SIZE_OFFSET
-#ifndef EPICS_REVISION
-#include <epicsVersion.h>
-#endif
-#include <epicsExport.h>
 
 /* Create RSET - Record Support Entry Table */
 #define report NULL

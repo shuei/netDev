@@ -12,12 +12,9 @@
 /* Modification Log:
  * -----------------
  */
-#include        <stringoutRecord.h>
 
-#ifndef EPICS_REVISION
-#include <epicsVersion.h>
-#endif
 #include <epicsExport.h>
+#include <stringoutRecord.h>
 
 /***************************************************************
  * String output (command/respons IO)

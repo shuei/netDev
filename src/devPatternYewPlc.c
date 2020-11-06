@@ -16,12 +16,8 @@
  * by pointer
  */
 
-#include        <patternRecord.h>
-
-//#ifndef EPICS_REVISION
-//#include <epicsVersion.h>
-//#endif
 #include <epicsExport.h>
+#include <patternRecord.h>
 
 /***************************************************************
  * Pattern (command/response IO)

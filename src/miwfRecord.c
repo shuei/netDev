@@ -17,24 +17,23 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "dbDefs.h"
-#include "epicsPrint.h"
-#include "alarm.h"
-#include "dbAccess.h"
-#include "dbEvent.h"
-#include "dbFldTypes.h"
-#include "dbScan.h"
-#include "devSup.h"
-#include "errMdef.h"
-#include "recSup.h"
-#include "recGbl.h"
-#include "menuYesNo.h"
+#include <alarm.h>
+#include <dbAccess.h>
+#include <dbDefs.h>
+#include <dbEvent.h>
+#include <dbFldTypes.h>
+#include <dbScan.h>
+#include <devSup.h>
+#include <epicsExport.h>
+#include <epicsPrint.h>
+#include <errMdef.h>
+#include <recSup.h>
+#include <recGbl.h>
+#include <menuYesNo.h>
 
 #define GEN_SIZE_OFFSET
 #include "miwfRecord.h"
 #undef  GEN_SIZE_OFFSET
-
-#include "epicsExport.h"
 
 /* Create RSET - Record Support Entry Table*/
 #define report NULL
@@ -94,9 +93,6 @@ static long readValue();
 
 static long init_record(struct miwfRecord *mipwf, int pass)
 {
-    struct wfdset *pdset;
-    long status;
-
     if (pass==0) {
         if (mipwf->nelm<=0) {
             mipwf->nelm=1;
@@ -124,7 +120,8 @@ static long init_record(struct miwfRecord *mipwf, int pass)
     }
 
     /* must have dset defined */
-    if (!(pdset = (struct wfdset *)(mipwf->dset))) {
+    struct wfdset *pdset = (struct wfdset *)(mipwf->dset);
+    if (!pdset) {
         recGblRecordError(S_dev_noDSET,(void *)mipwf,"wf: init_record");
         return S_dev_noDSET;
     }
@@ -136,7 +133,8 @@ static long init_record(struct miwfRecord *mipwf, int pass)
     }
 
     if (pdset->init_record) {
-        if ((status=(*pdset->init_record)(mipwf))) {
+        long status = (*pdset->init_record)(mipwf);
+        if (status) {
             return status;
         }
     }

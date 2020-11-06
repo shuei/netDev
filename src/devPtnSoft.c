@@ -14,15 +14,16 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "alarm.h"
-#include "dbDefs.h"
-#include "dbAccess.h"
-#include "recGbl.h"
-#include "recSup.h"
-#include "devSup.h"
-#include "link.h"
+#include <alarm.h>
+#include <dbDefs.h>
+#include <dbAccess.h>
+#include <epicsExport.h>
+#include <recGbl.h>
+#include <recSup.h>
+#include <devSup.h>
+#include <link.h>
+
 #include "patternRecord.h"
-#include "epicsExport.h"
 
 /* Create the dset for devPtnSoft */
 static long init_record();
@@ -67,10 +68,8 @@ static long init_record(patternRecord *pptn)
 
 static long read_wf(patternRecord *pptn)
 {
-    long /* status, */nRequest;
-
-    nRequest=pptn->nelm;
-    /* status = */
+    long nRequest=pptn->nelm;
+    // long status =
     dbGetLink(&pptn->inp,pptn->ftvl,pptn->bptr, 0, &nRequest);
     /*If dbGetLink got no values leave things as they were*/
     if (nRequest>0) {

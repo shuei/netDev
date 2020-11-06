@@ -16,12 +16,8 @@
  * by pointer
  */
 
-#include        <arrayoutRecord.h>
-
-//#ifndef EPICS_REVISION
-//#include <epicsVersion.h>
-//#endif
-//#include <epicsExport.h>
+#include <epicsExport.h>
+#include <arrayoutRecord.h>
 
 static uint16_t *u16_val;
 

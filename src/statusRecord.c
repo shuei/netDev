@@ -17,21 +17,22 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "dbDefs.h"
-#include "epicsPrint.h"
-#include "alarm.h"
-#include "dbAccess.h"
-#include "dbEvent.h"
-#include "dbFldTypes.h"
-#include "dbScan.h"
-#include "devSup.h"
-#include "errMdef.h"
-#include "recSup.h"
-#include "recGbl.h"
+#include <alarm.h>
+#include <dbAccess.h>
+#include <dbDefs.h>
+#include <dbEvent.h>
+#include <dbFldTypes.h>
+#include <dbScan.h>
+#include <devSup.h>
+#include <epicsExport.h>
+#include <epicsPrint.h>
+#include <errMdef.h>
+#include <recSup.h>
+#include <recGbl.h>
+
 #define GEN_SIZE_OFFSET
 #include "statusRecord.h"
 #undef  GEN_SIZE_OFFSET
-#include "epicsExport.h"
 
 /* Create RSET - Record Support Entry Table*/
 #define report NULL

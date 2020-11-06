@@ -14,15 +14,16 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "alarm.h"
-#include "dbDefs.h"
-#include "dbAccess.h"
-#include "recGbl.h"
-#include "recSup.h"
-#include "devSup.h"
-#include "link.h"
+#include <alarm.h>
+#include <dbDefs.h>
+#include <dbAccess.h>
+#include <epicsExport.h>
+#include <recGbl.h>
+#include <recSup.h>
+#include <devSup.h>
+#include <link.h>
+
 #include "miwfRecord.h"
-#include "epicsExport.h"
 
 /* Create the dset for devMiwfSoft */
 static long init_record();
@@ -81,10 +82,9 @@ static long init_record(miwfRecord *pmiwf)
 
 static long read_wf(miwfRecord *pmiwf)
 {
-    long /* status,*/ nRequest;
     struct link *plink;
 
-    nRequest=pmiwf->nelm;
+    long nRequest=pmiwf->nelm;
     switch (pmiwf->seln) {
     case 0:
         plink = &pmiwf->inp0;
@@ -113,7 +113,7 @@ static long read_wf(miwfRecord *pmiwf)
         return S_db_badField;
     }
 
-    /* status = */
+    // long status =
     dbGetLink(plink,pmiwf->ftvl,pmiwf->bptr, 0,&nRequest);
     /*If dbGetLink got no values leave things as they were*/
     if (nRequest>0) {

@@ -17,15 +17,11 @@
 #define DEBUG
  */
 
-#include        <dbFldTypes.h>
-
-#include        "drvNetMpf.h"
-#include        "devNetDev.h"
-
-#ifndef EPICS_REVISION
-#include <epicsVersion.h>
-#endif
+#include <dbFldTypes.h>
 #include <epicsExport.h>
+
+#include "drvNetMpf.h"
+#include "devNetDev.h"
 
 #define DARWIN_MAX_CMND_LEN 256
 #define DARWIN_TCP_PORT_SET 34150

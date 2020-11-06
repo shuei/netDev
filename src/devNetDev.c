@@ -20,6 +20,7 @@
 #include <recGbl.h>
 #include <dbLock.h>
 #include <dbFldTypes.h>
+
 #include "drvNetMpf.h"
 #include "devNetDev.h"
 
@@ -59,25 +60,9 @@ long netDevInitXxRecord(struct dbCommon *pxx,
                         struct link *plink,
                         int option,
                         void *device,
-                        long (*parse_link)(struct link *,
-                                           struct sockaddr_in *,
-                                           int *,
-                                           void *
-                                           ),
-                        long (*config_command)(dbCommon *,
-                                               int *,
-                                               uint8_t *,
-                                               int *,
-                                               void *,
-                                               int
-                                               ),
-                        long (*parse_response)(dbCommon *,
-                                               int *,
-                                               uint8_t *,
-                                               int *,
-                                               void *,
-                                               int
-                                               )
+                        parse_link_fn_t parse_link,
+                        config_command_fn_t config_command,
+                        parse_response_fn_t parse_response
                         )
 {
     LOGMSG("devNetDev: netDevInitXxRecord(\"%s\",%8p,%d,%8p,%8p,%8p)\n",
@@ -113,26 +98,26 @@ long netDevInitXxRecord(struct dbCommon *pxx,
     t->config_command = config_command;
     t->parse_response = parse_response;
 
-  if (isEvent(option)) {
-      if (drvNetMpfRegisterEvent(t)) {
-          errPrintf(ERROR, __FILE__, __LINE__,
-                    "Can't register event record (\"%s\")\n", pxx->name);
-          recGblSetSevr(pxx, INVALID_ALARM, INVALID_ALARM);
-          return ERROR;
-      }
-  } else {
-      t->io.async.timeout = GET_TIMEOUT(option);
-      if (isFineTmo(option)) {
-          t->io.async.timeout /= TICK_PER_SECOND;
-      }
-      callbackSetCallback(net_dev_async_completion, &t->io.async.callback);
-      callbackSetPriority(pxx->prio, &t->io.async.callback);
-      callbackSetUser(pxx, &t->io.async.callback);
-  }
+    if (isEvent(option)) {
+        if (drvNetMpfRegisterEvent(t)) {
+            errPrintf(ERROR, __FILE__, __LINE__,
+                      "Can't register event record (\"%s\")\n", pxx->name);
+            recGblSetSevr(pxx, INVALID_ALARM, INVALID_ALARM);
+            return ERROR;
+        }
+    } else {
+        t->io.async.timeout = GET_TIMEOUT(option);
+        if (isFineTmo(option)) {
+            t->io.async.timeout /= TICK_PER_SECOND;
+        }
+        callbackSetCallback(net_dev_async_completion, &t->io.async.callback);
+        callbackSetPriority(pxx->prio, &t->io.async.callback);
+        callbackSetUser(pxx, &t->io.async.callback);
+    }
 
-  pxx->dpvt = (void *) t;
+    pxx->dpvt = (void *) t;
 
-  return OK;
+    return OK;
 }
 
 /*******************************************************************************
@@ -151,8 +136,7 @@ long netDevReadWriteXx(struct dbCommon *pxx)
         }
 
         if (t->ret) {
-            recGblSetSevr(pxx, isRead(t->option) ?
-                          READ_ALARM : WRITE_ALARM, INVALID_ALARM);
+            recGblSetSevr(pxx, isRead(t->option) ? READ_ALARM : WRITE_ALARM, INVALID_ALARM);
         }
 
         return t->ret;
@@ -296,20 +280,8 @@ LOCAL void sync_io_completion(CALLBACK *pcb)
 
 TRANSACTION *netDevInitInternalIO(struct dbCommon *pxx,
                                   struct sockaddr_in peer_addr,
-                                  long (*config_command)(struct dbCommon *,
-                                                         int *,
-                                                         uint8_t *,
-                                                         int *,
-                                                         void *,
-                                                         int
-                                                         ),
-                                  long (*parse_response)(struct dbCommon *,
-                                                         int *,
-                                                         uint8_t *,
-                                                         int *,
-                                                         void *,
-                                                         int
-                                                         ),
+                                  config_command_fn_t config_command,
+                                  parse_response_fn_t parse_response,
                                   void (*async_io_completion)(CALLBACK *),
                                   void *arg,
                                   int protocol

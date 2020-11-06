@@ -13,14 +13,9 @@
  * -----------------
  */
 
-
-#include        <aiRecord.h>
-#include        <menuConvert.h>
-
-#ifndef EPICS_REVISION
-#include <epicsVersion.h>
-#endif
 #include <epicsExport.h>
+#include <menuConvert.h>
+#include <aiRecord.h>
 
 /***************************************************************
  * Analog input (command/response IO)

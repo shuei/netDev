@@ -17,23 +17,23 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "dbDefs.h"
-#include "epicsPrint.h"
-#include "alarm.h"
-#include "dbAccess.h"
-#include "dbEvent.h"
-#include "dbFldTypes.h"
-#include "dbScan.h"
-#include "devSup.h"
-#include "errMdef.h"
-#include "recSup.h"
-#include "recGbl.h"
-#include "menuYesNo.h"
+#include <alarm.h>
+#include <dbAccess.h>
+#include <dbDefs.h>
+#include <dbEvent.h>
+#include <dbFldTypes.h>
+#include <dbScan.h>
+#include <devSup.h>
+#include <epicsExport.h>
+#include <epicsPrint.h>
+#include <errMdef.h>
+#include <recSup.h>
+#include <recGbl.h>
+#include <menuYesNo.h>
 
 #define GEN_SIZE_OFFSET
 #include "patternRecord.h"
 #undef  GEN_SIZE_OFFSET
-#include "epicsExport.h"
 
 /* Create RSET - Record Support Entry Table*/
 #define report NULL
@@ -94,9 +94,6 @@ static long readValue();
 
 static long init_record(struct patternRecord *pptn, int pass)
 {
-    struct ptndset *pdset;
-    long status;
-
     if (pass==0) {
         if (pptn->nelm<=0) {
             pptn->nelm=1;
@@ -124,7 +121,8 @@ static long init_record(struct patternRecord *pptn, int pass)
     }
 
     /* must have dset defined */
-    if (!(pdset = (struct ptndset *)(pptn->dset))) {
+    struct ptndset *pdset = (struct ptndset *)(pptn->dset);
+    if (!pdset) {
         recGblRecordError(S_dev_noDSET, pptn, "ptn: init_record");
         return S_dev_noDSET;
     }
@@ -136,7 +134,8 @@ static long init_record(struct patternRecord *pptn, int pass)
     }
 
     if (pdset->init_record) {
-        if ((status=(*pdset->init_record)(pptn))) {
+        long status = (*pdset->init_record)(pptn);
+        if (status) {
             return status;
         }
     }
@@ -192,7 +191,7 @@ static long process(struct patternRecord *pptn)
             bptr[i] = (double) ((pptn->eslo) * (pulong[i]));
             break;
         default:
-            /* never reach here */
+            // never reach here
             break;
         }
     }
@@ -338,7 +337,7 @@ static long readValue(struct patternRecord *pptn)
     }
 
     if (pptn->simm == menuYesNoYES) {
-        long nRequest=pptn->nelm;
+        long nRequest = pptn->nelm;
         status=dbGetLink(&(pptn->siol), pptn->ftvl,pptn->rptr,0,&nRequest);
         /* nord set only for db links: needed for old db_access */
         if (pptn->siol.type != CONSTANT ) {

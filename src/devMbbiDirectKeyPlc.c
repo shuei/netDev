@@ -13,12 +13,8 @@
  * -----------------
  */
 
-#include <mbbiDirectRecord.h>
-
-#ifndef EPICS_REVISION
-#include <epicsVersion.h>
-#endif
 #include <epicsExport.h>
+#include <mbbiDirectRecord.h>
 
 /***************************************************************
  * Mult-bit binary input (command/response IO)

@@ -26,32 +26,32 @@ typedef int in_addr_t;
 #define MAX_INSTIO_STRING 256
 
 typedef struct {
-  long          number;
-  DEVSUPFUN     report;
-  DEVSUPFUN     init;
-  DEVSUPFUN     init_record;
-  DEVSUPFUN     get_ioint_info;
-  DEVSUPFUN     read_write;
+    long          number;
+    DEVSUPFUN     report;
+    DEVSUPFUN     init;
+    DEVSUPFUN     init_record;
+    DEVSUPFUN     get_ioint_info;
+    DEVSUPFUN     read_write;
 } INTEGERDSET;
 
 typedef struct {
-  long          number;
-  DEVSUPFUN     report;
-  DEVSUPFUN     init;
-  DEVSUPFUN     init_record;
-  DEVSUPFUN     get_ioint_info;
-  DEVSUPFUN     read_write;
-  DEVSUPFUN     special_linconv;
+    long          number;
+    DEVSUPFUN     report;
+    DEVSUPFUN     init;
+    DEVSUPFUN     init_record;
+    DEVSUPFUN     get_ioint_info;
+    DEVSUPFUN     read_write;
+    DEVSUPFUN     special_linconv;
 } FLOATDSET;
 
 typedef struct {
-  long          number;
-  DEVSUPFUN     report;
-  DEVSUPFUN     init;
-  DEVSUPFUN     init_record;
-  DEVSUPFUN     get_ioint_info;
-  DEVSUPFUN     read_write;
-  DEVSUPFUN     setup_attention;
+    long          number;
+    DEVSUPFUN     report;
+    DEVSUPFUN     init;
+    DEVSUPFUN     init_record;
+    DEVSUPFUN     get_ioint_info;
+    DEVSUPFUN     read_write;
+    DEVSUPFUN     setup_attention;
 } ATTENTIONDSET;
 
 typedef long (* parse_link_fn_t)(struct link *, struct sockaddr_in *, int *, void *);

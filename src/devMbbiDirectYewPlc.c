@@ -16,7 +16,8 @@
  * by pointer
  */
 
-#include        <mbbiDirectRecord.h>
+#include <epicsExport.h>
+#include <mbbiDirectRecord.h>
 
 //#ifndef EPICS_REVISION
 //#include <epicsVersion.h>

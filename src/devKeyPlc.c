@@ -13,15 +13,11 @@
  * -----------------
  */
 
-#include        <dbFldTypes.h>
-
-#include        "drvNetMpf.h"
-#include        "devNetDev.h"
-
-#ifndef EPICS_REVISION
-#include <epicsVersion.h>
-#endif
+#include <dbFldTypes.h>
 #include <epicsExport.h>
+
+#include "drvNetMpf.h"
+#include "devNetDev.h"
 
 #define KEY_DEFAULT_PORT 8501
 #define KEY_GET_PROTO    key_get_protocol()

@@ -13,13 +13,9 @@
  * -----------------
  */
 
-#include        <aoRecord.h>
-#include        <menuConvert.h>
-
-#ifndef EPICS_REVISION
-#include <epicsVersion.h>
-#endif
 #include <epicsExport.h>
+#include <aoRecord.h>
+#include <menuConvert.h>
 
 /***************************************************************
  * Analog output (command/response IO)

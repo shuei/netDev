@@ -16,12 +16,8 @@
  * by pointer
  */
 
-#include        <boRecord.h>
-
-//#ifndef EPICS_REVISION
-//#include <epicsVersion.h>
-//#endif
-//#include <epicsExport.h>
+#include <epicsExport.h>
+#include <boRecord.h>
 
 /***************************************************************
  * Binary output (command/response IO)

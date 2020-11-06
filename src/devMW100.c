@@ -13,15 +13,11 @@
  * -----------------
  */
 
-#include        <dbFldTypes.h>
-
-#include        "drvNetMpf.h"
-#include        "devNetDev.h"
-
-#ifndef EPICS_REVISION
-#include <epicsVersion.h>
-#endif
 #include <epicsExport.h>
+#include <dbFldTypes.h>
+
+#include "drvNetMpf.h"
+#include "devNetDev.h"
 
 #define MW100_FDCMD_BUFSIZE  256
 #define MW100_SERVER_PORT    34318

@@ -12,12 +12,9 @@
 /* Modification Log:
  * -----------------
  */
-#include        <stringoutRecord.h>
 
-#ifndef EPICS_REVISION
-#include <epicsVersion.h>
-#endif
 #include <epicsExport.h>
+#include <stringoutRecord.h>
 
 /***************************************************************
  * String output (command/respons IO)
@@ -95,11 +92,10 @@ LOCAL long parse_so_response(struct dbCommon *pxx,
                              int transaction_id
                              )
 {
-    int code;
-
     LOGMSG("devSoMW100: parse_so_response(%8p,0x%08x,%8p,%d,%8p,%d)\n",
            pxx,*option,buf,*len,device,transaction_id,0,0,0);
 
+    int code;
     if (sscanf((char *)buf, "E%d\r\n", &code) != 1) {
         errlogPrintf("parse_so_response: failed to read returned error code\n");
         return ERROR;
