@@ -634,7 +634,7 @@ LOCAL long fromShortVal(void *to,
 {
     int i;
 
-    LOGMSG("devNetDev: fromUsohrtVal(%8p,%8p,%d,%d,%d)\n",
+    LOGMSG("devNetDev: fromUshortVal(%8p,%8p,%d,%d,%d)\n",
            to,from,noff,width,ndata,0,0,0,0);
 
     from += noff;
@@ -797,7 +797,7 @@ LOCAL long fromUshortVal(void *to,
 {
     int i;
 
-    LOGMSG("devNetDev: fromUsohrtVal(%8p,%8p,%d,%d,%d)\n",
+    LOGMSG("devNetDev: fromUshortVal(%8p,%8p,%d,%d,%d)\n",
            to,from,noff,width,ndata,0,0,0,0);
 
     from += noff;
