@@ -169,10 +169,10 @@ typedef struct {
     struct sockaddr_in sender_addr;
     uint32_t           counter;
     int                show_msg;
-    int                send_len;
-    int                recv_len;
-    uint8_t           *send_buf;
-    uint8_t           *recv_buf;
+    ssize_t            send_len;
+    ssize_t            recv_len;
+    void              *send_buf;
+    void              *recv_buf;
     int                mpf_var[NUM_MPF_VAR];
 } MPF_COMMON;
 

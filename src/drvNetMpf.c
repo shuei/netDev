@@ -14,24 +14,20 @@
  * A bug in send_task has fixed.
  */
 
-#include <dbCommon.h>
+#ifndef vxWorks
+#include <errno.h>
+#endif
+
 #include <dbAccess.h>
+#include <dbAddr.h>
+#include <dbCommon.h>
 #include <epicsThread.h>
 #include <recSup.h>
 #include <drvSup.h>
 #include <iocsh.h>
-#include <dbAddr.h>
-
-#include "drvNetMpf.h"
-
-#ifndef EPICS_REVISION
-#include <epicsVersion.h>
-#endif
 #include <epicsExport.h>
 
-#ifndef vxWorks
-#include <errno.h>
-#endif
+#include "drvNetMpf.h"
 
 static int init_flag;
 static int globalPeerCount;
@@ -58,7 +54,7 @@ LOCAL long spawn_tcp_parent(SERVER *);
 LOCAL int tcp_parent(SERVER *);
 LOCAL void reconnect(MPF_COMMON *);
 LOCAL int event_server(SERVER *);
-void dump_msg(uint8_t *, int, int, int);
+void dump_msg(uint8_t *, ssize_t, int, int);
 void startEventServer(const iocshArgBuf *);
 void mpfHelp(const iocshArgBuf *);
 void peerShow(const iocshArgBuf *);
@@ -372,13 +368,13 @@ LOCAL void delete_peer(PEER *p)
         epicsMutexDestroy(p->reqQ_mutex);
     }
     if (p->mpf.send_buf) {
-        free((void *) p->mpf.send_buf);
+        free(p->mpf.send_buf);
     }
     if (p->mpf.recv_buf) {
-        free((void *) p->mpf.recv_buf);
+        free(p->mpf.recv_buf);
     }
 
-    free((void *) p);
+    free(p);
 }
 
 /*
@@ -455,7 +451,7 @@ PEER *drvNetMpfInitPeer(struct sockaddr_in peer_addr, int option)
         LOGMSG("drvNetMpf: send buf size %d\n",SEND_BUF_SIZE(p->mpf.option),0,0,0,0,0,0,0,0);
         LOGMSG("drvNetMpf: recv buf size %d\n",RECV_BUF_SIZE(p->mpf.option),0,0,0,0,0,0,0,0);
 
-        p->mpf.send_buf = (uint8_t *) calloc(1, SEND_BUF_SIZE(p->mpf.option));
+        p->mpf.send_buf = calloc(1, SEND_BUF_SIZE(p->mpf.option));
         if (!p->mpf.send_buf) {
             errlogPrintf("drvNetMpf: calloc failed (send_buf)\n");
             delete_peer(p);
@@ -463,7 +459,7 @@ PEER *drvNetMpfInitPeer(struct sockaddr_in peer_addr, int option)
             return NULL;
         }
 
-        p->mpf.recv_buf = (uint8_t *) calloc(1, RECV_BUF_SIZE(p->mpf.option));
+        p->mpf.recv_buf = calloc(1, RECV_BUF_SIZE(p->mpf.option));
         if (!p->mpf.recv_buf) {
             errlogPrintf("drvNetMpf: calloc failed (recv_buf)\n");
             delete_peer(p);
@@ -540,17 +536,16 @@ LOCAL TRANSACTION *get_request_from_queue(PEER *p)
  */
 LOCAL int send_msg(MPF_COMMON *m)
 {
-    uint8_t *cur = m->send_buf;
-    int len;
+    void *cur = m->send_buf;
 
     if (isUdp(m->option)) {
-        len = sendto(m->sfd,
-                     (char *) cur,
-                     m->send_len,
-                     0,
-                     (struct sockaddr *) &m->peer_addr,
-                     (int) sizeof(m->peer_addr)
-                     );
+        ssize_t len = sendto(m->sfd,
+                             cur,
+                             m->send_len,
+                             0,
+                             &m->peer_addr,
+                             sizeof(m->peer_addr)
+                             );
         if (len != m->send_len) {
             errlogPrintf("drvNetMpf: sendto() failed [%d]", errno);
             return ERROR;
@@ -559,11 +554,11 @@ LOCAL int send_msg(MPF_COMMON *m)
         cur += len;
     } else {
         while (m->send_len > 0) {
-            len = send(m->sfd,
-                       (char *) cur,
-                       m->send_len,
-                       0
-                       );
+            ssize_t len = send(m->sfd,
+                               cur,
+                               m->send_len,
+                               0
+                               );
             if (len == ERROR) {
                 errlogPrintf("drvNetMpf: send error [%d]\n", errno);
                 return RECONNECT;
@@ -627,7 +622,7 @@ LOCAL void reconnect(MPF_COMMON *m)
 
         while (bind(m->sfd,
                     (struct sockaddr *) &my_addr,
-                    (int) sizeof(my_addr)
+                    sizeof(my_addr)
                     ) == ERROR) {
             errlogPrintf("drvNetMpf: bind failed[%d]\n", errno);
             epicsThreadSleep(1.0);
@@ -641,7 +636,7 @@ LOCAL void reconnect(MPF_COMMON *m)
         while (setsockopt(m->sfd,
                           SOL_SOCKET,
                           SO_KEEPALIVE,
-                          (char *)&true,
+                          &true,
                           sizeof(true)
                           ) == ERROR) {
             errlogPrintf("setsockopt(SO_KEEPALIVE) failed\n");
@@ -667,30 +662,28 @@ LOCAL void reconnect(MPF_COMMON *m)
  */
 LOCAL int recv_msg(MPF_COMMON *m)
 {
-    uint8_t *cur = m->recv_buf;
-    uint8_t *end = m->recv_buf + RECV_BUF_SIZE(m->option);
-    unsigned int sender_addr_len;
-    int len;
+    void *cur = m->recv_buf;
+    void *end = m->recv_buf + RECV_BUF_SIZE(m->option);
 
     memset(cur, 0, RECV_BUF_SIZE(m->option));
 
     if (isUdp(m->option)) {
-        sender_addr_len = sizeof(m->sender_addr);
+        socklen_t sender_addr_len = sizeof(m->sender_addr);
         memset(&m->sender_addr, 0, sender_addr_len);
 
         if (m->recv_len > RECV_BUF_SIZE(m->option)) {
-            errlogPrintf("drvNetMpf: receive buffer running short (requested:%d, max:%d)\n",
+            errlogPrintf("drvNetMpf: receive buffer running short (requested:%zd, max:%d)\n",
                          m->recv_len, RECV_BUF_SIZE(m->option));
             return ERROR;
         }
 
-        len = recvfrom(m->sfd,
-                       (char *) cur,
-                       m->recv_len ? m->recv_len : RECV_BUF_SIZE(m->option),
-                       0,
-                       (struct sockaddr *) &m->sender_addr,
-                       &sender_addr_len
-                       );
+        ssize_t len = recvfrom(m->sfd,
+                               cur,
+                               m->recv_len ? m->recv_len : RECV_BUF_SIZE(m->option),
+                               0,
+                               (struct sockaddr *) &m->sender_addr,
+                               &sender_addr_len
+                               );
         if (len == ERROR) {
             errlogPrintf("drvNetMpf: recvfrom() error [%d]\n", errno);
             return ERROR;
@@ -700,16 +693,16 @@ LOCAL int recv_msg(MPF_COMMON *m)
     } else {
         do {
             if (m->recv_len > end - cur) {
-                errlogPrintf("drvNetMpf: receive buffer running short (requested:%d, max:%zd)\n",
+                errlogPrintf("drvNetMpf: receive buffer running short (requested:%zd, max:%zd)\n",
                              m->recv_len, end - cur);
                 return ERROR;
             }
 
-            len = recv(m->sfd,
-                       (char *) cur,
-                       m->recv_len ? m->recv_len : RECV_BUF_SIZE(m->option),
-                       0
-                       );
+            ssize_t len = recv(m->sfd,
+                               cur,
+                               m->recv_len ? m->recv_len : RECV_BUF_SIZE(m->option),
+                               0
+                               );
             if (len == ERROR) {
                 errlogPrintf("drvNetMpf: recv() error [%d]\n", errno);
                 return RECONNECT;
@@ -1035,7 +1028,7 @@ LOCAL int tcp_parent(SERVER *s)
         if (setsockopt(new_sfd,
                        SOL_SOCKET,
                        SO_KEEPALIVE,
-                       (char *)&true,
+                       &true,
                        sizeof(true)
                        ) == ERROR) {
             errlogPrintf("setsockopt(SO_KEEPALIVE) failed\n");
@@ -1554,8 +1547,8 @@ void peerShow(const iocshArgBuf *args)
         printf("  watchdog_id:       %8p\n", p->wd_id);
         printf("  send_task_id:      %8p\n", p->send_tid);
         printf("  recv_task_id:      %8p\n", p->recv_tid);
-        printf("  send_msg_len:      %d\n", p->mpf.send_len);
-        printf("  recv_msg_len:      %d\n", p->mpf.recv_len);
+        printf("  send_msg_len:      %zd\n", p->mpf.send_len);
+        printf("  recv_msg_len:      %zd\n", p->mpf.recv_len);
         printf("  send_buf_addr:     %8p\n", p->mpf.send_buf);
         printf("  recv_buf_addr:     %8p\n", p->mpf.recv_buf);
     }
@@ -1638,8 +1631,8 @@ void serverShow(const iocshArgBuf *args)
         printf("  num_event_acceptor:  %d\n", ellCount(&s->eventQueue));
         printf("  evQ_mutex_sem_id:    %8p\n", s->eventQ_mutex);
         printf("  server_task_id:      %8p\n", s->server_tid);
-        printf("  send_msg_len:        %d\n", s->mpf.send_len);
-        printf("  recv_msg_len:        %d\n", s->mpf.recv_len);
+        printf("  send_msg_len:        %zd\n", s->mpf.send_len);
+        printf("  recv_msg_len:        %zd\n", s->mpf.recv_len);
         printf("  send_buf:            %8p\n", s->mpf.send_buf);
         printf("  recv_buff_addr:      %8p\n", s->mpf.recv_buf);
     }
@@ -1750,7 +1743,7 @@ void stopEventMsg(const iocshArgBuf *args)
 /*
  * Dumps message
  */
-void dump_msg(uint8_t *pbuf, int count, int dir, int flag)
+void dump_msg(uint8_t *pbuf, ssize_t count, int dir, int flag)
 {
     if (dir) {
         printf("=>");
