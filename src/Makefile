@@ -40,6 +40,7 @@ netDev_SRCS += devDarwin.c
 netDev_SRCS += devMW100.c
 netDev_SRCS += devKeyPlc.c
 
+USR_CFLAGS += -std=c99
 USR_CFLAGS += -Werror
 #===========================
 
