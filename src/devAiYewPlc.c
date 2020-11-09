@@ -134,7 +134,7 @@ LOCAL long parse_ai_response(struct dbCommon *pxx,
             float *pfloat = (float *)tmp;
             pai->val = (double) *pfloat;
             if (ret == OK) {
-                pai->udf = FALSE;
+                //pai->udf = FALSE;
                 pai->udf = isnan(pai->val);
                 ret = 2; /* Don't convert */
             }
