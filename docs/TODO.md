@@ -9,4 +9,5 @@ ToDo list for netDev
 - [ ] Consider SMOO and ASLO/AOFF fields on ai/ao records with '&F' (and '&D') option
 - [ ] Add support for aai/aao records
 - [ ] Mark patternRecord as obsolete.
+- [ ] Drop vxWorks support
 - [ ] More documentation
