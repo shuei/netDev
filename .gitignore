@@ -1,4 +1,8 @@
 *~
+\#*
+.\#*
+*.orig
+*.swp
 include
 lib
 dbd
