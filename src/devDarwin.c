@@ -29,8 +29,7 @@
 #define DARWIN_NEEDS_SWAP (0x00ff != htons(0x00ff))
 #define DARWIN_TIMEOUT ((TICK_PER_SECOND * 2)| MPF_FINETMO)
 
-typedef struct
-{
+typedef struct {
     uint16_t port;
     uint8_t  comm_EF[DARWIN_MAX_CMND_LEN];
     uint8_t  comm_EL[DARWIN_MAX_CMND_LEN];
@@ -51,14 +50,12 @@ LOCAL void *darwin_calloc(void);
 
 LOCAL void *darwin_calloc(void)
 {
-    DARWIN *d;
-
-    d = (DARWIN *) calloc(1, sizeof(DARWIN));
+    DARWIN *d = (DARWIN *) calloc(1, sizeof(DARWIN));
     if (!d) {
         errlogPrintf("devDarwin: calloc failed\n");
         return NULL;
     }
-  return d;
+    return d;
 }
 
 #include        "devSoDarwin.c"

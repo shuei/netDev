@@ -25,15 +25,13 @@
 #define MW100_FIRST_CHANNEL  1
 #define MW100_LAST_CHANNEL   60
 
-typedef struct
-{
+typedef struct {
     uint8_t  com_FD[MW100_FDCMD_BUFSIZE];
     int      com_len;
     int      p1;
     int      p2;
     int      noch;
 } MW100;
-
 
 LOCAL long MW100_parse_link(struct link *,
                             struct sockaddr_in *,
@@ -72,9 +70,6 @@ LOCAL long MW100_parse_link(struct link *plink,
     char *unit  = NULL;
     char *addr  = NULL;
     char *route, *type, *lopt;
-    uint8_t tmp_buf[MW100_FDCMD_BUFSIZE];
-    uint8_t *src, *dst;
-    int p1, p2;
 
     if (parseLinkPlcCommon(plink,
                            peer_addr,
@@ -91,13 +86,15 @@ LOCAL long MW100_parse_link(struct link *plink,
 
     if (!peer_addr->sin_port) {
         peer_addr->sin_port = htons(MW100_SERVER_PORT);
-        LOGMSG("devMW100: port: 0x%04x\n",ntohs(peer_addr->sin_port),
-               0,0,0,0,0,0,0,0);
+        LOGMSG("devMW100: port: 0x%04x\n",ntohs(peer_addr->sin_port),0,0,0,0,0,0,0,0);
     }
 
     if (addr) {
+        uint8_t *src, *dst;
+        uint8_t tmp_buf[MW100_FDCMD_BUFSIZE];
         for (src = (uint8_t *)addr, dst = &tmp_buf[0];
-             ( *src != '\0' ) && ( dst < tmp_buf + sizeof(tmp_buf) );) {
+             (*src != '\0') && (dst < tmp_buf + sizeof(tmp_buf));
+             ) {
             if (*src == ' ') {
                 src++;
             } else {
@@ -106,6 +103,7 @@ LOCAL long MW100_parse_link(struct link *plink,
             tmp_buf[sizeof(tmp_buf) - 1] = '\0';
         }
 
+        int p1, p2;
         if (sscanf((char *)tmp_buf, "%d,%d", &p1, &p2) != 2) {
             errlogPrintf("devMW100: can't get parms from \"%s\"\n", addr);
             return ERROR;

@@ -94,20 +94,20 @@ static long readValue();
 
 static long init_record(struct patternRecord *pptn, int pass)
 {
-    if (pass==0) {
-        if (pptn->nelm<=0) {
-            pptn->nelm=1;
+    if (pass == 0) {
+        if (pptn->nelm <= 0) {
+            pptn->nelm = 1;
         }
 
         if (pptn->ftvl >= DBF_CHAR && pptn->ftvl <= DBF_ULONG) {
             pptn->rptr = calloc(pptn->nelm, sizeofTypes[pptn->ftvl]);
         } else {
-            recGblRecordError(S_db_badField, pptn, "ptn: init_record");
+            recGblRecordError(S_db_badField, pptn, "pattern: init_record");
             return S_db_badField;
         }
         pptn->bptr = calloc(pptn->nelm, sizeofTypes[DBF_DOUBLE]);
 
-        if (pptn->nelm==1) {
+        if (pptn->nelm == 1) {
             pptn->nord = 1;
         } else {
             pptn->nord = 0;
@@ -117,7 +117,7 @@ static long init_record(struct patternRecord *pptn, int pass)
 
     /* ptn.siml must be a CONSTANT or a PV_LINK or a DB_LINK */
     if (pptn->siml.type == CONSTANT) {
-        recGblInitConstantLink(&pptn->siml,DBF_USHORT,&pptn->simm);
+        recGblInitConstantLink(&pptn->siml, DBF_USHORT, &pptn->simm);
     }
 
     /* must have dset defined */
@@ -154,11 +154,9 @@ static long process(struct patternRecord *pptn)
     long           *plong   = pptn->rptr;
     unsigned long  *pulong  = pptn->rptr;
     double         *bptr    = pptn->bptr;
-    /* long         status; */
-    int              i;
 
-    if ((pdset==NULL) || (pdset->read_ptn==NULL)) {
-        pptn->pact=TRUE;
+    if ((pdset == NULL) || (pdset->read_ptn == NULL)) {
+        pptn->pact = TRUE;
         recGblRecordError(S_dev_missingSup, pptn, "read_ptn");
         return S_dev_missingSup;
     }
@@ -167,10 +165,10 @@ static long process(struct patternRecord *pptn)
         return 0;
     }
 
-    /* status= */
+    // long status=
     readValue(pptn); /* read the new value */
 
-    for (i=0; i < pptn->nelm; i++) {
+    for (int i=0; i < pptn->nelm; i++) {
         switch (pptn->ftvl) {
         case DBF_CHAR:
             bptr[i] = (double) ((pptn->eslo) * (pchar[i]));
@@ -202,7 +200,7 @@ static long process(struct patternRecord *pptn)
     }
 
     pptn->pact = TRUE;
-    pptn->udf=FALSE;
+    pptn->udf = FALSE;
 
     recGblGetTimeStamp(pptn);
 
@@ -211,7 +209,7 @@ static long process(struct patternRecord *pptn)
     /* process the forward scan link record */
     recGblFwdLink(pptn);
 
-    pptn->pact=FALSE;
+    pptn->pact = FALSE;
     return 0;
 }
 
@@ -262,7 +260,7 @@ static long get_units(struct dbAddr *paddr, char *units)
 {
     struct patternRecord *pptn = (struct patternRecord *)paddr->precord;
 
-    strncpy(units, pptn->egu,DB_UNITS_SIZE);
+    strncpy(units, pptn->egu, DB_UNITS_SIZE);
     return 0;
 }
 
@@ -299,14 +297,14 @@ static long get_control_double(struct dbAddr *paddr, struct dbr_ctrlDouble *pcd)
         pcd->upper_ctrl_limit = pptn->hopr;
         pcd->lower_ctrl_limit = pptn->lopr;
     } else {
-        recGblGetControlDouble(paddr,pcd);
+        recGblGetControlDouble(paddr, pcd);
     }
     return 0;
 }
 
 static void monitor(struct patternRecord *pptn)
 {
-    unsigned short    monitor_mask;
+    unsigned short monitor_mask;
 
     monitor_mask = recGblResetAlarms(pptn);
     monitor_mask |= (DBE_LOG|DBE_VALUE);
@@ -318,36 +316,35 @@ static void monitor(struct patternRecord *pptn)
 
 static long readValue(struct patternRecord *pptn)
 {
-    long status;
     struct ptndset *pdset = (struct ptndset *) (pptn->dset);
-
+    long status;
     if (pptn->pact == TRUE) {
-        status=(*pdset->read_ptn)(pptn);
+        status = (*pdset->read_ptn)(pptn);
         return status;
     }
 
-    status=dbGetLink(&(pptn->siml), DBR_ENUM, &(pptn->simm), 0, 0);
+    status = dbGetLink(&(pptn->siml), DBR_ENUM, &(pptn->simm), 0, 0);
     if (status) {
         return status;
     }
 
     if (pptn->simm == menuYesNoNO) {
-        status=(*pdset->read_ptn)(pptn);
+        status = (*pdset->read_ptn)(pptn);
         return status;
     }
 
     if (pptn->simm == menuYesNoYES) {
         long nRequest = pptn->nelm;
-        status=dbGetLink(&(pptn->siol), pptn->ftvl,pptn->rptr,0,&nRequest);
+        status = dbGetLink(&(pptn->siol), pptn->ftvl, pptn->rptr, 0, &nRequest);
         /* nord set only for db links: needed for old db_access */
         if (pptn->siol.type != CONSTANT ) {
             pptn->nord = nRequest;
-            if (status==0) {
-                pptn->udf=FALSE;
+            if (status == 0) {
+                pptn->udf = FALSE;
             }
         }
     } else {
-        status=-1;
+        status = -1;
         recGblSetSevr(pptn, SOFT_ALARM, INVALID_ALARM);
         return status;
     }

@@ -50,15 +50,10 @@ long parseLinkPlcCommon(struct link *plink,
                         char **lopt
                         )
 {
-    char *hostname = NULL;
-    char *port     = NULL;
     char *pc0      = NULL;
     char *pc1      = NULL;
     char *pc2      = NULL;
     char *pc3      = NULL;
-    unsigned int iport;
-    unsigned long size;
-    char *buf;
 
     LOGMSG("devNetDev: parseLinkPlcCommon(%8p,%8p,%8p,%8p,%8p,%8p)\n",
            plink, peer_addr, route, unit, type, addr, 0, 0, 0);
@@ -69,13 +64,13 @@ long parseLinkPlcCommon(struct link *plink,
      * hostname[:unit]#[type:]addr
      */
 
-    size = strlen(plink->value.instio.string) + 1;
+    size_t size = strlen(plink->value.instio.string) + 1;
     if (size > MAX_INSTIO_STRING) {
         errlogPrintf("devNetDev: instio.string is too long\n");
         return ERROR;
     }
 
-    buf = (char *) calloc(1, size);
+    char *buf = (char *) calloc(1, size);
     if (!buf) {
         errlogPrintf("devNetDev: can't calloc for buf\n");
         return ERROR;
@@ -90,12 +85,12 @@ long parseLinkPlcCommon(struct link *plink,
         *pc0++ = '\0';
         *lopt = pc0;
     }
-    pc0 = NULL;
+    //pc0 = NULL;
 
     pc0 = strchr(buf, '(');
     if (pc0) {
         *pc0++ = '\0';
-        port = pc0;
+        char *port = pc0;
         pc1 = strchr(pc0, ')');
         if (!pc1) {
             LOGMSG("devNetDev: pc0:%8p, pc1:%8p\n",pc0, pc1, 0, 0, 0, 0, 0, 0, 0);
@@ -116,6 +111,7 @@ long parseLinkPlcCommon(struct link *plink,
         if (*port != '\0') { /* it was ':' */
             LOGMSG("devNetDev: string port: %s\n",port,0,0,0,0,0,0,0,0);
 
+            unsigned int iport;
             if (strncmp(port, "0x", 2) == 0) {
                 if (sscanf(port, "%x", &iport) != 1) {
                     errlogPrintf("devNetDev: can't get service port\n");
@@ -190,7 +186,8 @@ long parseLinkPlcCommon(struct link *plink,
     }
 
 GET_HOSTNAME:
-    hostname = buf;
+    ; // null-statement to avoid label followed by declaration
+    char *hostname = buf;
 
     if (netDevGetHostId(hostname, &peer_addr->sin_addr.s_addr)) {
         errlogPrintf("devNetDev: can't get hostid\n");
@@ -248,8 +245,6 @@ LOCAL long toCharVal(int8_t *to,
                      int swap
                      )
 {
-    int i;
-
     LOGMSG("devNetDev: toCharVal(%8p,%d,%8p,%d,%d)\n",
            to,noff,from,width,ndata,0,0,0,0);
 
@@ -260,7 +255,7 @@ LOCAL long toCharVal(int8_t *to,
     {
         int16_t *p = (int16_t *) from;
 
-        for (i=0; i < ndata; i++) {
+        for (int i=0; i < ndata; i++) {
             if (swap) {
                 swap_bytes((uint16_t *)p);
             }
@@ -279,7 +274,7 @@ LOCAL long toCharVal(int8_t *to,
     {
         int8_t *p = (int8_t *) from;
 
-        for (i=0; i < ndata; i++) {
+        for (int i=0; i < ndata; i++) {
             *to++ = (int8_t) *p++;
         }
     }
@@ -303,8 +298,6 @@ LOCAL long toShortVal(int16_t *to,
                       int swap
                       )
 {
-    int i;
-
     LOGMSG("devNetDev: toShortVal(%8p,%d,%8p,%d,%d)\n",
            to,noff,from,width,ndata,0,0,0,0);
 
@@ -315,7 +308,7 @@ LOCAL long toShortVal(int16_t *to,
     {
         int16_t *p = (int16_t *) from;
 
-        for (i=0; i < ndata; i++) {
+        for (int i=0; i < ndata; i++) {
             if (swap) {
                 swap_bytes((uint16_t *)p);
             }
@@ -327,7 +320,7 @@ LOCAL long toShortVal(int16_t *to,
     {
         int8_t *p = (int8_t *) from;
 
-        for (i=0; i < ndata; i++) {
+        for (int i=0; i < ndata; i++) {
             *to++ = (int16_t) *p++;
         }
     }
@@ -351,8 +344,6 @@ LOCAL long toLongVal(int32_t *to,
                      int swap
                      )
 {
-    int i;
-
     LOGMSG("devNetDev: toLongVal(%8p,%d,%8p,%d,%d,%d)\n",
            to,noff,from,width,ndata,swap,0,0,0);
 
@@ -363,7 +354,7 @@ LOCAL long toLongVal(int32_t *to,
     {
         int16_t *p = (int16_t *) from;
 
-        for (i=0; i < ndata; i++) {
+        for (int i=0; i < ndata; i++) {
             if (swap) {
                 swap_bytes((uint16_t *)p);
             }
@@ -375,7 +366,7 @@ LOCAL long toLongVal(int32_t *to,
     {
         int8_t *p = (int8_t *) from;
 
-        for (i=0; i < ndata; i++) {
+        for (int i=0; i < ndata; i++) {
             *to++ = (int32_t) *p++;
         }
     }
@@ -399,8 +390,6 @@ LOCAL long toUcharVal(uint8_t *to,
                       int swap
                       )
 {
-    int i;
-
     LOGMSG("devNetDev: toUcharVal(%8p,%d,%8p,%d,%d)\n",
            to,noff,from,width,ndata,0,0,0,0);
 
@@ -411,7 +400,7 @@ LOCAL long toUcharVal(uint8_t *to,
     {
         uint16_t *p = (uint16_t *) from;
 
-        for (i=0; i < ndata; i++) {
+        for (int i=0; i < ndata; i++) {
             if (swap) {
                 swap_bytes(p);
             }
@@ -429,7 +418,7 @@ LOCAL long toUcharVal(uint8_t *to,
     {
         uint8_t *p = (uint8_t *) from;
 
-        for (i=0; i < ndata; i++) {
+        for (int i=0; i < ndata; i++) {
             *to++ = (uint8_t) *p++;
         }
     }
@@ -453,8 +442,6 @@ LOCAL long toUshortVal(uint16_t *to,
                        int swap
                        )
 {
-    int i;
-
     LOGMSG("devNetDev: toUshortVal(%8p,%d,%8p,%d,%d)\n",
            to,noff,from,width,ndata,0,0,0,0);
 
@@ -465,7 +452,7 @@ LOCAL long toUshortVal(uint16_t *to,
     {
         uint16_t *p = (uint16_t *) from;
 
-        for (i=0; i < ndata; i++) {
+        for (int i=0; i < ndata; i++) {
             if (swap) swap_bytes(p);
             *to++ = (uint16_t) *p++;
         }
@@ -475,7 +462,7 @@ LOCAL long toUshortVal(uint16_t *to,
     {
         uint8_t *p = (uint8_t *) from;
 
-        for (i=0; i < ndata; i++) {
+        for (int i=0; i < ndata; i++) {
             *to++ = (uint16_t) *p++;
         }
     }
@@ -500,8 +487,6 @@ LOCAL long toUlongVal(
           int swap
           )
 {
-    int i;
-
     LOGMSG("devNetDev: toUlongVal(%8p,%d,%8p,%d,%d,%d)\n",
            to,noff,from,width,ndata,swap,0,0,0);
 
@@ -512,7 +497,7 @@ LOCAL long toUlongVal(
     {
         uint16_t *p = (uint16_t *) from;
 
-        for (i=0; i < ndata; i++) {
+        for (int i=0; i < ndata; i++) {
             if (swap) {
                 swap_bytes(p);
             }
@@ -524,7 +509,7 @@ LOCAL long toUlongVal(
     {
         uint8_t *p = (uint8_t *) from;
 
-        for (i=0; i < ndata; i++) {
+        for (int i=0; i < ndata; i++) {
             *to++ = (uint32_t) *p++;
         }
     }
@@ -584,8 +569,6 @@ LOCAL long fromCharVal(void *to,
                        int swap
                        )
 {
-    int i;
-
     LOGMSG("devNetDev: fromCharVal(%8p,%8p,%d,%d,%d)\n",
            to,from,noff,width,ndata,0,0,0,0);
 
@@ -596,7 +579,7 @@ LOCAL long fromCharVal(void *to,
     {
         int16_t *p = (int16_t *) to;
 
-        for (i=0; i < ndata; i++) {
+        for (int i=0; i < ndata; i++) {
             *p = (int16_t) *from++;
             if (swap) {
                 swap_bytes((uint16_t *)p);
@@ -609,7 +592,7 @@ LOCAL long fromCharVal(void *to,
     {
         int8_t *p = (int8_t *) to;
 
-        for (i=0; i < ndata; i++) {
+        for (int i=0; i < ndata; i++) {
             *p++ = *from++;
         }
     }
@@ -633,8 +616,6 @@ LOCAL long fromShortVal(void *to,
                         int swap
                         )
 {
-    int i;
-
     LOGMSG("devNetDev: fromUshortVal(%8p,%8p,%d,%d,%d)\n",
            to,from,noff,width,ndata,0,0,0,0);
 
@@ -645,7 +626,7 @@ LOCAL long fromShortVal(void *to,
     {
         int16_t *p = (int16_t *) to;
 
-        for (i=0; i < ndata; i++) {
+        for (int i=0; i < ndata; i++) {
             *p = (int16_t) *from++;
             if (swap) {
                 swap_bytes((uint16_t *)p);
@@ -658,7 +639,7 @@ LOCAL long fromShortVal(void *to,
     {
         int8_t *p = (int8_t *) to;
 
-        for (i=0; i < ndata; i++) {
+        for (int i=0; i < ndata; i++) {
             if ((*from & 0xff80) &&
                 (*from & 0xff80) != 0xff80) {
                 errlogPrintf("fromShortVal: illeagal data conversion\n");
@@ -688,8 +669,6 @@ LOCAL long fromLongVal(void *to,
                        int swap
                        )
 {
-    int i;
-
     LOGMSG("netDevLib: fromLongVal(%8p,%8p,%d,%d,%d,%d)\n",
            to,from,noff,width,ndata,swap,0,0,0);
 
@@ -700,7 +679,7 @@ LOCAL long fromLongVal(void *to,
     {
         int16_t *p = (int16_t *) to;
 
-        for (i=0; i < ndata; i++) {
+        for (int i=0; i < ndata; i++) {
             if ((*from & 0xffff8000) &&
                 (*from & 0xffff8000) != 0xffff8000) {
                 errlogPrintf("fromLongVal: illeagal data conversion\n");
@@ -717,7 +696,7 @@ LOCAL long fromLongVal(void *to,
     {
         int8_t *p = (int8_t *) to;
 
-        for (i=0; i < ndata; i++) {
+        for (int i=0; i < ndata; i++) {
             if ((*from & 0xffffff80) &&
                 (*from & 0xffffff80) != 0xffffff80) {
                 errlogPrintf("fromLongVal: illeagal data conversion\n");
@@ -747,8 +726,6 @@ LOCAL long fromUcharVal(void *to,
                         int swap
                         )
 {
-    int i;
-
     LOGMSG("devNetDev: fromUcharVal(%8p,%8p,%d,%d,%d)\n",
            to,from,noff,width,ndata,0,0,0,0);
 
@@ -759,7 +736,7 @@ LOCAL long fromUcharVal(void *to,
     {
         uint16_t *p = (uint16_t *) to;
 
-        for (i=0; i < ndata; i++) {
+        for (int i=0; i < ndata; i++) {
             *p = (uint16_t) *from++;
             if (swap) {
                 swap_bytes(p);
@@ -772,7 +749,7 @@ LOCAL long fromUcharVal(void *to,
     {
         uint8_t *p = (uint8_t *) to;
 
-        for (i=0; i < ndata; i++) {
+        for (int i=0; i < ndata; i++) {
             *p++ = *from++;
         }
     }
@@ -796,8 +773,6 @@ LOCAL long fromUshortVal(void *to,
                          int swap
                          )
 {
-    int i;
-
     LOGMSG("devNetDev: fromUshortVal(%8p,%8p,%d,%d,%d)\n",
            to,from,noff,width,ndata,0,0,0,0);
 
@@ -808,7 +783,7 @@ LOCAL long fromUshortVal(void *to,
     {
         uint16_t *p = (uint16_t *) to;
 
-        for (i=0; i < ndata; i++) {
+        for (int i=0; i < ndata; i++) {
             *p = (uint16_t) *from++;
             if (swap) {
                 swap_bytes(p);
@@ -821,7 +796,7 @@ LOCAL long fromUshortVal(void *to,
     {
         uint8_t *p = (uint8_t *) to;
 
-        for (i=0; i < ndata; i++) {
+        for (int i=0; i < ndata; i++) {
             if (*from & 0xff00) {
                 errlogPrintf("fromUshortVal: illeagal data conversion\n");
                 return ERROR;
@@ -850,8 +825,6 @@ LOCAL long fromUlongVal(void *to,
                         int swap
                         )
 {
-    int i;
-
     LOGMSG("devNetDev: fromUlongVal(%8p,%8p,%d,%d,%d,%d)\n",
            to,from,noff,width,ndata,swap,0,0,0);
 
@@ -862,7 +835,7 @@ LOCAL long fromUlongVal(void *to,
     {
         uint16_t *p = (uint16_t *) to;
 
-        for (i=0; i < ndata; i++) {
+        for (int i=0; i < ndata; i++) {
             if (*from & 0xffff0000) {
                 errlogPrintf("fromUlongVal: illeagal data conversion\n");
                 return ERROR;
@@ -880,7 +853,7 @@ LOCAL long fromUlongVal(void *to,
     {
         uint8_t *p = (uint8_t *) to;
 
-        for (i=0; i < ndata; i++) {
+        for (int i=0; i < ndata; i++) {
             if (*from & 0xffffff00) {
                 errlogPrintf("fromUlongVal: illeagal data conversion\n");
                 return ERROR;

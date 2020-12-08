@@ -31,11 +31,11 @@ static long read_wf();
 struct {
     long      number;
     DEVSUPFUN report;
-    DEVSUPFUN    init;
-    DEVSUPFUN    init_record;
-    DEVSUPFUN    get_ioint_info;
-    DEVSUPFUN    read_wf;
-}devMiwfSoft={
+    DEVSUPFUN init;
+    DEVSUPFUN init_record;
+    DEVSUPFUN get_ioint_info;
+    DEVSUPFUN read_wf;
+} devMiwfSoft = {
     5,
     NULL,
     NULL,
@@ -55,13 +55,13 @@ epicsExportAddress(dset,devMiwfSoft);
         linkflag=1;           \
         break;                \
     default :                 \
-        recGblRecordError(S_db_badField,(void *) pmiwf, msg);\
+        recGblRecordError(S_db_badField, pmiwf, msg);\
         return S_db_badField; \
     }
 
 static long init_record(miwfRecord *pmiwf)
 {
-    int linkflag=0;
+    int linkflag = 0;
     /* wf.inp must be a PV_LINK or a DB_LINK or a CA_LINK*/
     check_link(pmiwf->inp0, "devMiwfSoft (init_record) Illegal INP0 field");
     check_link(pmiwf->inp1, "devMiwfSoft (init_record) Illegal INP1 field");
@@ -72,8 +72,7 @@ static long init_record(miwfRecord *pmiwf)
     check_link(pmiwf->inp6, "devMiwfSoft (init_record) Illegal INP6 field");
 
     if (linkflag == 0) {
-        recGblRecordError(S_db_badField,(void *)pmiwf,
-                          "devMiwfSoft (init_record) No input link specified.");
+        recGblRecordError(S_db_badField, pmiwf, "devMiwfSoft (init_record) No input link specified.");
         return S_db_badField;
     }
     return 0;
@@ -83,8 +82,6 @@ static long init_record(miwfRecord *pmiwf)
 static long read_wf(miwfRecord *pmiwf)
 {
     struct link *plink;
-
-    long nRequest=pmiwf->nelm;
     switch (pmiwf->seln) {
     case 0:
         plink = &pmiwf->inp0;
@@ -108,15 +105,17 @@ static long read_wf(miwfRecord *pmiwf)
         plink = &pmiwf->inp6;
         break;
     default:
-        recGblRecordError(S_db_badField,(void *)pmiwf,
-                          "devMiwfSoft (read_wf) Illegal SELN field");
+        recGblRecordError(S_db_badField, pmiwf, "devMiwfSoft (read_wf) Illegal SELN field");
         return S_db_badField;
     }
 
+    long nRequest = pmiwf->nelm;
+
     // long status =
-    dbGetLink(plink,pmiwf->ftvl,pmiwf->bptr, 0,&nRequest);
+    dbGetLink(plink,pmiwf->ftvl, pmiwf->bptr, 0, &nRequest);
+
     /*If dbGetLink got no values leave things as they were*/
-    if (nRequest>0) {
+    if (nRequest > 0) {
         pmiwf->nord = nRequest;
     }
 

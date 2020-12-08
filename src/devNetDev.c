@@ -42,7 +42,7 @@ long netDevGetIoIntInfo(int cmd, struct dbCommon * pxx, IOSCANPVT *ppvt)
         return ERROR;
     }
 
-    TRANSACTION *t =  (TRANSACTION *) pxx->dpvt;
+    TRANSACTION *t = (TRANSACTION *) pxx->dpvt;
 
     if (t->io.event.ioscanpvt == NULL) {
         scanIoInit(&t->io.event.ioscanpvt);
@@ -94,7 +94,7 @@ long netDevInitXxRecord(struct dbCommon *pxx,
 
     t->record = pxx;
     t->option = option;
-    t->device = (void *) device;
+    t->device = device;
     t->config_command = config_command;
     t->parse_response = parse_response;
 
@@ -115,7 +115,7 @@ long netDevInitXxRecord(struct dbCommon *pxx,
         callbackSetUser(pxx, &t->io.async.callback);
     }
 
-    pxx->dpvt = (void *) t;
+    pxx->dpvt = t;
 
     return OK;
 }
@@ -175,13 +175,12 @@ long netDevReadWriteXx(struct dbCommon *pxx)
  *******************************************************************************/
 LOCAL void net_dev_async_completion(CALLBACK *pcb)
 {
-    struct dbCommon *pxx;
-    struct rset *rset;
-
     LOGMSG("devNetDev: net_dev_async_completion(%8p)\n",pcb,0,0,0,0,0,0,0,0);
 
+    struct dbCommon *pxx;
     callbackGetUser(pxx, pcb);
-    rset = (struct rset *)(pxx->rset);
+
+    struct rset *rset = (struct rset *)(pxx->rset);
     dbScanLock(pxx);
     {
         (*rset->process)(pxx);
@@ -270,10 +269,9 @@ LOCAL void *net_dev_init_private(struct link *plink,
 
 LOCAL void sync_io_completion(CALLBACK *pcb)
 {
-    epicsEventId  semId;
-
     LOGMSG("devNetDev: sync_io_completion(%8p)\n",pcb,0,0,0,0,0,0,0,0);
 
+    epicsEventId semId;
     callbackGetUser(semId, pcb);
     epicsEventSignal(semId);
 }
@@ -306,7 +304,7 @@ TRANSACTION *netDevInitInternalIO(struct dbCommon *pxx,
         epicsEventId semId;
         if ((semId = epicsEventCreate(epicsEventEmpty)) == (epicsEventId) 0) {
             errlogPrintf("devNetDev: semBCreate failed\n");
-            free((void *) t);
+            free(t);
             return NULL;
         }
 
@@ -481,11 +479,10 @@ long netDevGetHostId(char *hostname, int *hostid)
 #else
 long netDevGetHostId(char *hostname, in_addr_t *hostid)
 {
-    struct hostent *hostptr;
-
     LOGMSG("devNetDev: netDevGetHostId(\"%s\",%8p)\n", hostname, hostid,0,0,0,0,0,0,0);
 
-    if ((hostptr = gethostbyname(hostname)) != NULL) {
+    struct hostent *hostptr = gethostbyname(hostname);
+    if (hostptr != NULL) {
         *hostid = *((in_addr_t *) (hostptr->h_addr_list)[0]);
     } else {
         *hostid = inet_addr(hostname);

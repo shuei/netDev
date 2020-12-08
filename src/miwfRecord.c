@@ -75,15 +75,15 @@ rset miwfRSET = {
     get_alarm_double
 };
 
-epicsExportAddress(rset,miwfRSET);
+epicsExportAddress(rset, miwfRSET);
 
 struct wfdset { /* miwf dset */
-        long            number;
-        DEVSUPFUN       dev_report;
-        DEVSUPFUN       init;
-        DEVSUPFUN       init_record; /*returns: (-1,0)=>(failure,success)*/
-        DEVSUPFUN       get_ioint_info;
-        DEVSUPFUN       read_wf; /*returns: (-1,0)=>(failure,success)*/
+    long      number;
+    DEVSUPFUN dev_report;
+    DEVSUPFUN init;
+    DEVSUPFUN init_record; /*returns: (-1,0)=>(failure,success)*/
+    DEVSUPFUN get_ioint_info;
+    DEVSUPFUN read_wf; /*returns: (-1,0)=>(failure,success)*/
 };
 
 /*sizes of field types*/
@@ -93,42 +93,42 @@ static long readValue();
 
 static long init_record(struct miwfRecord *mipwf, int pass)
 {
-    if (pass==0) {
-        if (mipwf->nelm<=0) {
-            mipwf->nelm=1;
+    if (pass == 0) {
+        if (mipwf->nelm <= 0) {
+            mipwf->nelm = 1;
         }
         if (mipwf->ftvl == 0) {
-            mipwf->bptr = (char *)calloc(mipwf->nelm,MAX_STRING_SIZE);
+            mipwf->bptr = (char *)calloc(mipwf->nelm, MAX_STRING_SIZE);
         } else {
-            if (mipwf->ftvl>DBF_ENUM) {
-                mipwf->ftvl=2;
+            if (mipwf->ftvl > DBF_ENUM) {
+                mipwf->ftvl = 2;
             }
-            mipwf->bptr = (char *)calloc(mipwf->nelm,sizeofTypes[mipwf->ftvl]);
+            mipwf->bptr = (char *)calloc(mipwf->nelm, sizeofTypes[mipwf->ftvl]);
         }
-        if (mipwf->nelm==1) {
+        if (mipwf->nelm == 1) {
             mipwf->nord = 1;
         } else {
             mipwf->nord = 0;
         }
-        recGblInitConstantLink(&mipwf->sell,DBF_USHORT,&mipwf->seln);
+        recGblInitConstantLink(&mipwf->sell, DBF_USHORT, &mipwf->seln);
         return 0;
     }
 
     /* wf.siml must be a CONSTANT or a PV_LINK or a DB_LINK */
     if (mipwf->siml.type == CONSTANT) {
-        recGblInitConstantLink(&mipwf->siml,DBF_USHORT,&mipwf->simm);
+        recGblInitConstantLink(&mipwf->siml, DBF_USHORT, &mipwf->simm);
     }
 
     /* must have dset defined */
     struct wfdset *pdset = (struct wfdset *)(mipwf->dset);
     if (!pdset) {
-        recGblRecordError(S_dev_noDSET,(void *)mipwf,"wf: init_record");
+        recGblRecordError(S_dev_noDSET, mipwf, "miwf: init_record");
         return S_dev_noDSET;
     }
 
     /* must have read_wf function defined */
     if ((pdset->number < 5) || (pdset->read_wf == NULL)) {
-        recGblRecordError(S_dev_missingSup,(void *)mipwf,"wf: init_record");
+        recGblRecordError(S_dev_missingSup, mipwf, "miwf: init_record");
         return S_dev_missingSup;
     }
 
@@ -144,12 +144,11 @@ static long init_record(struct miwfRecord *mipwf, int pass)
 static long process(struct miwfRecord *mipwf)
 {
     struct wfdset *pdset = (struct wfdset *)(mipwf->dset);
-    /* long         status; */
-    unsigned char  pact=mipwf->pact;
+    unsigned char  pact  = mipwf->pact;
 
-    if ((pdset==NULL) || (pdset->read_wf==NULL)) {
-        mipwf->pact=TRUE;
-        recGblRecordError(S_dev_missingSup,(void *)mipwf,"read_wf");
+    if ((pdset == NULL) || (pdset->read_wf == NULL)) {
+        mipwf->pact = TRUE;
+        recGblRecordError(S_dev_missingSup, mipwf, "read_wf");
         return S_dev_missingSup;
     }
 
@@ -157,7 +156,7 @@ static long process(struct miwfRecord *mipwf)
         return 0;
     }
 
-    /* status= */
+    // long status =
     readValue(mipwf); /* read the new value */
 
     /* check if device support set pact */
@@ -166,8 +165,8 @@ static long process(struct miwfRecord *mipwf)
     }
 
     mipwf->pact = TRUE;
+    mipwf->udf = FALSE;
 
-    mipwf->udf=FALSE;
     recGblGetTimeStamp(mipwf);
 
     monitor(mipwf);
@@ -175,19 +174,19 @@ static long process(struct miwfRecord *mipwf)
     /* process the forward scan link record */
     recGblFwdLink(mipwf);
 
-    mipwf->pact=FALSE;
+    mipwf->pact = FALSE;
     return 0;
 }
 
 static long cvt_dbaddr(struct dbAddr *paddr)
 {
-    struct miwfRecord *mipwf=(struct miwfRecord *)paddr->precord;
+    struct miwfRecord *mipwf = (struct miwfRecord *)paddr->precord;
 
-    paddr->pfield = (void *)(mipwf->bptr);
+    paddr->pfield      = mipwf->bptr;
     paddr->no_elements = mipwf->nelm;
-    paddr->field_type = mipwf->ftvl;
+    paddr->field_type  = mipwf->ftvl;
 
-    if (mipwf->ftvl==0) {
+    if (mipwf->ftvl == 0) {
         paddr->field_size = MAX_STRING_SIZE;
     } else {
         paddr->field_size = sizeofTypes[mipwf->ftvl];
@@ -198,16 +197,16 @@ static long cvt_dbaddr(struct dbAddr *paddr)
 
 static long get_array_info(struct dbAddr *paddr, long *no_elements, long *offset)
 {
-    struct miwfRecord *mipwf=(struct miwfRecord *)paddr->precord;
+    struct miwfRecord *mipwf = (struct miwfRecord *)paddr->precord;
 
-    *no_elements =  mipwf->nord;
+    *no_elements = mipwf->nord;
     *offset = 0;
     return 0;
 }
 
 static long put_array_info(struct dbAddr *paddr, long nNew)
 {
-    struct miwfRecord *mipwf=(struct miwfRecord *)paddr->precord;
+    struct miwfRecord *mipwf = (struct miwfRecord *)paddr->precord;
 
     mipwf->nord = nNew;
     if (mipwf->nord > mipwf->nelm) {
@@ -218,46 +217,46 @@ static long put_array_info(struct dbAddr *paddr, long nNew)
 
 static long get_units(struct dbAddr *paddr, char *units)
 {
-    struct miwfRecord *mipwf=(struct miwfRecord *)paddr->precord;
+    struct miwfRecord *mipwf = (struct miwfRecord *)paddr->precord;
 
-    strncpy(units,mipwf->egu,DB_UNITS_SIZE);
+    strncpy(units, mipwf->egu, DB_UNITS_SIZE);
     return 0;
 }
 
 static long get_precision(struct dbAddr *paddr, long *precision)
 {
-    struct miwfRecord *mipwf=(struct miwfRecord *)paddr->precord;
+    struct miwfRecord *mipwf = (struct miwfRecord *)paddr->precord;
 
     *precision = mipwf->prec;
-    if (paddr->pfield==(void *)mipwf->bptr) {
+    if (paddr->pfield == mipwf->bptr) {
         return 0;
     }
-    recGblGetPrec(paddr,precision);
+    recGblGetPrec(paddr, precision);
     return 0;
 }
 
 static long get_graphic_double(struct dbAddr *paddr, struct dbr_grDouble *pgd)
 {
-    struct miwfRecord *mipwf=(struct miwfRecord *)paddr->precord;
+    struct miwfRecord *mipwf = (struct miwfRecord *)paddr->precord;
 
-    if (paddr->pfield==(void *)mipwf->bptr) {
+    if (paddr->pfield == mipwf->bptr) {
         pgd->upper_disp_limit = mipwf->hopr;
         pgd->lower_disp_limit = mipwf->lopr;
     } else {
-        recGblGetGraphicDouble(paddr,pgd);
+        recGblGetGraphicDouble(paddr, pgd);
     }
     return 0;
 }
 
 static long get_control_double(struct dbAddr *paddr, struct dbr_ctrlDouble *pcd)
 {
-    struct miwfRecord *mipwf=(struct miwfRecord *)paddr->precord;
+    struct miwfRecord *mipwf = (struct miwfRecord *)paddr->precord;
 
-    if (paddr->pfield==(void *)mipwf->bptr) {
+    if (paddr->pfield == mipwf->bptr) {
         pcd->upper_ctrl_limit = mipwf->hopr;
         pcd->lower_ctrl_limit = mipwf->lopr;
     } else {
-        recGblGetControlDouble(paddr,pcd);
+        recGblGetControlDouble(paddr, pcd);
     }
     return 0;
 }
@@ -269,51 +268,51 @@ static void monitor(struct miwfRecord *mipwf)
     monitor_mask = recGblResetAlarms(mipwf);
     monitor_mask |= (DBE_LOG|DBE_VALUE);
     if (monitor_mask) {
-        db_post_events(mipwf,mipwf->bptr,monitor_mask);
+        db_post_events(mipwf, mipwf->bptr, monitor_mask);
     }
     return;
 }
 
 static long readValue(struct miwfRecord *mipwf)
 {
-    long status;
     struct wfdset *pdset = (struct wfdset *) (mipwf->dset);
 
+    long status;
     if (mipwf->pact == TRUE) {
         status=(*pdset->read_wf)(mipwf);
         return status;
     }
 
-    status = dbGetLink(&(mipwf->siml), DBR_ENUM,&(mipwf->simm),0,0);
+    status = dbGetLink(&(mipwf->siml), DBR_ENUM, &(mipwf->simm), 0, 0);
     if (status) {
         return status;
     }
 
     if (mipwf->simm == menuYesNoNO) {
-        status=dbGetLink(&(mipwf->sell),DBR_USHORT,&(mipwf->seln),0,0);
+        status=dbGetLink(&(mipwf->sell), DBR_USHORT, &(mipwf->seln), 0, 0);
         if (status) {
             return status;
         }
-        status=(*pdset->read_wf)(mipwf);
+        status = (*pdset->read_wf)(mipwf);
         return status;
     }
 
     if (mipwf->simm == menuYesNoYES) {
         long nRequest = mipwf->nelm;
-        status=dbGetLink(&(mipwf->siol), mipwf->ftvl,mipwf->bptr,0,&nRequest);
+        status = dbGetLink(&(mipwf->siol), mipwf->ftvl, mipwf->bptr, 0, &nRequest);
         /* nord set only for db links: needed for old db_access */
         if (mipwf->siol.type != CONSTANT ) {
             mipwf->nord = nRequest;
-            if (status==0) {
-                mipwf->udf=FALSE;
+            if (status == 0) {
+                mipwf->udf = FALSE;
             }
         }
     } else {
-        status=-1;
-        recGblSetSevr(mipwf,SOFT_ALARM,INVALID_ALARM);
+        status = -1;
+        recGblSetSevr(mipwf, SOFT_ALARM, INVALID_ALARM);
         return status;
     }
-    recGblSetSevr(mipwf,SIMM_ALARM,mipwf->sims);
+    recGblSetSevr(mipwf, SIMM_ALARM, mipwf->sims);
 
     return status;
 }

@@ -46,19 +46,19 @@ epicsExportAddress(dset, devAiYewPlc);
 
 LOCAL long init_ai_record(struct aiRecord *pai)
 {
-  if (pai->linr == menuConvertLINEAR) {
-      pai->eslo = (pai->eguf - pai->egul) / 0xFFFF;
-      pai->roff = 0;
-  }
+    if (pai->linr == menuConvertLINEAR) {
+        pai->eslo = (pai->eguf - pai->egul) / 0xFFFF;
+        pai->roff = 0;
+    }
 
-  return netDevInitXxRecord((struct dbCommon *) pai,
-                            &pai->inp,
-                            MPF_READ | YEW_GET_PROTO | DEFAULT_TIMEOUT,
-                            yew_calloc(0, 0, 0, 2),
-                            yew_parse_link,
-                            config_ai_command,
-                            parse_ai_response
-                            );
+    return netDevInitXxRecord((struct dbCommon *) pai,
+                              &pai->inp,
+                              MPF_READ | YEW_GET_PROTO | DEFAULT_TIMEOUT,
+                              yew_calloc(0, 0, 0, 2),
+                              yew_parse_link,
+                              config_ai_command,
+                              parse_ai_response
+                              );
 }
 
 LOCAL long read_ai(struct aiRecord *pai)
@@ -134,7 +134,6 @@ LOCAL long parse_ai_response(struct dbCommon *pxx,
             float *pfloat = (float *)tmp;
             pai->val = (double) *pfloat;
             if (ret == OK) {
-                //pai->udf = FALSE;
                 pai->udf = isnan(pai->val);
                 ret = 2; /* Don't convert */
             }

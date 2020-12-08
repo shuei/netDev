@@ -93,16 +93,15 @@ LOCAL long parse_arrayout_response(struct dbCommon *pxx,
 {
     struct arrayoutRecord *parrayout = (struct arrayoutRecord *)pxx;
     KEY_PLC *d = (KEY_PLC *) device;
-    long ret;
 
-    ret = key_parse_response(buf,
-                             len,
-                             parrayout->bptr,
-                             parrayout->ftvl,
-                             parrayout->nelm,
-                             option,
-                             d
-                             );
+    long ret = key_parse_response(buf,
+                                  len,
+                                  parrayout->bptr,
+                                  parrayout->ftvl,
+                                  parrayout->nelm,
+                                  option,
+                                  d
+                                  );
 
     switch (ret) {
     case NOT_DONE:

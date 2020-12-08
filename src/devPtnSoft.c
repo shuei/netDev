@@ -36,7 +36,7 @@ struct {
     DEVSUPFUN    init_record;
     DEVSUPFUN    get_ioint_info;
     DEVSUPFUN    read_wf;
-}devPtnSoft={
+} devPtnSoft = {
     5,
     NULL,
     NULL,
@@ -44,7 +44,8 @@ struct {
     NULL,
     read_wf
 };
-epicsExportAddress(dset,devPtnSoft);
+
+epicsExportAddress(dset, devPtnSoft);
 
 static long init_record(patternRecord *pptn)
 {
@@ -58,8 +59,7 @@ static long init_record(patternRecord *pptn)
     case (CA_LINK) :
         break;
     default :
-        recGblRecordError(S_db_badField,(void *)pptn,
-                          "devPtnSoft (init_record) Illegal INP field");
+        recGblRecordError(S_db_badField, pptn, "devPtnSoft (init_record) Illegal INP field");
         return S_db_badField;
     }
 
@@ -68,9 +68,10 @@ static long init_record(patternRecord *pptn)
 
 static long read_wf(patternRecord *pptn)
 {
-    long nRequest=pptn->nelm;
+    long nRequest = pptn->nelm;
     // long status =
-    dbGetLink(&pptn->inp,pptn->ftvl,pptn->bptr, 0, &nRequest);
+    dbGetLink(&pptn->inp, pptn->ftvl,pptn->bptr, 0, &nRequest);
+
     /*If dbGetLink got no values leave things as they were*/
     if (nRequest>0) {
         pptn->nord = nRequest;

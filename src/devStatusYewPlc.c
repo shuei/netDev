@@ -105,16 +105,14 @@ LOCAL long parse_status_response(struct dbCommon *pxx,
 {
     struct statusRecord *pst = (struct statusRecord *)pxx;
     YEW_PLC *d = (YEW_PLC *) device;
-    long ret;
-
-    ret = yew_parse_response(buf,
-                             len,
-                             &pst->ch01,
-                             DBF_USHORT,
-                             pst->nelm,
-                             option,
-                             d
-                             );
+    long ret = yew_parse_response(buf,
+                                  len,
+                                  &pst->ch01,
+                                  DBF_USHORT,
+                                  pst->nelm,
+                                  option,
+                                  d
+                                  );
 
     switch (ret) {
     case NOT_DONE:

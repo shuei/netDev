@@ -88,30 +88,29 @@ typedef struct channels_dset { /* channels dset */
 static void checkAlarms(channelsRecord *pchan);
 static void monitor(channelsRecord *pchan);
 
-static long init_record(void *precord,int pass)
+static long init_record(void *precord, int pass)
 {
-    channelsRecord *pchan = (channelsRecord *)precord;
-    channels_dset  *pdset;
-
-    long status;
-
-    if (pass==0) {
+    if (pass == 0) {
         return 0;
     }
 
-    if (!(pdset = (channels_dset *)(pchan->dset))) {
-        recGblRecordError(S_dev_noDSET, (void *)pchan, "channels: No DSET");
+    channelsRecord *pchan = (channelsRecord *)precord;
+    channels_dset  *pdset = (channels_dset *)(pchan->dset);
+
+    if (!pdset) {
+        recGblRecordError(S_dev_noDSET, pchan, "channels: No DSET");
         return S_dev_noDSET;
     }
 
     /* must have read_channels function defined */
     if ((pdset->number < 5) || (pdset->read_channels == NULL)) {
-        recGblRecordError(S_dev_missingSup, (void *)pchan, "channels: Bad DSET");
+        recGblRecordError(S_dev_missingSup, pchan, "channels: Bad DSET");
         return S_dev_missingSup;
     }
 
     if (pdset->init_record) {
-        if ((status=(*pdset->init_record)(pchan))) {
+        long status = (*pdset->init_record)(pchan);
+        if (status) {
             return status;
         }
     }
@@ -123,21 +122,22 @@ static long process(void *precord)
 {
     channelsRecord *pchan = (channelsRecord *)precord;
     channels_dset  *pdset = (channels_dset *)(pchan->dset);
-    long status;
-    unsigned char  pact=pchan->pact;
+    unsigned char  pact   = pchan->pact;
 
-    if ((pdset==NULL) || (pdset->read_channels==NULL)) {
+    if ((pdset == NULL) || (pdset->read_channels == NULL)) {
         pchan->pact=TRUE;
-        recGblRecordError(S_dev_missingSup,(void *)pchan,"read_channels");
+        recGblRecordError(S_dev_missingSup, pchan, "read_channels");
         return S_dev_missingSup;
     }
 
     /* pact must not be set until after calling device support */
-    status=(*pdset->read_channels)(pchan);
+    long status = (*pdset->read_channels)(pchan);
+
     /* check if device support set pact */
     if ( !pact && pchan->pact ) {
         return 0;
     }
+
     pchan->pact = TRUE;
 
     recGblGetTimeStamp(pchan);
@@ -155,10 +155,10 @@ static long process(void *precord)
 
 static long get_precision(DBADDR *paddr, long *precision)
 {
-    channelsRecord *pchan=(channelsRecord *)paddr->precord;
+    channelsRecord *pchan = (channelsRecord *)paddr->precord;
 
     *precision = pchan->prec;
-    if (paddr->pfield == (void *) &pchan->ch01) {
+    if (paddr->pfield == &pchan->ch01) {
         return 0;
     }
     recGblGetPrec(paddr,precision);
@@ -176,15 +176,14 @@ static void monitor(channelsRecord *pchan)
     char (*pAlrm)[MAX_STRING_SIZE] = (char (*)[MAX_STRING_SIZE]) &pchan->al01;
     char (*pUnit)[8] = (char (*)[8]) &pchan->eu01;
     short *pPos = (short *) &pchan->pp01;
-    int n = 0;
 
     db_post_events(pchan, &pchan->time, DBE_VALUE|DBE_LOG);
     db_post_events(pchan,  pchan->val,  DBE_VALUE|DBE_LOG);
     db_post_events(pchan,  pchan->mode, DBE_VALUE|DBE_LOG);
     db_post_events(pchan,  pchan->tsmp, DBE_VALUE|DBE_LOG);
 
-    for (n = 0; n < pchan->nelm; n++) {
-        /*printf("&pData[%02d]= 0x%08x\n", n, &pData[n]);*/
+    for (int n = 0; n < pchan->nelm; n++) {
+        //printf("&pData[%02d]= 0x%08x\n", n, &pData[n]);
         db_post_events(pchan, &pData[ n ], DBE_VALUE|DBE_LOG);
         db_post_events(pchan, &pAlrm[ n ], DBE_VALUE|DBE_LOG|DBE_ALARM);
         db_post_events(pchan, &pUnit[ n ], DBE_VALUE|DBE_LOG);
@@ -199,7 +198,7 @@ static long cvt_dbaddr(struct dbAddr *paddr)
     channelsRecord *pchan = (channelsRecord *) paddr->precord;
 
     if (paddr->pfield == &pchan->val) {
-        paddr->pfield         = (void *) &pchan->ch01;
+        paddr->pfield         = &pchan->ch01;
         paddr->no_elements    = (long) pchan->nelm;
         paddr->field_type     = DBF_DOUBLE;
         paddr->field_size     = sizeof(double);

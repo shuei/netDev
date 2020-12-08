@@ -13,10 +13,10 @@
  * -----------------
  */
 
-#include        <devSup.h>
-#include        <dbCommon.h>
+#include <devSup.h>
+#include <dbCommon.h>
 #ifdef vxWorks
-#include        <hostLib.h>
+#include <hostLib.h>
 #endif
 
 #ifdef vxWorks

@@ -103,9 +103,7 @@ LOCAL void *key_calloc(uint32_t addr,
                        int cmnd
                        )
 {
-    KEY_PLC *d;
-
-    d = (KEY_PLC *) calloc(1, sizeof(KEY_PLC));
+    KEY_PLC *d = (KEY_PLC *) calloc(1, sizeof(KEY_PLC));
     if (!d) {
         errlogPrintf("devKeyPlc: calloc failed\n");
         return NULL;
@@ -145,7 +143,6 @@ LOCAL long key_parse_link(struct link *plink,
     char *lopt  = NULL;
     KEY_PLC *d = (KEY_PLC *) device;
     CMND_INFO *pcmnd;
-    int i;
     int found = 0;
 
     if (parseLinkPlcCommon(plink,
@@ -171,57 +168,57 @@ LOCAL long key_parse_link(struct link *plink,
         /* keep going */
     }
 
-  if (!type) {
-      errlogPrintf("devKeyPlc: no device type specified\n");
-      return ERROR;
-  }
+    if (!type) {
+        errlogPrintf("devKeyPlc: no device type specified\n");
+        return ERROR;
+    }
 
-  switch (d->cmnd) {
-  case KEY_CMND_RD:
-      pcmnd = &cmnd_tbl_RD[0];
-      break;
-  case KEY_CMND_ST_RS:
-      pcmnd = &cmnd_tbl_ST_RS[0];
-      break;
-  case KEY_CMND_RDE:
-  case KEY_CMND_WRE:
-      pcmnd = &cmnd_tbl_RDE_WRE[0];
-      break;
-  default:
-      errlogPrintf("devKeyPlc: illeagal data cmnd %d\n", d->cmnd);
-      return ERROR;
-  }
+    switch (d->cmnd) {
+    case KEY_CMND_RD:
+        pcmnd = &cmnd_tbl_RD[0];
+        break;
+    case KEY_CMND_ST_RS:
+        pcmnd = &cmnd_tbl_ST_RS[0];
+        break;
+    case KEY_CMND_RDE:
+    case KEY_CMND_WRE:
+        pcmnd = &cmnd_tbl_RDE_WRE[0];
+        break;
+    default:
+        errlogPrintf("devKeyPlc: illeagal data cmnd %d\n", d->cmnd);
+        return ERROR;
+    }
 
-  for (i = 0; pcmnd[i].d_name != NULL; i++) {
-      if (strncmp(pcmnd[i].d_name, type, 2) == 0) {
-          found = 1;
-          d->indx = i;
-      }
-  }
+    for (int i = 0; pcmnd[i].d_name != NULL; i++) {
+        if (strncmp(pcmnd[i].d_name, type, 2) == 0) {
+            found = 1;
+            d->indx = i;
+        }
+    }
 
-  if (!found) {
-      errlogPrintf("devKeyPlc: unrecognized device (\"%s\")\n", type);
-      return ERROR;
-  }
+    if (!found) {
+        errlogPrintf("devKeyPlc: unrecognized device (\"%s\")\n", type);
+        return ERROR;
+    }
 
-  if (!addr) {
-      errlogPrintf("devKeyPlc: no address specified\n");
-      return ERROR;
-  }
+    if (!addr) {
+        errlogPrintf("devKeyPlc: no address specified\n");
+        return ERROR;
+    }
 
-  if (strncmp(addr, "0x", 2) == 0) {
-      if (sscanf(addr, "%x", &d->addr) != 1) {
-          errlogPrintf("devKeyPlc: can't get device addr\n");
-          return ERROR;
-      }
-  } else {
-      if (sscanf(addr, "%d", &d->addr) != 1) {
-          errlogPrintf("devKeyPlc: can't get device addr\n");
-          return ERROR;
-      }
-  }
+    if (strncmp(addr, "0x", 2) == 0) {
+        if (sscanf(addr, "%x", &d->addr) != 1) {
+            errlogPrintf("devKeyPlc: can't get device addr\n");
+            return ERROR;
+        }
+    } else {
+        if (sscanf(addr, "%d", &d->addr) != 1) {
+            errlogPrintf("devKeyPlc: can't get device addr\n");
+            return ERROR;
+        }
+    }
 
-  return OK;
+    return OK;
 }
 
 /******************************************************************************
@@ -236,12 +233,9 @@ LOCAL long key_config_command(uint8_t *buf,    /* driver buf addr     */
                               KEY_PLC *d
                               )
 {
-    static char format[256];
-    int nwrite;
-    int n;
-
     LOGMSG("devKeyPlc: key_config_command(%8p,%d,%8p,%d,%d,%d,%8p)\n",buf,*len,bptr,ftvl,ndata,*option,d,0,0);
 
+    int n;
     if (ndata > KEY_MAX_NDATA) {
         if (!d->noff) {
             /* for the first time */
@@ -253,13 +247,15 @@ LOCAL long key_config_command(uint8_t *buf,    /* driver buf addr     */
         n = ndata;
     }
 
-    nwrite = (d->cmnd == KEY_CMND_WRE) ? 6*n : 0;
+    int nwrite = (d->cmnd == KEY_CMND_WRE) ? 6*n : 0;
 
     if (*len < (KEY_CMND_LENGTH(d->cmnd) + nwrite + 1)) {
         errlogPrintf("devKeyPlc: buffer is running short (max:%d, len:%d)\n",
                      *len, KEY_CMND_LENGTH(d->cmnd) + nwrite + 1);
         return ERROR;
     }
+
+    static char format[256];
 
     switch (d->cmnd) {
     case KEY_CMND_ST_RS:
@@ -289,38 +285,37 @@ LOCAL long key_config_command(uint8_t *buf,    /* driver buf addr     */
         sprintf((char *)buf, format, d->addr + d->noff);
         break;
     case KEY_CMND_WRE:
-      {
-          static uint16_t temp_buf[KEY_MAX_NDATA];
-          unsigned int data;
-          int i, j;
+        ; // null-statement to avoid label followed by declaration
 
-          sprintf(format, "WRE %s%s%s %03d",
-                  cmnd_tbl_RDE_WRE[d->indx].device,
-                  cmnd_tbl_RDE_WRE[d->indx].addr_format,
-                  cmnd_tbl_RDE_WRE[d->indx].suffix,
-                  n);
-          sprintf((char *)buf, format, d->addr);
+        static uint16_t temp_buf[KEY_MAX_NDATA];
 
-          if (fromRecordVal(temp_buf,
-                            2,
-                            bptr,
-                            d->noff,
-                            ftvl,
-                            n,
-                            0
-                            )) {
-              errlogPrintf("devKeyPlc: illeagal conversion\n");
-              return ERROR;
-          }
+        sprintf(format, "WRE %s%s%s %03d",
+                cmnd_tbl_RDE_WRE[d->indx].device,
+                cmnd_tbl_RDE_WRE[d->indx].addr_format,
+                cmnd_tbl_RDE_WRE[d->indx].suffix,
+                n);
+        sprintf((char *)buf, format, d->addr);
 
-          j = (int) strlen((char *)buf);
+        if (fromRecordVal(temp_buf,
+                          2,
+                          bptr,
+                          d->noff,
+                          ftvl,
+                          n,
+                          0
+                          )) {
+            errlogPrintf("devKeyPlc: illeagal conversion\n");
+            return ERROR;
+        }
 
-          for (i = 0; i < n; i++) {
-              data = (unsigned int) temp_buf[i];
-              sprintf((char *)&buf[j + 6*i], " %05d", (int) data);
-          }
-      }
-      break;
+        int j = (int) strlen((char *)buf);
+
+        for (int i = 0; i < n; i++) {
+            unsigned int data = (unsigned int) temp_buf[i];
+            sprintf((char *)&buf[j + 6*i], " %05d", (int) data);
+        }
+
+        break;
     default:
         errlogPrintf("devKeyPlc: unsupported command\n");
         return ERROR;
@@ -344,12 +339,10 @@ LOCAL long key_parse_response(uint8_t *buf,    /* driver buf addr     */
                               KEY_PLC *d
                               )
 {
-    char c1, c2;
-    long ret;
-    int n;
-
     LOGMSG("devKeyPlc: key_parse_response(%8p,%d,%8p,%d,%d,%d,%8p)\n",buf,*len,bptr,ftvl,ndata,*option,d,0,0);
 
+    long ret;
+    int n;
     if (ndata > KEY_MAX_NDATA) {
         n   = (d->nleft > KEY_MAX_NDATA) ? KEY_MAX_NDATA : d->nleft;
         ret = (d->nleft > KEY_MAX_NDATA) ? NOT_DONE : 0;
@@ -358,6 +351,7 @@ LOCAL long key_parse_response(uint8_t *buf,    /* driver buf addr     */
         ret = 0;
     }
 
+    char c1, c2;
     if (sscanf((char *)buf, "%c%c\r\n", &c1, &c2) == 2) {
         if (c1 == 'E') {
             switch (c2) {
@@ -393,10 +387,9 @@ LOCAL long key_parse_response(uint8_t *buf,    /* driver buf addr     */
             }
         } else if (d->cmnd == KEY_CMND_RDE) {
             static int16_t temp_buf[KEY_MAX_NDATA];
-            int data;
-            int i;
 
-            for (i = 0; i < n; i++) {
+            for (int i = 0; i < n; i++) {
+                int data;
                 if (sscanf((char *)&buf[6*i], "%05d", &data) != 1) {
                     errlogPrintf("devKeyPlc: failed in getting data\n");
                     return ERROR;

@@ -39,11 +39,10 @@ epicsExportAddress(dset, devChansMW100);
 
 LOCAL long init_chans_record(struct chansRecord *pchans)
 {
-    MW100 *d = MW100_calloc();
-
     LOGMSG("devChansMW100: init_chans_record(\"%s\")\n",
            pchans->name,0,0,0,0,0,0,0,0);
 
+    MW100 *d = MW100_calloc();
     if (netDevInitXxRecord((struct dbCommon *) pchans,
                            &pchans->inp,
                            MPF_READ | MPF_TCP | MW100_TIMEOUT,
@@ -77,12 +76,12 @@ LOCAL long config_chans_command(struct dbCommon *pxx,
                                 int *len,
                                 void *device,
                                 int transaction_id
-                                ) {
-    struct chansRecord *pchans = (struct chansRecord *)pxx;
-    MW100 *d = (MW100 *) device;
-
+                                )
+{
     LOGMSG("devChansMW100: config_chans_command(\"%s\")\n",
            pxx->name,0,0,0,0,0,0,0,0);
+
+    MW100 *d = (MW100 *) device;
 
     if (*len < d->com_len) {
         errlogPrintf("devMW100: buffer is running short\n");
@@ -91,6 +90,8 @@ LOCAL long config_chans_command(struct dbCommon *pxx,
 
     memcpy(buf, d->com_FD, d->com_len);
     *len = d->com_len;
+
+    struct chansRecord *pchans = (struct chansRecord *)pxx;
 
     return RESPONSE_LENGTH(pchans->noch);
 }
@@ -102,7 +103,11 @@ LOCAL long parse_chans_response(struct dbCommon *pxx,
                                 int *len,
                                 void *device,
                                 int transaction_id
-                                ) {
+                                )
+{
+    LOGMSG("devChansMW100: parse_chans_response(%8p,0x%08x,%8p,%d,%8p,%d)\n",
+           pxx,*option,buf,*len,device,transaction_id,0,0,0);
+
     struct chansRecord *pchans = (struct chansRecord *)pxx;
     MW100 *d = (MW100 *) device;
     double *data = (double *) &pchans->ch01;
@@ -110,14 +115,10 @@ LOCAL long parse_chans_response(struct dbCommon *pxx,
     char  (*alrm)[8] = (char (*)[8]) pchans->al01;
     char  (*unit)[8] = (char (*)[8]) pchans->eu01;
     char channel[8];
-    char *pC1, *pC2;
     int noch = pchans->noch;
     int ichan;
     int n;
     int i;
-
-    LOGMSG("devChansMW100: parse_chans_response(%8p,0x%08x,%8p,%d,%8p,%d)\n",
-           pxx,*option,buf,*len,device,transaction_id,0,0,0);
 
     /* clear NORD */
 
@@ -129,8 +130,8 @@ LOCAL long parse_chans_response(struct dbCommon *pxx,
 
     /* check EA */
 
-    pC1 = (char *)buf;
-    pC2 = strchr(pC1, '\r');
+    char *pC1 = (char *)buf;
+    char *pC2 = strchr(pC1, '\r');
     if (!pC2) {
         errlogPrintf("devMW100: unexpected response (no CR for \"EA\")\n");
         return ERROR;

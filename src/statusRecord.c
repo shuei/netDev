@@ -74,7 +74,7 @@ rset statusRSET = {
     get_alarm_double
 };
 
-epicsExportAddress(rset,statusRSET);
+epicsExportAddress(rset, statusRSET);
 
 struct statusdset { /* status dset */
     long      number;
@@ -93,15 +93,12 @@ static long readValue();
 
 static long init_record(struct statusRecord *pst, int pass)
 {
-    struct statusdset *pdset;
-    long status;
-
-    if (pass==0) {
-        if (pst->nelm<=0) {
-            pst->nelm=1;
+    if (pass == 0) {
+        if (pst->nelm <= 0) {
+            pst->nelm = 1;
         }
 
-        if (pst->nelm==1) {
+        if (pst->nelm == 1) {
             pst->nord = 1;
         } else {
             pst->nord = 0;
@@ -111,19 +108,21 @@ static long init_record(struct statusRecord *pst, int pass)
     }
 
     /* must have dset defined */
-    if (!(pdset = (struct statusdset *)(pst->dset))) {
-        recGblRecordError(S_dev_noDSET,(void *)pst,"status: init_record");
+    struct statusdset *pdset = (struct statusdset *)(pst->dset);
+    if (!pdset) {
+        recGblRecordError(S_dev_noDSET, pst, "status: init_record");
         return S_dev_noDSET;
     }
 
     /* must have read_status function defined */
     if ((pdset->number < 5) || (pdset->read_status == NULL)) {
-        recGblRecordError(S_dev_missingSup,(void *)pst,"status: init_record");
+        recGblRecordError(S_dev_missingSup, pst, "status: init_record");
         return S_dev_missingSup;
     }
 
     if (pdset->init_record) {
-        if ((status=(*pdset->init_record)(pst))) {
+        long status = (*pdset->init_record)(pst);
+        if (status) {
             return status;
         }
     }
@@ -136,9 +135,9 @@ static long process(struct statusRecord *pst)
     struct statusdset *pdset = (struct statusdset *)(pst->dset);
     unsigned char pact = pst->pact;
 
-    if ((pdset==NULL) || (pdset->read_status==NULL)) {
-        pst->pact=TRUE;
-        recGblRecordError(S_dev_missingSup,(void *)pst,"read_status");
+    if ((pdset == NULL) || (pdset->read_status == NULL)) {
+        pst->pact = TRUE;
+        recGblRecordError(S_dev_missingSup, pst, "read_status");
         return S_dev_missingSup;
     }
 
@@ -147,11 +146,11 @@ static long process(struct statusRecord *pst)
 
     /* check if device support set pact */
     if (!pact && pst->pact) {
-      return 0;
+        return 0;
     }
-    pst->pact = TRUE;
 
-    pst->udf=FALSE;
+    pst->pact = TRUE;
+    pst->udf = FALSE;
     recGblGetTimeStamp(pst);
 
     monitor(pst);
@@ -159,15 +158,15 @@ static long process(struct statusRecord *pst)
     /* process the forward scan link record */
     recGblFwdLink(pst);
 
-    pst->pact=FALSE;
+    pst->pact = FALSE;
     return 0;
 }
 
 static long cvt_dbaddr(struct dbAddr *paddr)
 {
-    struct statusRecord *pst=(struct statusRecord *)paddr->precord;
+    struct statusRecord *pst = (struct statusRecord *)paddr->precord;
 
-    paddr->pfield = (void *) &(pst->ch01);
+    paddr->pfield = &(pst->ch01);
     paddr->no_elements = pst->nelm;
     paddr->field_type = DBF_USHORT;
     paddr->field_size = sizeofTypes[DBF_USHORT];
@@ -179,7 +178,7 @@ static long get_array_info(struct dbAddr *paddr, long *no_elements, long *offset
 {
     struct statusRecord *pst = (struct statusRecord *)paddr->precord;
 
-    *no_elements =  pst->nord;
+    *no_elements = pst->nord;
     *offset = 0;
     return 0;
 }
@@ -202,7 +201,7 @@ static void monitor(struct statusRecord *pst)
     monitor_mask = recGblResetAlarms(pst);
     monitor_mask |= (DBE_LOG|DBE_VALUE);
     if (monitor_mask) {
-        db_post_events(pst,&pst->ch01,monitor_mask);
+        db_post_events(pst, &pst->ch01, monitor_mask);
     }
     return;
 }
@@ -213,7 +212,7 @@ static long readValue(struct statusRecord *pst)
     struct statusdset *pdset = (struct statusdset *) (pst->dset);
 
     if (pst->pact == TRUE) {
-        status=(*pdset->read_status)(pst);
+        status = (*pdset->read_status)(pst);
         return status; /* it seems that return value is not used at all */
     }
 

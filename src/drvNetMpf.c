@@ -198,7 +198,8 @@ static const iocshFuncDef stoprttDef = {"stoprtt", 0, NULL};
 /*
  * Report
  */
-LOCAL long report(void) {
+LOCAL long report(void)
+{
     printf("drvNetMpf: report() has currently nothing to do.\n");
 
     return OK;
@@ -322,7 +323,7 @@ LOCAL long spawn_io_tasks(PEER *p)
                                         SEND_PRIORITY,
                                         SEND_STACK,
                                         (EPICSTHREADFUNC) send_task,
-                                        (void *) p
+                                        p
                                         )) == (epicsThreadId) 0) {
         p->send_tid = 0;
         errlogPrintf("drvNetMpf: epicsThreadCreate failed\n");
@@ -335,7 +336,7 @@ LOCAL long spawn_io_tasks(PEER *p)
                                        RECV_PRIORITY,
                                        RECV_STACK,
                                        (EPICSTHREADFUNC) receive_task,
-                                       (void *) p
+                                       p
                                        )) == (epicsThreadId) 0) {
         p->recv_tid = 0;
         errlogPrintf("drvNetMpf: epicsThreadCreate failed\n");
@@ -354,7 +355,9 @@ LOCAL void delete_peer(PEER *p)
 {
     LOGMSG("drvNetMpf: delete_peer(%8p)\n",p,0,0,0,0,0,0,0,0);
 
-    if (p->mpf.sfd) close(p->mpf.sfd);
+    if (p->mpf.sfd) {
+        close(p->mpf.sfd);
+    }
     /*
       if (p->wd_id) epicsTimerDestroy(p->wd_id);
     */
@@ -382,13 +385,12 @@ LOCAL void delete_peer(PEER *p)
  */
 PEER *drvNetMpfInitPeer(struct sockaddr_in peer_addr, int option)
 {
-    PEER *p;
-
     if (!init_flag) {
         errlogPrintf("drvNetMpf: not initialized, check xxxAppInclude.dbd\n");
         return NULL;
     }
 
+    PEER *p;
     epicsMutexMustLock(peerList.mutex);
     {
         for (p = (PEER *) ellFirst(&peerList.list); p; p = (PEER *) ellNext(&p->mpf.node)) {
@@ -440,7 +442,7 @@ PEER *drvNetMpfInitPeer(struct sockaddr_in peer_addr, int option)
 
         if (!(p->wd_id = epicsTimerQueueCreateTimer(timerQueue,
                                                     (epicsTimerCallback) mpf_timeout_handler,
-                                                    (void *) p
+                                                    p
                                                     ))) {
             errlogPrintf("drvNetMpf: epicsTimerQueueCreateTimer failed\n");
             delete_peer(p);
@@ -486,8 +488,6 @@ PEER *drvNetMpfInitPeer(struct sockaddr_in peer_addr, int option)
  */
 long drvNetMpfSendRequest(TRANSACTION *t)
 {
-    PEER *p;
-
     LOGMSG("drvNetMpf: drvNetMpfSendRequest(%8p)\n",t,0,0,0,0,0,0,0,0);
 
     if (!t) {
@@ -495,6 +495,7 @@ long drvNetMpfSendRequest(TRANSACTION *t)
         return ERROR;
     }
 
+    PEER *p;
     if (!(p = (PEER *) t->facility)) {
         errlogPrintf("drvNetMpf: null peer\n");
         return ERROR;
@@ -521,7 +522,6 @@ long drvNetMpfSendRequest(TRANSACTION *t)
 LOCAL TRANSACTION *get_request_from_queue(PEER *p)
 {
     TRANSACTION *t;
-
     epicsMutexMustLock(p->reqQ_mutex);
     {
         t = (TRANSACTION *) ellGet(&p->reqQueue);
@@ -582,18 +582,13 @@ LOCAL int send_msg(MPF_COMMON *m)
  */
 LOCAL void reconnect(MPF_COMMON *m)
 {
-#ifdef vxWorks
-    char inet_string[256];
-#else
-    char *inet_string;
-#endif
-
     LOGMSG("drvNetMpf: reconnect(%8p)\n",m,0,0,0,0,0,0,0,0);
 
 #ifdef vxWorks
+    char inet_string[256];
     inet_ntoa_b((struct in_addr) m->peer_addr.sin_addr, inet_string);
 #else
-    inet_string = inet_ntoa((struct in_addr) m->peer_addr.sin_addr);
+    char *inet_string = inet_ntoa((struct in_addr) m->peer_addr.sin_addr);
 #endif
 
     while ((m->sfd = socket(AF_INET,
@@ -606,9 +601,9 @@ LOCAL void reconnect(MPF_COMMON *m)
     }
 
     if (isUdp(m->option)) {
-        struct sockaddr_in my_addr;
-
         LOGMSG("drvNetMpf: protocol is UDP\n",0,0,0,0,0,0,0,0,0);
+
+        struct sockaddr_in my_addr;
 
         memset(&my_addr, 0, sizeof(my_addr));
         my_addr.sin_family = AF_INET;
@@ -620,10 +615,7 @@ LOCAL void reconnect(MPF_COMMON *m)
                          ntohs(my_addr.sin_port));
         }
 
-        while (bind(m->sfd,
-                    (struct sockaddr *) &my_addr,
-                    sizeof(my_addr)
-                    ) == ERROR) {
+        while (bind(m->sfd, (struct sockaddr *) &my_addr, sizeof(my_addr)) == ERROR) {
             errlogPrintf("drvNetMpf: bind failed[%d]\n", errno);
             epicsThreadSleep(1.0);
         }
@@ -646,10 +638,7 @@ LOCAL void reconnect(MPF_COMMON *m)
         do {
             errlogPrintf("drvNetMpf: tcp client trying to connect to \"%s\"...\n", inet_string);
             epicsThreadSleep(1.0);
-        } while (connect(m->sfd,
-                         (struct sockaddr *) &m->peer_addr,
-                         (int) sizeof(m->peer_addr)
-                         ) == ERROR);
+        } while (connect(m->sfd, (struct sockaddr *) &m->peer_addr, (socklen_t) sizeof(m->peer_addr)) == ERROR);
 
         errlogPrintf("drvNetMpf: connected to \"%s\"\n", inet_string);
 
@@ -729,12 +718,10 @@ LOCAL int recv_msg(MPF_COMMON *m)
  */
 LOCAL void send_task(PEER *p)
 {
-    TRANSACTION *t;
-    int ret;
-
     for (;;) {
         epicsEventMustWait(p->req_queued);
 
+        TRANSACTION *t;
         while ((t = get_request_from_queue(p))) {
             LOGMSG("drvNetMpf: got request from \"%s\"\n",t->record->name,0,0,0,0,0,0,0,0);
 
@@ -746,13 +733,13 @@ LOCAL void send_task(PEER *p)
             memset(p->mpf.send_buf, 0, SEND_BUF_SIZE(p->mpf.option));
             p->mpf.send_len = SEND_BUF_SIZE(p->mpf.option);
 
-            ret = t->config_command(t->record,
-                                    &t->option,
-                                    p->mpf.send_buf,
-                                    &p->mpf.send_len,
-                                    t->device,
-                                    t->transaction_id
-                                    );
+            int ret = t->config_command(t->record,
+                                        &t->option,
+                                        p->mpf.send_buf,
+                                        &p->mpf.send_len,
+                                        t->device,
+                                        t->transaction_id
+                                        );
             if (ret == ERROR) {
                 t->ret = ret;
                 setLast(t->option);
@@ -835,8 +822,6 @@ LOCAL void send_task(PEER *p)
  */
 LOCAL void receive_task(PEER *p)
 {
-    TRANSACTION *t;
-
     reconnect(&p->mpf);
 
     for (;;) {
@@ -848,6 +833,7 @@ LOCAL void receive_task(PEER *p)
             continue;
         }
 
+        TRANSACTION *t;
         epicsTimerCancel(p->wd_id);
         epicsMutexMustLock(p->in_t_mutex);
         {
@@ -877,8 +863,7 @@ LOCAL void receive_task(PEER *p)
                 if (t->ret == NOT_DONE) {
                     drvNetMpfSendRequest(t);
                 } else {
-                    LOGMSG("drvNetMpf: requesting callback for \"%s\"\n",
-                           t->record->name,0,0,0,0,0,0,0,0);
+                    LOGMSG("drvNetMpf: requesting callback for \"%s\"\n", t->record->name,0,0,0,0,0,0,0,0);
 
                     setLast(t->option);
                     callbackRequest(&t->io.async.callback);
@@ -905,9 +890,6 @@ LOCAL void receive_task(PEER *p)
 LOCAL void mpf_timeout_handler(PEER *p)
 {
     TRANSACTION *t;
-    epicsTimeStamp current;
-    char time[256];
-
     epicsMutexMustLock(p->in_t_mutex);
     {
         t = p->in_transaction;
@@ -916,6 +898,9 @@ LOCAL void mpf_timeout_handler(PEER *p)
     epicsMutexUnlock(p->in_t_mutex);
 
     if (t) {
+        epicsTimeStamp current;
+        char time[256];
+
         epicsTimeGetCurrent(&current);
         epicsTimeToStrftime(time, sizeof(time), "%Y.%m/%d %H:%M:%S.%06f", &current);
         errlogPrintf("drvNetMpf: *** mpf_timeout_handler(\"%s\"):%s ***\n", t->record->name, time);
@@ -939,8 +924,6 @@ LOCAL void mpf_timeout_handler(PEER *p)
  */
 long drvNetMpfRegisterEvent(TRANSACTION *t)
 {
-    SERVER *s;
-
     LOGMSG("drvNetMpf: drvNetMpfRegisterEvent(%8p)\n",t,0,0,0,0,0,0,0,0);
 
     if (!t) {
@@ -948,6 +931,7 @@ long drvNetMpfRegisterEvent(TRANSACTION *t)
         return ERROR;
     }
 
+    SERVER *s;
     if (!(s = (SERVER *) t->facility)) {
         errlogPrintf("drvNetMpf: null server\n");
         return ERROR;
@@ -964,18 +948,6 @@ long drvNetMpfRegisterEvent(TRANSACTION *t)
 
 LOCAL int tcp_parent(SERVER *s)
 {
-    int new_sfd;
-    struct sockaddr_in my_addr;
-    unsigned int sender_addr_len;
-    TRANSACTION *t;
-    SERVER *c;
-    int true = TRUE;
-#ifdef vxWorks
-    char visitor[256];
-#else
-    char *visitor;
-#endif
-
     if ((s->mpf.sfd = socket(AF_INET,
                              SOCK_STREAM,
                              0
@@ -984,6 +956,7 @@ LOCAL int tcp_parent(SERVER *s)
         return ERROR;
     }
 
+    struct sockaddr_in my_addr;
     memset(&my_addr, 0, sizeof(my_addr));
     my_addr.sin_family      = AF_INET;
     my_addr.sin_addr.s_addr = htonl(INADDR_ANY);
@@ -992,10 +965,7 @@ LOCAL int tcp_parent(SERVER *s)
     for (;;) {
         errlogPrintf("drvNetMpf: tcp parent: trying to bind...\n");
 
-        if (bind(s->mpf.sfd,
-                 (struct sockaddr *) &my_addr,
-                 (int) sizeof(my_addr)
-                 ) == OK) {
+        if (bind(s->mpf.sfd, (struct sockaddr *) &my_addr, sizeof(my_addr)) == OK) {
             break;
         }
 
@@ -1009,13 +979,11 @@ LOCAL int tcp_parent(SERVER *s)
     }
 
     while (TRUE) {
-        sender_addr_len = sizeof(s->mpf.sender_addr);
+        socklen_t sender_addr_len = sizeof(s->mpf.sender_addr);
         memset(&s->mpf.sender_addr, 0, sender_addr_len);
 
-        if ((new_sfd = accept(s->mpf.sfd,
-                              (struct sockaddr *)&s->mpf.sender_addr,
-                              &sender_addr_len
-                              )) == ERROR) {
+        int new_sfd = accept(s->mpf.sfd, (struct sockaddr *)&s->mpf.sender_addr, &sender_addr_len);
+        if (new_sfd == ERROR) {
             errlogPrintf("client accept error [%d]\n", errno);
             epicsThreadSleep(15.0);
             continue;
@@ -1025,6 +993,7 @@ LOCAL int tcp_parent(SERVER *s)
          * turn on KEEPALIVE so if the client system crashes
          * this task will find out and suspend
          */
+        int true = TRUE;
         if (setsockopt(new_sfd,
                        SOL_SOCKET,
                        SO_KEEPALIVE,
@@ -1035,6 +1004,7 @@ LOCAL int tcp_parent(SERVER *s)
             return ERROR;
         }
 
+        TRANSACTION *t;
         epicsMutexMustLock(s->eventQ_mutex);
         {
             for (t = (TRANSACTION *) ellFirst(&s->eventQueue); t; t = (TRANSACTION *) ellNext(&t->node)) {
@@ -1048,9 +1018,10 @@ LOCAL int tcp_parent(SERVER *s)
         epicsMutexUnlock(s->eventQ_mutex);
 
 #ifdef vxWorks
+        char visitor[256];
         inet_ntoa_b((struct in_addr) s->mpf.sender_addr.sin_addr, visitor);
 #else
-        visitor  = inet_ntoa((struct in_addr) s->mpf.sender_addr.sin_addr);
+        char *visitor = inet_ntoa((struct in_addr) s->mpf.sender_addr.sin_addr);
 #endif
         if (!t) {
             errlogPrintf("drvNetMpf: unexpected connection request from %s\n", visitor);
@@ -1060,7 +1031,7 @@ LOCAL int tcp_parent(SERVER *s)
 
         errlogPrintf("drvNetMpf: connection request from %s\n", visitor);
 
-        c = (SERVER *) calloc(1, sizeof(SERVER));
+        SERVER *c = (SERVER *) calloc(1, sizeof(SERVER));
         if (!c) {
             errlogPrintf("drvNetMpf: calloc failed\n");
             close(new_sfd);
@@ -1070,7 +1041,7 @@ LOCAL int tcp_parent(SERVER *s)
         c->mpf.sfd = new_sfd;
         c->mpf.id = globalServerCount++;
         c->mpf.option = s->mpf.option;
-        c->parent = (void *) s;
+        c->parent = s;
         ellInit(&c->eventQueue);
 
         if ((c->eventQ_mutex = epicsMutexCreate()) == (epicsMutexId) 0) {
@@ -1118,11 +1089,10 @@ LOCAL int tcp_parent(SERVER *s)
  */
 LOCAL long spawn_tcp_parent(SERVER *s)
 {
-    char *parent_t_name = "tTcpSrvr";
-    char  task_name[32];
-
     LOGMSG("drvNetMpf: spawn_tcp_parent(%8p)\n",s,0,0,0,0,0,0,0,0);
 
+    char *parent_t_name = "tTcpSrvr";
+    char  task_name[32];
     sprintf(task_name, "%s", parent_t_name);
 
     if (epicsThreadCreate(task_name,
@@ -1143,8 +1113,6 @@ LOCAL long spawn_tcp_parent(SERVER *s)
  */
 LOCAL long prepare_udp_server_socket(SERVER *s)
 {
-    struct sockaddr_in my_addr;
-
     LOGMSG("drvNetMpf: prepare_udp_server_socket(%8p)\n",s,0,0,0,0,0,0,0,0);
 
     if ((s->mpf.sfd = socket(AF_INET,
@@ -1157,6 +1125,7 @@ LOCAL long prepare_udp_server_socket(SERVER *s)
 
     LOGMSG("drvNetMpf: protocol is UDP\n",0,0,0,0,0,0,0,0,0);
 
+    struct sockaddr_in my_addr;
     memset(&my_addr, 0, sizeof(my_addr));
     my_addr.sin_family = AF_INET;
     my_addr.sin_addr.s_addr = htonl(INADDR_ANY);
@@ -1178,18 +1147,17 @@ LOCAL long prepare_udp_server_socket(SERVER *s)
  */
 LOCAL long spawn_server_task(SERVER *s)
 {
-    char *send_t_name = "tEvSrvr";
-    char  task_name[32];
-
     LOGMSG("drvNetMpf: spawn_server_task(%8p)\n",s,0,0,0,0,0,0,0,0);
 
+    char *send_t_name = "tEvSrvr";
+    char  task_name[32];
     sprintf(task_name, "%s_%d", send_t_name, s->mpf.id);
 
     if ((s->server_tid = epicsThreadCreate(task_name,
                                            EVSRVR_PRIORITY,
                                            EVSRVR_STACK,
                                            (EPICSTHREADFUNC) event_server,
-                                           (void *) s
+                                           s
                                            )) == (epicsThreadId) 0) {
         s->server_tid = 0;
         errlogPrintf("drvNetMpf: epicsThreadCreate failed\n");
@@ -1213,7 +1181,6 @@ LOCAL void delete_server(SERVER *s)
     if (s->parent) {
         SERVER *parent = s->parent;
         TRANSACTION *t;
-
         epicsMutexMustLock(s->eventQ_mutex);
         {
             t = (TRANSACTION *) ellGet(&s->eventQueue);
@@ -1234,13 +1201,13 @@ LOCAL void delete_server(SERVER *s)
         epicsMutexDestroy(s->eventQ_mutex);
     }
     if (s->mpf.send_buf) {
-        free((void *) s->mpf.send_buf);
+        free(s->mpf.send_buf);
     }
     if (s->mpf.recv_buf) {
-        free((void *) s->mpf.recv_buf);
+        free(s->mpf.recv_buf);
     }
 
-    free((void *) s);
+    free(s);
 }
 
 /*
@@ -1248,10 +1215,9 @@ LOCAL void delete_server(SERVER *s)
  */
 SERVER *drvNetMpfInitServer(unsigned short port, int option)
 {
-    SERVER *s;
-
     LOGMSG("drvNetMpf: drvNetMpfInitServer(0x%04x,0x%08x)\n",port,option,0,0,0,0,0,0,0);
 
+    SERVER *s;
     epicsMutexMustLock(serverList.mutex);
     {
         for (s = (SERVER *) ellFirst(&serverList.list); s; s = (SERVER *) ellNext(&s->mpf.node)) {
@@ -1344,8 +1310,6 @@ SERVER *drvNetMpfInitServer(unsigned short port, int option)
  */
 LOCAL int event_server(SERVER *s)
 {
-    TRANSACTION *t;
-
     for (;;) {
         if (!event_server_start_flag) {
             errlogPrintf("drvNetMpf: event server %d waiting for getting started...\n", s->mpf.id);
@@ -1353,6 +1317,7 @@ LOCAL int event_server(SERVER *s)
             continue;
         }
 
+        TRANSACTION *t;
         if (isTcp(s->mpf.option)) {
             t = (TRANSACTION *) ellFirst(&s->eventQueue);
 
@@ -1372,8 +1337,7 @@ LOCAL int event_server(SERVER *s)
         {
             for (t = (TRANSACTION *) ellFirst(&s->eventQueue); t; t = (TRANSACTION *) ellNext(&t->node)) {
                 if (isUdp(s->mpf.option) &&
-                    t->io.event.client_addr.sin_addr.s_addr
-                    != s->mpf.sender_addr.sin_addr.s_addr) {
+                    t->io.event.client_addr.sin_addr.s_addr != s->mpf.sender_addr.sin_addr.s_addr) {
                     continue;
                 }
 
@@ -1387,8 +1351,7 @@ LOCAL int event_server(SERVER *s)
                                                );
                     if (t->ret != NOT_MINE) {
                         do_showio(t, 0);
-                        LOGMSG("drvNetMpf: event_server working for \"%s\"\n",
-                               t->record->name,0,0,0,0,0,0,0,0);
+                        LOGMSG("drvNetMpf: event_server working for \"%s\"\n", t->record->name,0,0,0,0,0,0,0,0);
                         break;
                     }
                 }
@@ -1430,7 +1393,6 @@ LOCAL int event_server(SERVER *s)
 LOCAL void remove_server(SERVER *target)
 {
     SERVER *s;
-
     epicsMutexMustLock(serverList.mutex);
     {
         for (s = (SERVER *) ellFirst(&serverList.list); s; s = (SERVER *) ellNext(&s->mpf.node)) {
@@ -1509,12 +1471,6 @@ void mpfHelp(const iocshArgBuf *args)
 void peerShow(const iocshArgBuf *args)
 {
     PEER *p;
-#ifdef vxWorks
-    char inet_string[256];
-#else
-    char *inet_string;
-#endif
-
     epicsMutexMustLock(peerList.mutex);
     {
         for (p = (PEER *) ellFirst(&peerList.list); p; p = (PEER *) ellNext(&p->mpf.node)) {
@@ -1527,9 +1483,10 @@ void peerShow(const iocshArgBuf *args)
 
     if (p) {
 #ifdef vxWorks
+        char inet_string[256];
         inet_ntoa_b((struct in_addr) p->mpf.peer_addr.sin_addr, inet_string);
 #else
-        inet_string = inet_ntoa(p->mpf.peer_addr.sin_addr);
+        char *inet_string = inet_ntoa(p->mpf.peer_addr.sin_addr);
 #endif
         printf("  ------------------------------\n");
         printf("  id:                %d\n", p->mpf.id);
@@ -1567,24 +1524,17 @@ void peerShow(const iocshArgBuf *args)
 void peerShowAll(const iocshArgBuf *args)
 {
     PEER *p;
-    char *protocol;
-    uint16_t port;
-#ifdef vxWorks
-    char inet_string[256];
-#else
-    char *inet_string;
-#endif
-
     epicsMutexMustLock(peerList.mutex);
     {
         for (p = (PEER *) ellFirst(&peerList.list); p; p = (PEER *) ellNext(&p->mpf.node)) {
 #ifdef vxWorks
+            char inet_string[256];
             inet_ntoa_b((struct in_addr) p->mpf.peer_addr.sin_addr, inet_string);
 #else
-            inet_string = inet_ntoa((struct in_addr) p->mpf.peer_addr.sin_addr);
+            char *inet_string = inet_ntoa((struct in_addr) p->mpf.peer_addr.sin_addr);
 #endif
-            protocol = isUdp(p->mpf.option) ? "UDP" : "TCP";
-            port = ntohs(p->mpf.peer_addr.sin_port);
+            char *protocol = isUdp(p->mpf.option) ? "UDP" : "TCP";
+            uint16_t port = ntohs(p->mpf.peer_addr.sin_port);
 
             printf("Peer %d: %s %d(0x%x)/%s\n", p->mpf.id, inet_string, port, port, protocol);
         }
@@ -1598,12 +1548,6 @@ void peerShowAll(const iocshArgBuf *args)
 void serverShow(const iocshArgBuf *args)
 {
     SERVER *s;
-#ifdef vxWorks
-    char inet_string[256];
-#else
-    char *inet_string;
-#endif
-
     epicsMutexMustLock(serverList.mutex);
     {
         for (s = (SERVER *) ellFirst(&serverList.list); s; s = (SERVER *) ellNext(&s->mpf.node)) {
@@ -1616,9 +1560,10 @@ void serverShow(const iocshArgBuf *args)
 
     if (s) {
 #ifdef vxWorks
+        char inet_string[256];
         inet_ntoa_b((struct in_addr) s->mpf.sender_addr.sin_addr, inet_string);
 #else
-        inet_string = inet_ntoa(s->mpf.sender_addr.sin_addr);
+        char *inet_string = inet_ntoa(s->mpf.sender_addr.sin_addr);
 #endif
         printf("  ------------------------------\n");
         printf("  id:                  %d\n", s->mpf.id);
@@ -1651,22 +1596,17 @@ void serverShow(const iocshArgBuf *args)
 void serverShowAll(const iocshArgBuf *args)
 {
     SERVER *s;
-    char *protocol;
-#ifdef vxWorks
-    char inet_string[256];
-#else
-    char *inet_string;
-#endif
 
     epicsMutexMustLock(serverList.mutex);
     {
         for (s = (SERVER *) ellFirst(&serverList.list); s; s = (SERVER *) ellNext(&s->mpf.node)) {
 #ifdef vxWorks
+            char inet_string[256];
             inet_ntoa_b((struct in_addr) s->mpf.sender_addr.sin_addr, inet_string);
 #else
-            inet_string = inet_ntoa((struct in_addr) s->mpf.sender_addr.sin_addr);
+            char *inet_string = inet_ntoa((struct in_addr) s->mpf.sender_addr.sin_addr);
 #endif
-            protocol = isUdp(s->mpf.option) ? "UDP" : "TCP";
+            char *protocol = isUdp(s->mpf.option) ? "UDP" : "TCP";
             printf("Server %d: %s %d(0x%x)/%s\n",
                    s->mpf.id, inet_string, s->port, s->port, protocol);
         }
@@ -1677,7 +1617,6 @@ void serverShowAll(const iocshArgBuf *args)
 void showMsg(const iocshArgBuf *args)
 {
     PEER *p;
-
     epicsMutexMustLock(peerList.mutex);
     {
         for (p = (PEER *) ellFirst(&peerList.list); p; p = (PEER *) ellNext(&p->mpf.node)) {
@@ -1697,7 +1636,6 @@ void showMsg(const iocshArgBuf *args)
 void stopMsg(const iocshArgBuf *args)
 {
     PEER *p;
-
     epicsMutexMustLock(peerList.mutex);
     {
         for (p = (PEER *) ellFirst(&peerList.list); p; p = (PEER *) ellNext(&p->mpf.node)) {
@@ -1710,7 +1648,6 @@ void stopMsg(const iocshArgBuf *args)
 void showEventMsg(const iocshArgBuf *args)
 {
     SERVER *s;
-
     epicsMutexMustLock(serverList.mutex);
     {
         for (s = (SERVER *) ellFirst(&serverList.list); s; s = (SERVER *) ellNext(&s->mpf.node)) {
@@ -1730,7 +1667,6 @@ void showEventMsg(const iocshArgBuf *args)
 void stopEventMsg(const iocshArgBuf *args)
 {
     SERVER *s;
-
     epicsMutexMustLock(serverList.mutex);
     {
         for (s = (SERVER *) ellFirst(&serverList.list); s; s = (SERVER *) ellNext(&s->mpf.node)) {
@@ -1768,17 +1704,18 @@ void setTmoEventNum(const iocshArgBuf *args)
     char *protocol = args[2].sval;
     int num        = args[3].ival;
     struct sockaddr_in peer_addr;
-    int option = 0;
-    PEER *p;
 
     if (netDevGetHostId(hostname, &peer_addr.sin_addr.s_addr)) {
         errlogPrintf("drvNetMpf: can't get hostid\n");
         return;
     }
+
+    int option = 0;
     if (strncmp(protocol, "TCP", 3) == 0 || strncmp(protocol, "tcp", 3) == 0) {
         option |= MPF_TCP;
     }
 
+    PEER *p;
     epicsMutexMustLock(peerList.mutex);
     {
         for (p = (PEER *) ellFirst(&peerList.list); p; p = (PEER *) ellNext(&p->mpf.node)) {
@@ -1803,17 +1740,18 @@ void enableTmoEvent(const iocshArgBuf *args)
     uint16_t port  = args[1].ival;
     char *protocol = args[2].sval;
     struct sockaddr_in peer_addr;
-    int option = 0;
-    PEER *p;
 
     if (netDevGetHostId(hostname, &peer_addr.sin_addr.s_addr)) {
         errlogPrintf("drvNetMpf: can't get hostid\n");
         return;
     }
+
+    int option = 0;
     if (strncmp(protocol, "TCP", 3) == 0 || strncmp(protocol, "tcp", 3) == 0) {
         option |= MPF_TCP;
     }
 
+    PEER *p;
     epicsMutexMustLock(peerList.mutex);
     {
         for (p = (PEER *) ellFirst(&peerList.list); p; p = (PEER *) ellNext(&p->mpf.node)) {
@@ -1838,17 +1776,18 @@ void disableTmoEvent(const iocshArgBuf *args)
     uint16_t port  = args[1].ival;
     char *protocol = args[2].sval;
     struct sockaddr_in peer_addr;
-    int option = 0;
-    PEER *p;
 
     if (netDevGetHostId(hostname, &peer_addr.sin_addr.s_addr)) {
         errlogPrintf("drvNetMpf: can't get hostid\n");
         return;
     }
+
+    int option = 0;
     if (strncmp(protocol, "TCP", 3) == 0 || strncmp(protocol, "tcp", 3) == 0) {
         option |= MPF_TCP;
     }
 
+    PEER *p;
     epicsMutexMustLock(peerList.mutex);
     {
         for (p = (PEER *) ellFirst(&peerList.list); p; p = (PEER *) ellNext(&p->mpf.node)) {
@@ -1870,9 +1809,6 @@ void disableTmoEvent(const iocshArgBuf *args)
 void showmsg(const iocshArgBuf *args)
 {
     char *hostname = args[0].sval;
-    int option     = args[1].ival;
-    MSG_BY_IP *pm, *p;
-
     if (!hostname) {
         errlogPrintf("Usage: showmsg hostname [option]\n");
         errlogPrintf("    where:\n");
@@ -1884,7 +1820,7 @@ void showmsg(const iocshArgBuf *args)
         return;
     }
 
-    pm = (MSG_BY_IP *) calloc(1, sizeof(MSG_BY_IP));
+    MSG_BY_IP *pm = (MSG_BY_IP *) calloc(1, sizeof(MSG_BY_IP));
     if (!pm) {
         errlogPrintf("drvNetMpf: calloc failed\n");
         return;
@@ -1895,6 +1831,7 @@ void showmsg(const iocshArgBuf *args)
         return;
     }
 
+    int option = args[1].ival;
     if (option < 0 || option > 3) {
         errlogPrintf("drvNetMpf: option out of range\n");
         return;
@@ -1906,6 +1843,7 @@ void showmsg(const iocshArgBuf *args)
         pm->is_bin = 1;
     }
 
+    MSG_BY_IP *p;
     epicsMutexMustLock(showmsgList.mutex);
     {
         for (p = (MSG_BY_IP *) ellFirst(&showmsgList.list);
@@ -1932,10 +1870,9 @@ void stopmsg(const iocshArgBuf *args)
 
 void do_showmsg(MPF_COMMON *m, uint8_t *buf, int count, int dir)
 {
-    MSG_BY_IP *pm;
-
     epicsMutexMustLock(showmsgList.mutex);
     {
+        MSG_BY_IP *pm;
         for (pm = (MSG_BY_IP *) ellFirst(&showmsgList.list);
              pm;
              pm = (MSG_BY_IP *) ellNext(&pm->node)) {
@@ -1952,22 +1889,20 @@ void do_showmsg(MPF_COMMON *m, uint8_t *buf, int count, int dir)
 void showio(const iocshArgBuf *args)
 {
     char *pv_name = args[0].sval;
-    DBADDR addr;
-    MSG_BY_PV *pm, *p;
-    long status;
 
     if (!pv_name) {
         errlogPrintf("Usage: showio pv_name\n");
         return;
     }
 
-    pm = (MSG_BY_PV *) calloc(1, sizeof(MSG_BY_PV));
+    MSG_BY_PV *pm = (MSG_BY_PV *) calloc(1, sizeof(MSG_BY_PV));
     if (!pm) {
         errlogPrintf("drvNetMpf: calloc failed\n");
         return;
     }
 
-    status = dbNameToAddr(pv_name, &addr);
+    DBADDR addr;
+    long status = dbNameToAddr(pv_name, &addr);
     if (status) {
         errlogPrintf("drvNetMpf: dbNameToAddr failed\n");
         return;
@@ -1976,6 +1911,7 @@ void showio(const iocshArgBuf *args)
 
     epicsMutexMustLock(showioList.mutex);
     {
+        MSG_BY_PV *p;
         for (p = (MSG_BY_PV *) ellFirst(&showioList.list);
              p;
              p = (MSG_BY_PV *) ellNext(&p->node)) {
@@ -2003,10 +1939,10 @@ void do_showio(TRANSACTION *t, int dir)
     static char *row[2] = {"read", "write"};
     static char *pro[2] = {"UDP", "TCP"};
     static char *iot[2] = {"COM/RES", "EVENT"};
-    MSG_BY_PV *pm;
 
     epicsMutexMustLock(showioList.mutex);
     {
+        MSG_BY_PV *pm;
         for (pm = (MSG_BY_PV *) ellFirst(&showioList.list);
              pm;
              pm = (MSG_BY_PV *) ellNext(&pm->node)) {
@@ -2027,8 +1963,6 @@ void do_showio(TRANSACTION *t, int dir)
 void showrtt(const iocshArgBuf *args)
 {
     char *hostname = args[0].sval;
-    RTT_ITEM *pr, *p;
-
     if (!hostname) {
         errlogPrintf("Usage: showrtt hostname [option]\n");
         errlogPrintf("    where:\n");
@@ -2036,7 +1970,7 @@ void showrtt(const iocshArgBuf *args)
         return;
     }
 
-    pr = (RTT_ITEM *) calloc(1, sizeof(RTT_ITEM));
+    RTT_ITEM *pr = (RTT_ITEM *) calloc(1, sizeof(RTT_ITEM));
     if (!pr) {
         errlogPrintf("drvNetMpf: calloc failed\n");
         return;
@@ -2049,6 +1983,7 @@ void showrtt(const iocshArgBuf *args)
 
     epicsMutexMustLock(showrttList.mutex);
     {
+        RTT_ITEM *p;
         for (p = (RTT_ITEM *) ellFirst(&showrttList.list);
              p;
              p = (RTT_ITEM *) ellNext(&p->node)) {
@@ -2072,38 +2007,35 @@ void stoprtt(const iocshArgBuf *args)
 
 void do_showrtt(PEER *p)
 {
-    RTT_ITEM *pr;
-    epicsTimeStamp diff;
-    char time_string[256];
+    epicsMutexMustLock(showrttList.mutex);
+    {
+        RTT_ITEM *pr;
+        for (pr = (RTT_ITEM *) ellFirst(&showrttList.list);
+             pr;
+             pr = (RTT_ITEM *) ellNext(&pr->node)) {
+            if (pr->peer_addr.sin_addr.s_addr == p->mpf.peer_addr.sin_addr.s_addr) {
 #ifdef vxWorks
-    char inet_string[256];
+                char inet_string[256];
+                inet_ntoa_b((struct in_addr) p->mpf.peer_addr.sin_addr, inet_string);
 #else
-    char *inet_string;
+                char *inet_string = inet_ntoa((struct in_addr) p->mpf.peer_addr.sin_addr);
 #endif
+                p->recv_time.secPastEpoch--;
+                p->recv_time.nsec += 1000000000;
 
-  epicsMutexMustLock(showrttList.mutex);
-  {
-      for (pr = (RTT_ITEM *) ellFirst(&showrttList.list);
-           pr;
-           pr = (RTT_ITEM *) ellNext(&pr->node)) {
-          if (pr->peer_addr.sin_addr.s_addr == p->mpf.peer_addr.sin_addr.s_addr) {
-#ifdef vxWorks
-              inet_ntoa_b((struct in_addr) p->mpf.peer_addr.sin_addr, inet_string);
-#else
-              inet_string = inet_ntoa((struct in_addr) p->mpf.peer_addr.sin_addr);
-#endif
-              p->recv_time.secPastEpoch--;
-              p->recv_time.nsec += 1000000000;
-              diff.secPastEpoch = p->recv_time.secPastEpoch - p->send_time.secPastEpoch;
-              diff.nsec = p->recv_time.nsec - p->send_time.nsec;
-              if (diff.nsec >= 1000000000) {
-                  diff.nsec -= 1000000000;
-                  diff.secPastEpoch++;
-              }
-              epicsTimeToStrftime(time_string, sizeof(time_string), "%S.%04f", &diff);
-              printf("round trip time to %s: %s\n", inet_string, time_string);
-          }
-      }
-  }
-  epicsMutexUnlock(showrttList.mutex);
+                epicsTimeStamp diff;
+                diff.secPastEpoch = p->recv_time.secPastEpoch - p->send_time.secPastEpoch;
+                diff.nsec = p->recv_time.nsec - p->send_time.nsec;
+                if (diff.nsec >= 1000000000) {
+                    diff.nsec -= 1000000000;
+                    diff.secPastEpoch++;
+                }
+
+                char time_string[256];
+                epicsTimeToStrftime(time_string, sizeof(time_string), "%S.%04f", &diff);
+                printf("round trip time to %s: %s\n", inet_string, time_string);
+            }
+        }
+    }
+    epicsMutexUnlock(showrttList.mutex);
 }

@@ -88,27 +88,27 @@ static void monitor(chansRecord *pchans);
 
 static long init_record(void *precord, int pass)
 {
-    chansRecord *pchans = (chansRecord *)precord;
-
     if (pass == 0) {
         return 0;
     }
 
-    chans_dset  *pdset;
-    if (!(pdset = (chans_dset *)(pchans->dset))) {
-        recGblRecordError(S_dev_noDSET, (void *)pchans, "chans: No DSET");
+    chansRecord *pchans = (chansRecord *)precord;
+    chans_dset  *pdset = (chans_dset *)(pchans->dset);
+
+    if (!pdset) {
+        recGblRecordError(S_dev_noDSET, pchans, "chans: No DSET");
         return S_dev_noDSET;
     }
 
     /* must have read_chans function defined */
     if ((pdset->number < 5) || (pdset->read_chans == NULL)) {
-        recGblRecordError(S_dev_missingSup, (void *)pchans, "chans: Bad DSET");
+        recGblRecordError(S_dev_missingSup, pchans, "chans: Bad DSET");
         return S_dev_missingSup;
     }
 
     if (pdset->init_record) {
-        long status;
-        if ((status=(*pdset->init_record)(pchans))) {
+        long status = (*pdset->init_record)(pchans);
+        if (status) {
             return status;
         }
     }
@@ -121,9 +121,9 @@ static long process(void *precord)
     chansRecord *pchans = (chansRecord *)precord;
     chans_dset  *pdset = (chans_dset *)(pchans->dset);
 
-    if ((pdset==NULL) || (pdset->read_chans==NULL)) {
-        pchans->pact=TRUE;
-        recGblRecordError(S_dev_missingSup,(void *)pchans,"read_chans");
+    if ((pdset == NULL) || (pdset->read_chans == NULL)) {
+        pchans->pact = TRUE;
+        recGblRecordError(S_dev_missingSup, pchans, "read_chans");
         return S_dev_missingSup;
     }
 
@@ -135,6 +135,7 @@ static long process(void *precord)
     if (!pact && pchans->pact) {
         return 0;
     }
+
     pchans->pact = TRUE;
 
     recGblGetTimeStamp(pchans);
@@ -145,26 +146,26 @@ static long process(void *precord)
     /* process the forward scan link record */
     recGblFwdLink(pchans);
 
-    pchans->pact=FALSE;
+    pchans->pact = FALSE;
 
     return status;
 }
 
 static long get_precision(DBADDR *paddr, long *precision)
 {
-    chansRecord *pchans=(chansRecord *)paddr->precord;
+    chansRecord *pchans = (chansRecord *)paddr->precord;
 
     *precision = pchans->prec;
-    if (paddr->pfield == (void *) &pchans->ch01) {
+    if (paddr->pfield == &pchans->ch01) {
         return 0;
     }
-    recGblGetPrec(paddr,precision);
+    recGblGetPrec(paddr, precision);
     return 0;
 }
 
 static void checkAlarms(chansRecord *pchans)
 {
-  return;
+    return;
 }
 
 static void monitor(chansRecord *pchans)
@@ -173,7 +174,6 @@ static void monitor(chansRecord *pchans)
     char  (*stat)[8] = (char (*)[8]) pchans->st01;
     char  (*alrm)[8] = (char (*)[8]) pchans->al01;
     char  (*unit)[8] = (char (*)[8]) pchans->eu01;
-    int n = 0;
 
     recGblResetAlarms(pchans);
 
@@ -181,10 +181,8 @@ static void monitor(chansRecord *pchans)
     db_post_events(pchans,  pchans->date, DBE_VALUE|DBE_LOG);
     db_post_events(pchans,  pchans->atim, DBE_VALUE|DBE_LOG);
 
-    for (n = 0; n < pchans->noch; n++) {
-        /*
-          printf("&data[%02d]= 0x%08x\n", n, &data[n]);
-        */
+    for (int n = 0; n < pchans->noch; n++) {
+        //printf("&data[%02d]= 0x%08x\n", n, &data[n]);
         db_post_events(pchans, &data[n], DBE_VALUE|DBE_LOG);
         db_post_events(pchans,  stat[n], DBE_VALUE|DBE_LOG);
         db_post_events(pchans,  alrm[n], DBE_VALUE|DBE_LOG);
@@ -199,7 +197,7 @@ static long cvt_dbaddr(struct dbAddr *paddr)
     chansRecord *pchans = (chansRecord *) paddr->precord;
 
     if (paddr->pfield == &pchans->val) {
-        paddr->pfield         = (void *) &pchans->ch01;
+        paddr->pfield         = &pchans->ch01;
         paddr->no_elements    = (long) pchans->noch;
         paddr->field_type     = DBF_DOUBLE;
         paddr->field_size     = sizeof(double);
