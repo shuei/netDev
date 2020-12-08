@@ -38,7 +38,7 @@
 #define YEW_NEEDS_SWAP (0x00ff != htons(0x00ff))
 #define YEW_SPECIAL_MODULE
 
-LOCAL int sizeofTypes[] = {0,1,1,2,2,4,4,4,8,2};
+//LOCAL int sizeofTypes[] = {0,1,1,2,2,4,4,4,8,2};
 LOCAL int yew_max_ndata = 64;
 
 LOCAL long yew_parse_link(struct link *, struct sockaddr_in *, int *, void *);
