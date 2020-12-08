@@ -38,17 +38,8 @@ INTEGERDSET devWfYewPlc = {
 
 epicsExportAddress(dset, devWfYewPlc);
 
-static uint16_t *u16_val;
-
 LOCAL long init_waveform_record(struct waveformRecord *pwf)
 {
-    u16_val = (uint16_t *) calloc(2*pwf->nelm, sizeofTypes[DBF_USHORT]);
-
-    if (!u16_val) {
-        errlogPrintf("devWaveformYewPlc: calloc failed\n");
-        return ERROR;
-    }
-
     return netDevInitXxRecord((struct dbCommon *) pwf,
                               &pwf->inp,
                               MPF_READ | YEW_GET_PROTO | DEFAULT_TIMEOUT,

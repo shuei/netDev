@@ -38,17 +38,8 @@ INTEGERDSET devPtnYewPlc = {
 
 epicsExportAddress(dset, devPtnYewPlc);
 
-static uint16_t *u16_val;
-
 LOCAL long init_pattern_record(struct patternRecord *pptn)
 {
-    u16_val = (uint16_t *) calloc(2*pptn->nelm, sizeofTypes[DBF_USHORT]);
-
-    if (!u16_val) {
-        errlogPrintf("devPatternYewPlc: calloc failed\n");
-        return ERROR;
-    }
-
     return netDevInitXxRecord((struct dbCommon *) pptn,
                               &pptn->inp,
                               MPF_READ | YEW_GET_PROTO | DEFAULT_TIMEOUT,

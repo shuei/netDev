@@ -19,8 +19,6 @@
 #include <epicsExport.h>
 #include <arrayoutRecord.h>
 
-static uint16_t *u16_val;
-
 /***************************************************************
  * Arrayout (command/response IO)
  ***************************************************************/
@@ -42,13 +40,6 @@ epicsExportAddress(dset, devAroYewPlc);
 
 LOCAL long init_arrayout_record(struct arrayoutRecord *paro)
 {
-    u16_val = (uint16_t *) calloc(2*paro->nelm, sizeofTypes[DBF_USHORT]);
-
-    if (!u16_val) {
-        errlogPrintf("devWaveformYewPlc: calloc failed\n");
-        return ERROR;
-    }
-
     return netDevInitXxRecord((struct dbCommon *) paro,
                               &paro->out,
                               MPF_WRITE | YEW_GET_PROTO | DEFAULT_TIMEOUT,

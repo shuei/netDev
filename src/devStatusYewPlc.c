@@ -38,17 +38,8 @@ INTEGERDSET devStatusYewPlc = {
 
 epicsExportAddress(dset, devStatusYewPlc);
 
-static uint16_t *u16_val;
-
 LOCAL long init_status_record(struct statusRecord *pst)
 {
-    u16_val = (uint16_t *) calloc(2*pst->nelm, sizeofTypes[DBF_USHORT]);
-
-    if (!u16_val) {
-        errlogPrintf("devStatusYewPlc: calloc failed\n");
-        return ERROR;
-    }
-
     return netDevInitXxRecord((struct dbCommon *) pst,
                               &pst->inp,
                               MPF_READ | YEW_GET_PROTO | DEFAULT_TIMEOUT,
