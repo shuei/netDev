@@ -41,14 +41,18 @@ LOCAL long init_mbboDirect_record(struct mbboDirectRecord *pMbboDirect)
     pMbboDirect->mask = 0xFFFF;
     pMbboDirect->shft = 0;
 
-    return netDevInitXxRecord((struct dbCommon *) pMbboDirect,
-                              &pMbboDirect->out,
-                              MPF_WRITE | KEY_GET_PROTO | DEFAULT_TIMEOUT,
-                              key_calloc(0, KEY_CMND_WRE),
-                              key_parse_link,
-                              config_mbboDirect_command,
-                              parse_mbboDirect_response
-                              );
+    long status = netDevInitXxRecord((struct dbCommon *) pMbboDirect,
+                                     &pMbboDirect->out,
+                                     MPF_WRITE | KEY_GET_PROTO | DEFAULT_TIMEOUT,
+                                     key_calloc(0, KEY_CMND_WRE),
+                                     key_parse_link,
+                                     config_mbboDirect_command,
+                                     parse_mbboDirect_response
+                                     );
+    if (status != 0) {
+        return status;
+    }
+    return 2; // no conversion
 }
 
 LOCAL long write_mbboDirect(struct mbboDirectRecord *pMbboDirect)
