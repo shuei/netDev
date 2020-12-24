@@ -154,7 +154,7 @@ LOCAL long key_parse_link(struct link *plink,
                            &addr,
                            &lopt
                            )) {
-        errlogPrintf("devKeyPlc: illeagal input specification\n");
+        errlogPrintf("devKeyPlc: illegal input specification\n");
         return ERROR;
     }
 
@@ -185,7 +185,7 @@ LOCAL long key_parse_link(struct link *plink,
         pcmnd = &cmnd_tbl_RDE_WRE[0];
         break;
     default:
-        errlogPrintf("devKeyPlc: illeagal data cmnd %d\n", d->cmnd);
+        errlogPrintf("devKeyPlc: illegal data cmnd %d\n", d->cmnd);
         return ERROR;
     }
 
@@ -228,7 +228,7 @@ LOCAL long key_config_command(uint8_t *buf,    /* driver buf addr     */
                               int     *len,    /* driver buf size     */
                               void    *bptr,   /* record buf addr     */
                               int      ftvl,   /* record field type   */
-                              int      ndata,  /* n to be transferred */
+                              int      ndata,  /* number of elements to be transferred */
                               int     *option, /* direction etc.      */
                               KEY_PLC *d
                               )
@@ -304,7 +304,7 @@ LOCAL long key_config_command(uint8_t *buf,    /* driver buf addr     */
                           n,
                           0
                           )) {
-            errlogPrintf("devKeyPlc: illeagal conversion\n");
+            errlogPrintf("devKeyPlc: illegal conversion\n");
             return ERROR;
         }
 
@@ -334,7 +334,7 @@ LOCAL long key_parse_response(uint8_t *buf,    /* driver buf addr     */
                               int     *len,    /* driver buf size     */
                               void    *bptr,   /* record buf addr     */
                               int      ftvl,   /* record field type   */
-                              int      ndata,  /* n to be transferred */
+                              int      ndata,  /* number of elements to be transferred */
                               int     *option, /* direction etc.      */
                               KEY_PLC *d
                               )
@@ -402,7 +402,7 @@ LOCAL long key_parse_response(uint8_t *buf,    /* driver buf addr     */
                     }
                 } else {
                     if (strncmp((char *)&buf[6*i + 5], "\r\n", 2)) {
-                        errlogPrintf("devKeyPlc: illeagal terminator\n");
+                        errlogPrintf("devKeyPlc: illegal terminator\n");
                         return ERROR;
                     }
                 }
@@ -416,7 +416,7 @@ LOCAL long key_parse_response(uint8_t *buf,    /* driver buf addr     */
                             n,
                             0
                             )) {
-                errlogPrintf("devKeyPlc: illeagal or error response\n");
+                errlogPrintf("devKeyPlc: illegal or error response\n");
                 return ERROR;
             }
         } else {

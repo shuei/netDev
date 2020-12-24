@@ -92,7 +92,7 @@ LOCAL long darwin_parse_link(struct link *plink,
                            &addr,
                            &lopt
                            )) {
-        errlogPrintf("devDarwin: illeagal input specification\n");
+        errlogPrintf("devDarwin: illegal input specification\n");
         return ERROR;
     }
 

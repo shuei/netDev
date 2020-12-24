@@ -80,7 +80,7 @@ LOCAL long MW100_parse_link(struct link *plink,
                            &addr,
                            &lopt
                            )) {
-        errlogPrintf("devMW100: illeagal input specification\n");
+        errlogPrintf("devMW100: illegal input specification\n");
         return ERROR;
     }
 

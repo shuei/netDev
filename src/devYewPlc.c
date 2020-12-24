@@ -145,7 +145,7 @@ LOCAL long yew_parse_link(struct link *plink,
                            &addr,
                            &lopt
                            )) {
-        errlogPrintf("devYewPlc: illeagal input specification\n");
+        errlogPrintf("devYewPlc: illegal input specification\n");
         return ERROR;
     }
 
@@ -270,7 +270,7 @@ LOCAL long yew_parse_link(struct link *plink,
             case  'L':    /* link relay          */
                 break;
             default:
-                errlogPrintf("devYewPlc: illeagal device specification \'%c\' (width %d)\n", d->type, d->width);
+                errlogPrintf("devYewPlc: illegal device specification \'%c\' (width %d)\n", d->type, d->width);
                 return ERROR;
             }
             break;
@@ -292,7 +292,7 @@ LOCAL long yew_parse_link(struct link *plink,
             case  'L':    /* link relay          */
             case  'D':    /* data register       */
             case  'B':    /* file register       */
-            case  'F':    /* cache register       */
+            case  'F':    /* cache register      */
             case  'R':    /* shared register     */
             case  'V':    /* index regigister    */
             case  'Z':    /* special regigister  */
@@ -309,7 +309,7 @@ LOCAL long yew_parse_link(struct link *plink,
             }
         break;
         default:
-            errlogPrintf("devYewPlc: illeagal data width %d\n", d->width);
+            errlogPrintf("devYewPlc: illegal data width %d\n", d->width);
             return ERROR;
         }
 
@@ -333,12 +333,12 @@ LOCAL long yew_config_command(uint8_t *buf,    /* driver buf addr     */
                               int     *len,    /* driver buf size     */
                               void    *bptr,   /* record buf addr     */
                               int      ftvl,   /* record field type   */
-                              int      ndata,  /* n to be transferred */
+                              int      ndata,  /* number of elements to be transferred */
                               int     *option, /* direction etc.      */
                               YEW_PLC *d
                               )
 {
-    LOGMSG("devYewPlc: yew_config_command(%8p,%d,%8p,%d,%d,%d,%8p)\n",buf,*len,bptr,ftvl,ndata,*option,d,0,0);
+    LOGMSG("devYewPlc: yew_config_command(%8p,%d,%8p,%d,%d,%d,%8p)\n",buf, *len, bptr, ftvl, ndata, *option, d);
 
     int n;
     if (ndata > YEW_MAX_NDATA) {
@@ -407,7 +407,7 @@ LOCAL long yew_config_command(uint8_t *buf,    /* driver buf addr     */
                           n,
                           YEW_NEEDS_SWAP
                           )) {
-            errlogPrintf("devYewPlc: illeagal command\n");
+            errlogPrintf("devYewPlc: illegal command\n");
             return ERROR;
         }
     }
@@ -428,7 +428,7 @@ LOCAL long yew_parse_response(uint8_t *buf,    /* driver buf addr     */
                               int     *len,    /* driver buf size     */
                               void    *bptr,   /* record buf addr     */
                               int      ftvl,   /* record field type   */
-                              int      ndata,  /* n to be transferred */
+                              int      ndata,  /* number of elements to be transferred */
                               int     *option, /* direction etc.      */
                               YEW_PLC *d
                               )
@@ -496,7 +496,7 @@ LOCAL long yew_parse_response(uint8_t *buf,    /* driver buf addr     */
                         n,
                         YEW_NEEDS_SWAP
                         )) {
-            errlogPrintf("devYewPlc: illeagal or error response\n");
+            errlogPrintf("devYewPlc: illegal or error response\n");
             return ERROR;
         }
     }
