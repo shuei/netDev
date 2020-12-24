@@ -160,7 +160,7 @@ LOCAL long key_parse_link(struct link *plink,
 
     if (!peer_addr->sin_port) {
         peer_addr->sin_port = htons(KEY_DEFAULT_PORT);
-        LOGMSG("devKeyPlc: port: 0x%04x\n",ntohs(peer_addr->sin_port),0,0,0,0,0,0,0,0);
+        LOGMSG("devKeyPlc: port: 0x%04x\n", ntohs(peer_addr->sin_port));
     }
 
     if (unit) {
@@ -233,7 +233,7 @@ LOCAL long key_config_command(uint8_t *buf,    /* driver buf addr     */
                               KEY_PLC *d
                               )
 {
-    LOGMSG("devKeyPlc: key_config_command(%8p,%d,%8p,%d,%d,%d,%8p)\n",buf,*len,bptr,ftvl,ndata,*option,d,0,0);
+    LOGMSG("devKeyPlc: key_config_command(%8p,%d,%8p,%d,%d,%d,%8p)\n", buf, *len, bptr, ftvl, ndata, *option, d);
 
     int n;
     if (ndata > KEY_MAX_NDATA) {
@@ -339,7 +339,7 @@ LOCAL long key_parse_response(uint8_t *buf,    /* driver buf addr     */
                               KEY_PLC *d
                               )
 {
-    LOGMSG("devKeyPlc: key_parse_response(%8p,%d,%8p,%d,%d,%d,%8p)\n",buf,*len,bptr,ftvl,ndata,*option,d,0,0);
+    LOGMSG("devKeyPlc: key_parse_response(%8p,%d,%8p,%d,%d,%d,%8p)\n", buf, *len, bptr, ftvl, ndata, *option, d);
 
     long ret;
     int n;

@@ -37,8 +37,7 @@ epicsExportAddress(dset, devSoMW100);
 
 LOCAL long init_so_record(struct stringoutRecord *pso)
 {
-    LOGMSG("devSoMW100: init_so_record(\"%s\")\n",
-           pso->name,0,0,0,0,0,0,0,0);
+    LOGMSG("devSoMW100: init_so_record(\"%s\")\n", pso->name);
 
     return netDevInitXxRecord((struct dbCommon *) pso,
                               &pso->out,
@@ -52,8 +51,7 @@ LOCAL long init_so_record(struct stringoutRecord *pso)
 
 LOCAL long write_so(struct stringoutRecord *pso)
 {
-    LOGMSG("devSoMW100: write_so(\"%s\")\n",
-           pso->name,0,0,0,0,0,0,0,0);
+    LOGMSG("devSoMW100: write_so(\"%s\")\n", pso->name);
 
     return netDevReadWriteXx((struct dbCommon *) pso);
 }
@@ -69,8 +67,7 @@ LOCAL long config_so_command(struct dbCommon *pxx,
     stringoutRecord *pso = (stringoutRecord *) pxx;
     char terminator[3] = "\r\n";
 
-    LOGMSG("devSoMW100: config_so_command(\"%s\")\n",
-           pxx->name,0,0,0,0,0,0,0,0);
+    LOGMSG("devSoMW100: config_so_command(\"%s\")\n", pxx->name);
 
     if (*len < strlen(pso->val) + strlen(terminator) + 1) {
         errlogPrintf("devMW100: buffer is running short\n");
@@ -92,8 +89,7 @@ LOCAL long parse_so_response(struct dbCommon *pxx,
                              int transaction_id
                              )
 {
-    LOGMSG("devSoMW100: parse_so_response(%8p,0x%08x,%8p,%d,%8p,%d)\n",
-           pxx,*option,buf,*len,device,transaction_id,0,0,0);
+    LOGMSG("devSoMW100: parse_so_response(%8p,0x%08x,%8p,%d,%8p,%d)\n", pxx, *option, buf, *len, device, transaction_id);
 
     int code = 0;
     if (sscanf((char *)buf, "E%d\r\n", &code) != 1) {

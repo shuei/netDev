@@ -151,7 +151,7 @@ LOCAL long yew_parse_link(struct link *plink,
 
     if (!peer_addr->sin_port) {
         peer_addr->sin_port = htons(YEW_DEFAULT_PORT);
-        LOGMSG("devYewPlc: port: 0x%04x\n",ntohs(peer_addr->sin_port),0,0,0,0,0,0,0,0);
+        LOGMSG("devYewPlc: port: 0x%04x\n", ntohs(peer_addr->sin_port));
     }
 
     if (protocol) {
@@ -179,10 +179,10 @@ LOCAL long yew_parse_link(struct link *plink,
                 return ERROR;
             }
         }
-        LOGMSG("devYewPlc: unit: %d\n",d->unit,0,0,0,0,0,0,0,0);
+        LOGMSG("devYewPlc: unit: %d\n", d->unit);
     } else {
         d->unit = YEW_DEFAULT_UNIT;
-        LOGMSG("devYewPlc: unit: %d\n",d->unit,0,0,0,0,0,0,0,0);
+        LOGMSG("devYewPlc: unit: %d\n", d->unit);
     }
 
     if (!addr) {
@@ -242,10 +242,10 @@ LOCAL long yew_parse_link(struct link *plink,
     if (lopt) {
         if (lopt[0] == 'L') {
             d->dword = 1;
-            LOGMSG("devYewPlc: found option to handle the data as long word data\n",0,0,0,0,0,0,0,0,0);
+            LOGMSG("devYewPlc: found option to handle the data as long word data\n");
         } else if (lopt[0] == 'F') {
             d->fpdat = 1;
-            LOGMSG("devYewPlc: found option to handle the data as floating point data\n", 0,0,0,0,0,0,0,0,0);
+            LOGMSG("devYewPlc: found option to handle the data as floating point data\n");
         }
 
         d->lopt = lopt;
@@ -338,7 +338,7 @@ LOCAL long yew_config_command(uint8_t *buf,    /* driver buf addr     */
                               YEW_PLC *d
                               )
 {
-    LOGMSG("devYewPlc: yew_config_command(%8p,%d,%8p,%d,%d,%d,%8p)\n",buf, *len, bptr, ftvl, ndata, *option, d);
+    LOGMSG("devYewPlc: yew_config_command(%8p,%d,%8p,%d,%d,%d,%8p)\n", buf, *len, bptr, ftvl, ndata, *option, d);
 
     int n;
     if (ndata > YEW_MAX_NDATA) {
@@ -433,7 +433,7 @@ LOCAL long yew_parse_response(uint8_t *buf,    /* driver buf addr     */
                               YEW_PLC *d
                               )
 {
-    LOGMSG("devYewPlc: yew_parse_response(%8p,%d,%8p,%d,%d,%d,%8p)\n",buf,*len,bptr,ftvl,ndata,*option,d,0,0);
+    LOGMSG("devYewPlc: yew_parse_response(%8p,%d,%8p,%d,%d,%d,%8p)\n", buf, *len, bptr, ftvl, ndata, *option, d);
 
     int n;
     int ret;

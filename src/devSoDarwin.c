@@ -37,8 +37,7 @@ epicsExportAddress(dset, devSoDarwin);
 
 LOCAL long init_so_record(struct stringoutRecord *pso)
 {
-    LOGMSG("devSoDarwin: init_so_record(\"%s\")\n",
-           pso->name,0,0,0,0,0,0,0,0);
+    LOGMSG("devSoDarwin: init_so_record(\"%s\")\n", pso->name);
 
     return netDevInitXxRecord((struct dbCommon *) pso,
                               &pso->out,
@@ -52,8 +51,7 @@ LOCAL long init_so_record(struct stringoutRecord *pso)
 
 LOCAL long write_so(struct stringoutRecord *pso)
 {
-    LOGMSG("devSoDarwin: write_so(\"%s\")\n",
-           pso->name,0,0,0,0,0,0,0,0);
+    LOGMSG("devSoDarwin: write_so(\"%s\")\n", pso->name);
 
     return netDevReadWriteXx((struct dbCommon *) pso);
 }
@@ -70,8 +68,7 @@ LOCAL long config_so_command(struct dbCommon *pxx,
     //DARWIN *d = (DARWIN *) device;
     char terminator[3] = "\r\n";
 
-    LOGMSG("devSoDarwin: config_so_command(\"%s\")\n",
-           pxx->name,0,0,0,0,0,0,0,0);
+    LOGMSG("devSoDarwin: config_so_command(\"%s\")\n", pxx->name);
 
     if (*len < strlen(pso->val) + strlen(terminator) + 1) {
         errlogPrintf("devDarwin: buffer is running short\n");
@@ -95,8 +92,7 @@ LOCAL long parse_so_response(struct dbCommon *pxx,
 {
     int code;
 
-    LOGMSG("devSoDarwin: parse_so_response(%8p,%d,%8p,%d,%8p,%d)\n",
-           pxx,*option,buf,*len,device,transaction_id,0,0,0);
+    LOGMSG("devSoDarwin: parse_so_response(%8p,%d,%8p,%d,%8p,%d)\n", pxx, *option, buf, *len, device, transaction_id);
 
     if (sscanf((char *)buf, "E%d\r\n", &code) != 1) {
         errlogPrintf("parse_so_response: failed to read returned error code\n");

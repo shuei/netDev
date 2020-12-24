@@ -35,7 +35,7 @@ LOCAL void  sync_io_completion(CALLBACK *);
  *******************************************************************************/
 long netDevGetIoIntInfo(int cmd, struct dbCommon * pxx, IOSCANPVT *ppvt)
 {
-    LOGMSG("devNetDev: netDevGetIoIntInfo(\"%s\",%d,%8p,%8p)\n",pxx->name,cmd,pxx,ppvt,0,0,0,0,0);
+    LOGMSG("devNetDev: netDevGetIoIntInfo(\"%s\",%d,%8p,%8p)\n", pxx->name, cmd, pxx, ppvt);
 
     if (!pxx->dpvt) {
         errlogPrintf("devNetDev: netDevGetIoIntInfo is called with null dpvt\n");
@@ -65,8 +65,8 @@ long netDevInitXxRecord(struct dbCommon *pxx,
                         parse_response_fn_t parse_response
                         )
 {
-    LOGMSG("devNetDev: netDevInitXxRecord(\"%s\",%8p,%d,%8p,%8p,%8p)\n",
-           pxx->name,plink,option,device,parse_link,config_command,parse_response,0,0);
+    LOGMSG("devNetDev: netDevInitXxRecord(\"%s\",%8p,%d,%8p,%8p,%8p,%8p)\n",
+           pxx->name, plink, option, device, parse_link, config_command, parse_response);
 
     if (!device || !parse_link ||
         (isNormal(option) && !config_command) ||
@@ -127,7 +127,7 @@ long netDevReadWriteXx(struct dbCommon *pxx)
 {
     TRANSACTION *t = (TRANSACTION *)pxx->dpvt;
 
-    LOGMSG("devNetDev: netDevReadWriteXx(\"%s\",pact=%d, ret=%d)\n",pxx->name,pxx->pact,t->ret,0,0,0,0,0,0);
+    LOGMSG("devNetDev: netDevReadWriteXx(\"%s\",pact=%d, ret=%d)\n", pxx->name, pxx->pact, t->ret);
 
     if (isEvent(t->option)) {
         if (t->record->scan != SCAN_IO_EVENT) {
@@ -175,7 +175,7 @@ long netDevReadWriteXx(struct dbCommon *pxx)
  *******************************************************************************/
 LOCAL void net_dev_async_completion(CALLBACK *pcb)
 {
-    LOGMSG("devNetDev: net_dev_async_completion(%8p)\n",pcb,0,0,0,0,0,0,0,0);
+    LOGMSG("devNetDev: net_dev_async_completion(%8p)\n", pcb);
 
     struct dbCommon *pxx;
     callbackGetUser(pxx, pcb);
@@ -198,7 +198,7 @@ long netDevInit(void)
     }
     init_flag = 1;
 
-    LOGMSG("devNetDev: netDevInit()\n",0,0,0,0,0,0,0,0,0);
+    LOGMSG("devNetDev: netDevInit()\n");
 
     return OK;
 }
@@ -216,7 +216,7 @@ LOCAL void *net_dev_init_private(struct link *plink,
                                  void *device
                                  )
 {
-    LOGMSG("devNetDev: net_dev_init_private(%8p,%d,%8p,%8p)\n",plink,*option,parse_link,device,0,0,0,0,0);
+    LOGMSG("devNetDev: net_dev_init_private(%8p,%d,%8p,%8p)\n", plink, *option, parse_link,device);
 
     if (plink->type != INST_IO) {
         errlogPrintf("devNetDev: address type must be \"INST_IO\"\n");
@@ -269,7 +269,7 @@ LOCAL void *net_dev_init_private(struct link *plink,
 
 LOCAL void sync_io_completion(CALLBACK *pcb)
 {
-    LOGMSG("devNetDev: sync_io_completion(%8p)\n",pcb,0,0,0,0,0,0,0,0);
+    LOGMSG("devNetDev: sync_io_completion(%8p)\n", pcb);
 
     epicsEventId semId;
     callbackGetUser(semId, pcb);
@@ -285,8 +285,7 @@ TRANSACTION *netDevInitInternalIO(struct dbCommon *pxx,
                                   int protocol
                                   )
 {
-    LOGMSG("devNetDev: netDevInitInternalIO(\"%s\")\n",
-           pxx->name,0,0,0,0,0,0,0,0);
+    LOGMSG("devNetDev: netDevInitInternalIO(\"%s\")\n", pxx->name);
 
     TRANSACTION *t = (TRANSACTION *) calloc(1, sizeof(TRANSACTION));
     if (!t) {
@@ -308,7 +307,7 @@ TRANSACTION *netDevInitInternalIO(struct dbCommon *pxx,
             return NULL;
         }
 
-        LOGMSG("devNetDev: binary semaphore %8p created\n",semId,0,0,0,0,0,0,0,0);
+        LOGMSG("devNetDev: binary semaphore %8p created\n", semId);
 
         callbackSetCallback(sync_io_completion, &t->io.async.callback);
         callbackSetUser(semId, &t->io.async.callback);
@@ -331,7 +330,7 @@ int netDevInternalIO(int option,
                      int timeout
                      )
 {
-    LOGMSG("devNetDev: netDevInternalIO(%d,%8p,%8p,%d)\n",option,t,device,timeout,0,0,0,0,0);
+    LOGMSG("devNetDev: netDevInternalIO(%d,%8p,%8p,%d)\n", option, t, device, timeout);
 
     if (!t || !t->record) {
         errlogPrintf("devNetDev: illeagal transaction sturucture\n");
@@ -357,7 +356,7 @@ int netDevInternalIO(int option,
         epicsEventId semId;
         callbackGetUser(semId, &t->io.async.callback);
 
-        LOGMSG("devNetDev: taking binary semaphore %8p\n",semId,0,0,0,0,0,0,0,0);
+        LOGMSG("devNetDev: taking binary semaphore %8p\n", semId);
 
         epicsEventMustWait(semId);
 
@@ -373,7 +372,7 @@ int netDevInternalIO(int option,
 
 int netDevDeleteInternalIO(TRANSACTION *t)
 {
-    LOGMSG("devNetDev: netDevDeleteInternalIO(%8p)\n",t,0,0,0,0,0,0,0,0);
+    LOGMSG("devNetDev: netDevDeleteInternalIO(%8p)\n", t);
 
     if (!t) {
         errlogPrintf("devNetDev: null transaction sturucture\n");
@@ -385,7 +384,7 @@ int netDevDeleteInternalIO(TRANSACTION *t)
         callbackGetUser(semId, &t->io.async.callback);
         epicsEventDestroy(semId);
 
-        LOGMSG("devNetDev: binary semaphore %8p deleted\n",semId,0,0,0,0,0,0,0,0);
+        LOGMSG("devNetDev: binary semaphore %8p deleted\n", semId);
     }
 
     free(t);
@@ -409,7 +408,7 @@ uint32_t netDevGetSelfId(void)
     char temp[1024];
     char ead[1024];
 
-    LOGMSG("devNetDev: netDevGetSelfId()\n",0,0,0,0,0,0,0,0,0);
+    LOGMSG("devNetDev: netDevGetSelfId()\n");
 
     if (host_ip) {
     return host_ip;
@@ -440,7 +439,7 @@ uint32_t netDevGetSelfId(void)
     char hostname[MAX_HOST_NAME];
     in_addr_t host_ip;
 
-    LOGMSG("devNetDev: netDevGetSelfId()\n",0,0,0,0,0,0,0,0,0);
+    LOGMSG("devNetDev: netDevGetSelfId()\n");
 
     if (gethostname(hostname, MAX_HOST_NAME) == ERROR) {
         errlogPrintf("gethostname() error\n");
@@ -463,7 +462,7 @@ uint32_t netDevGetSelfId(void)
 #ifdef vxWorks
 long netDevGetHostId(char *hostname, int *hostid)
 {
-    LOGMSG("devNetDev: netDevGetHostId(\"%s\",%8p)\n", hostname, hostid,0,0,0,0,0,0,0);
+    LOGMSG("devNetDev: netDevGetHostId(\"%s\",%8p)\n", hostname, hostid);
 
     *hostid = hostGetByName(hostname);
     if (*hostid == ERROR) {
@@ -479,7 +478,7 @@ long netDevGetHostId(char *hostname, int *hostid)
 #else
 long netDevGetHostId(char *hostname, in_addr_t *hostid)
 {
-    LOGMSG("devNetDev: netDevGetHostId(\"%s\",%8p)\n", hostname, hostid,0,0,0,0,0,0,0);
+    LOGMSG("devNetDev: netDevGetHostId(\"%s\",%8p)\n", hostname, hostid);
 
     struct hostent *hostptr = gethostbyname(hostname);
     if (hostptr != NULL) {
@@ -503,7 +502,7 @@ long netDevSetEvMsgLeng(struct dbCommon *pxx, int len)
 {
     TRANSACTION *t = (TRANSACTION *)pxx->dpvt;
 
-    LOGMSG("devNetDev: netDevSetEvMsgLeng(\"%s\",%d)\n", pxx->name, len,0,0,0,0,0,0,0);
+    LOGMSG("devNetDev: netDevSetEvMsgLeng(\"%s\",%d)\n", pxx->name, len);
 
     if (!t) {
         pxx->pact = TRUE;

@@ -210,7 +210,7 @@ LOCAL long report(void)
  */
 LOCAL long init(void)
 {
-    LOGMSG("drvNetMpf: init() entered\n",0,0,0,0,0,0,0,0,0);
+    LOGMSG("drvNetMpf: init() entered\n");
 
     if (init_flag) {
         return OK;
@@ -281,7 +281,7 @@ LOCAL long init(void)
  * Creates semaphores
  */
 LOCAL long create_semaphores(PEER *p) {
-    LOGMSG("drvNetMpf: create_semaphores(%8p)\n",p,0,0,0,0,0,0,0,0);
+    LOGMSG("drvNetMpf: create_semaphores(%8p)\n", p);
 
     if ((p->in_t_mutex=epicsMutexCreate()) == (epicsMutexId) 0) {
         errlogPrintf("drvNetMpf: epicsMutexCreate failed\n");
@@ -315,7 +315,7 @@ LOCAL long spawn_io_tasks(PEER *p)
     char *recv_t_name = "tRcvTsk";
     char  task_name[32];
 
-    LOGMSG("drvNetMpf: spawn_io_tasks(%8p)\n",p,0,0,0,0,0,0,0,0);
+    LOGMSG("drvNetMpf: spawn_io_tasks(%8p)\n", p);
 
     sprintf(task_name, "%s_%d", send_t_name, p->mpf.id);
 
@@ -353,7 +353,7 @@ LOCAL long spawn_io_tasks(PEER *p)
  */
 LOCAL void delete_peer(PEER *p)
 {
-    LOGMSG("drvNetMpf: delete_peer(%8p)\n",p,0,0,0,0,0,0,0,0);
+    LOGMSG("drvNetMpf: delete_peer(%8p)\n", p);
 
     if (p->mpf.sfd) {
         close(p->mpf.sfd);
@@ -427,8 +427,7 @@ PEER *drvNetMpfInitPeer(struct sockaddr_in peer_addr, int option)
         LOGMSG("drvNetMpf: drvNetMpfInitPeer(0x%08x,0x%08x,0x%08x)\n",
                ntohl(p->mpf.peer_addr.sin_addr.s_addr),
                ntohl(p->mpf.peer_addr.sin_port),
-               ntohs(p->mpf.peer_addr.sin_family),
-               0,0,0,0,0,0);
+               ntohs(p->mpf.peer_addr.sin_family));
 
         p->mpf.option = GET_MPF_OPTION(option);
         ellInit(&p->reqQueue);
@@ -450,8 +449,8 @@ PEER *drvNetMpfInitPeer(struct sockaddr_in peer_addr, int option)
             return NULL;
         }
 
-        LOGMSG("drvNetMpf: send buf size %d\n",SEND_BUF_SIZE(p->mpf.option),0,0,0,0,0,0,0,0);
-        LOGMSG("drvNetMpf: recv buf size %d\n",RECV_BUF_SIZE(p->mpf.option),0,0,0,0,0,0,0,0);
+        LOGMSG("drvNetMpf: send buf size %d\n", SEND_BUF_SIZE(p->mpf.option));
+        LOGMSG("drvNetMpf: recv buf size %d\n", RECV_BUF_SIZE(p->mpf.option));
 
         p->mpf.send_buf = calloc(1, SEND_BUF_SIZE(p->mpf.option));
         if (!p->mpf.send_buf) {
@@ -488,7 +487,7 @@ PEER *drvNetMpfInitPeer(struct sockaddr_in peer_addr, int option)
  */
 long drvNetMpfSendRequest(TRANSACTION *t)
 {
-    LOGMSG("drvNetMpf: drvNetMpfSendRequest(%8p)\n",t,0,0,0,0,0,0,0,0);
+    LOGMSG("drvNetMpf: drvNetMpfSendRequest(%8p)\n", t);
 
     if (!t) {
         errlogPrintf("drvNetMpf: null request\n");
@@ -582,7 +581,7 @@ LOCAL int send_msg(MPF_COMMON *m)
  */
 LOCAL void reconnect(MPF_COMMON *m)
 {
-    LOGMSG("drvNetMpf: reconnect(%8p)\n",m,0,0,0,0,0,0,0,0);
+    LOGMSG("drvNetMpf: reconnect(%8p)\n", m);
 
 #ifdef vxWorks
     char inet_string[256];
@@ -601,7 +600,7 @@ LOCAL void reconnect(MPF_COMMON *m)
     }
 
     if (isUdp(m->option)) {
-        LOGMSG("drvNetMpf: protocol is UDP\n",0,0,0,0,0,0,0,0,0);
+        LOGMSG("drvNetMpf: protocol is UDP\n");
 
         struct sockaddr_in my_addr;
 
@@ -723,7 +722,7 @@ LOCAL void send_task(PEER *p)
 
         TRANSACTION *t;
         while ((t = get_request_from_queue(p))) {
-            LOGMSG("drvNetMpf: got request from \"%s\"\n",t->record->name,0,0,0,0,0,0,0,0);
+            LOGMSG("drvNetMpf: got request from \"%s\"\n", t->record->name);
 
             if (isOmron(p->mpf.option)) {
                 p->mpf.peer_addr = t->peer_addr;
@@ -863,7 +862,7 @@ LOCAL void receive_task(PEER *p)
                 if (t->ret == NOT_DONE) {
                     drvNetMpfSendRequest(t);
                 } else {
-                    LOGMSG("drvNetMpf: requesting callback for \"%s\"\n", t->record->name,0,0,0,0,0,0,0,0);
+                    LOGMSG("drvNetMpf: requesting callback for \"%s\"\n", t->record->name);
 
                     setLast(t->option);
                     callbackRequest(&t->io.async.callback);
@@ -924,7 +923,7 @@ LOCAL void mpf_timeout_handler(PEER *p)
  */
 long drvNetMpfRegisterEvent(TRANSACTION *t)
 {
-    LOGMSG("drvNetMpf: drvNetMpfRegisterEvent(%8p)\n",t,0,0,0,0,0,0,0,0);
+    LOGMSG("drvNetMpf: drvNetMpfRegisterEvent(%8p)\n", t);
 
     if (!t) {
         errlogPrintf("drvNetMpf: null event\n");
@@ -1089,7 +1088,7 @@ LOCAL int tcp_parent(SERVER *s)
  */
 LOCAL long spawn_tcp_parent(SERVER *s)
 {
-    LOGMSG("drvNetMpf: spawn_tcp_parent(%8p)\n",s,0,0,0,0,0,0,0,0);
+    LOGMSG("drvNetMpf: spawn_tcp_parent(%8p)\n", s);
 
     char *parent_t_name = "tTcpSrvr";
     char  task_name[32];
@@ -1113,7 +1112,7 @@ LOCAL long spawn_tcp_parent(SERVER *s)
  */
 LOCAL long prepare_udp_server_socket(SERVER *s)
 {
-    LOGMSG("drvNetMpf: prepare_udp_server_socket(%8p)\n",s,0,0,0,0,0,0,0,0);
+    LOGMSG("drvNetMpf: prepare_udp_server_socket(%8p)\n", s);
 
     if ((s->mpf.sfd = socket(AF_INET,
                              SOCK_DGRAM,
@@ -1123,7 +1122,7 @@ LOCAL long prepare_udp_server_socket(SERVER *s)
         return ERROR;
     }
 
-    LOGMSG("drvNetMpf: protocol is UDP\n",0,0,0,0,0,0,0,0,0);
+    LOGMSG("drvNetMpf: protocol is UDP\n");
 
     struct sockaddr_in my_addr;
     memset(&my_addr, 0, sizeof(my_addr));
@@ -1147,7 +1146,7 @@ LOCAL long prepare_udp_server_socket(SERVER *s)
  */
 LOCAL long spawn_server_task(SERVER *s)
 {
-    LOGMSG("drvNetMpf: spawn_server_task(%8p)\n",s,0,0,0,0,0,0,0,0);
+    LOGMSG("drvNetMpf: spawn_server_task(%8p)\n", s);
 
     char *send_t_name = "tEvSrvr";
     char  task_name[32];
@@ -1176,7 +1175,7 @@ LOCAL void delete_server(SERVER *s)
      * This function should be called only before
      * the server is added to the serverList.
      */
-    LOGMSG("drvNetMpf: delete_server(%8p)\n",s,0,0,0,0,0,0,0,0);
+    LOGMSG("drvNetMpf: delete_server(%8p)\n", s);
 
     if (s->parent) {
         SERVER *parent = s->parent;
@@ -1215,7 +1214,7 @@ LOCAL void delete_server(SERVER *s)
  */
 SERVER *drvNetMpfInitServer(unsigned short port, int option)
 {
-    LOGMSG("drvNetMpf: drvNetMpfInitServer(0x%04x,0x%08x)\n",port,option,0,0,0,0,0,0,0);
+    LOGMSG("drvNetMpf: drvNetMpfInitServer(0x%04x,0x%08x)\n", port, option);
 
     SERVER *s;
     epicsMutexMustLock(serverList.mutex);
@@ -1351,7 +1350,7 @@ LOCAL int event_server(SERVER *s)
                                                );
                     if (t->ret != NOT_MINE) {
                         do_showio(t, 0);
-                        LOGMSG("drvNetMpf: event_server working for \"%s\"\n", t->record->name,0,0,0,0,0,0,0,0);
+                        LOGMSG("drvNetMpf: event_server working for \"%s\"\n", t->record->name);
                         break;
                     }
                 }

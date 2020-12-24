@@ -241,10 +241,9 @@ long drvNetMpfRegisterEvent(TRANSACTION *);
 #define TICK_PER_SECOND  100
 
 #define SANITY_CHECK
-/*
-#define SANITY_PRINT
-#define DEBUG
-*/
+//#define SANITY_PRINT
+//#define DEBUG
+
 #ifdef DEBUG
 #define LOGMSG(...) errlogPrintf(__VA_ARGS__)
 #define DEFAULT_TIMEOUT  (TICK_PER_SECOND | MPF_FINETMO)

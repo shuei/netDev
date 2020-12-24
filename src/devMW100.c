@@ -86,7 +86,7 @@ LOCAL long MW100_parse_link(struct link *plink,
 
     if (!peer_addr->sin_port) {
         peer_addr->sin_port = htons(MW100_SERVER_PORT);
-        LOGMSG("devMW100: port: 0x%04x\n",ntohs(peer_addr->sin_port),0,0,0,0,0,0,0,0);
+        LOGMSG("devMW100: port: 0x%04x\n", ntohs(peer_addr->sin_port));
     }
 
     if (addr) {
@@ -119,7 +119,7 @@ LOCAL long MW100_parse_link(struct link *plink,
             return ERROR;
         }
 
-        LOGMSG("p1:%d, p2:%d\n", d->p1, d->p2, 0, 0, 0, 0, 0, 0, 0);
+        LOGMSG("p1:%d, p2:%d\n", d->p1, d->p2);
 
         d->noch = p2 - p1 + 1;
 

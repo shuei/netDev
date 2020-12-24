@@ -39,8 +39,7 @@ epicsExportAddress(dset, devChansMW100);
 
 LOCAL long init_chans_record(struct chansRecord *pchans)
 {
-    LOGMSG("devChansMW100: init_chans_record(\"%s\")\n",
-           pchans->name,0,0,0,0,0,0,0,0);
+    LOGMSG("devChansMW100: init_chans_record(\"%s\")\n", pchans->name);
 
     MW100 *d = MW100_calloc();
     if (netDevInitXxRecord((struct dbCommon *) pchans,
@@ -61,8 +60,7 @@ LOCAL long init_chans_record(struct chansRecord *pchans)
 
 LOCAL long read_chans(struct chansRecord *pchans)
 {
-    LOGMSG("devChansMW100: read_chans_record(\"%s\")\n",
-           pchans->name,0,0,0,0,0,0,0,0);
+    LOGMSG("devChansMW100: read_chans_record(\"%s\")\n", pchans->name);
 
     return netDevReadWriteXx((struct dbCommon *) pchans);
 }
@@ -78,8 +76,7 @@ LOCAL long config_chans_command(struct dbCommon *pxx,
                                 int transaction_id
                                 )
 {
-    LOGMSG("devChansMW100: config_chans_command(\"%s\")\n",
-           pxx->name,0,0,0,0,0,0,0,0);
+    LOGMSG("devChansMW100: config_chans_command(\"%s\")\n", pxx->name);
 
     MW100 *d = (MW100 *) device;
 
@@ -105,8 +102,7 @@ LOCAL long parse_chans_response(struct dbCommon *pxx,
                                 int transaction_id
                                 )
 {
-    LOGMSG("devChansMW100: parse_chans_response(%8p,0x%08x,%8p,%d,%8p,%d)\n",
-           pxx,*option,buf,*len,device,transaction_id,0,0,0);
+    LOGMSG("devChansMW100: parse_chans_response(%8p,0x%08x,%8p,%d,%8p,%d)\n", pxx, *option, buf, *len, device, transaction_id);
 
     struct chansRecord *pchans = (struct chansRecord *)pxx;
     MW100 *d = (MW100 *) device;

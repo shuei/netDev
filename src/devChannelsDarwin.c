@@ -45,8 +45,7 @@ LOCAL long init_chan_record(struct channelsRecord *pchan)
 {
     DARWIN *d = darwin_calloc();
 
-    LOGMSG("devChanDarwin: init_chan_record(\"%s\")\n",
-           pchan->name,0,0,0,0,0,0,0,0);
+    LOGMSG("devChanDarwin: init_chan_record(\"%s\")\n", pchan->name);
 
     if (netDevInitXxRecord((struct dbCommon *) pchan,
                            &pchan->inp,
@@ -73,8 +72,7 @@ LOCAL long init_chan_record(struct channelsRecord *pchan)
 
 LOCAL long read_chan(struct channelsRecord *pchan)
 {
-    LOGMSG("devChanDarwin: read_chan_record(\"%s\")\n",
-           pchan->name,0,0,0,0,0,0,0,0);
+    LOGMSG("devChanDarwin: read_chan_record(\"%s\")\n", pchan->name);
 
     return netDevReadWriteXx((struct dbCommon *) pchan);
 }
@@ -102,8 +100,7 @@ LOCAL long config_chan_command(struct dbCommon *pxx,
     int nbytes = 0;
     uint8_t *command;
 
-    LOGMSG("devChanDarwin: config_chan_command(\"%s\")\n",
-           pxx->name,0,0,0,0,0,0,0,0);
+    LOGMSG("devChanDarwin: config_chan_command(\"%s\")\n", pxx->name);
 
     if (strncmp(pchan->mode, "EF", 2) == 0) {
         command = d->comm_EF;
@@ -160,8 +157,7 @@ LOCAL long parse_chan_response(struct dbCommon *pxx,
     int data_length = CAHNNEL_OFFSET(nelm, alst) - TIME_STAMP_OFFSET;
     int n, m;
 
-    LOGMSG("devChanDarwin: parse_chan_response(%8p,0x%08x,%8p,%d,%8p,%d)\n",
-           pxx,*option,buf,*len,device,transaction_id,0,0,0);
+    LOGMSG("devChanDarwin: parse_chan_response(%8p,0x%08x,%8p,%d,%8p,%d)\n", pxx, *option, buf, *len, device, transaction_id);
 
     if (strncmp(pchan->mode, "EF", 2) == 0) {
         p = buf + DATA_LENGTH_OFFSET;
@@ -268,23 +264,20 @@ LOCAL long parse_chan_response(struct dbCommon *pxx,
             */
 
             if (sps != ' ') {
-                LOGMSG("parse_chan_response:EL leading char is not SPACE(\"%s\", 0x%02x, %d)\n",
-                       pchan->name,sts,chan,0,0,0,0,0,0);
+                LOGMSG("parse_chan_response:EL leading char is not SPACE(\"%s\", 0x%02x, %d)\n", pchan->name, sts,chan);
                 strncpy(pchan->mode, "EF", 2);
                 return ERROR;
             }
 
             if (remain == 1) {
                 if (sts != 'E') {
-                    LOGMSG("parse_chan_response:EL not found END marker(\"%s\", 0x%02x, %d)\n",
-                           pchan->name,sts,chan,0,0,0,0,0,0);
+                    LOGMSG("parse_chan_response:EL not found END marker(\"%s\", 0x%02x, %d)\n", pchan->name, sts, chan);
                     strncpy(pchan->mode, "EF", 2);
                     return ERROR;
                 }
             } else {
                 if (sts != ' ') {
-                    LOGMSG("parse_chan_response:EL found unexpected marker(\"%s\", 0x%02x, %d)\n",
-                           pchan->name,sts,chan,0,0,0,0,0,0);
+                    LOGMSG("parse_chan_response:EL found unexpected marker(\"%s\", 0x%02x, %d)\n", pchan->name, sts,chan);
                     strncpy(pchan->mode, "EF", 2);
                     return ERROR;
                 }

@@ -98,8 +98,7 @@ LOCAL long darwin_parse_link(struct link *plink,
 
     d->port = ntohs(peer_addr->sin_port);
     if (!d->port) {
-        LOGMSG("devDarwin: port: 0x%04x\n",ntohs(peer_addr->sin_port),
-               0,0,0,0,0,0,0,0);
+        LOGMSG("devDarwin: port: 0x%04x\n", ntohs(peer_addr->sin_port));
         errlogPrintf("devDarwin: port not specified\n");
         return ERROR;
     }
@@ -141,7 +140,7 @@ LOCAL long darwin_parse_link(struct link *plink,
         d->p1 = p1;
         d->p2 = p2;
 
-        LOGMSG("p1:%d, p2:%d\n", d->p1, d->p2, 0, 0, 0, 0, 0, 0, 0);
+        LOGMSG("p1:%d, p2:%d\n", d->p1, d->p2);
 #ifdef vxWorks
         sprintf(d->comm_EF, "EF ,%c%02d,%c%02d%s", u1, p1, u2, p2, terminator);
         sprintf(d->comm_EL, "EL%c%02d,%c%02d%s",   u1, p1, u2, p2, terminator);
