@@ -246,11 +246,10 @@ long drvNetMpfRegisterEvent(TRANSACTION *);
 #define DEBUG
 */
 #ifdef DEBUG
-#define LOGMSG(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9) \
-errlogPrintf((arg0),(arg1),(arg2),(arg3),(arg4),(arg5),(arg6),(arg7),(arg8),(arg9))
+#define LOGMSG(...) errlogPrintf(__VA_ARGS__)
 #define DEFAULT_TIMEOUT  (TICK_PER_SECOND | MPF_FINETMO)
 #else
-#define LOGMSG(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9)
+#define LOGMSG(...)
 #define DEFAULT_TIMEOUT  (TICK_PER_SECOND | MPF_FINETMO)
 #endif
 
