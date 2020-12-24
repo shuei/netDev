@@ -55,8 +55,7 @@ long parseLinkPlcCommon(struct link *plink,
     char *pc2      = NULL;
     char *pc3      = NULL;
 
-    LOGMSG("devNetDev: parseLinkPlcCommon(%8p,%8p,%8p,%8p,%8p,%8p)\n",
-           plink, peer_addr, route, unit, type, addr, 0, 0, 0);
+    LOGMSG("devNetDev: %s(%8p,%8p,%8p,%8p,%8p,%8p)\n", __func__, plink, peer_addr, route, unit, type, addr);
 
     /*
      * hostname[{routing_path}][:unit]#[type:]addr[&option]
@@ -78,7 +77,7 @@ long parseLinkPlcCommon(struct link *plink,
 
     strncpy(buf, plink->value.instio.string, size);
     buf[size - 1] = '\0';
-    LOGMSG("devNetDev: buf[%ld]: %s\n", size, buf, 0, 0, 0, 0, 0, 0, 0);
+    LOGMSG("devNetDev: buf[%zd]: %s\n", size, buf);
 
     pc0 = strchr(buf, '&');
     if (pc0) {
@@ -93,7 +92,7 @@ long parseLinkPlcCommon(struct link *plink,
         char *port = pc0;
         pc1 = strchr(pc0, ')');
         if (!pc1) {
-            LOGMSG("devNetDev: pc0:%8p, pc1:%8p\n",pc0, pc1, 0, 0, 0, 0, 0, 0, 0);
+            LOGMSG("devNetDev: pc0:%8p, pc1:%8p\n",pc0, pc1);
             errlogPrintf("devNetDev: can't get port\n");
             return ERROR;
         }
@@ -105,11 +104,11 @@ long parseLinkPlcCommon(struct link *plink,
             *pc0++ = '\0';
             *protocol = pc0;
 
-            LOGMSG("devNetDev: protocol: %s\n",*protocol, 0, 0, 0, 0, 0, 0, 0, 0);
+            LOGMSG("devNetDev: protocol: %s\n", *protocol);
         }
 
         if (*port != '\0') { /* it was ':' */
-            LOGMSG("devNetDev: string port: %s\n",port,0,0,0,0,0,0,0,0);
+            LOGMSG("devNetDev: string port: %s\n", port);
 
             unsigned int iport;
             if (strncmp(port, "0x", 2) == 0) {
@@ -117,16 +116,16 @@ long parseLinkPlcCommon(struct link *plink,
                     errlogPrintf("devNetDev: can't get service port\n");
                     return ERROR;
                 }
-                LOGMSG("devNetDev: port in HEX: 0x%04x\n",iport,0,0,0,0,0,0,0,0);
+                LOGMSG("devNetDev: port in HEX: 0x%04x\n", iport);
             } else {
                 if (sscanf(port, "%d", &iport) != 1) {
                     errlogPrintf("devNetDev: can't get service port\n");
                     return ERROR;
                 }
-                LOGMSG("devNetDev: port in DEC: %d\n",iport,0,0,0,0,0,0,0,0);
+                LOGMSG("devNetDev: port in DEC: %d\n", iport);
             }
             peer_addr->sin_port = htons(iport);
-            LOGMSG("devNetDev: port: 0x%04x\n",ntohs(peer_addr->sin_port),0,0,0,0,0,0,0,0);
+            LOGMSG("devNetDev: port: 0x%04x\n", ntohs(peer_addr->sin_port));
         }
     }
 
@@ -141,7 +140,7 @@ long parseLinkPlcCommon(struct link *plink,
     pc2 = strchr(pc0, ':');
 
     if (!pc1) {
-        LOGMSG("devNetDev: no device address specified\n",0,0,0,0,0,0,0,0,0);
+        LOGMSG("devNetDev: no device address specified\n");
         *unit = NULL;
         *type = NULL;
         *addr = NULL;
@@ -157,7 +156,7 @@ long parseLinkPlcCommon(struct link *plink,
         *unit = NULL;
         *type = NULL;
         *addr = pc1;
-        LOGMSG("devNetDev: no unit, no type\n",0,0,0,0,0,0,0,0,0);
+        LOGMSG("devNetDev: no unit, no type\n");
     } else {
         *pc2++ = '\0';
         if (pc2 > pc1) {
@@ -165,7 +164,7 @@ long parseLinkPlcCommon(struct link *plink,
             *unit = NULL;
             *type = pc1;
             *addr = pc2;
-            LOGMSG("devNetDev: no unit, type exists\n",0,0,0,0,0,0,0,0,0);
+            LOGMSG("devNetDev: no unit, type exists\n");
         } else {
             /* unit exists. don't know about type. ( hostname:unit#[type:]addr ) */
             *unit = pc2;
@@ -174,13 +173,13 @@ long parseLinkPlcCommon(struct link *plink,
                 /* unit exists, but no type ( hostname:unit#addr ) */
                 *type = NULL;
                 *addr = pc1;
-                LOGMSG("devNetDev: unit exists, but no type\n",0,0,0,0,0,0,0,0,0);
+                LOGMSG("devNetDev: unit exists, but no type\n");
             } else {
                 /* both unit and type exist ( hostname:unit#type:addr ) */
                 *pc3++ = '\0';
                 *type = pc1;
                 *addr = pc3;
-                LOGMSG("devNetDev: both unit and type exist\n",0,0,0,0,0,0,0,0,0);
+                LOGMSG("devNetDev: both unit and type exist\n");
             }
         }
     }
@@ -193,7 +192,7 @@ GET_HOSTNAME:
         errlogPrintf("devNetDev: can't get hostid\n");
         return ERROR;
     }
-    LOGMSG("devNetDev: hostid: 0x%08x\n",peer_addr->sin_addr.s_addr,0,0,0,0,0,0,0,0);
+    LOGMSG("devNetDev: hostid: 0x%08x\n", peer_addr->sin_addr.s_addr);
 
     return OK;
 }
@@ -210,8 +209,7 @@ long toRecordVal(void *bptr,
                  int   swap
                  )
 {
-    LOGMSG("devNetDev: toRecordVal(%8p,%d,%d,%8p,%d,%d,%d)\n",
-           bptr,noff,ftvl,buf,width,ndata,swap,0,0);
+    LOGMSG("devNetDev: %s(%8p,%d,%d,%8p,%d,%d,%d)\n", __func__, bptr, noff, ftvl, buf, width, ndata, swap);
 
     switch (ftvl) {
     case DBF_CHAR:
@@ -227,7 +225,7 @@ long toRecordVal(void *bptr,
     case DBF_ULONG:
         return toUlongVal(bptr, noff, buf, width, ndata, swap);
     default:
-        errlogPrintf("toRecordVal: illeagal data conversion\n");
+        errlogPrintf("devNetDev: %s: unsupported FTVL: %d\n", __func__, ftvl);
         return ERROR;
     }
 
@@ -245,14 +243,11 @@ LOCAL long toCharVal(int8_t *to,
                      int swap
                      )
 {
-    LOGMSG("devNetDev: toCharVal(%8p,%d,%8p,%d,%d)\n",
-           to,noff,from,width,ndata,0,0,0,0);
+    LOGMSG("devNetDev: %s(%8p,%d,%8p,%d,%d)\n", __func__, to, noff, from, width, ndata);
 
     to += noff;
 
-    switch (width) {
-    case 2:
-    {
+    if (width == 2) {
         int16_t *p = (int16_t *) from;
 
         for (int i=0; i < ndata; i++) {
@@ -262,25 +257,20 @@ LOCAL long toCharVal(int8_t *to,
 
             if ((*p & 0xff80) &&
                 (*p & 0xff80) != 0xff80) {
-                errlogPrintf("toCharVal: illeagal data conversion\n");
+                errlogPrintf("%s [%s:%d] illegal data conversion: width=%d ndata=%d from=%d\n", __func__, __FILE__, __LINE__, width, ndata, *p);
                 return ERROR;
             }
 
             *to++ = (int8_t) *p++;
-      }
-    }
-    break;
-    case 1:
-    {
+        }
+    } else if (width == 1) {
         int8_t *p = (int8_t *) from;
 
         for (int i=0; i < ndata; i++) {
             *to++ = (int8_t) *p++;
         }
-    }
-    break;
-    default:
-        errlogPrintf("toCharVal: illeagal data width\n");
+    } else {
+        errlogPrintf("%s [%s:%d] illegal data width: %d\n", __func__, __FILE__, __LINE__, width);
         return ERROR;
     }
 
@@ -298,35 +288,26 @@ LOCAL long toShortVal(int16_t *to,
                       int swap
                       )
 {
-    LOGMSG("devNetDev: toShortVal(%8p,%d,%8p,%d,%d)\n",
-           to,noff,from,width,ndata,0,0,0,0);
+    LOGMSG("devNetDev: %s(%8p,%d,%8p,%d,%d)\n", __func__, to, noff, from, width, ndata);
 
     to += noff;
 
-    switch (width) {
-    case 2:
-    {
+    if (width==2) {
         int16_t *p = (int16_t *) from;
-
         for (int i=0; i < ndata; i++) {
             if (swap) {
                 swap_bytes((uint16_t *)p);
             }
             *to++ = (int16_t) *p++;
         }
-    }
-    break;
-    case 1:
-    {
+    } else if (width == 1) {
         int8_t *p = (int8_t *) from;
 
         for (int i=0; i < ndata; i++) {
             *to++ = (int16_t) *p++;
         }
-    }
-    break;
-    default:
-        errlogPrintf("toShortVal: illeagal data width\n");
+    } else {
+        errlogPrintf("%s [%s:%d] illegal data width: %d\n", __func__, __FILE__, __LINE__, width);
         return ERROR;
     }
 
@@ -344,14 +325,11 @@ LOCAL long toLongVal(int32_t *to,
                      int swap
                      )
 {
-    LOGMSG("devNetDev: toLongVal(%8p,%d,%8p,%d,%d,%d)\n",
-           to,noff,from,width,ndata,swap,0,0,0);
+    LOGMSG("devNetDev: %s(%8p,%d,%8p,%d,%d)\n", __func__, to, noff, from, width, ndata);
 
     to += noff;
 
-    switch (width) {
-    case 2:
-    {
+    if (width == 2) {
         int16_t *p = (int16_t *) from;
 
         for (int i=0; i < ndata; i++) {
@@ -360,19 +338,14 @@ LOCAL long toLongVal(int32_t *to,
             }
             *to++ = (int32_t) *p++;
         }
-    }
-    break;
-    case 1:
-    {
+    } else if (width == 1) {
         int8_t *p = (int8_t *) from;
 
         for (int i=0; i < ndata; i++) {
             *to++ = (int32_t) *p++;
         }
-    }
-    break;
-    default:
-        errlogPrintf("toLongVal: illeagal data width\n");
+    } else {
+        errlogPrintf("%s [%s:%d] illegal data width: %d\n", __func__, __FILE__, __LINE__, width);
         return ERROR;
     }
 
@@ -390,14 +363,11 @@ LOCAL long toUcharVal(uint8_t *to,
                       int swap
                       )
 {
-    LOGMSG("devNetDev: toUcharVal(%8p,%d,%8p,%d,%d)\n",
-           to,noff,from,width,ndata,0,0,0,0);
+    LOGMSG("devNetDev: %s(%8p,%d,%8p,%d,%d)\n", __func__, to, noff, from, width, ndata);
 
     to += noff;
 
-    switch (width) {
-    case 2:
-    {
+    if (width == 2) {
         uint16_t *p = (uint16_t *) from;
 
         for (int i=0; i < ndata; i++) {
@@ -406,25 +376,20 @@ LOCAL long toUcharVal(uint8_t *to,
             }
 
             if (*p & 0xff00) {
-                errlogPrintf("toUcharVal: illeagal data conversion\n");
+                errlogPrintf("%s [%s:%d] illegal data conversion: width=%d ndata=%d from=%d\n", __func__, __FILE__, __LINE__, width, ndata, *p);
                 return ERROR;
             }
 
             *to++ = (uint8_t) *p++;
         }
-    }
-    break;
-    case 1:
-    {
+    } else if (width == 1) {
         uint8_t *p = (uint8_t *) from;
 
         for (int i=0; i < ndata; i++) {
             *to++ = (uint8_t) *p++;
         }
-    }
-    break;
-    default:
-        errlogPrintf("toUcharVal: illeagal data width\n");
+    } else {
+        errlogPrintf("%s [%s:%d] illegal data width: %d\n", __func__, __FILE__, __LINE__, width);
         return ERROR;
     }
 
@@ -442,42 +407,34 @@ LOCAL long toUshortVal(uint16_t *to,
                        int swap
                        )
 {
-    LOGMSG("devNetDev: toUshortVal(%8p,%d,%8p,%d,%d)\n",
-           to,noff,from,width,ndata,0,0,0,0);
+    LOGMSG("devNetDev: %s(%8p,%d,%8p,%d,%d)\n", __func__, to, noff, from, width, ndata);
 
     to += noff;
 
-    switch (width) {
-    case 2:
-    {
+    if (width == 2) {
         uint16_t *p = (uint16_t *) from;
 
         for (int i=0; i < ndata; i++) {
             if (swap) swap_bytes(p);
             *to++ = (uint16_t) *p++;
         }
-    }
-    break;
-    case 1:
-    {
+    } else if (width == 1) {
         uint8_t *p = (uint8_t *) from;
 
         for (int i=0; i < ndata; i++) {
             *to++ = (uint16_t) *p++;
         }
-    }
-    break;
-    default:
-        errlogPrintf("toUshortVal: illeagal data width\n");
+    } else {
+        errlogPrintf("%s [%s:%d] illegal data width: %d\n", __func__, __FILE__, __LINE__, width);
         return ERROR;
     }
 
     return OK;
 }
 
-/*******************************************************************************
+/******************************************************************************
  * To Ulong record buffer
- *******************************************************************************/
+ ******************************************************************************/
 LOCAL long toUlongVal(
           uint32_t *to,
           int noff,
@@ -487,14 +444,11 @@ LOCAL long toUlongVal(
           int swap
           )
 {
-    LOGMSG("devNetDev: toUlongVal(%8p,%d,%8p,%d,%d,%d)\n",
-           to,noff,from,width,ndata,swap,0,0,0);
+    LOGMSG("devNetDev: %s(%8p,%d,%8p,%d,%d)\n", __func__, to, noff, from, width, ndata);
 
     to += noff;
 
-    switch (width)  {
-    case 2:
-    {
+    if (width == 2)  {
         uint16_t *p = (uint16_t *) from;
 
         for (int i=0; i < ndata; i++) {
@@ -503,26 +457,21 @@ LOCAL long toUlongVal(
             }
             *to++ = (uint32_t) *p++;
         }
-    }
-    break;
-    case 1:
-    {
+    } else if (width == 1) {
         uint8_t *p = (uint8_t *) from;
 
         for (int i=0; i < ndata; i++) {
             *to++ = (uint32_t) *p++;
         }
-    }
-    break;
-    default:
-        errlogPrintf("toUlongVal: illeagal data width\n");
+    } else {
+        errlogPrintf("%s [%s:%d] illegal data width: %d\n", __func__, __FILE__, __LINE__, width);
         return ERROR;
     }
 
     return OK;
 }
 
-/*******************************************************************************
+/******************************************************************************
  * Copy values from record to send buffer
  ******************************************************************************/
 long fromRecordVal(void *buf,
@@ -534,8 +483,7 @@ long fromRecordVal(void *buf,
                    int   swap
                    )
 {
-    LOGMSG("devNetDev: fromRecordVal(%8p,%d,%8p,%d,%d,%d,%d)\n",
-           buf,width,bptr,noff,ftvl,ndata,swap,0,0);
+    LOGMSG("devNetDev: %s(%8p,%d,%8p,%d,%d,%d,%d)\n", __func__, buf, width, bptr, noff, ftvl, ndata, swap);
 
     switch (ftvl) {
     case DBF_CHAR:
@@ -551,14 +499,14 @@ long fromRecordVal(void *buf,
     case DBF_ULONG:
         return fromUlongVal(buf, bptr, noff, width, ndata, swap);
     default:
-        errlogPrintf("fromRecordVal: illeagal data conversion\n");
+        errlogPrintf("devNetDev: %s: unsupported FTVL: %d\n", __func__, ftvl);
         return ERROR;
     }
 
     return OK;
 }
 
-/*******************************************************************************
+/******************************************************************************
  * From Char record buffer
  ******************************************************************************/
 LOCAL long fromCharVal(void *to,
@@ -569,14 +517,11 @@ LOCAL long fromCharVal(void *to,
                        int swap
                        )
 {
-    LOGMSG("devNetDev: fromCharVal(%8p,%8p,%d,%d,%d)\n",
-           to,from,noff,width,ndata,0,0,0,0);
+    LOGMSG("devNetDev: %s(%8p,%d,%8p,%d,%d)\n", __func__, to, noff, from, width, ndata);
 
     from += noff;
 
-    switch (width) {
-    case 2:
-    {
+    if (width == 2) {
         int16_t *p = (int16_t *) to;
 
         for (int i=0; i < ndata; i++) {
@@ -586,26 +531,21 @@ LOCAL long fromCharVal(void *to,
             }
             p++;
         }
-    }
-    break;
-    case 1:
-    {
+    } else if (width == 1) {
         int8_t *p = (int8_t *) to;
 
         for (int i=0; i < ndata; i++) {
             *p++ = *from++;
         }
-    }
-    break;
-    default:
-        errlogPrintf("fromCharVal: illeagal data width\n");
+    } else {
+        errlogPrintf("%s [%s:%d] illegal data width: %d\n", __func__, __FILE__, __LINE__, width);
         return ERROR;
     }
 
     return OK;
 }
 
-/*******************************************************************************
+/******************************************************************************
  * From Short record buffer
  ******************************************************************************/
 LOCAL long fromShortVal(void *to,
@@ -616,14 +556,11 @@ LOCAL long fromShortVal(void *to,
                         int swap
                         )
 {
-    LOGMSG("devNetDev: fromUshortVal(%8p,%8p,%d,%d,%d)\n",
-           to,from,noff,width,ndata,0,0,0,0);
+    LOGMSG("devNetDev: %s(%8p,%d,%8p,%d,%d)\n", __func__, to, noff, from, width, ndata);
 
     from += noff;
 
-    switch (width) {
-    case 2:
-    {
+    if (width == 2) {
         int16_t *p = (int16_t *) to;
 
         for (int i=0; i < ndata; i++) {
@@ -633,32 +570,27 @@ LOCAL long fromShortVal(void *to,
             }
             p++;
         }
-    }
-    break;
-    case 1:
-    {
+    } else if (width == 1) {
         int8_t *p = (int8_t *) to;
 
         for (int i=0; i < ndata; i++) {
             if ((*from & 0xff80) &&
                 (*from & 0xff80) != 0xff80) {
-                errlogPrintf("fromShortVal: illeagal data conversion\n");
+                errlogPrintf("%s [%s:%d] illegal data conversion: width=%d ndata=%d from=%d\n", __func__, __FILE__, __LINE__, width, ndata, *from);
                 return ERROR;
             }
 
             *p++ = (int8_t) *from++;
         }
-    }
-    break;
-    default:
-        errlogPrintf("fromShortVal: illeagal data width\n");
+    } else {
+        errlogPrintf("%s [%s:%d] illegal data width: %d\n", __func__, __FILE__, __LINE__, width);
         return ERROR;
     }
 
     return OK;
 }
 
-/*******************************************************************************
+/******************************************************************************
  * From Long record buffer
  ******************************************************************************/
 LOCAL long fromLongVal(void *to,
@@ -669,20 +601,17 @@ LOCAL long fromLongVal(void *to,
                        int swap
                        )
 {
-    LOGMSG("netDevLib: fromLongVal(%8p,%8p,%d,%d,%d,%d)\n",
-           to,from,noff,width,ndata,swap,0,0,0);
+    LOGMSG("devNetDev: %s(%8p,%d,%8p,%d,%d)\n", __func__, to, noff, from, width, ndata);
 
     from += noff;
 
-    switch (width) {
-    case 2:
-    {
+    if (width == 2) {
         int16_t *p = (int16_t *) to;
 
         for (int i=0; i < ndata; i++) {
             if ((*from & 0xffff8000) &&
                 (*from & 0xffff8000) != 0xffff8000) {
-                errlogPrintf("fromLongVal: illeagal data conversion\n");
+                errlogPrintf("%s [%s:%d] illegal data conversion: width=%d ndata=%d from=%d\n", __func__, __FILE__, __LINE__, width, ndata, *from);
                 return ERROR;
             }
 
@@ -690,32 +619,27 @@ LOCAL long fromLongVal(void *to,
             if (swap) swap_bytes((uint16_t *)p);
             p++;
         }
-    }
-    break;
-    case 1:
-    {
+    } else if (width == 1) {
         int8_t *p = (int8_t *) to;
 
         for (int i=0; i < ndata; i++) {
             if ((*from & 0xffffff80) &&
                 (*from & 0xffffff80) != 0xffffff80) {
-                errlogPrintf("fromLongVal: illeagal data conversion\n");
+                errlogPrintf("%s [%s:%d] illegal data conversion: width=%d ndata=%d from=%d\n", __func__, __FILE__, __LINE__, width, ndata, *from);
                 return ERROR;
             }
 
             *p++ = (int8_t) *from++;
         }
-    }
-    break;
-    default:
-        errlogPrintf("fromLongVal: illeagal data width\n");
+    } else {
+        errlogPrintf("%s [%s:%d] illegal data width: %d\n", __func__, __FILE__, __LINE__, width);
         return ERROR;
     }
 
     return OK;
 }
 
-/*******************************************************************************
+/******************************************************************************
  * From Uchar record buffer
  ******************************************************************************/
 LOCAL long fromUcharVal(void *to,
@@ -726,14 +650,11 @@ LOCAL long fromUcharVal(void *to,
                         int swap
                         )
 {
-    LOGMSG("devNetDev: fromUcharVal(%8p,%8p,%d,%d,%d)\n",
-           to,from,noff,width,ndata,0,0,0,0);
+    LOGMSG("devNetDev: %s(%8p,%d,%8p,%d,%d)\n", __func__, to, noff, from, width, ndata);
 
     from += noff;
 
-    switch (width) {
-    case 2:
-    {
+    if (width == 2) {
         uint16_t *p = (uint16_t *) to;
 
         for (int i=0; i < ndata; i++) {
@@ -743,26 +664,21 @@ LOCAL long fromUcharVal(void *to,
             }
             p++;
         }
-    }
-    break;
-    case 1:
-    {
+    } else if (width == 1) {
         uint8_t *p = (uint8_t *) to;
 
         for (int i=0; i < ndata; i++) {
             *p++ = *from++;
         }
-    }
-    break;
-    default:
-        errlogPrintf("fromUcharVal: illeagal data width\n");
+    } else {
+        errlogPrintf("%s [%s:%d] illegal data width: %d\n", __func__, __FILE__, __LINE__, width);
         return ERROR;
     }
 
     return OK;
 }
 
-/*******************************************************************************
+/******************************************************************************
  * From Ushort record buffer
  ******************************************************************************/
 LOCAL long fromUshortVal(void *to,
@@ -773,14 +689,11 @@ LOCAL long fromUshortVal(void *to,
                          int swap
                          )
 {
-    LOGMSG("devNetDev: fromUshortVal(%8p,%8p,%d,%d,%d)\n",
-           to,from,noff,width,ndata,0,0,0,0);
+    LOGMSG("devNetDev: %s(%8p,%d,%8p,%d,%d)\n", __func__, to, noff, from, width, ndata);
 
     from += noff;
 
-    switch (width) {
-    case 2:
-    {
+    if (width == 2) {
         uint16_t *p = (uint16_t *) to;
 
         for (int i=0; i < ndata; i++) {
@@ -790,31 +703,26 @@ LOCAL long fromUshortVal(void *to,
             }
             p++;
         }
-    }
-    break;
-    case 1:
-    {
+    } else if (width == 1) {
         uint8_t *p = (uint8_t *) to;
 
         for (int i=0; i < ndata; i++) {
             if (*from & 0xff00) {
-                errlogPrintf("fromUshortVal: illeagal data conversion\n");
+                errlogPrintf("%s [%s:%d] illegal data conversion: width=%d ndata=%d from=%d\n", __func__, __FILE__, __LINE__, width, ndata, *from);
                 return ERROR;
             }
 
             *p++ = (uint8_t) *from++;
         }
-    }
-    break;
-    default:
-        errlogPrintf("fromUshortVal: illeagal data width\n");
+    } else {
+        errlogPrintf("%s [%s:%d] illegal data width: %d\n", __func__, __FILE__, __LINE__, width);
         return ERROR;
     }
 
     return OK;
 }
 
-/*******************************************************************************
+/******************************************************************************
  * From Ulong record buffer
  ******************************************************************************/
 LOCAL long fromUlongVal(void *to,
@@ -825,19 +733,16 @@ LOCAL long fromUlongVal(void *to,
                         int swap
                         )
 {
-    LOGMSG("devNetDev: fromUlongVal(%8p,%8p,%d,%d,%d,%d)\n",
-           to,from,noff,width,ndata,swap,0,0,0);
+    LOGMSG("devNetDev: %s(%8p,%d,%8p,%d,%d)\n", __func__, to, noff, from, width, ndata);
 
     from += noff;
 
-    switch (width) {
-    case 2:
-    {
+    if (width == 2) {
         uint16_t *p = (uint16_t *) to;
 
         for (int i=0; i < ndata; i++) {
             if (*from & 0xffff0000) {
-                errlogPrintf("fromUlongVal: illeagal data conversion\n");
+                errlogPrintf("%s [%s:%d] illegal data conversion: width=%d ndata=%d from=%d\n", __func__, __FILE__, __LINE__, width, ndata, *from);
                 return ERROR;
             }
 
@@ -847,31 +752,26 @@ LOCAL long fromUlongVal(void *to,
             }
             p++;
         }
-    }
-    break;
-    case 1:
-    {
+    } else if (width == 1) {
         uint8_t *p = (uint8_t *) to;
 
         for (int i=0; i < ndata; i++) {
             if (*from & 0xffffff00) {
-                errlogPrintf("fromUlongVal: illeagal data conversion\n");
+                errlogPrintf("%s [%s:%d] illegal data conversion: width=%d ndata=%d from=%d\n", __func__, __FILE__, __LINE__, width, ndata, *from);
                 return ERROR;
             }
 
             *p++ = (uint8_t) *from++;
         }
-    }
-    break;
-    default:
-        errlogPrintf("fromUlongVal: illeagal data width\n");
+    } else {
+        errlogPrintf("%s [%s:%d] illegal data width: %d\n", __func__, __FILE__, __LINE__, width);
         return ERROR;
     }
 
     return OK;
 }
 
-/*******************************************************************************
+/******************************************************************************
  *
  ******************************************************************************/
 void swap_bytes(uint16_t *p)
