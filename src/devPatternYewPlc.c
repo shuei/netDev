@@ -16,7 +16,6 @@
  * by pointer
  */
 
-#include <epicsExport.h>
 #include <patternRecord.h>
 
 /***************************************************************
