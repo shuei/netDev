@@ -16,9 +16,8 @@
  * by pointer
  */
 
-#include <epicsExport.h>
-#include <menuConvert.h>
 #include <aoRecord.h>
+#include <menuConvert.h>
 
 /***************************************************************
  * Analog output (command/response IO)
@@ -87,43 +86,44 @@ LOCAL long config_ao_command(struct dbCommon *pxx,
 {
     struct aoRecord *pao = (struct aoRecord *)pxx;
     YEW_PLC *d = (YEW_PLC *) device;
-    long ret;
 
-    if (d->dword || d->fpdat) {
-        uint16_t u16_val[2];
-        uint32_t u32_val;
-
-        if (d->dword) {
-            u32_val = pao->rval;
-        } else {
-            float flt_val = (float) pao->val;
-            void *tmp = &flt_val;
-            u32_val = *(uint32_t *)tmp;
-        }
-
-        u16_val[0] = u32_val >>  0;
-        u16_val[1] = u32_val >> 16;
-
-        ret = yew_config_command(buf,
-                                 len,
-                                 &u16_val[0],
-                                 DBF_USHORT,
-                                 2,
-                                 option,
-                                 d
-                                 );
+    if (d->fpdat) {
+        float fval = pao->val;
+        void *tmp = &fval;
+        int32_t lval = *(int32_t *)tmp;
+        int16_t val[2] = { lval >>  0,
+                           lval >> 16, };
+        //pao->udf = isnan(fval);
+        return yew_config_command(buf,
+                                  len,
+                                  &val[0],
+                                  DBF_SHORT,
+                                  2,
+                                  option,
+                                  d
+                                  );
+    } else if (d->dword) {
+        int16_t val[2] = { pao->rval >>  0,
+                           pao->rval >> 16, };
+        return yew_config_command(buf,
+                                  len,
+                                  &val[0],
+                                  DBF_SHORT,
+                                  2,
+                                  option,
+                                  d
+                                  );
     } else {
-        ret = yew_config_command(buf,
-                                 len,
-                                 &pao->rval,
-                                 DBF_LONG,
-                                 1,
-                                 option,
-                                 d
-                                 );
+        int16_t val = pao->rval;
+        return yew_config_command(buf,
+                                  len,
+                                  &val,
+                                  DBF_SHORT,
+                                  1,
+                                  option,
+                                  d
+                                  );
     }
-
-    return ret;
 }
 
 LOCAL long parse_ao_response(struct dbCommon *pxx,
@@ -139,8 +139,8 @@ LOCAL long parse_ao_response(struct dbCommon *pxx,
 
     return yew_parse_response(buf,
                               len,
-                              &pao->rval, /* not referenced */
-                              DBF_LONG,   /* not referenced */
+                              &pao->rval, // not used in yew_parse_response
+                              DBF_LONG,   // not used in yew_parse_response
                               (d->dword || d->fpdat)? 2:1,
                               option,
                               d

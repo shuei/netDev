@@ -16,7 +16,6 @@
  * by pointer
  */
 
-#include <epicsExport.h>
 #include <longoutRecord.h>
 
 /***************************************************************
@@ -65,34 +64,29 @@ LOCAL long config_longout_command(struct dbCommon *pxx,
 {
     struct longoutRecord *plongout = (struct longoutRecord *)pxx;
     YEW_PLC *d = (YEW_PLC *) device;
-    long ret;
 
     if (d->dword) {
-        uint16_t u16_val[2];
-
-        u16_val[0] = plongout->val >>  0;
-        u16_val[1] = plongout->val >> 16;
-
-        ret = yew_config_command(buf,
-                                 len,
-                                 &u16_val[0],
-                                 DBF_USHORT,
-                                 2,
-                                 option,
-                                 d
-                                 );
+        int16_t val[2] = { plongout->val >>  0,
+                           plongout->val >> 16, };
+        return yew_config_command(buf,
+                                  len,
+                                  &val[0],
+                                  DBF_SHORT,
+                                  2,
+                                  option,
+                                  d
+                                  );
   } else {
-        ret = yew_config_command(buf,
-                                 len,
-                                 &plongout->val,
-                                 DBF_LONG,
-                                 1,
-                                 option,
-                                 d
-                                 );
+        int16_t val = plongout->val;
+        return yew_config_command(buf,
+                                  len,
+                                  &val,
+                                  DBF_SHORT,
+                                  1,
+                                  option,
+                                  d
+                                  );
     }
-
-    return ret;
 }
 
 LOCAL long parse_longout_response(struct dbCommon *pxx,
@@ -108,8 +102,8 @@ LOCAL long parse_longout_response(struct dbCommon *pxx,
 
     return yew_parse_response(buf,
                               len,
-                              &plongout->val, /* not referenced */
-                              DBF_LONG,       /* not referenced */
+                              &plongout->val, // not used in yew_parse_response
+                              DBF_LONG,       // not used in yew_parse_response
                               (d->dword)? 2:1,
                               option,
                               d

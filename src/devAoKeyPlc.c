@@ -13,7 +13,6 @@
  * -----------------
  */
 
-#include <epicsExport.h>
 #include <aoRecord.h>
 #include <menuConvert.h>
 
@@ -84,11 +83,11 @@ LOCAL long config_ao_command(struct dbCommon *pxx,
 {
     struct aoRecord *pao = (struct aoRecord *)pxx;
     KEY_PLC *d = (KEY_PLC *) device;
-
+    int16_t val = pao->rval;
     return key_config_command(buf,
                               len,
-                              &pao->rval,
-                              DBF_LONG,
+                              &val,
+                              DBF_SHORT,
                               1,
                               option,
                               d
@@ -108,8 +107,8 @@ LOCAL long parse_ao_response(struct dbCommon *pxx,
 
     return key_parse_response(buf,
                               len,
-                              &pao->rval, /* not referenced */
-                              DBF_ULONG,  /* not referenced */
+                              &pao->rval, // not used in key_parse_response
+                              DBF_LONG,   // not used in key_parse_response
                               1,
                               option,
                               d

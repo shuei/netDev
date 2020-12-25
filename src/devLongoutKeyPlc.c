@@ -13,7 +13,6 @@
  * -----------------
  */
 
-#include <epicsExport.h>
 #include <longoutRecord.h>
 
 /***************************************************************
@@ -64,10 +63,11 @@ LOCAL long config_longout_command(struct dbCommon *pxx,
     struct longoutRecord *plongout = (struct longoutRecord *)pxx;
     KEY_PLC *d = (KEY_PLC *) device;
 
+    int16_t val = plongout->val;
     return key_config_command(buf,
                               len,
-                              &plongout->val,
-                              DBF_LONG,
+                              &val,
+                              DBF_SHORT,
                               1,
                               option,
                               d
@@ -87,8 +87,8 @@ LOCAL long parse_longout_response(struct dbCommon *pxx,
 
     return key_parse_response(buf,
                               len,
-                              &plongout->val, /* not referenced */
-                              DBF_ULONG,      /* not referenced */
+                              &plongout->val, // not used in key_parse_response
+                              DBF_LONG,       // not used in key_parse_response
                               1,
                               option,
                               d
