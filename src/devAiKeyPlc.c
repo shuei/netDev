@@ -13,9 +13,8 @@
  * -----------------
  */
 
-#include <epicsExport.h>
-#include <menuConvert.h>
 #include <aiRecord.h>
+#include <menuConvert.h>
 
 /***************************************************************
  * Analog input (command/response IO)
@@ -88,8 +87,8 @@ LOCAL long config_ai_command(struct dbCommon *pxx,
 
     return key_config_command(buf,
                               len,
-                              &pai->rval, /* not referenced */
-                              DBF_ULONG,  /* not referenced */
+                              &pai->rval, // not used in key_config_command
+                              DBF_ULONG,  // not used in key_config_command
                               1,
                               option,
                               d
@@ -107,12 +106,15 @@ LOCAL long parse_ai_response(struct dbCommon *pxx,
     struct aiRecord *pai = (struct aiRecord *)pxx;
     KEY_PLC *d = (KEY_PLC *) device;
 
-    return key_parse_response(buf,
-                              len,
-                              &pai->rval,
-                              DBF_LONG,
-                              1,
-                              option,
-                              d
+    int16_t val;
+    long ret = key_parse_response(buf,
+                             len,
+                             &val,
+                             DBF_SHORT,
+                             1,
+                             option,
+                             d
                               );
+    pai->rval = val;
+    return ret;
 }

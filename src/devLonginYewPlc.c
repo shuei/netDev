@@ -16,7 +16,6 @@
  * by pointer
  */
 
-#include <epicsExport.h>
 #include <longinRecord.h>
 
 /***************************************************************
@@ -68,8 +67,8 @@ LOCAL long config_longin_command(struct dbCommon *pxx,
 
     return yew_config_command(buf,
                               len,
-                              &plongin->val, /* not referenced */
-                              DBF_LONG,      /* not referenced */
+                              &plongin->val, // not used in yew_config_command
+                              DBF_LONG,      // not used in yew_config_command
                               (d->dword)? 2:1,
                               option,
                               d
@@ -86,31 +85,30 @@ LOCAL long parse_longin_response(struct dbCommon *pxx,
 {
     struct longinRecord *plongin = (struct longinRecord *)pxx;
     YEW_PLC *d = (YEW_PLC *) device;
-    long ret;
 
     if (d->dword) {
-        uint16_t u16_val[2];
-
-        ret = yew_parse_response(buf,
-                                 len,
-                                 &u16_val[0],
-                                 DBF_USHORT,
-                                 2,
-                                 option,
-                                 d
-                                 );
-
-        plongin->val = u16_val[1] << 16 | u16_val[0];
+        int16_t val[2];
+        long ret = yew_parse_response(buf,
+                                      len,
+                                      &val[0],
+                                      DBF_SHORT,
+                                      2,
+                                      option,
+                                      d
+                                      );
+        plongin->val = val[1] << 16 | val[0];
+        return ret;
     } else {
-        ret = yew_parse_response(buf,
-                                 len,
-                                 &plongin->val,
-                                 DBF_LONG,
-                                 1,
-                                 option,
-                                 d
-                                 );
+        int16_t val;
+        long ret = yew_parse_response(buf,
+                                      len,
+                                      &val,
+                                      DBF_SHORT,
+                                      1,
+                                      option,
+                                      d
+                                      );
+        plongin->val = val;
+        return ret;
     }
-
-    return ret;
 }

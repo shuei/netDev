@@ -13,7 +13,6 @@
  * -----------------
  */
 
-#include <epicsExport.h>
 #include <longinRecord.h>
 
 /***************************************************************
@@ -65,8 +64,8 @@ LOCAL long config_longin_command(struct dbCommon *pxx,
 
     return key_config_command(buf,
                               len,
-                              &plongin->val, /* not referenced */
-                              DBF_ULONG,     /* not referenced */
+                              &plongin->val, // not used in key_config_command
+                              DBF_ULONG,     // not used in key_config_command
                               1,
                               option,
                               d
@@ -84,12 +83,15 @@ LOCAL long parse_longin_response(struct dbCommon *pxx,
     struct longinRecord *plongin = (struct longinRecord *)pxx;
     KEY_PLC *d = (KEY_PLC *) device;
 
-    return key_parse_response(buf,
-                              len,
-                              &plongin->val,
-                              DBF_LONG,
-                              1,
-                              option,
-                              d
+    int16_t val;
+    long ret = key_parse_response(buf,
+                                  len,
+                                  &val,
+                                  DBF_SHORT,
+                                  1,
+                                  option,
+                                  d
                               );
+    plongin->val = val;
+    return ret;
 }

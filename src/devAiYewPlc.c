@@ -19,9 +19,8 @@
  */
 
 #include <math.h>
-#include <epicsExport.h>
-#include <menuConvert.h>
 #include <aiRecord.h>
+#include <menuConvert.h>
 
 /***************************************************************
  * Analog input (command/response IO)
@@ -93,8 +92,8 @@ LOCAL long config_ai_command(struct dbCommon *pxx,
 
     return yew_config_command(buf,
                               len,
-                              &pai->rval, /* not referenced */
-                              DBF_LONG,   /* not referenced */
+                              &pai->rval, // not used in yew_config_command
+                              DBF_LONG,   // not used in yew_config_command
                               (d->dword || d->fpdat)? 2:1,
                               option,
                               d
@@ -111,43 +110,50 @@ LOCAL long parse_ai_response(struct dbCommon *pxx,
 {
     struct aiRecord *pai = (struct aiRecord *)pxx;
     YEW_PLC *d = (YEW_PLC *) device;
-    long ret;
 
-    if (d->dword || d->fpdat) {
-        uint16_t u16_val[2];
+    if (d->fpdat) {
+        int16_t val[2];
+        long ret = yew_parse_response(buf,
+                                      len,
+                                      &val[0],
+                                      DBF_SHORT,
+                                      2,
+                                      option,
+                                      d
+                                      );
+        int32_t lval = val[1] << 16 | val[0];
+        void *tmp = &lval;
+        float *pfloat = tmp;
 
-        ret = yew_parse_response(buf,
-                                 len,
-                                 &u16_val[0],
-                                 DBF_USHORT,
-                                 2,
-                                 option,
-                                 d
-                                 );
-
-        uint32_t u32_val = u16_val[1] << 16 | u16_val[0];
-
-        if (d->dword) {
-            pai->rval = u32_val;
-        } else {
-            void *tmp = &u32_val;
-            float *pfloat = (float *)tmp;
-            pai->val = (double) *pfloat;
-            if (ret == OK) {
-                pai->udf = isnan(pai->val);
-                ret = 2; /* Don't convert */
-            }
+        if (ret == OK) {
+            pai->val = *pfloat;
+            pai->udf = isnan(pai->val);
+            ret = 2; /* Don't convert */
         }
+        return ret;
+    } else if (d->dword) {
+        int16_t val[2];
+        long ret = yew_parse_response(buf,
+                                      len,
+                                      &val[0],
+                                      DBF_SHORT,
+                                      2,
+                                      option,
+                                      d
+                                      );
+        pai->rval = val[1] << 16 | val[0];
+        return ret;
     } else {
-        ret = yew_parse_response(buf,
-                                 len,
-                                 &pai->rval,
-                                 DBF_LONG,
-                                 1,
-                                 option,
-                                 d
-                                 );
+        int16_t val;
+        long ret = yew_parse_response(buf,
+                                      len,
+                                      &val,
+                                      DBF_SHORT,
+                                      1,
+                                      option,
+                                      d
+                                      );
+        pai->rval = val;
+        return ret;
     }
-
-    return ret;
 }
