@@ -69,7 +69,7 @@ LOCAL long config_longin_command(struct dbCommon *pxx,
                               len,
                               &plongin->val, // not used in yew_config_command
                               DBF_LONG,      // not used in yew_config_command
-                              (d->dword)? 2:1,
+                              (d->flag == 'L')? 2:1,
                               option,
                               d
                               );
@@ -86,7 +86,7 @@ LOCAL long parse_longin_response(struct dbCommon *pxx,
     struct longinRecord *plongin = (struct longinRecord *)pxx;
     YEW_PLC *d = (YEW_PLC *) device;
 
-    if (d->dword) {
+    if (d->flag == 'L') {
         int16_t val[2];
         long ret = yew_parse_response(buf,
                                       len,
@@ -97,6 +97,18 @@ LOCAL long parse_longin_response(struct dbCommon *pxx,
                                       d
                                       );
         plongin->val = val[1] << 16 | val[0];
+        return ret;
+    } else if (d->flag == 'U') {
+        uint16_t val;
+        long ret = yew_parse_response(buf,
+                                      len,
+                                      &val,
+                                      DBF_USHORT,
+                                      1,
+                                      option,
+                                      d
+                                      );
+        plongin->val = val;
         return ret;
     } else {
         int16_t val;

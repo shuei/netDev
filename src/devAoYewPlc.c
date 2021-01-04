@@ -87,7 +87,7 @@ LOCAL long config_ao_command(struct dbCommon *pxx,
     struct aoRecord *pao = (struct aoRecord *)pxx;
     YEW_PLC *d = (YEW_PLC *) device;
 
-    if (d->fpdat) {
+    if (d->flag == 'F') {
         float fval = pao->val;
         void *tmp = &fval;
         int32_t lval = *(int32_t *)tmp;
@@ -102,7 +102,7 @@ LOCAL long config_ao_command(struct dbCommon *pxx,
                                   option,
                                   d
                                   );
-    } else if (d->dword) {
+    } else if (d->flag == 'L') {
         int16_t val[2] = { pao->rval >>  0,
                            pao->rval >> 16, };
         return yew_config_command(buf,
@@ -141,7 +141,7 @@ LOCAL long parse_ao_response(struct dbCommon *pxx,
                               len,
                               &pao->rval, // not used in yew_parse_response
                               DBF_LONG,   // not used in yew_parse_response
-                              (d->dword || d->fpdat)? 2:1,
+                              (d->flag == 'L' || d->flag == 'F')? 2:1,
                               option,
                               d
                               );

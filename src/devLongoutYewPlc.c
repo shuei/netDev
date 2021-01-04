@@ -65,7 +65,7 @@ LOCAL long config_longout_command(struct dbCommon *pxx,
     struct longoutRecord *plongout = (struct longoutRecord *)pxx;
     YEW_PLC *d = (YEW_PLC *) device;
 
-    if (d->dword) {
+    if (d->flag == 'L') {
         int16_t val[2] = { plongout->val >>  0,
                            plongout->val >> 16, };
         return yew_config_command(buf,
@@ -104,7 +104,7 @@ LOCAL long parse_longout_response(struct dbCommon *pxx,
                               len,
                               &plongout->val, // not used in yew_parse_response
                               DBF_LONG,       // not used in yew_parse_response
-                              (d->dword)? 2:1,
+                              (d->flag == 'L')? 2:1,
                               option,
                               d
                               );

@@ -94,7 +94,7 @@ LOCAL long config_ai_command(struct dbCommon *pxx,
                               len,
                               &pai->rval, // not used in yew_config_command
                               DBF_LONG,   // not used in yew_config_command
-                              (d->dword || d->fpdat)? 2:1,
+                              (d->flag == 'L' || d->flag == 'F')? 2:1,
                               option,
                               d
                               );
@@ -111,7 +111,7 @@ LOCAL long parse_ai_response(struct dbCommon *pxx,
     struct aiRecord *pai = (struct aiRecord *)pxx;
     YEW_PLC *d = (YEW_PLC *) device;
 
-    if (d->fpdat) {
+    if (d->flag == 'F') {
         int16_t val[2];
         long ret = yew_parse_response(buf,
                                       len,
@@ -131,7 +131,7 @@ LOCAL long parse_ai_response(struct dbCommon *pxx,
             ret = 2; /* Don't convert */
         }
         return ret;
-    } else if (d->dword) {
+    } else if (d->flag == 'L') {
         int16_t val[2];
         long ret = yew_parse_response(buf,
                                       len,
@@ -142,6 +142,18 @@ LOCAL long parse_ai_response(struct dbCommon *pxx,
                                       d
                                       );
         pai->rval = val[1] << 16 | val[0];
+        return ret;
+    } else if (d->flag == 'U') {
+        uint16_t val;
+        long ret = yew_parse_response(buf,
+                                      len,
+                                      &val,
+                                      DBF_USHORT,
+                                      1,
+                                      option,
+                                      d
+                                      );
+        pai->rval = val;
         return ret;
     } else {
         int16_t val;

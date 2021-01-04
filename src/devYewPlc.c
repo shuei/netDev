@@ -52,12 +52,10 @@ typedef struct {
     int      width;
     int      nleft;
     int      noff;
-    int      dword;
-    int      fpdat;
     int      spmod;
     int      m_unit;
     int      m_slot;
-    char    *lopt;
+    char     flag;
 } YEW_PLC;
 
 LOCAL long yew_config_command(uint8_t *, int *, void *, int, int, int *, YEW_PLC *);
@@ -102,6 +100,7 @@ LOCAL void *yew_calloc(int unit,
     d->type  = type;
     d->addr  = addr;
     d->width = width;
+    d->flag  = 'W';
 
     return d;
 }
@@ -240,15 +239,19 @@ LOCAL long yew_parse_link(struct link *plink,
     }
 
     if (lopt) {
-        if (lopt[0] == 'L') {
-            d->dword = 1;
-            LOGMSG("devYewPlc: found option to handle the data as long word data\n");
-        } else if (lopt[0] == 'F') {
-            d->fpdat = 1;
+        if (lopt[0] == 'F') {
+            d->flag = 'F';
             LOGMSG("devYewPlc: found option to handle the data as floating point data\n");
+        } else if (lopt[0] == 'L') {
+            d->flag = 'L';
+            LOGMSG("devYewPlc: found option to handle the data as long word data\n");
+        } else if (lopt[0] == 'U') {
+            d->flag = 'U';
+            LOGMSG("devYewPlc: found option to handle the data as unsigned data\n");
+        } else {
+            errlogPrintf("devYewPlc: unsupported flag : %c\n", lopt[0]);
+            return ERROR;
         }
-
-        d->lopt = lopt;
     }
 
     if (!d->spmod) {
