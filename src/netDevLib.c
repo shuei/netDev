@@ -89,7 +89,7 @@ long parseLinkPlcCommon(struct link *plink,
         return ERROR;
     }
 
-    strncpy(buf, plink->value.instio.string, size);
+    strcpy(buf, plink->value.instio.string);
     buf[size - 1] = '\0';
     LOGMSG("devNetDev: buf[%zd]: %s\n", size, buf);
 
