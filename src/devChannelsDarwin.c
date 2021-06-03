@@ -65,7 +65,7 @@ LOCAL long init_chan_record(struct channelsRecord *pchan)
         pchan->nelm = 1;
     }
 
-    strncpy(pchan->mode, "EF", 2);
+    strcpy(pchan->mode, "EF");
 
     return OK;
 }
@@ -241,14 +241,14 @@ LOCAL long parse_chan_response(struct dbCommon *pxx,
 
         if (strncmp((char *)buf, "E1", 2) == 0) {
             errlogPrintf("parse_chan_response: got error response (E1)\n");
-            strncpy(pchan->mode, "EF", 2);
+            strcpy(pchan->mode, "EF");
             return ERROR;
         }
 
         do {
             if (sscanf((char *)buf, "%c%c%3d%6c,%1d\r\n", &sps, &sts, &chan, unit, &pos) != 5) {
                 errlogPrintf("parse_chan_response:EL failed to read Unit/Position\n");
-                strncpy(pchan->mode, "EF", 2);
+                strcpy(pchan->mode, "EF");
                 return ERROR;
             }
 
@@ -258,32 +258,32 @@ LOCAL long parse_chan_response(struct dbCommon *pxx,
             /*
             if (chan != d->p1 + n) {
                 errlogPrintf("parse_chan_response:EL channel dose not match: %d, %d\n", chan, d->p1 + n);
-                strncpy(pchan->mode, "EF", 2);
+                strcpy(pchan->mode, "EF");
                 return ERROR;
             }
             */
 
             if (sps != ' ') {
                 LOGMSG("parse_chan_response:EL leading char is not SPACE(\"%s\", 0x%02x, %d)\n", pchan->name, sts,chan);
-                strncpy(pchan->mode, "EF", 2);
+                strcpy(pchan->mode, "EF");
                 return ERROR;
             }
 
             if (remain == 1) {
                 if (sts != 'E') {
                     LOGMSG("parse_chan_response:EL not found END marker(\"%s\", 0x%02x, %d)\n", pchan->name, sts, chan);
-                    strncpy(pchan->mode, "EF", 2);
+                    strcpy(pchan->mode, "EF");
                     return ERROR;
                 }
             } else {
                 if (sts != ' ') {
                     LOGMSG("parse_chan_response:EL found unexpected marker(\"%s\", 0x%02x, %d)\n", pchan->name, sts,chan);
-                    strncpy(pchan->mode, "EF", 2);
+                    strcpy(pchan->mode, "EF");
                     return ERROR;
                 }
             }
 
-            strncpy(eubp + 8 * ( n ), unit, 6);
+            strcpy(eubp + 8 * ( n ), unit);
             ppbp[n] = (short) pos;
 
             n++;
@@ -291,23 +291,23 @@ LOCAL long parse_chan_response(struct dbCommon *pxx,
 
         } while (--remain);
 
-        strncpy(pchan->mode, "EF", 2);
+        strcpy(pchan->mode, "EF");
     } else {
         int code;
 
         if (sscanf((char *)buf, "E%d\r\n", &code) != 1) {
             errlogPrintf("parse_chan_response: failed to read returned error code\n");
-            strncpy(pchan->mode, "EF", 2);
+            strcpy(pchan->mode, "EF");
             return ERROR;
         }
 
         if (code) {
             errlogPrintf("parse_chan_response: error code %d returned\n", code);
-            strncpy(pchan->mode, "EF", 2);
+            strcpy(pchan->mode, "EF");
             return ERROR;
         }
 
-        strncpy(pchan->mode, "EF", 2);
+        strcpy(pchan->mode, "EF");
     }
 
     return OK;
