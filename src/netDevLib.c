@@ -8,7 +8,12 @@
  * in file LICENSE that is included with this distribution.
  ******************************************************************************/
 
+//
 #include <dbFldTypes.h>
+#include <alarm.h>
+#include <recGbl.h>
+
+//
 #include "drvNetMpf.h"
 #include "devNetDev.h"
 
@@ -31,6 +36,15 @@ LOCAL long toUlongVal   (uint32_t *, int, void *, int, int, int);
 LOCAL long fromUcharVal (void *, uint8_t  *, int, int, int, int);
 LOCAL long fromUshortVal(void *, uint16_t *, int, int, int, int);
 LOCAL long fromUlongVal (void *, uint32_t *, int, int, int, int);
+
+/******************************************************************************
+ *
+ ******************************************************************************/
+#define BCDMAX_BCD 39321 // 0x9999
+#define BCDMAX_INT  9999 // 0x9999
+
+#define BCDMIN_BCD     0 // 0x9999
+#define BCDMIN_INT     0 //
 
 /******************************************************************************
  *
@@ -769,6 +783,60 @@ LOCAL long fromUlongVal(void *to,
     }
 
     return OK;
+}
+
+/******************************************************************************
+ * BCD to Integer conversion
+ ******************************************************************************/
+uint32_t netDevBcd2Int(uint16_t bcd, void *precord)
+{
+    uint32_t base = 1;
+    uint32_t dec  = 0;
+
+    //if (bcd>BCDMAX_BCD) {
+    //    recGblSetSevr(precord, HIGH_ALARM, INVALID_ALARM);
+    //    return BCDMAX_INT;
+    //}
+
+    while (bcd>0) {
+        int digit = bcd & 0x000f;
+        if (digit <= 9) {
+            dec += digit * base;
+        } else {
+            // overflow
+            recGblSetSevr(precord, HIGH_ALARM, INVALID_ALARM);
+            dec += 9 * base;
+        }
+        bcd >>= 4;
+        base *= 10;
+    }
+
+    return dec;
+}
+
+/******************************************************************************
+ * Integer to BCD conversion
+ ******************************************************************************/
+uint16_t netDevInt2Bcd(int32_t dec, void *precord)
+{
+    if (dec<BCDMIN_INT) {
+        recGblSetSevr(precord, HW_LIMIT_ALARM, INVALID_ALARM);
+        return BCDMIN_BCD;
+    } else if (dec>BCDMAX_INT) {
+        recGblSetSevr(precord, HW_LIMIT_ALARM, INVALID_ALARM);
+        return BCDMAX_BCD;
+    }
+
+    uint32_t base = 0;
+    uint16_t bcd  = 0;
+
+    while (dec>0) {
+        bcd |= ((dec%10) << base);
+        dec /= 10;
+        base += 4;
+    }
+
+    return bcd;
 }
 
 /******************************************************************************

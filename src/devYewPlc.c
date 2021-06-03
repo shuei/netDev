@@ -248,6 +248,9 @@ LOCAL long yew_parse_link(struct link *plink,
         } else if (lopt[0] == 'U') {
             d->flag = 'U';
             LOGMSG("devYewPlc: found option to handle the data as unsigned data\n");
+        } else if (lopt[0] == 'B') {
+            d->flag = 'B';
+            LOGMSG("devYewPlc: found option to handle the data as BCD data\n");
         } else {
             errlogPrintf("devYewPlc: unsupported flag : %c\n", lopt[0]);
             return ERROR;

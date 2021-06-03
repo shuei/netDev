@@ -110,6 +110,18 @@ LOCAL long parse_longin_response(struct dbCommon *pxx,
                                       );
         plongin->val = val;
         return ret;
+    } else if (d->flag == 'B') {
+        int16_t val;
+        long ret = yew_parse_response(buf,
+                                      len,
+                                      &val,
+                                      DBF_SHORT,
+                                      1,
+                                      option,
+                                      d
+                                      );
+        plongin->val = netDevBcd2Int(val, plongin);
+        return ret;
     } else {
         int16_t val;
         long ret = yew_parse_response(buf,

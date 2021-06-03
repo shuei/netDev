@@ -76,7 +76,17 @@ LOCAL long config_longout_command(struct dbCommon *pxx,
                                   option,
                                   d
                                   );
-  } else {
+    } else if (d->flag == 'B') {
+        int16_t val = netDevInt2Bcd(plongout->val, plongout);
+        return yew_config_command(buf,
+                                  len,
+                                  &val,
+                                  DBF_SHORT,
+                                  1,
+                                  option,
+                                  d
+                                  );
+    } else {
         int16_t val = plongout->val;
         return yew_config_command(buf,
                                   len,

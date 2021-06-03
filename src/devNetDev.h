@@ -67,12 +67,20 @@ long         netDevInit(void);
 long         netDevGetHostId(char *, in_addr_t *);
 uint32_t     netDevGetSelfId(void);
 long         netDevSetEvMsgLeng(struct dbCommon *, int);
+long         netDevGetIoIntInfo(int, struct dbCommon *, IOSCANPVT *);
+
+//
+uint32_t     netDevBcd2Int(uint16_t bcd, void *precord);
+uint16_t     netDevInt2Bcd(int32_t dec, void *precord);
 long         parseLinkPlcCommon(struct link *, struct sockaddr_in *,
                             char **, char **, char **, char **, char **, char **);
-long         netDevGetIoIntInfo(int, struct dbCommon *, IOSCANPVT *);
 long         fromRecordVal(void *, int, void *, int, int, int, int);
 long         toRecordVal(void *, int, int, void *, int, int, int);
 
+
+
+
+//
 TRANSACTION *netDevInitInternalIO(struct dbCommon *, struct sockaddr_in,
                                   config_command_fn_t, parse_response_fn_t, CALLBACK_fn_t, void *, int);
 

@@ -2,7 +2,7 @@ ToDo list for netDev
 ====
 
 - [x] Add Cache register support for SP76/SP71 CPU
-- [ ] BCD support for YewPlc
+- [x] BCD support for YewPlc
 - [x] Clean up treatment of options in devYewPlc.c: lopt/dword/fdpat
 - [x] Check if NaN with '&F' option.
 - [x] Add '&U' option to support unsigned short values.
