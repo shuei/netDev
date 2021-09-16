@@ -11,4 +11,5 @@ ToDo list for netDev
 - [ ] Add support for aai/aao records
 - [ ] Mark patternRecord as obsolete.
 - [ ] Drop vxWorks support
+- [x] Add Chino KE3000 series data logger.
 - [ ] More documentation
