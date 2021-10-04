@@ -132,16 +132,16 @@ LOCAL long parse_ai_response(struct dbCommon *pxx,
         }
         return ret;
     } else if (d->flag == 'L') {
-        int16_t val[2];
+        uint16_t val[2];
         long ret = yew_parse_response(buf,
                                       len,
                                       &val[0],
-                                      DBF_SHORT,
+                                      DBF_USHORT,
                                       2,
                                       option,
                                       d
                                       );
-        pai->rval = val[1] << 16 | val[0];
+        pai->rval = (val[1]<<16) | (val[0]);
         return ret;
     } else if (d->flag == 'U') {
         uint16_t val;
