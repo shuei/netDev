@@ -170,20 +170,20 @@ static void checkAlarms(chansRecord *pchans)
 
 static void monitor(chansRecord *pchans)
 {
-    double *data = (double *) &pchans->ch01;
-    char  (*stat)[8] = (char (*)[8]) pchans->st01;
-    char  (*alrm)[8] = (char (*)[8]) pchans->al01;
-    char  (*unit)[8] = (char (*)[8]) pchans->eu01;
-
     recGblResetAlarms(pchans);
 
     db_post_events(pchans,  pchans->val,  DBE_VALUE|DBE_LOG);
     db_post_events(pchans,  pchans->date, DBE_VALUE|DBE_LOG);
     db_post_events(pchans,  pchans->atim, DBE_VALUE|DBE_LOG);
 
+    //double *data = (double *) &pchans->ch01;
+    char  (*stat)[8] = (char (*)[8]) pchans->st01;
+    char  (*alrm)[8] = (char (*)[8]) pchans->al01;
+    char  (*unit)[8] = (char (*)[8]) pchans->eu01;
+
     for (int n = 0; n < pchans->noch; n++) {
         //printf("&data[%02d]= 0x%08x\n", n, &data[n]);
-        db_post_events(pchans, &data[n], DBE_VALUE|DBE_LOG);
+        //db_post_events(pchans, &data[n], DBE_VALUE|DBE_LOG);
         db_post_events(pchans,  stat[n], DBE_VALUE|DBE_LOG);
         db_post_events(pchans,  alrm[n], DBE_VALUE|DBE_LOG);
         db_post_events(pchans,  unit[n], DBE_VALUE|DBE_LOG);
