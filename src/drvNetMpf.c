@@ -872,7 +872,7 @@ LOCAL void receive_task(PEER *p)
                 epicsEventSignal(p->next_cycle);
             } else {
                 p->in_transaction = t;
-                errlogPrintf("drvNetMpf: discarding unexpected response...\n");
+                errlogPrintf("drvNetMpf: discarding unexpected response for \"%s\"\n", t->record->name);
                 epicsTimerStartDelay(p->wd_id, t->io.async.timeout);
             }
         } else {
