@@ -8,6 +8,12 @@ include $(TOP)/configure/CONFIG
 #==================================================
 # build a support library
 
+#
+USR_CFLAGS += -std=c99
+USR_CFLAGS += -Wall
+#USR_CFLAGS += -Werror
+
+#
 LIBRARY_IOC += netDev
 
 # xxxRecord.h will be created from xxxRecord.dbd
@@ -41,8 +47,6 @@ netDev_SRCS += devMW100.c
 netDev_SRCS += devKeyPlc.c
 netDev_SRCS += devChinoLogL.c
 
-USR_CFLAGS += -std=c99
-USR_CFLAGS += -Werror
 #===========================
 
 include $(TOP)/configure/RULES
