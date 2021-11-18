@@ -23,11 +23,11 @@ Make sure that FA-M3 CPU is properly configured using WideField, in CPU Properti
 
 - Ethernet Configurations in "ETHERNET" pane.
 - Higher-level link commands in "HIGHER-LEVEL_LINK_SERVICE" pane. This device support employs UDP / binary data format to communicate with the CPU. Note that ASCII mode is **not** supported.
--- HLINK_PROTOCOL_A    : 1 (=UDP)
--- HLINK_DATA_FORMAT_A : 1 (=binary)
--- HLINK_PROTOCOL_B    : 1 (=UDP)
--- HLINK_DATA_FORMAT_B : 1 (=binary)
--- HLINK_PROTEC        : 0 (=write permitted)
+  - HLINK_PROTOCOL_A    : 1 (=UDP)
+  - HLINK_DATA_FORMAT_A : 1 (=binary)
+  - HLINK_PROTOCOL_B    : 1 (=UDP)
+  - HLINK_DATA_FORMAT_B : 1 (=binary)
+  - HLINK_PROTEC        : 0 (=write permitted)
 
 Refer to **IM 34M06Q16-03** "FA-M3 Programming Tool WideField3 (Online)", H5 "CPU Properties", for details.
 
