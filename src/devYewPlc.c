@@ -292,7 +292,7 @@ LOCAL long yew_parse_link(struct link *plink,
             case  'Y':    /* output relay        */
             case  'I':    /* internal relay      */
             case  'E':    /* shared relay        */
-            case  'M':    /* special relay       */
+            case  'M':    /* special relay       */ // accessing special relays with 16-bit width data type may cause error within CPU.
             case  'T':    /* timer relay         */
             case  'C':    /* counter relay       */
             case  'L':    /* link relay          */
@@ -300,9 +300,9 @@ LOCAL long yew_parse_link(struct link *plink,
             case  'B':    /* file register       */
             case  'F':    /* cache register      */
             case  'R':    /* shared register     */
-            case  'V':    /* index regigister    */
-            case  'Z':    /* special regigister  */
-            case  'W':    /* link regigister     */
+            case  'V':    /* index register      */
+            case  'Z':    /* special register    */
+            case  'W':    /* link register       */
             case 0x61:    /* timer current       */
             case 0x65:    /* timer current (count up) */
             case 0x70:    /* counter set         */
