@@ -1,14 +1,16 @@
-EPICS Device and Driver Support for General Network Devices (netDev)
-====
+EPICS Device Support for General Network Devices (netDev)
+=========================================================
 
-# Device and Driver Support
+This is a device support for network based devices.
+
+# Supported Devices
 - Yokogawa FA-M3 series Programmable Logic Controllers
 - Yokogawa MW100 series Data Acquisition Unit
 - Yokogawa DARWIN series Data Acquisition Unit
 - Keyence KV-5000/KV-7000 series Programmable Logic Controllers
 - Chino KE3000 series Data Loggers
 
-# Record types
+# Supported Records.
 - arrayoutRecord
 - channelsRecord
 - chansRecord
@@ -16,4 +18,5 @@ EPICS Device and Driver Support for General Network Devices (netDev)
 - patternRecord
 - statusRecord
 
+[docs/Manual.md](docs/Manual.md)
 [docs/TODO.md](docs/TODO.md)
