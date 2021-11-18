@@ -29,26 +29,32 @@ Make sure that FA-M3 CPU is properly configured using WideField, in CPU Properti
   - HLINK_DATA_FORMAT_B : 1 (=binary)
   - HLINK_PROTEC        : 0 (=write permitted)
 
-Refer to **IM 34M06Q16-03** "FA-M3 Programming Tool WideField3 (Online)", H5 "CPU Properties", for details.
+For details, refer to **IM 34M06Q16-03** "FA-M3 Programming Tool WideField3 (Online)", H5 "CPU Properties".
 
 ## Device Type
 
 In order to use netDev, device type (DTYP) field must be set to "**Yew Plc**" in the record.
 
-** INP/OUT Fields
+## INP/OUT Fields
 
+General format for input/output link field is as following:
 
 @hostname[(port)][:unit]#type[:]number[&option]
+
 - hostname : hostname or IP address of the FA-M3 CPU (or Personal Computer Link Modules).
-- port     : Optional port number
+- port     : Optional port number (defaults to 0x3001).
+- unit     : Optional Unit number which identifies CPU in case of multi-CPU configuration (defaults to 1).
 - type     : PLC device such as Input relays and Data registers.
-- number   : Device number
-- option   : Option to treat registers as:
+- number   : Device number.
+- option   : Option to interpret registers as:
   * &U - unsigned integer (16-bit)
   * &L - long-word (32-bit) access
   * &B - treat as binary-coded-decimal (BCD)
   * &F - Single precision floating point (32-bit)
   * &D - Double precision floating point (64-bit)
+
+Numbers other than IP address will be treated as decimals, or hexadecimals (when prefixed with 0x).
+Colon between type and number is optional.
 
 ## Supported Record Types
 
@@ -73,7 +79,7 @@ Table below describes supported PLC devices along with the relevant record types
 | C          | Counters                                |          | 1-bit, 16-bit  |                                                                               |
 
 The table below shows supported record types with DTYP fields used to
-access specific devices. 
+access specific devices.
 
 | **Record type** | **DTYP** | **Supported device**             |                                                      |
 |-----------------|----------|----------------------------------|------------------------------------------------------|
