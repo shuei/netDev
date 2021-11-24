@@ -8,9 +8,9 @@ This is a device support for network based devices.
 - Yokogawa MW100 series Data Acquisition Unit
 - Yokogawa DARWIN series Data Acquisition Unit
 - Keyence KV-5000/KV-7000 series Programmable Logic Controllers
-- Chino KE3000 series Data Loggers
+- Chino KE1000/KE3000 series Data Loggers
 
-# Supported Records.
+# Supported Records
 - arrayoutRecord
 - channelsRecord
 - chansRecord
@@ -18,5 +18,6 @@ This is a device support for network based devices.
 - patternRecord
 - statusRecord
 
-[docs/Manual.md](docs/Manual.md)
-[docs/TODO.md](docs/TODO.md)
+[docs/Manual.md](docs/Manual.md)  
+[docs/TODO.md](docs/TODO.md)  
+
