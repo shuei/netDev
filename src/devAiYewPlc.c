@@ -126,6 +126,8 @@ LOCAL long parse_ai_response(struct dbCommon *pxx,
         float *pfloat = tmp;
 
         if (ret == OK) {
+            // todo : consider ASLO and AOFF field
+            // todo : consider SMOO field
             pai->val = *pfloat;
             pai->udf = isnan(pai->val);
             ret = 2; /* Don't convert */

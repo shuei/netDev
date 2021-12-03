@@ -89,6 +89,8 @@ LOCAL long config_ao_command(struct dbCommon *pxx,
 
     if (d->flag == 'F') {
         float fval = pao->val;
+        // todo : consider ASLO and AOFF field
+
         void *tmp = &fval;
         int32_t lval = *(int32_t *)tmp;
         int16_t val[2] = { lval >>  0,
