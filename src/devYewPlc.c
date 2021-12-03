@@ -31,7 +31,8 @@
 
 #define YEW_CMND_LENGTH(x) ((x) ? 10 : 12)
 #define YEW_DATA_OFFSET  4
-#define YEW_DEFAULT_UNIT 0x01
+#define YEW_DEFAULT_CPU  1
+#define YEW_DEFAULT_MODULE_UNIT 0
 #define YEW_DEFAULT_PORT 0x3001
 #define YEW_GET_PROTO yew_get_protocol()
 #define YEW_MAX_NDATA yewGetMaxTransfer()
@@ -46,7 +47,7 @@ LOCAL int yew_get_protocol(void);
 LOCAL void *yew_calloc(int, uint8_t, uint32_t, int);
 
 typedef struct {
-    int      unit;
+    int      cpu;
     uint8_t  type;
     uint32_t addr;
     int      width;
@@ -84,7 +85,7 @@ void yewSetMaxTransfer(int ndata)
     yew_max_ndata = ndata;
 }
 
-LOCAL void *yew_calloc(int unit,
+LOCAL void *yew_calloc(int cpu,
                        uint8_t type,
                        uint32_t addr,
                        int width
@@ -96,7 +97,7 @@ LOCAL void *yew_calloc(int unit,
         return NULL;
     }
 
-    d->unit  = unit;
+    d->cpu   = cpu;
     d->type  = type;
     d->addr  = addr;
     d->width = width;
@@ -129,7 +130,7 @@ LOCAL long yew_parse_link(struct link *plink,
 {
     char *protocol = NULL;
     char *route = NULL;
-    char *unit  = NULL;
+    char *cpu   = NULL;
     char *type  = NULL;
     char *addr  = NULL;
     char *lopt  = NULL;
@@ -139,7 +140,7 @@ LOCAL long yew_parse_link(struct link *plink,
                            peer_addr,
                            &protocol,
                            &route, /* dummy */
-                           &unit,
+                           &cpu, /* passed as 'unit' in parseLinkPlcCommon() */
                            &type,
                            &addr,
                            &lopt
@@ -166,23 +167,22 @@ LOCAL long yew_parse_link(struct link *plink,
         }
     }
 
-    if (unit) {
-        if (strncmp(unit, "0x", 2) == 0) {
-            if (sscanf(unit, "%x", &d->unit) != 1) {
-                errlogPrintf("devYewPlc: can't get unit\n");
+    if (cpu) {
+        if (strncmp(cpu, "0x", 2) == 0) {
+            if (sscanf(cpu, "%x", &d->cpu) != 1) {
+                errlogPrintf("devYewPlc: can't get CPU number\n");
                 return ERROR;
             }
         } else {
-            if (sscanf(unit, "%d", &d->unit) != 1) {
-                errlogPrintf("devYewPlc: can't get unit\n");
+            if (sscanf(cpu, "%d", &d->cpu) != 1) {
+                errlogPrintf("devYewPlc: can't get CPU number\n");
                 return ERROR;
             }
         }
-        LOGMSG("devYewPlc: unit: %d\n", d->unit);
     } else {
-        d->unit = YEW_DEFAULT_UNIT;
-        LOGMSG("devYewPlc: unit: %d\n", d->unit);
+        d->cpu = YEW_DEFAULT_CPU;
     }
+    LOGMSG("devYewPlc: cpu: %d\n", d->cpu);
 
     if (!addr) {
         errlogPrintf("devYewPlc: no address specified\n");
@@ -191,7 +191,7 @@ LOCAL long yew_parse_link(struct link *plink,
 
     if (type) {
         if (isalpha(type[0])) {
-            /* CPU Module */
+            /* CPU or digial I/O Module */
             if (sscanf(type, "%c", &d->type) != 1) {
                 errlogPrintf("devYewPlc: can't get device type\n");
                 return ERROR;
@@ -199,8 +199,13 @@ LOCAL long yew_parse_link(struct link *plink,
         }
 #ifdef YEW_SPECIAL_MODULE
         else {
-            /* Special Module, "type" holds module unit/slot number */
-            if (sscanf(type, "%d,%d", &d->m_unit, &d->m_slot) != 2) {
+            /* Special Module */
+            if (sscanf(type, "%d,%d", &d->m_unit, &d->m_slot) == 2) {
+                // module-unit number and slot number
+            } else if (sscanf(type, "%d", &d->m_slot) == 1) {
+                // slot number only
+                d->m_unit = YEW_DEFAULT_MODULE_UNIT;
+            } else {
                 errlogPrintf("devYewPlc: can't get module unit and/or slot number\n");
                 return ERROR;
             }
@@ -385,7 +390,7 @@ LOCAL long yew_config_command(uint8_t *buf,    /* driver buf addr     */
         }
 
         *((uint8_t  *) &buf[ 0]) = command_type;             /* R/W by bit/word       */
-        *((uint8_t  *) &buf[ 1]) = d->unit;                  /* CPU No.               */
+        *((uint8_t  *) &buf[ 1]) = d->cpu;                   /* CPU No.               */
         *((uint16_t *) &buf[ 2]) = bytes_follow;             /* n of data below       */
         *((uint16_t *) &buf[ 4]) = htons(d->type);           /* device type           */
         *((uint32_t *) &buf[ 6]) = htonl(d->addr + d->noff); /* device addr           */
@@ -396,7 +401,7 @@ LOCAL long yew_config_command(uint8_t *buf,    /* driver buf addr     */
         bytes_follow = isRead(*option)? htons(0x0006):htons(0x0006 + n*2);
 
         *((uint8_t  *) &buf[ 0]) = command_type;             /* R/W by bit/word       */
-        *((uint8_t  *) &buf[ 1]) = d->unit;                  /* CPU No.               */
+        *((uint8_t  *) &buf[ 1]) = d->cpu;                   /* CPU No.               */
         *((uint16_t *) &buf[ 2]) = bytes_follow;             /* n of data below       */
         *((uint8_t  *) &buf[ 4]) = d->m_unit;                /* module unit           */
         *((uint8_t  *) &buf[ 5]) = d->m_slot;                /* module slot           */
