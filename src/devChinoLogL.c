@@ -355,7 +355,7 @@ LOCAL long chino_parse_response(uint8_t *buf,    /* driver buf addr     */
                     break;
                 default:
                     temp[i] = -1000.0; // we'd better to change this value to someting else, e.g. -9999.
-                    LOGMSG("devGhinoLog Emergency code for i=%d ret=0x%x\n",i,ret);
+                    LOGMSG("devChinoLog Emergency code for i=%d ret=0x%x\n",i,ret);
                 }
             }
         }
