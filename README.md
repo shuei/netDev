@@ -18,6 +18,7 @@ This is a device support for network based devices.
 - patternRecord
 - statusRecord
 
+[docs/Install.md](docs/Install.md)  
 [docs/Manual.md](docs/Manual.md)  
 [docs/TODO.md](docs/TODO.md)  
 
