@@ -7,8 +7,8 @@ This is a device support for network based devices.
 - Yokogawa FA-M3 series Programmable Logic Controllers
 - Yokogawa MW100 series Data Acquisition Unit
 - Yokogawa DARWIN series Data Acquisition Unit
-- Keyence KV-5000/KV-7000 series Programmable Logic Controllers
-- Chino KE1000/KE3000 series Data Loggers
+- Keyence KV-1000/3000/... series Programmable Logic Controllers
+- Chino KE3000 series Data Loggers
 
 # Supported Records
 - arrayoutRecord
