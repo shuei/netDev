@@ -112,16 +112,17 @@ LOCAL long parse_ai_response(struct dbCommon *pxx,
     YEW_PLC *d = (YEW_PLC *) device;
 
     if (d->flag == 'F') {
-        int16_t val[2];
+        uint16_t val[2];
         long ret = yew_parse_response(buf,
                                       len,
                                       &val[0],
-                                      DBF_SHORT,
+                                      DBF_USHORT,
                                       2,
                                       option,
                                       d
                                       );
-        int32_t lval = val[1] << 16 | val[0];
+        uint32_t lval = val[1] << 16 | val[0];
+        printf("devAiYewPlc : F : 0x%08x\n", lval);
         void *tmp = &lval;
         float *pfloat = tmp;
 
