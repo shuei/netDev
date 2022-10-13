@@ -122,7 +122,6 @@ LOCAL long parse_ai_response(struct dbCommon *pxx,
                                       d
                                       );
         uint32_t lval = val[1] << 16 | val[0];
-        printf("devAiYewPlc : F : 0x%08x\n", lval);
         void *tmp = &lval;
         float *pfloat = tmp;
 
