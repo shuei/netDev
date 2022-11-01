@@ -49,7 +49,13 @@ LOCAL long fromUlongVal (void *, uint32_t *, int, int, int, int);
 /******************************************************************************
  *
  ******************************************************************************/
-void swap_bytes(uint16_t *);
+void swap_bytes(void *ptr, int num)
+{
+    uint16_t *p = ptr;
+    for (int i=0; i<num; i++) {
+        p[i] = (uint16_t)(((p[i]>>8)&0x00ff) | ((p[i]&0x00ff)<<8));
+    }
+}
 
 /******************************************************************************
  * Link field parser for PLCs
@@ -262,13 +268,12 @@ LOCAL long toCharVal(int8_t *to,
     to += noff;
 
     if (width == 2) {
+        if (swap) {
+            swap_bytes(from, ndata);
+        }
         int16_t *p = (int16_t *) from;
 
         for (int i=0; i < ndata; i++) {
-            if (swap) {
-                swap_bytes((uint16_t *)p);
-            }
-
             if ((*p & 0xff80) &&
                 (*p & 0xff80) != 0xff80) {
                 errlogPrintf("%s [%s:%d] illegal data conversion: width=%d ndata=%d from=%d\n", __func__, __FILE__, __LINE__, width, ndata, *p);
@@ -278,7 +283,7 @@ LOCAL long toCharVal(int8_t *to,
             *to++ = (int8_t) *p++;
         }
     } else if (width == 1) {
-        int8_t *p = (int8_t *) from;
+        int8_t *p = from;
 
         for (int i=0; i < ndata; i++) {
             *to++ = (int8_t) *p++;
@@ -303,15 +308,17 @@ LOCAL long toShortVal(int16_t *to,
                       )
 {
     LOGMSG("devNetDev: %s(%8p,%d,%8p,%d,%d)\n", __func__, to, noff, from, width, ndata);
+    //printf("%s: %s(to=%8p, noff=%d, from=%8p, width=%d, ndata=%d, swap=%d)\n", __FILE__, __func__, to, noff, from, width, ndata, swap);
 
     to += noff;
 
     if (width==2) {
-        int16_t *p = (int16_t *) from;
+        if (swap) {
+            swap_bytes(from, ndata);
+        }
+        int16_t *p = from;
+
         for (int i=0; i < ndata; i++) {
-            if (swap) {
-                swap_bytes((uint16_t *)p);
-            }
             *to++ = (int16_t) *p++;
         }
     } else if (width == 1) {
@@ -344,16 +351,16 @@ LOCAL long toLongVal(int32_t *to,
     to += noff;
 
     if (width == 2) {
-        int16_t *p = (int16_t *) from;
+        if (swap) {
+            swap_bytes(from, ndata);
+        }
+        int16_t *p = from;
 
         for (int i=0; i < ndata; i++) {
-            if (swap) {
-                swap_bytes((uint16_t *)p);
-            }
             *to++ = (int32_t) *p++;
         }
     } else if (width == 1) {
-        int8_t *p = (int8_t *) from;
+        int8_t *p = from;
 
         for (int i=0; i < ndata; i++) {
             *to++ = (int32_t) *p++;
@@ -382,13 +389,12 @@ LOCAL long toUcharVal(uint8_t *to,
     to += noff;
 
     if (width == 2) {
-        uint16_t *p = (uint16_t *) from;
+        if (swap) {
+            swap_bytes(from, ndata);
+        }
+        uint16_t *p = from;
 
         for (int i=0; i < ndata; i++) {
-            if (swap) {
-                swap_bytes(p);
-            }
-
             if (*p & 0xff00) {
                 errlogPrintf("%s [%s:%d] illegal data conversion: width=%d ndata=%d from=%d\n", __func__, __FILE__, __LINE__, width, ndata, *p);
                 return ERROR;
@@ -397,7 +403,7 @@ LOCAL long toUcharVal(uint8_t *to,
             *to++ = (uint8_t) *p++;
         }
     } else if (width == 1) {
-        uint8_t *p = (uint8_t *) from;
+        uint8_t *p = from;
 
         for (int i=0; i < ndata; i++) {
             *to++ = (uint8_t) *p++;
@@ -426,14 +432,16 @@ LOCAL long toUshortVal(uint16_t *to,
     to += noff;
 
     if (width == 2) {
-        uint16_t *p = (uint16_t *) from;
+        if (swap) {
+            swap_bytes(from, ndata);
+        }
+        uint16_t *p = from;
 
         for (int i=0; i < ndata; i++) {
-            if (swap) swap_bytes(p);
             *to++ = (uint16_t) *p++;
         }
     } else if (width == 1) {
-        uint8_t *p = (uint8_t *) from;
+        uint8_t *p = from;
 
         for (int i=0; i < ndata; i++) {
             *to++ = (uint16_t) *p++;
@@ -463,16 +471,16 @@ LOCAL long toUlongVal(
     to += noff;
 
     if (width == 2)  {
-        uint16_t *p = (uint16_t *) from;
+        if (swap) {
+            swap_bytes(from, ndata);
+        }
+        uint16_t *p = from;
 
         for (int i=0; i < ndata; i++) {
-            if (swap) {
-                swap_bytes(p);
-            }
             *to++ = (uint32_t) *p++;
         }
     } else if (width == 1) {
-        uint8_t *p = (uint8_t *) from;
+        uint8_t *p = from;
 
         for (int i=0; i < ndata; i++) {
             *to++ = (uint32_t) *p++;
@@ -536,20 +544,19 @@ LOCAL long fromCharVal(void *to,
     from += noff;
 
     if (width == 2) {
-        int16_t *p = (int16_t *) to;
+        int16_t *p = to;
 
         for (int i=0; i < ndata; i++) {
-            *p = (int16_t) *from++;
-            if (swap) {
-                swap_bytes((uint16_t *)p);
-            }
-            p++;
+            *p++ = (int16_t) *from++;
+        }
+        if (swap) {
+            swap_bytes(to, ndata);
         }
     } else if (width == 1) {
-        int8_t *p = (int8_t *) to;
+        int8_t *p = to;
 
         for (int i=0; i < ndata; i++) {
-            *p++ = *from++;
+            *p++ = (int8_t) *from++;
         }
     } else {
         errlogPrintf("%s [%s:%d] illegal data width: %d\n", __func__, __FILE__, __LINE__, width);
@@ -575,17 +582,16 @@ LOCAL long fromShortVal(void *to,
     from += noff;
 
     if (width == 2) {
-        int16_t *p = (int16_t *) to;
+        int16_t *p = to;
 
         for (int i=0; i < ndata; i++) {
-            *p = (int16_t) *from++;
-            if (swap) {
-                swap_bytes((uint16_t *)p);
-            }
-            p++;
+            *p++ = (int16_t) *from++;
+        }
+        if (swap) {
+            swap_bytes(to, ndata);
         }
     } else if (width == 1) {
-        int8_t *p = (int8_t *) to;
+        int8_t *p = to;
 
         for (int i=0; i < ndata; i++) {
             if ((*from & 0xff80) &&
@@ -620,7 +626,7 @@ LOCAL long fromLongVal(void *to,
     from += noff;
 
     if (width == 2) {
-        int16_t *p = (int16_t *) to;
+        int16_t *p = to;
 
         for (int i=0; i < ndata; i++) {
             if ((*from & 0xffff8000) &&
@@ -629,12 +635,13 @@ LOCAL long fromLongVal(void *to,
                 return ERROR;
             }
 
-            *p = (int16_t) *from++;
-            if (swap) swap_bytes((uint16_t *)p);
-            p++;
+            *p++ = (int16_t) *from++;
+        }
+        if (swap) {
+            swap_bytes(to, ndata);
         }
     } else if (width == 1) {
-        int8_t *p = (int8_t *) to;
+        int8_t *p = to;
 
         for (int i=0; i < ndata; i++) {
             if ((*from & 0xffffff80) &&
@@ -669,20 +676,19 @@ LOCAL long fromUcharVal(void *to,
     from += noff;
 
     if (width == 2) {
-        uint16_t *p = (uint16_t *) to;
+        uint16_t *p = to;
 
         for (int i=0; i < ndata; i++) {
-            *p = (uint16_t) *from++;
-            if (swap) {
-                swap_bytes(p);
-            }
-            p++;
+            *p++ = (uint16_t) *from++;
+        }
+        if (swap) {
+            swap_bytes(to, ndata);
         }
     } else if (width == 1) {
-        uint8_t *p = (uint8_t *) to;
+        uint8_t *p = to;
 
         for (int i=0; i < ndata; i++) {
-            *p++ = *from++;
+            *p++ = (uint8_t) *from++;
         }
     } else {
         errlogPrintf("%s [%s:%d] illegal data width: %d\n", __func__, __FILE__, __LINE__, width);
@@ -708,17 +714,16 @@ LOCAL long fromUshortVal(void *to,
     from += noff;
 
     if (width == 2) {
-        uint16_t *p = (uint16_t *) to;
+        uint16_t *p = to;
 
         for (int i=0; i < ndata; i++) {
-            *p = (uint16_t) *from++;
-            if (swap) {
-                swap_bytes(p);
-            }
-            p++;
+            *p++ = (uint16_t) *from++;
+        }
+        if (swap) {
+            swap_bytes(to, ndata);
         }
     } else if (width == 1) {
-        uint8_t *p = (uint8_t *) to;
+        uint8_t *p = to;
 
         for (int i=0; i < ndata; i++) {
             if (*from & 0xff00) {
@@ -752,7 +757,7 @@ LOCAL long fromUlongVal(void *to,
     from += noff;
 
     if (width == 2) {
-        uint16_t *p = (uint16_t *) to;
+        uint16_t *p = to;
 
         for (int i=0; i < ndata; i++) {
             if (*from & 0xffff0000) {
@@ -760,11 +765,10 @@ LOCAL long fromUlongVal(void *to,
                 return ERROR;
             }
 
-            *p = (uint16_t) *from++;
-            if (swap) {
-                swap_bytes(p);
-            }
-            p++;
+            *p++ = (uint16_t) *from++;
+        }
+        if (swap) {
+            swap_bytes(to, ndata);
         }
     } else if (width == 1) {
         uint8_t *p = (uint8_t *) to;
@@ -837,16 +841,4 @@ uint16_t netDevInt2Bcd(int32_t dec, void *precord)
     }
 
     return bcd;
-}
-
-/******************************************************************************
- *
- ******************************************************************************/
-void swap_bytes(uint16_t *p)
-{
-    char *pC = (char *) p;
-    char tmp = *pC;
-
-    *pC = *(pC + 1);
-    *(pC + 1) = tmp;
 }

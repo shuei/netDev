@@ -39,7 +39,7 @@ INTEGERDSET devChannelsDarwin = {
 };
 
 epicsExportAddress(dset, devChannelsDarwin);
-void swap_bytes(uint16_t *);
+void swap_bytes(void *ptr, int num)
 
 LOCAL long init_chan_record(struct channelsRecord *pchan)
 {
@@ -163,7 +163,7 @@ LOCAL long parse_chan_response(struct dbCommon *pxx,
         p = buf + DATA_LENGTH_OFFSET;
         if (DARWIN_NEEDS_SWAP) {
             /* printf("swapping Data Length\n"); */
-            swap_bytes((uint16_t *)p);
+            swap_bytes(p, 1);
         }
 
         if (p == 0) {
@@ -222,7 +222,7 @@ LOCAL long parse_chan_response(struct dbCommon *pxx,
 #endif
             p = buf + DATA_OFFSET(n,alst); /* p points to Data on CH */
             if (DARWIN_NEEDS_SWAP) {
-                swap_bytes((uint16_t *)p);
+                swap_bytes(p, 1);
             }
             bptr[n] = (double) *((short *) p);
 
