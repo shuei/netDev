@@ -36,7 +36,7 @@
 #define YEW_DEFAULT_PORT 0x3001
 #define YEW_GET_PROTO yew_get_protocol()
 #define YEW_MAX_NDATA yewGetMaxTransfer()
-#define YEW_NEEDS_SWAP (0x00ff != htons(0x00ff))
+#define YEW_NEEDS_SWAP (__BYTE_ORDER==__LITTLE_ENDIAN)
 #define YEW_SPECIAL_MODULE
 
 //LOCAL int sizeofTypes[] = {0,1,1,2,2,4,4,4,8,2};
