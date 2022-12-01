@@ -39,7 +39,7 @@ INTEGERDSET devChannelsDarwin = {
 };
 
 epicsExportAddress(dset, devChannelsDarwin);
-void swap_bytes(void *ptr, int num)
+extern void swap_bytes(void *ptr, int num);
 
 LOCAL long init_chan_record(struct channelsRecord *pchan)
 {
