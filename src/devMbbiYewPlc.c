@@ -92,15 +92,29 @@ LOCAL long parse_mbbi_response(struct dbCommon *pxx,
     struct mbbiRecord *prec = (struct mbbiRecord *)pxx;
     YEW_PLC *d = (YEW_PLC *) device;
 
-    int16_t val;
-    long ret = yew_parse_response(buf,
-                                  len,
-                                  &val,
-                                  DBF_SHORT,
-                                  1,
-                                  option,
-                                  d
-                                  );
-    prec->rval = val;
-    return ret;
+    if (d->flag == 'U') {
+        uint16_t val;
+        long ret = yew_parse_response(buf,
+                                      len,
+                                      &val,
+                                      DBF_USHORT,
+                                      1,
+                                      option,
+                                      d
+                                      );
+        prec->rval = val;
+        return ret;
+    } else {
+        int16_t val;
+        long ret = yew_parse_response(buf,
+                                      len,
+                                      &val,
+                                      DBF_SHORT,
+                                      1,
+                                      option,
+                                      d
+                                      );
+        prec->rval = val;
+        return ret;
+    }
 }

@@ -19,7 +19,7 @@ ToDo list for netDev
 - [ ] Round ao records to int16_t / uint16_t according to no-flag and '&U' flag.
 - [ ] Add support for aai/aao records for YewPlc.
 - [x] Add support for mbbi/mbbo records for YewPlc
-  - [ ] Add &U option support
+  - [x] Add &U option support
   - [ ] Add &L option support
 - [ ] Mark patternRecord as obsolete.
 - [ ] Drop vxWorks support.

@@ -72,16 +72,29 @@ LOCAL long config_mbbo_command(struct dbCommon *pxx,
                                      )
 {
     struct mbboRecord *prec = (struct mbboRecord *)pxx;
-    uint16_t val = prec->rval;
+    YEW_PLC *d = (YEW_PLC *) device;
 
-    return yew_config_command(buf,
-                              len,
-                              &val,
-                              DBF_USHORT,
-                              1,
-                              option,
-                              (YEW_PLC *) device
-                              );
+    if (d->flag == 'U') {
+        uint16_t val = prec->rval;
+        return yew_config_command(buf,
+                                  len,
+                                  &val,
+                                  DBF_USHORT,
+                                  1,
+                                  option,
+                                  d
+                                  );
+    } else {
+        int16_t val = prec->rval;
+        return yew_config_command(buf,
+                                  len,
+                                  &val,
+                                  DBF_SHORT,
+                                  1,
+                                  option,
+                                  d
+                                  );
+    }
 }
 
 LOCAL long parse_mbbo_response(struct dbCommon *pxx,
