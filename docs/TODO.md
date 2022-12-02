@@ -20,7 +20,7 @@ ToDo list for netDev
 - [ ] Add support for aai/aao records for YewPlc.
 - [x] Add support for mbbi/mbbo records for YewPlc
   - [x] Add &U option support
-  - [ ] Add &L option support
+  - [x] Add &L option support
 - [ ] Mark patternRecord as obsolete.
 - [ ] Drop vxWorks support.
 - [x] Add Chino KE3000 series data logger.

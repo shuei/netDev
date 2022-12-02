@@ -48,8 +48,8 @@ LOCAL long init_mbbo_record(struct mbboRecord *prec)
                                      parse_mbbo_response
                                      );
 
-    prec->nobt = 16;
-    prec->mask = 0xFFFF;
+    prec->nobt = 32;
+    prec->mask = 0xFFFFFFFF;
     prec->shft = 0;
 
     if (status != 0) {
@@ -74,7 +74,18 @@ LOCAL long config_mbbo_command(struct dbCommon *pxx,
     struct mbboRecord *prec = (struct mbboRecord *)pxx;
     YEW_PLC *d = (YEW_PLC *) device;
 
-    if (d->flag == 'U') {
+    if (d->flag == 'L') {
+        int16_t val[2] = { prec->rval >>  0,
+                           prec->rval >> 16, };
+        return yew_config_command(buf,
+                                  len,
+                                  &val,
+                                  DBF_SHORT,
+                                  2,
+                                  option,
+                                  d
+                                  );
+    } else if (d->flag == 'U') {
         uint16_t val = prec->rval;
         return yew_config_command(buf,
                                   len,
@@ -106,13 +117,14 @@ LOCAL long parse_mbbo_response(struct dbCommon *pxx,
                                      )
 {
     struct mbboRecord *prec = (struct mbboRecord *)pxx;
+    YEW_PLC *d = (YEW_PLC *) device;
 
     return yew_parse_response(buf,
                               len,
                               &prec->rval, // not used in yew_parse_response
                               DBF_ULONG,   // not used in yew_parse_response
-                              1,
+                              (d->flag == 'L')? 2:1,
                               option,
-                              (YEW_PLC *) device
+                              d
                               );
 }

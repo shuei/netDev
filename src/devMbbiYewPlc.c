@@ -48,8 +48,8 @@ LOCAL long init_mbbi_record(struct mbbiRecord *prec)
                                      parse_mbbi_response
                                      );
 
-    prec->nobt = 16;
-    prec->mask = 0xFFFF;
+    prec->nobt = 32;
+    prec->mask = 0xFFFFFFFF;
     prec->shft = 0;
 
     return status;
@@ -75,7 +75,7 @@ LOCAL long config_mbbi_command(struct dbCommon *pxx,
                               len,
                               &prec->rval, // not used in yew_config_command
                               DBF_ULONG,   // not used in yew_config_command
-                              1,
+                              (d->flag == 'L')? 2:1,
                               option,
                               d
                               );
@@ -92,7 +92,19 @@ LOCAL long parse_mbbi_response(struct dbCommon *pxx,
     struct mbbiRecord *prec = (struct mbbiRecord *)pxx;
     YEW_PLC *d = (YEW_PLC *) device;
 
-    if (d->flag == 'U') {
+    if (d->flag == 'L') {
+        uint16_t val[2];
+        long ret = yew_parse_response(buf,
+                                      len,
+                                      &val[0],
+                                      DBF_USHORT,
+                                      2,
+                                      option,
+                                      d
+                                      );
+        prec->rval = (val[1]<<16) | (val[0]);
+        return ret;
+    } else if (d->flag == 'U') {
         uint16_t val;
         long ret = yew_parse_response(buf,
                                       len,
