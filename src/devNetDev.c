@@ -208,11 +208,7 @@ long netDevInit(void)
  ********************************************************************************/
 LOCAL void *net_dev_init_private(struct link *plink,
                                  int *option,
-                                 long (*parse_link)(struct link *,
-                                                    struct sockaddr_in *,
-                                                    int *,
-                                                    void *
-                                                    ),
+                                 parse_link_fn_t parse_link,
                                  void *device
                                  )
 {
