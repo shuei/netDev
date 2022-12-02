@@ -25,9 +25,9 @@ Device support for general network devices, netDev, is a device support for netw
 
 # Yokogawa FA-M3 series PLCs ("**Yew Plc**")
 
-This device support utilizes commands and responses that are described
-in **IM 34M06P41-01E** "Personal Computer Link Commands, as well as
-undocumented features.
+This device support utilizes not only commands and responses that are
+described in **IM 34M06P41-01E** "Personal Computer Link Commands",
+but also undocumented features.
 
 ## Configure CPU Properties
 
@@ -77,23 +77,23 @@ Numbers other than IP address will be treated as decimals, or hexadecimals (when
 
 Table below describes supported PLC devices along with the relevant record types:
 
-| PLC&nbsp;device| Description                             | DTYP          | &nbsp;Data&nbsp;width&nbsp; | Supported record types                                                      |
-|----------------|-----------------------------------------|---------------|-----------------------------|-----------------------------------------------------------------------------|
-| X              | Input relays on input modules           | Yew&nbsp;Plc  | 1-bit, 16-bit               | bi,     longin,          mbbiDirect,             ai                         |
-| Y              | Output relays on output modules         | Yew&nbsp;Plc  | 1-bit, 16-bit               | bi, bo, longin, longout, mbbiDirect, mbboDirect, ai, ao                     |
-| I              | Internal relays                         | Yew&nbsp;Plc  | 1-bit, 16-bit               | bi, bo, longin, longout                                                     |
-| E              | (Extended) Shared relays                | Yew&nbsp;Plc  | 1-bit, 16-bit               | bi, bo, longin, longout, mbbiDirect, mbboDirect                             |
-| M              | Special relays                          | Yew&nbsp;Plc  | 1-bit                       | bi, bo                                                                      |
-| L              | Link relays (for FA Link and FL-net)    | Yew&nbsp;Plc  | 1-bit, 16-bit               | bi, bo, longin, longout, mbbiDirect, mbboDirect                             |
-| D              | Data registers                          | Yew&nbsp;Plc  |        16-bit               |         longin, longout, mbbiDirect, mbboDirect, ai, ao, waveform, arrayout |
-| B              | File registers                          | Yew&nbsp;Plc  |        16-bit               |         longin, longout, mbbiDirect, mbboDirect, ai, ao, waveform, arrayout |
-| F              | Cache registers                         | Yew&nbsp;Plc  |        16-bit               |         longin, longout, mbbiDirect, mbboDirect, ai, ao, waveform, arrayout |
-| R              | (Extended) Shared registers             | Yew&nbsp;Plc  |        16-bit               |         longin, longout, mbbiDirect, mbboDirect, ai, ao, waveform, arrayout |
-| Z              | Special registers                       | Yew&nbsp;Plc  |        16-bit               |         longin, longout, mbbiDirect, mbboDirect, ai, ao                     |
-| W              | Link registers (for FA Link and FL-net) | Yew&nbsp;Plc  |        16-bit               |         longin, longout, mbbiDirect, mbboDirect, ai, ao, waveform, arrayout |
-| T              | Timer relays                            |               | 1-bit, 16-bit               |                                                                             |
-| C              | Counter relays                          |               | 1-bit, 16-bit               |                                                                             |
-| V              | Index registers                         |               |        16-bit               |                                                                             |
+| PLC&nbsp;device| Description                             | DTYP          | &nbsp;Data&nbsp;width&nbsp; | Supported record types                                                                  |
+|----------------|-----------------------------------------|---------------|-----------------------------|-----------------------------------------------------------------------------------------|
+| X              | Input relays on input modules           | Yew&nbsp;Plc  | 1-bit, 16-bit               | bi,     longin,          mbbiDirect,             mbbi,       ai                         |
+| Y              | Output relays on output modules         | Yew&nbsp;Plc  | 1-bit, 16-bit               | bi, bo, longin, longout, mbbiDirect, mbboDirect, mbbi, mbbo, ai, ao                     |
+| I              | Internal relays                         | Yew&nbsp;Plc  | 1-bit, 16-bit               | bi, bo, longin, longout  mbbiDirect, mbboDirect, mbbi, mbbo, ai, ao                     |
+| E              | (Extended) Shared relays                | Yew&nbsp;Plc  | 1-bit, 16-bit               | bi, bo, longin, longout, mbbiDirect, mbboDirect, mbbi, mbbo, ai, ao                     |
+| M              | Special relays                          | Yew&nbsp;Plc  | 1-bit                       | bi, bo                                                                                  |
+| L              | Link relays (for FA Link and FL-net)    | Yew&nbsp;Plc  | 1-bit, 16-bit               | bi, bo, longin, longout, mbbiDirect, mbboDirect, mbbi, mbbo, ai, ao                     |
+| D              | Data registers                          | Yew&nbsp;Plc  |        16-bit               |         longin, longout, mbbiDirect, mbboDirect, mbbi, mbbo, ai, ao, waveform, arrayout |
+| B              | File registers                          | Yew&nbsp;Plc  |        16-bit               |         longin, longout, mbbiDirect, mbboDirect, mbbi, mbbo, ai, ao, waveform, arrayout |
+| F              | Cache registers                         | Yew&nbsp;Plc  |        16-bit               |         longin, longout, mbbiDirect, mbboDirect, mbbi, mbbo, ai, ao, waveform, arrayout |
+| R              | (Extended) Shared registers             | Yew&nbsp;Plc  |        16-bit               |         longin, longout, mbbiDirect, mbboDirect, mbbi, mbbo, ai, ao, waveform, arrayout |
+| Z              | Special registers                       | Yew&nbsp;Plc  |        16-bit               |         longin, longout, mbbiDirect, mbboDirect, mbbi, mbbo, ai, ao                     |
+| W              | Link registers (for FA Link and FL-net) | Yew&nbsp;Plc  |        16-bit               |         longin, longout, mbbiDirect, mbboDirect, mbbi, mbbo, ai, ao, waveform, arrayout |
+| T              | Timer relays                            |               | 1-bit, 16-bit               |                                                                                         |
+| C              | Counter relays                          |               | 1-bit, 16-bit               |                                                                                         |
+| V              | Index registers                         |               |        16-bit               |                                                                                         |
 
 **Note**: Special modules refer only to those modules accessed through
 READ/WRITE instruction of the sequence CPU modules, e.g. analog
@@ -111,6 +111,8 @@ access specific PLC devices.
 | longout     | Yew Plc  |    Y, I, E,    L, D, B, F, R, Z, W | **Supported options**: U, L, B                      |
 | mbbiDirect  | Yew Plc  | X, Y,    E,    L, D, B, F, R, Z, W |                                                     |
 | mbboDirect  | Yew Plc  |    Y,    E,    L, D, B, F, R, Z, W |                                                     |
+| mbbi        | Yew Plc  | X, Y,    E,    L, D, B, F, R, Z, W | **Supported options**: U, L                         |
+| mbbo        | Yew Plc  |    Y,    E,    L, D, B, F, R, Z, W | **Supported options**: U, L                         |
 | ai          | Yew Plc  | X, Y,    R,       D, B, F,    Z, W | **Supported options**: U, L, F, D                   |
 | ao          | Yew Plc  |    Y,    R,       D, B, F,    Z, W | **Supported options**: U, L, F, D                   |
 | waveform    | Yew Plc  |          R,       D, B, F,       W | **FTVL field**: DBF\_ULONG, DBF\_USHORT, DBF\_SHORT |
