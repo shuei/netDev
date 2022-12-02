@@ -112,6 +112,8 @@ LOCAL void *yew_calloc(int cpu,
 #include "devBoYewPlc.c"
 #include "devLonginYewPlc.c"
 #include "devLongoutYewPlc.c"
+#include "devMbbiYewPlc.c"
+#include "devMbboYewPlc.c"
 #include "devMbbiDirectYewPlc.c"
 #include "devMbboDirectYewPlc.c"
 #include "devWaveformYewPlc.c"

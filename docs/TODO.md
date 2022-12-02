@@ -18,7 +18,9 @@ ToDo list for netDev
 - [ ] Consider ASLO/AOFF fields for ao records with &F (or &D) option.
 - [ ] Round ao records to int16_t / uint16_t according to no-flag and '&U' flag.
 - [ ] Add support for aai/aao records for YewPlc.
-- [ ] Add support for mbbi/mbbo records for YewPlc
+- [x] Add support for mbbi/mbbo records for YewPlc
+  - [ ] Add &U option support
+  - [ ] Add &L option support
 - [ ] Mark patternRecord as obsolete.
 - [ ] Drop vxWorks support.
 - [x] Add Chino KE3000 series data logger.
