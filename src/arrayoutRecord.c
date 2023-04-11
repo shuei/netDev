@@ -11,49 +11,30 @@
  ******************************************************************************/
 /* Current Author: Jun-ichi Odagiri (jun-ichi.odagiri@kek.jp, KEK) */
 
-#ifndef EPICS_REVISION
-#include <epicsVersion.h>
-#endif
-
-#if EPICS_REVISION < 14
+#ifdef vxWorks
 #  include <vxWorks.h>
 #  include <types.h>
 #  include <stdioLib.h>
 #  include <lstLib.h>
-#  include <stdlib.h>
-#  include <string.h>
-
-#  include "dbDefs.h"
-#  include "epicsPrint.h"
-#  include <alarm.h>
-#  include <dbAccess.h>
-#  include <dbEvent.h>
-#  include <dbFldTypes.h>
-#  include <dbScan.h>
-#  include <devSup.h>
-#  include <epicsExport.h>
-#  include <errMdef.h>
-#  include <recSup.h>
-
-#else // EPICS_REVISION >= 14
-#  include <stdlib.h>
-#  include <string.h>
-
-#  include <alarm.h>
-#  include <dbAccess.h>
-#  include <dbDefs.h>
-#  include <dbEvent.h>
-#  include <dbFldTypes.h>
-#  include <dbScan.h>
-#  include <devSup.h>
-#  include <epicsExport.h>
-#  include <epicsPrint.h>
-#  include <errMdef.h>
-#  include <recSup.h>
-#  include <recGbl.h>
-#  include <menuOmsl.h>
-#  include <menuYesNo.h>
 #endif
+
+#include <stdlib.h>
+#include <string.h>
+
+#include <alarm.h>
+#include <dbAccess.h>
+#include <dbDefs.h>
+#include <dbEvent.h>
+#include <dbFldTypes.h>
+#include <dbScan.h>
+#include <devSup.h>
+#include <epicsExport.h>
+#include <epicsPrint.h>
+#include <errMdef.h>
+#include <recSup.h>
+#include <recGbl.h>
+#include <menuOmsl.h>
+#include <menuYesNo.h>
 
 #define GEN_SIZE_OFFSET
 #include "arrayoutRecord.h"
