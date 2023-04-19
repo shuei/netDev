@@ -5,15 +5,14 @@ include $(TOP)/configure/CONFIG
 #  ADD MACRO DEFINITIONS AFTER THIS LINE
 #=============================
 
-#==================================================
-# build a support library
-
-#
 USR_CFLAGS += -std=c99
 USR_CFLAGS += -Wall
 #USR_CFLAGS += -Werror
+USR_CPPFLAGS += -DUSE_TYPED_RSET -DUSE_TYPED_DSET
 
-#
+#==================================================
+# build a support library
+
 LIBRARY_IOC += netDev
 
 # xxxRecord.h will be created from xxxRecord.dbd

@@ -180,7 +180,7 @@ LOCAL void net_dev_async_completion(CALLBACK *pcb)
     struct dbCommon *pxx;
     callbackGetUser(pxx, pcb);
 
-    struct rset *rset = (struct rset *)(pxx->rset);
+    rset *rset = pxx->rset;
     dbScanLock(pxx);
     {
         (*rset->process)(pxx);

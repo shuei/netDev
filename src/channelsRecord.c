@@ -34,8 +34,8 @@
 /* Create RSET - Record Support Entry Table */
 #define report NULL
 #define initialize NULL
-static long init_record();
-static long process();
+static long init_record(dbCommon *, int);
+static long process(dbCommon *);
 #define special NULL
 #define get_value NULL
 static long cvt_dbaddr();
@@ -50,7 +50,7 @@ static long get_precision ();
 #define get_control_double NULL
 #define get_alarm_double NULL
 
-struct rset channelsRSET = {
+rset channelsRSET = {
     RSETNUMBER,
     report,
     initialize,
@@ -88,7 +88,7 @@ typedef struct channels_dset { /* channels dset */
 static void checkAlarms(channelsRecord *pchan);
 static void monitor(channelsRecord *pchan);
 
-static long init_record(void *precord, int pass)
+static long init_record(dbCommon *precord, int pass)
 {
     if (pass == 0) {
         return 0;
@@ -118,7 +118,7 @@ static long init_record(void *precord, int pass)
     return 0;
 }
 
-static long process(void *precord)
+static long process(dbCommon *precord)
 {
     channelsRecord *pchan = (channelsRecord *)precord;
     channels_dset  *pdset = (channels_dset *)(pchan->dset);
