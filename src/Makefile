@@ -22,9 +22,11 @@ DBDINC += patternRecord
 DBDINC += statusRecord
 DBDINC += channelsRecord
 DBDINC += chansRecord
+
 # install netDev.dbd into <top>/dbd
 DBD += netDev.dbd
 
+#
 INC += drvNetMpf.h
 INC += devNetDev.h
 
