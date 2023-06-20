@@ -20,7 +20,7 @@ for general network devices (netDev).
 
 # Prerequisite
 
-This device sipport works with EPICS base 3.14.12 on, tested up to R3.15.8.
+This device support works with EPICS base 3.14.12 on, tested up to R3.15.8.
 
 # Building netDev
 
