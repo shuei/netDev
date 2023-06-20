@@ -82,33 +82,33 @@ rset arrayoutRSET = {
 
 epicsExportAddress(rset, arrayoutRSET);
 
-struct arodset { /* arrayout dset */
+typedef struct arodset { /* arrayout dset */
         long            number;
         DEVSUPFUN       dev_report;
         DEVSUPFUN       init;
         DEVSUPFUN       init_record; /*returns: (-1,0)=>(failure,success)*/
         DEVSUPFUN       get_ioint_info;
         DEVSUPFUN       write_aro; /*returns: (-1,0)=>(failure,success)*/
-};
+} arodset;
 
 /*sizes of field types*/
 static int sizeofTypes[] = {0,1,1,2,2,4,4,4,8,2};
 static void monitor();
 static long writeValue();
 
-static long init_record(struct arrayoutRecord *pao, int pass)
+static long init_record(arrayoutRecord *pao, int pass)
 {
     if (pass == 0) {
         if (pao->nelm <= 0) {
             pao->nelm = 1;
         }
         if (pao->ftvl == 0) {
-            pao->bptr = (char *)calloc(pao->nelm, MAX_STRING_SIZE);
+            pao->bptr = calloc(pao->nelm, MAX_STRING_SIZE);
         } else {
             if (pao->ftvl > DBF_ENUM) {
                 pao->ftvl = 2;
             }
-            pao->bptr = (char *)calloc(pao->nelm, sizeofTypes[pao->ftvl]);
+            pao->bptr = calloc(pao->nelm, sizeofTypes[pao->ftvl]);
         }
         if (pao->nelm == 1) {
             pao->nowt = 1;
@@ -124,7 +124,7 @@ static long init_record(struct arrayoutRecord *pao, int pass)
     }
 
     /* must have dset defined */
-    struct arodset *pdset = (struct arodset *)(pao->dset);
+    arodset *pdset = (arodset *)(pao->dset);
     if (!pdset) {
         recGblRecordError(S_dev_noDSET, pao, "arrayout: No DSET");
         return S_dev_noDSET;
@@ -134,7 +134,7 @@ static long init_record(struct arrayoutRecord *pao, int pass)
         recGblRecordError(S_dev_missingSup, pao, "arrayout: Bad DSET");
         return S_dev_missingSup;
     }
-    if (pdset->init_record ) {
+    if (pdset->init_record) {
         long status = (*pdset->init_record)(pao);
         if (status) {
             return status;
@@ -143,9 +143,9 @@ static long init_record(struct arrayoutRecord *pao, int pass)
     return 0;
 }
 
-static long process(struct arrayoutRecord *pao)
+static long process(arrayoutRecord *pao)
 {
-    struct arodset *pdset = (struct arodset *)(pao->dset);
+    arodset *pdset = (arodset *)(pao->dset);
     unsigned char   pact = pao->pact;
     long            nRequest = pao->nelm;
 
@@ -187,9 +187,9 @@ static long process(struct arrayoutRecord *pao)
     return 0;
 }
 
-static long cvt_dbaddr(struct dbAddr *paddr)
+static long cvt_dbaddr(dbAddr *paddr)
 {
-    struct arrayoutRecord *pao = (struct arrayoutRecord *)paddr->precord;
+    arrayoutRecord *pao = (arrayoutRecord *)paddr->precord;
 
     paddr->pfield      = pao->bptr;
     paddr->no_elements = pao->nelm;
@@ -203,18 +203,18 @@ static long cvt_dbaddr(struct dbAddr *paddr)
     return 0;
 }
 
-static long get_array_info(struct dbAddr *paddr, long *no_elements, long *offset)
+static long get_array_info(dbAddr *paddr, long *no_elements, long *offset)
 {
-    struct arrayoutRecord *pao = (struct arrayoutRecord *)paddr->precord;
+    arrayoutRecord *pao = (arrayoutRecord *)paddr->precord;
 
     *no_elements = pao->nelm;
     *offset = 0;
     return 0;
 }
 
-static long put_array_info(struct dbAddr *paddr, long nNew)
+static long put_array_info(dbAddr *paddr, long nNew)
 {
-    struct arrayoutRecord *pao = (struct arrayoutRecord *)paddr->precord;
+    arrayoutRecord *pao = (arrayoutRecord *)paddr->precord;
 
     pao->nowt = nNew;
     if (pao->nowt > pao->nelm) {
@@ -223,17 +223,17 @@ static long put_array_info(struct dbAddr *paddr, long nNew)
     return 0;
 }
 
-static long get_units(struct dbAddr *paddr, char *units)
+static long get_units(dbAddr *paddr, char *units)
 {
-    struct arrayoutRecord *pao = (struct arrayoutRecord *)paddr->precord;
+    arrayoutRecord *pao = (arrayoutRecord *)paddr->precord;
 
     strncpy(units, pao->egu, DB_UNITS_SIZE);
     return 0;
 }
 
-static long get_precision(struct dbAddr *paddr, long *precision)
+static long get_precision(dbAddr *paddr, long *precision)
 {
-    struct arrayoutRecord *pao = (struct arrayoutRecord *)paddr->precord;
+    arrayoutRecord *pao = (arrayoutRecord *)paddr->precord;
 
     *precision = pao->prec;
     if (paddr->pfield == pao->bptr) {
@@ -243,9 +243,9 @@ static long get_precision(struct dbAddr *paddr, long *precision)
     return 0;
 }
 
-static long get_graphic_double(struct dbAddr *paddr, struct dbr_grDouble *pgd)
+static long get_graphic_double(dbAddr *paddr, struct dbr_grDouble *pgd)
 {
-    struct arrayoutRecord *pao = (struct arrayoutRecord *)paddr->precord;
+    arrayoutRecord *pao = (arrayoutRecord *)paddr->precord;
 
     if (paddr->pfield == pao->bptr) {
         pgd->upper_disp_limit = pao->hopr;
@@ -256,9 +256,9 @@ static long get_graphic_double(struct dbAddr *paddr, struct dbr_grDouble *pgd)
     return 0;
 }
 
-static long get_control_double(struct dbAddr *paddr, struct dbr_ctrlDouble *pcd)
+static long get_control_double(dbAddr *paddr, struct dbr_ctrlDouble *pcd)
 {
-    struct arrayoutRecord *pao = (struct arrayoutRecord *)paddr->precord;
+    arrayoutRecord *pao = (arrayoutRecord *)paddr->precord;
 
     if (paddr->pfield == pao->bptr) {
         pcd->upper_ctrl_limit = pao->hopr;
@@ -269,7 +269,7 @@ static long get_control_double(struct dbAddr *paddr, struct dbr_ctrlDouble *pcd)
     return 0;
 }
 
-static void monitor(struct arrayoutRecord *pao)
+static void monitor(arrayoutRecord *pao)
 {
     unsigned short monitor_mask;
 
@@ -281,9 +281,9 @@ static void monitor(struct arrayoutRecord *pao)
     return;
 }
 
-static long writeValue(struct arrayoutRecord *pao)
+static long writeValue(arrayoutRecord *pao)
 {
-    struct arodset *pdset = (struct arodset *) (pao->dset);
+    arodset *pdset = (arodset *)(pao->dset);
 
     long status;
     if (pao->pact == TRUE) {

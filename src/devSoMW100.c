@@ -19,10 +19,10 @@
 /***************************************************************
  * String output (command/respons IO)
  ***************************************************************/
-LOCAL long init_so_record(struct stringoutRecord *);
-LOCAL long write_so(struct stringoutRecord *);
-LOCAL long config_so_command(struct dbCommon *, int *, uint8_t *, int *, void *, int);
-LOCAL long parse_so_response(struct dbCommon *, int *, uint8_t *, int *, void *, int);
+LOCAL long init_so_record(stringoutRecord *);
+LOCAL long write_so(stringoutRecord *);
+LOCAL long config_so_command(dbCommon *, int *, uint8_t *, int *, void *, int);
+LOCAL long parse_so_response(dbCommon *, int *, uint8_t *, int *, void *, int);
 
 INTEGERDSET devSoMW100 = {
     5,
@@ -35,11 +35,11 @@ INTEGERDSET devSoMW100 = {
 
 epicsExportAddress(dset, devSoMW100);
 
-LOCAL long init_so_record(struct stringoutRecord *pso)
+LOCAL long init_so_record(stringoutRecord *pso)
 {
     LOGMSG("devSoMW100: init_so_record(\"%s\")\n", pso->name);
 
-    return netDevInitXxRecord((struct dbCommon *) pso,
+    return netDevInitXxRecord((dbCommon *)pso,
                               &pso->out,
                               MPF_WRITE | MPF_TCP | MW100_TIMEOUT,
                               MW100_calloc(),
@@ -49,14 +49,14 @@ LOCAL long init_so_record(struct stringoutRecord *pso)
                               );
 }
 
-LOCAL long write_so(struct stringoutRecord *pso)
+LOCAL long write_so(stringoutRecord *pso)
 {
     LOGMSG("devSoMW100: write_so(\"%s\")\n", pso->name);
 
-    return netDevReadWriteXx((struct dbCommon *) pso);
+    return netDevReadWriteXx((dbCommon *)pso);
 }
 
-LOCAL long config_so_command(struct dbCommon *pxx,
+LOCAL long config_so_command(dbCommon *pxx,
                              int *option,
                              uint8_t *buf,
                              int *len,
@@ -64,7 +64,7 @@ LOCAL long config_so_command(struct dbCommon *pxx,
                              int transaction_id
                              )
 {
-    stringoutRecord *pso = (stringoutRecord *) pxx;
+    stringoutRecord *pso = (stringoutRecord *)pxx;
     char terminator[3] = "\r\n";
 
     LOGMSG("devSoMW100: config_so_command(\"%s\")\n", pxx->name);
@@ -81,7 +81,7 @@ LOCAL long config_so_command(struct dbCommon *pxx,
     return 0;
 }
 
-LOCAL long parse_so_response(struct dbCommon *pxx,
+LOCAL long parse_so_response(dbCommon *pxx,
                              int *option,
                              uint8_t *buf,
                              int *len,

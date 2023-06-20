@@ -24,10 +24,10 @@
 /***************************************************************
  * Response parser
  ***************************************************************/
-LOCAL long init_chan_record(struct channelsRecord *);
-LOCAL long read_chan(struct channelsRecord *);
-LOCAL long config_chan_command(struct dbCommon *, int *, uint8_t *, int *, void *, int);
-LOCAL long parse_chan_response(struct dbCommon *, int *, uint8_t *, int *, void *, int);
+LOCAL long init_chan_record(channelsRecord *);
+LOCAL long read_chan(channelsRecord *);
+LOCAL long config_chan_command(dbCommon *, int *, uint8_t *, int *, void *, int);
+LOCAL long parse_chan_response(dbCommon *, int *, uint8_t *, int *, void *, int);
 
 INTEGERDSET devChannelsDarwin = {
     5,
@@ -41,13 +41,13 @@ INTEGERDSET devChannelsDarwin = {
 epicsExportAddress(dset, devChannelsDarwin);
 extern void swap_bytes(void *ptr, int num);
 
-LOCAL long init_chan_record(struct channelsRecord *pchan)
+LOCAL long init_chan_record(channelsRecord *pchan)
 {
     DARWIN *d = darwin_calloc();
 
     LOGMSG("devChanDarwin: init_chan_record(\"%s\")\n", pchan->name);
 
-    if (netDevInitXxRecord((struct dbCommon *) pchan,
+    if (netDevInitXxRecord((dbCommon *)pchan,
                            &pchan->inp,
                            MPF_READ | MPF_TCP | DARWIN_TIMEOUT,
                            d,
@@ -70,11 +70,11 @@ LOCAL long init_chan_record(struct channelsRecord *pchan)
     return OK;
 }
 
-LOCAL long read_chan(struct channelsRecord *pchan)
+LOCAL long read_chan(channelsRecord *pchan)
 {
     LOGMSG("devChanDarwin: read_chan_record(\"%s\")\n", pchan->name);
 
-    return netDevReadWriteXx((struct dbCommon *) pchan);
+    return netDevReadWriteXx((dbCommon *)pchan);
 }
 
 #define DATA_LENGTH_OFFSET     0
@@ -84,7 +84,7 @@ LOCAL long read_chan(struct channelsRecord *pchan)
 #define ALARM_MSG_SIZE         MAX_STRING_SIZE
 #define EL_RESP_LENGTH         15
 
-LOCAL long config_chan_command(struct dbCommon *pxx,
+LOCAL long config_chan_command(dbCommon *pxx,
                                int *option,
                                uint8_t *buf,
                                int *len,
@@ -92,8 +92,8 @@ LOCAL long config_chan_command(struct dbCommon *pxx,
                                int transaction_id
                                )
 {
-    struct channelsRecord *pchan = (struct channelsRecord *)pxx;
-    DARWIN *d = (DARWIN *) device;
+    channelsRecord *pchan = (channelsRecord *)pxx;
+    DARWIN *d = (DARWIN *)device;
     int nelm = pchan->nelm;
     int alst = pchan->alst;
     int resp_length = 0;
@@ -137,7 +137,7 @@ LOCAL long config_chan_command(struct dbCommon *pxx,
     return resp_length;
 }
 
-LOCAL long parse_chan_response(struct dbCommon *pxx,
+LOCAL long parse_chan_response(dbCommon *pxx,
                                int *option,
                                uint8_t *buf,
                                int *len,
@@ -145,12 +145,12 @@ LOCAL long parse_chan_response(struct dbCommon *pxx,
                                int transaction_id
                                )
 {
-    struct channelsRecord *pchan = (struct channelsRecord *)pxx;
-    DARWIN *d = (DARWIN *)device;
-    double *bptr = (double *) &pchan->ch01;
-    char   *albp = (char   *) &pchan->al01;
-    char   *eubp = (char   *) &pchan->eu01;
-    short  *ppbp = (short  *) &pchan->pp01;
+    channelsRecord *pchan = (channelsRecord *)pxx;
+    DARWIN *d    = (DARWIN *)device;
+    double *bptr = (double *)&pchan->ch01;
+    char   *albp = (char   *)&pchan->al01;
+    char   *eubp = (char   *)&pchan->eu01;
+    short  *ppbp = (short  *)&pchan->pp01;
     uint8_t *p;
     int nelm = pchan->nelm;
     int alst = pchan->alst;
@@ -171,9 +171,9 @@ LOCAL long parse_chan_response(struct dbCommon *pxx,
             return ERROR;
         }
 
-        if ( *((uint16_t *) p) != data_length ) {
+        if (*((uint16_t *)p) != data_length) {
             errlogPrintf("parse_chan_response: Data Length dose not match: %d, %d, %d, %d(\"%s\")\n",
-                         *((uint16_t *) p), data_length, nelm, alst, pchan->name);
+                         *((uint16_t *)p), data_length, nelm, alst, pchan->name);
             return ERROR;
         }
 
@@ -188,7 +188,7 @@ LOCAL long parse_chan_response(struct dbCommon *pxx,
         for (n = 0; n < nelm; n++) {
             p = buf + CAHNNEL_OFFSET(n,alst); /* p points to Unit No. */
 
-            if ( d->unit && (*p != d->unit) ) {
+            if (d->unit && (*p != d->unit)) {
                 errlogPrintf("parse_chan_response: read Unit No.(%d) dose not match with specified(%d) (\"%s\")\n",
                              *p, d->unit, pchan->name);
                 return ERROR;
@@ -198,7 +198,7 @@ LOCAL long parse_chan_response(struct dbCommon *pxx,
 
             /* can not do consistency check without knowing the configuration of channels on the device */
             /*
-            if ( *p != (uint8_t) (d->p1 + n) ) {
+            if (*p != (uint8_t) (d->p1 + n)) {
                 errlogPrintf("parse_chan_response: Chan No.dose not match, %d, %d, %d(\"%s\")\n",
                              *p, d->p1 + n, d->p1, pchan->name);
                 return ERROR;
@@ -208,12 +208,12 @@ LOCAL long parse_chan_response(struct dbCommon *pxx,
             if (pchan->alst) {
                 p++; /* p points to Alarm Sts */
 #ifdef vxWorks
-                sprintf(((uint8_t *) albp) + ALARM_MSG_SIZE*( n ),
+                sprintf(((uint8_t *)albp) + ALARM_MSG_SIZE*(n),
                         "L1: %d, L2: %d, L3: %d, L4: %d",
                         (p[0]) & 0x0f, (p[0] >> 4) & 0x0f,
                         (p[1]) & 0x0f, (p[1] >> 4) & 0x0f);
 #else
-                snprintf(albp + ALARM_MSG_SIZE*( n ),
+                snprintf(albp + ALARM_MSG_SIZE*(n),
                          MAX_STRING_SIZE,
                          "L1: %d, L2: %d, L3: %d, L4: %d",
                          (p[0]) & 0x0f, (p[0] >> 4) & 0x0f,
@@ -224,9 +224,9 @@ LOCAL long parse_chan_response(struct dbCommon *pxx,
             if (DARWIN_NEEDS_SWAP) {
                 swap_bytes(p, 1);
             }
-            bptr[n] = (double) *((short *) p);
+            bptr[n] = (double) *((short *)p);
 
-            for (m = ((unsigned short *) ppbp)[n]; m > 0; m--) {
+            for (m = ((unsigned short *)ppbp)[n]; m > 0; m--) {
                 bptr[n] /= 10.0;
             }
         }
@@ -283,8 +283,8 @@ LOCAL long parse_chan_response(struct dbCommon *pxx,
                 }
             }
 
-            strcpy(eubp + 8 * ( n ), unit);
-            ppbp[n] = (short) pos;
+            strcpy(eubp + 8 * (n), unit);
+            ppbp[n] = (short)pos;
 
             n++;
             buf += EL_RESP_LENGTH;

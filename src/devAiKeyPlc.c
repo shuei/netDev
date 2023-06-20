@@ -19,9 +19,9 @@
 /***************************************************************
  * Analog input (command/response IO)
  ***************************************************************/
-LOCAL long init_ai_record(struct aiRecord *);
-LOCAL long read_ai(struct aiRecord *);
-LOCAL long ai_linear_convert(struct aiRecord *, int);
+LOCAL long init_ai_record(aiRecord *);
+LOCAL long read_ai(aiRecord *);
+LOCAL long ai_linear_convert(aiRecord *, int);
 LOCAL long config_ai_command(dbCommon *, int *, uint8_t *, int *, void *, int);
 LOCAL long parse_ai_response(dbCommon *, int *, uint8_t *, int *, void *, int);
 
@@ -37,14 +37,14 @@ FLOATDSET devAiKeyPlc = {
 
 epicsExportAddress(dset, devAiKeyPlc);
 
-LOCAL long init_ai_record(struct aiRecord *pai)
+LOCAL long init_ai_record(aiRecord *pai)
 {
     if (pai->linr == menuConvertLINEAR) {
         pai->eslo = (pai->eguf - pai->egul) / 0xFFFF;
         pai->roff = 0;
     }
 
-    return netDevInitXxRecord((struct dbCommon *) pai,
+    return netDevInitXxRecord((dbCommon *)pai,
                               &pai->inp,
                               MPF_READ | KEY_GET_PROTO | DEFAULT_TIMEOUT,
                               key_calloc(0, KEY_CMND_RDE),
@@ -54,13 +54,13 @@ LOCAL long init_ai_record(struct aiRecord *pai)
                               );
 }
 
-LOCAL long read_ai(struct aiRecord *pai)
+LOCAL long read_ai(aiRecord *pai)
 {
-    return netDevReadWriteXx((struct dbCommon *) pai);
+    return netDevReadWriteXx((dbCommon *)pai);
 }
 
 
-LOCAL long ai_linear_convert(struct aiRecord *pai, int after)
+LOCAL long ai_linear_convert(aiRecord *pai, int after)
 {
     if (!after) {
         return OK;
@@ -74,7 +74,7 @@ LOCAL long ai_linear_convert(struct aiRecord *pai, int after)
     return OK;
 }
 
-LOCAL long config_ai_command(struct dbCommon *pxx,
+LOCAL long config_ai_command(dbCommon *pxx,
                              int *option,
                              uint8_t *buf,
                              int *len,
@@ -82,8 +82,8 @@ LOCAL long config_ai_command(struct dbCommon *pxx,
                              int transaction_id
                              )
 {
-    struct aiRecord *pai = (struct aiRecord *)pxx;
-    KEY_PLC *d = (KEY_PLC *) device;
+    aiRecord *pai = (aiRecord *)pxx;
+    KEY_PLC *d = (KEY_PLC *)device;
 
     return key_config_command(buf,
                               len,
@@ -95,7 +95,7 @@ LOCAL long config_ai_command(struct dbCommon *pxx,
                               );
 }
 
-LOCAL long parse_ai_response(struct dbCommon *pxx,
+LOCAL long parse_ai_response(dbCommon *pxx,
                              int *option,
                              uint8_t *buf,
                              int *len,
@@ -103,18 +103,18 @@ LOCAL long parse_ai_response(struct dbCommon *pxx,
                              int transaction_id
                              )
 {
-    struct aiRecord *pai = (struct aiRecord *)pxx;
-    KEY_PLC *d = (KEY_PLC *) device;
+    aiRecord *pai = (aiRecord *)pxx;
+    KEY_PLC *d = (KEY_PLC *)device;
 
     int16_t val;
     long ret = key_parse_response(buf,
-                             len,
-                             &val,
-                             DBF_SHORT,
-                             1,
-                             option,
-                             d
-                              );
+                                  len,
+                                  &val,
+                                  DBF_SHORT,
+                                  1,
+                                  option,
+                                  d
+                                  );
     pai->rval = val;
     return ret;
 }

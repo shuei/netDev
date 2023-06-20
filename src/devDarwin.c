@@ -41,7 +41,7 @@ typedef struct {
     int      p2;
 } DARWIN;
 
-LOCAL long darwin_parse_link(struct link *,
+LOCAL long darwin_parse_link(DBLINK *,
                              struct sockaddr_in *,
                              int *,
                              void *
@@ -50,7 +50,7 @@ LOCAL void *darwin_calloc(void);
 
 LOCAL void *darwin_calloc(void)
 {
-    DARWIN *d = (DARWIN *) calloc(1, sizeof(DARWIN));
+    DARWIN *d = calloc(1, sizeof(DARWIN));
     if (!d) {
         errlogPrintf("devDarwin: calloc failed\n");
         return NULL;
@@ -64,13 +64,13 @@ LOCAL void *darwin_calloc(void)
 /*********************************************************************************
  * Link field parser for both command/response I/O and event driven I/O
  *********************************************************************************/
-LOCAL long darwin_parse_link(struct link *plink,
+LOCAL long darwin_parse_link(DBLINK *plink,
                              struct sockaddr_in *peer_addr,
                              int *option,
                              void *device
                              )
 {
-    DARWIN *d = (DARWIN *) device;
+    DARWIN *d = (DARWIN *)device;
     /*char terminator[2] = {'\n','\0'};
      */
     char terminator[3] = "\r\n";
@@ -121,7 +121,7 @@ LOCAL long darwin_parse_link(struct link *plink,
         break;
     case DARWIN_TCP_PORT_MES:
         for (src = (uint8_t *)addr, dst = &tmp_buf[0];
-             ( *src != '\0' ) && ( dst < tmp_buf + sizeof(tmp_buf) );) {
+             (*src != '\0') && (dst < tmp_buf + sizeof(tmp_buf)); ) {
             if (*src == ' ') {
                 src++;
             } else {

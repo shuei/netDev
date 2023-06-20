@@ -21,10 +21,10 @@
 /***************************************************************
  * Arrayout (command/response IO)
  ***************************************************************/
-LOCAL long init_arrayout_record(struct arrayoutRecord *);
-LOCAL long write_arrayout(struct arrayoutRecord *);
-LOCAL long config_arrayout_command(struct dbCommon *, int *, uint8_t *, int *, void *, int);
-LOCAL long parse_arrayout_response(struct dbCommon *, int *, uint8_t *, int *, void *, int);
+LOCAL long init_arrayout_record(arrayoutRecord *);
+LOCAL long write_arrayout(arrayoutRecord *);
+LOCAL long config_arrayout_command(dbCommon *, int *, uint8_t *, int *, void *, int);
+LOCAL long parse_arrayout_response(dbCommon *, int *, uint8_t *, int *, void *, int);
 
 INTEGERDSET devAroYewPlc = {
     5,
@@ -37,9 +37,9 @@ INTEGERDSET devAroYewPlc = {
 
 epicsExportAddress(dset, devAroYewPlc);
 
-LOCAL long init_arrayout_record(struct arrayoutRecord *paro)
+LOCAL long init_arrayout_record(arrayoutRecord *paro)
 {
-    return netDevInitXxRecord((struct dbCommon *) paro,
+    return netDevInitXxRecord((dbCommon *)paro,
                               &paro->out,
                               MPF_WRITE | YEW_GET_PROTO | DEFAULT_TIMEOUT,
                               yew_calloc(0, 0, 0, 2),
@@ -49,10 +49,10 @@ LOCAL long init_arrayout_record(struct arrayoutRecord *paro)
                               );
 }
 
-LOCAL long write_arrayout(struct arrayoutRecord *paro)
+LOCAL long write_arrayout(arrayoutRecord *paro)
 {
-    TRANSACTION *t = (TRANSACTION *) paro->dpvt;
-    YEW_PLC *d = (YEW_PLC *) t->device;
+    TRANSACTION *t = (TRANSACTION *)paro->dpvt;
+    YEW_PLC *d = (YEW_PLC *)t->device;
 
     /*
      * make sure that those below are cleared in the event that
@@ -62,10 +62,10 @@ LOCAL long write_arrayout(struct arrayoutRecord *paro)
     d->nleft = 0;
     d->noff = 0;
 
-    return netDevReadWriteXx((struct dbCommon *) paro);
+    return netDevReadWriteXx((dbCommon *)paro);
 }
 
-LOCAL long config_arrayout_command(struct dbCommon *pxx,
+LOCAL long config_arrayout_command(dbCommon *pxx,
                                    int *option,
                                    uint8_t *buf,
                                    int *len,
@@ -73,8 +73,8 @@ LOCAL long config_arrayout_command(struct dbCommon *pxx,
                                    int transaction_id
                                    )
 {
-    struct arrayoutRecord *paro = (struct arrayoutRecord *)pxx;
-    YEW_PLC *d = (YEW_PLC *) device;
+    arrayoutRecord *paro = (arrayoutRecord *)pxx;
+    YEW_PLC *d = (YEW_PLC *)device;
 
     return yew_config_command(buf,
                               len,
@@ -86,7 +86,7 @@ LOCAL long config_arrayout_command(struct dbCommon *pxx,
                               );
 }
 
-LOCAL long parse_arrayout_response(struct dbCommon *pxx,
+LOCAL long parse_arrayout_response(dbCommon *pxx,
                                    int *option,
                                    uint8_t *buf,
                                    int *len,
@@ -94,8 +94,8 @@ LOCAL long parse_arrayout_response(struct dbCommon *pxx,
                                    int transaction_id
                                    )
 {
-    struct arrayoutRecord *paro = (struct arrayoutRecord *)pxx;
-    YEW_PLC *d = (YEW_PLC *) device;
+    arrayoutRecord *paro = (arrayoutRecord *)pxx;
+    YEW_PLC *d = (YEW_PLC *)device;
     long ret = yew_parse_response(buf,
                                   len,
                                   paro->bptr,

@@ -77,14 +77,14 @@ rset patternRSET = {
 
 epicsExportAddress(rset,patternRSET);
 
-struct ptndset { /* pattern dset */
+typedef struct ptndset { /* pattern dset */
     long      number;
     DEVSUPFUN dev_report;
     DEVSUPFUN init;
     DEVSUPFUN init_record; /*returns: (-1,0)=>(failure,success)*/
     DEVSUPFUN get_ioint_info;
     DEVSUPFUN read_ptn; /*returns: (-1,0)=>(failure,success)*/
-};
+} ptndset;
 
 /*sizes of field types*/
 static int sizeofTypes[] = {0,1,1,2,2,4,4,4,8,2};
@@ -92,7 +92,7 @@ static int sizeofTypes[] = {0,1,1,2,2,4,4,4,8,2};
 static void monitor();
 static long readValue();
 
-static long init_record(struct patternRecord *pptn, int pass)
+static long init_record(patternRecord *pptn, int pass)
 {
     if (pass == 0) {
         if (pptn->nelm <= 0) {
@@ -121,7 +121,7 @@ static long init_record(struct patternRecord *pptn, int pass)
     }
 
     /* must have dset defined */
-    struct ptndset *pdset = (struct ptndset *)(pptn->dset);
+    ptndset *pdset = (ptndset *)(pptn->dset);
     if (!pdset) {
         recGblRecordError(S_dev_noDSET, pptn, "ptn: init_record");
         return S_dev_noDSET;
@@ -143,9 +143,9 @@ static long init_record(struct patternRecord *pptn, int pass)
     return 0;
 }
 
-static long process(struct patternRecord *pptn)
+static long process(patternRecord *pptn)
 {
-    struct ptndset *pdset   = (struct ptndset *)pptn->dset;
+    ptndset        *pdset   = (ptndset *)pptn->dset;
     unsigned char   pact    = pptn->pact;
     char           *pchar   = pptn->rptr;
     unsigned char  *puchar  = pptn->rptr;
@@ -171,22 +171,22 @@ static long process(struct patternRecord *pptn)
     for (int i=0; i < pptn->nelm; i++) {
         switch (pptn->ftvl) {
         case DBF_CHAR:
-            bptr[i] = (double) ((pptn->eslo) * (pchar[i]));
+            bptr[i] = (double)((pptn->eslo) * (pchar[i]));
             break;
         case DBF_UCHAR:
-            bptr[i] = (double) ((pptn->eslo) * (puchar[i]));
+            bptr[i] = (double)((pptn->eslo) * (puchar[i]));
             break;
         case DBF_SHORT:
-            bptr[i] = (double) ((pptn->eslo) * (pshort[i]));
+            bptr[i] = (double)((pptn->eslo) * (pshort[i]));
             break;
         case DBF_USHORT:
-            bptr[i] = (double) ((pptn->eslo) * (pushort[i]));
+            bptr[i] = (double)((pptn->eslo) * (pushort[i]));
             break;
         case DBF_LONG:
-            bptr[i] = (double) ((pptn->eslo) * (plong[i]));
+            bptr[i] = (double)((pptn->eslo) * (plong[i]));
             break;
         case DBF_ULONG:
-            bptr[i] = (double) ((pptn->eslo) * (pulong[i]));
+            bptr[i] = (double)((pptn->eslo) * (pulong[i]));
             break;
         default:
             // never reach here
@@ -213,9 +213,9 @@ static long process(struct patternRecord *pptn)
     return 0;
 }
 
-static long cvt_dbaddr(struct dbAddr *paddr)
+static long cvt_dbaddr(dbAddr *paddr)
 {
-    struct patternRecord *pptn = (struct patternRecord *)paddr->precord;
+    patternRecord *pptn = (patternRecord *)paddr->precord;
 
     if (paddr->pfield == &pptn->val) {
         paddr->pfield = pptn->bptr;
@@ -236,18 +236,18 @@ static long cvt_dbaddr(struct dbAddr *paddr)
     return 0;
 }
 
-static long get_array_info(struct dbAddr *paddr, long *no_elements, long *offset)
+static long get_array_info(dbAddr *paddr, long *no_elements, long *offset)
 {
-    struct patternRecord *pptn = (struct patternRecord *)paddr->precord;
+    patternRecord *pptn = (patternRecord *)paddr->precord;
 
     *no_elements =  pptn->nord;
     *offset = 0;
     return 0;
 }
 
-static long put_array_info(struct dbAddr *paddr, long nNew)
+static long put_array_info(dbAddr *paddr, long nNew)
 {
-    struct patternRecord *pptn = (struct patternRecord *)paddr->precord;
+    patternRecord *pptn = (patternRecord *)paddr->precord;
 
     pptn->nord = nNew;
     if (pptn->nord > pptn->nelm) {
@@ -256,17 +256,17 @@ static long put_array_info(struct dbAddr *paddr, long nNew)
     return 0;
 }
 
-static long get_units(struct dbAddr *paddr, char *units)
+static long get_units(dbAddr *paddr, char *units)
 {
-    struct patternRecord *pptn = (struct patternRecord *)paddr->precord;
+    patternRecord *pptn = (patternRecord *)paddr->precord;
 
     strncpy(units, pptn->egu, DB_UNITS_SIZE);
     return 0;
 }
 
-static long get_precision(struct dbAddr *paddr, long *precision)
+static long get_precision(dbAddr *paddr, long *precision)
 {
-    struct patternRecord *pptn = (struct patternRecord *)paddr->precord;
+    patternRecord *pptn = (patternRecord *)paddr->precord;
 
     *precision = pptn->prec;
     if (paddr->pfield == pptn->bptr) {
@@ -276,9 +276,9 @@ static long get_precision(struct dbAddr *paddr, long *precision)
     return 0;
 }
 
-static long get_graphic_double(struct dbAddr *paddr, struct dbr_grDouble *pgd)
+static long get_graphic_double(dbAddr *paddr, struct dbr_grDouble *pgd)
 {
-    struct patternRecord *pptn = (struct patternRecord *)paddr->precord;
+    patternRecord *pptn = (patternRecord *)paddr->precord;
 
     if (paddr->pfield == pptn->bptr) {
         pgd->upper_disp_limit = pptn->hopr;
@@ -289,9 +289,9 @@ static long get_graphic_double(struct dbAddr *paddr, struct dbr_grDouble *pgd)
     return 0;
 }
 
-static long get_control_double(struct dbAddr *paddr, struct dbr_ctrlDouble *pcd)
+static long get_control_double(dbAddr *paddr, struct dbr_ctrlDouble *pcd)
 {
-    struct patternRecord *pptn = (struct patternRecord *)paddr->precord;
+    patternRecord *pptn = (patternRecord *)paddr->precord;
 
     if (paddr->pfield == pptn->bptr) {
         pcd->upper_ctrl_limit = pptn->hopr;
@@ -302,7 +302,7 @@ static long get_control_double(struct dbAddr *paddr, struct dbr_ctrlDouble *pcd)
     return 0;
 }
 
-static void monitor(struct patternRecord *pptn)
+static void monitor(patternRecord *pptn)
 {
     unsigned short monitor_mask;
 
@@ -314,9 +314,9 @@ static void monitor(struct patternRecord *pptn)
     return;
 }
 
-static long readValue(struct patternRecord *pptn)
+static long readValue(patternRecord *pptn)
 {
-    struct ptndset *pdset = (struct ptndset *) (pptn->dset);
+    ptndset *pdset = (ptndset *)(pptn->dset);
     long status;
     if (pptn->pact == TRUE) {
         status = (*pdset->read_ptn)(pptn);
@@ -337,7 +337,7 @@ static long readValue(struct patternRecord *pptn)
         long nRequest = pptn->nelm;
         status = dbGetLink(&(pptn->siol), pptn->ftvl, pptn->rptr, 0, &nRequest);
         /* nord set only for db links: needed for old db_access */
-        if (pptn->siol.type != CONSTANT ) {
+        if (pptn->siol.type != CONSTANT) {
             pptn->nord = nRequest;
             if (status == 0) {
                 pptn->udf = FALSE;

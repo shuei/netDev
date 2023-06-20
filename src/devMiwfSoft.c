@@ -81,7 +81,7 @@ static long init_record(miwfRecord *pmiwf)
 
 static long read_wf(miwfRecord *pmiwf)
 {
-    struct link *plink;
+    DBLINK *plink;
     switch (pmiwf->seln) {
     case 0:
         plink = &pmiwf->inp0;
@@ -112,7 +112,7 @@ static long read_wf(miwfRecord *pmiwf)
     long nRequest = pmiwf->nelm;
 
     // long status =
-    dbGetLink(plink,pmiwf->ftvl, pmiwf->bptr, 0, &nRequest);
+    dbGetLink(plink, pmiwf->ftvl, pmiwf->bptr, 0, &nRequest);
 
     /*If dbGetLink got no values leave things as they were*/
     if (nRequest > 0) {

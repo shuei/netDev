@@ -18,10 +18,10 @@
 /***************************************************************
  * Long output (command/respons IO)
  ***************************************************************/
-LOCAL long init_longout_record(struct longoutRecord *);
-LOCAL long write_longout(struct longoutRecord *);
-LOCAL long config_longout_command(struct dbCommon *, int *, uint8_t *, int *, void *, int);
-LOCAL long parse_longout_response(struct dbCommon *, int *, uint8_t *, int *, void *, int);
+LOCAL long init_longout_record(longoutRecord *);
+LOCAL long write_longout(longoutRecord *);
+LOCAL long config_longout_command(dbCommon *, int *, uint8_t *, int *, void *, int);
+LOCAL long parse_longout_response(dbCommon *, int *, uint8_t *, int *, void *, int);
 
 INTEGERDSET devLoKeyPlc = {
     5,
@@ -34,9 +34,9 @@ INTEGERDSET devLoKeyPlc = {
 
 epicsExportAddress(dset, devLoKeyPlc);
 
-LOCAL long init_longout_record(struct longoutRecord *plongout)
+LOCAL long init_longout_record(longoutRecord *plongout)
 {
-    return netDevInitXxRecord((struct dbCommon *) plongout,
+    return netDevInitXxRecord((dbCommon *)plongout,
                               &plongout->out,
                               MPF_WRITE | KEY_GET_PROTO | DEFAULT_TIMEOUT,
                               key_calloc(0, KEY_CMND_WRE),
@@ -47,12 +47,12 @@ LOCAL long init_longout_record(struct longoutRecord *plongout)
 }
 
 
-LOCAL long write_longout(struct longoutRecord *plongout)
+LOCAL long write_longout(longoutRecord *plongout)
 {
-    return netDevReadWriteXx((struct dbCommon *) plongout);
+    return netDevReadWriteXx((dbCommon *)plongout);
 }
 
-LOCAL long config_longout_command(struct dbCommon *pxx,
+LOCAL long config_longout_command(dbCommon *pxx,
                                   int *option,
                                   uint8_t *buf,
                                   int *len,
@@ -60,8 +60,8 @@ LOCAL long config_longout_command(struct dbCommon *pxx,
                                   int transaction_id
                                   )
 {
-    struct longoutRecord *plongout = (struct longoutRecord *)pxx;
-    KEY_PLC *d = (KEY_PLC *) device;
+    longoutRecord *plongout = (longoutRecord *)pxx;
+    KEY_PLC *d = (KEY_PLC *)device;
 
     int16_t val = plongout->val;
     return key_config_command(buf,
@@ -74,7 +74,7 @@ LOCAL long config_longout_command(struct dbCommon *pxx,
                               );
 }
 
-LOCAL long parse_longout_response(struct dbCommon *pxx,
+LOCAL long parse_longout_response(dbCommon *pxx,
                                   int *option,
                                   uint8_t *buf,
                                   int *len,
@@ -82,8 +82,8 @@ LOCAL long parse_longout_response(struct dbCommon *pxx,
                                   int transaction_id
                                   )
 {
-    struct longoutRecord *plongout = (struct longoutRecord *)pxx;
-    KEY_PLC *d = (KEY_PLC *) device;
+    longoutRecord *plongout = (longoutRecord *)pxx;
+    KEY_PLC *d = (KEY_PLC *)device;
 
     return key_parse_response(buf,
                               len,

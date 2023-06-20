@@ -18,10 +18,10 @@
 /***************************************************************
  * Waveform (command/response IO)
  ***************************************************************/
-LOCAL long init_waveform_record(struct waveformRecord *);
-LOCAL long read_waveform(struct waveformRecord *);
-LOCAL long config_waveform_command(struct dbCommon *, int *, uint8_t *, int *, void *, int);
-LOCAL long parse_waveform_response(struct dbCommon *, int *, uint8_t *, int *, void *, int);
+LOCAL long init_waveform_record(waveformRecord *);
+LOCAL long read_waveform(waveformRecord *);
+LOCAL long config_waveform_command(dbCommon *, int *, uint8_t *, int *, void *, int);
+LOCAL long parse_waveform_response(dbCommon *, int *, uint8_t *, int *, void *, int);
 
 INTEGERDSET devWfKeyPlc = {
     5,
@@ -34,9 +34,9 @@ INTEGERDSET devWfKeyPlc = {
 
 epicsExportAddress(dset, devWfKeyPlc);
 
-LOCAL long init_waveform_record(struct waveformRecord *pwf)
+LOCAL long init_waveform_record(waveformRecord *pwf)
 {
-    return netDevInitXxRecord((struct dbCommon *) pwf,
+    return netDevInitXxRecord((dbCommon *)pwf,
                               &pwf->inp,
                               MPF_READ | KEY_GET_PROTO | DEFAULT_TIMEOUT,
                               key_calloc(0, KEY_CMND_RDE),
@@ -46,10 +46,10 @@ LOCAL long init_waveform_record(struct waveformRecord *pwf)
                               );
 }
 
-LOCAL long read_waveform(struct waveformRecord *pwf)
+LOCAL long read_waveform(waveformRecord *pwf)
 {
-    TRANSACTION *t = (TRANSACTION *) pwf->dpvt;
-    KEY_PLC *d = (KEY_PLC *) t->device;
+    TRANSACTION *t = (TRANSACTION *)pwf->dpvt;
+    KEY_PLC *d = (KEY_PLC *)t->device;
 
     /*
      * make sure that those below are cleared in the event that
@@ -59,10 +59,10 @@ LOCAL long read_waveform(struct waveformRecord *pwf)
     d->nleft = 0;
     d->noff = 0;
 
-    return netDevReadWriteXx((struct dbCommon *) pwf);
+    return netDevReadWriteXx((dbCommon *)pwf);
 }
 
-LOCAL long config_waveform_command(struct dbCommon *pxx,
+LOCAL long config_waveform_command(dbCommon *pxx,
                                    int *option,
                                    uint8_t *buf,
                                    int *len,
@@ -70,7 +70,7 @@ LOCAL long config_waveform_command(struct dbCommon *pxx,
                                    int transaction_id
                                    )
 {
-    struct waveformRecord *pwaveform = (struct waveformRecord *)pxx;
+    waveformRecord *pwaveform = (waveformRecord *)pxx;
 
     return key_config_command(buf,
                               len,
@@ -78,11 +78,11 @@ LOCAL long config_waveform_command(struct dbCommon *pxx,
                               pwaveform->ftvl,
                               pwaveform->nelm,
                               option,
-                              (KEY_PLC *) device
+                              (KEY_PLC *)device
                               );
 }
 
-LOCAL long parse_waveform_response(struct dbCommon *pxx,
+LOCAL long parse_waveform_response(dbCommon *pxx,
                                    int *option,
                                    uint8_t *buf,
                                    int *len,
@@ -90,8 +90,8 @@ LOCAL long parse_waveform_response(struct dbCommon *pxx,
                                    int transaction_id
                                    )
 {
-    struct waveformRecord *pwaveform = (struct waveformRecord *)pxx;
-    KEY_PLC *d = (KEY_PLC *) device;
+    waveformRecord *pwaveform = (waveformRecord *)pxx;
+    KEY_PLC *d = (KEY_PLC *)device;
 
     long ret = key_parse_response(buf,
                                   len,

@@ -134,7 +134,7 @@ static long process(dbCommon *precord)
     long status = (*pdset->read_channels)(pchan);
 
     /* check if device support set pact */
-    if ( !pact && pchan->pact ) {
+    if (!pact && pchan->pact) {
         return 0;
     }
 
@@ -172,10 +172,10 @@ static void checkAlarms(channelsRecord *pchan)
 
 static void monitor(channelsRecord *pchan)
 {
-    double *pData = (double *) &pchan->ch01;
-    char (*pAlrm)[MAX_STRING_SIZE] = (char (*)[MAX_STRING_SIZE]) &pchan->al01;
-    char (*pUnit)[8] = (char (*)[8]) &pchan->eu01;
-    short *pPos = (short *) &pchan->pp01;
+    double *pData = (double *)&pchan->ch01;
+    char (*pAlrm)[MAX_STRING_SIZE] = (char (*)[MAX_STRING_SIZE])&pchan->al01;
+    char (*pUnit)[8] = (char (*)[8])&pchan->eu01;
+    short *pPos = (short *)&pchan->pp01;
 
     db_post_events(pchan, &pchan->time, DBE_VALUE|DBE_LOG);
     db_post_events(pchan,  pchan->val,  DBE_VALUE|DBE_LOG);
@@ -193,13 +193,13 @@ static void monitor(channelsRecord *pchan)
     return;
 }
 
-static long cvt_dbaddr(struct dbAddr *paddr)
+static long cvt_dbaddr(dbAddr *paddr)
 {
-    channelsRecord *pchan = (channelsRecord *) paddr->precord;
+    channelsRecord *pchan = (channelsRecord *)paddr->precord;
 
     if (paddr->pfield == &pchan->val) {
         paddr->pfield         = &pchan->ch01;
-        paddr->no_elements    = (long) pchan->nelm;
+        paddr->no_elements    = (long)pchan->nelm;
         paddr->field_type     = DBF_DOUBLE;
         paddr->field_size     = sizeof(double);
         paddr->dbr_field_type = DBR_DOUBLE;

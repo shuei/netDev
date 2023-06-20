@@ -36,7 +36,7 @@
 //LOCAL int finsUseSamePortNumber = MPF_SAMEPORT;
 LOCAL unsigned short calCRC(unsigned char cd[], int nmax);
 LOCAL int TwoRawToVal(unsigned char bu[],int offset, float *res);
-LOCAL long chino_parse_link(struct link *, struct sockaddr_in *, int *, void *);
+LOCAL long chino_parse_link(DBLINK *, struct sockaddr_in *, int *, void *);
 LOCAL int chino_get_protocol(void);
 LOCAL void *chino_calloc(int, int, int, int, int);
 
@@ -76,7 +76,7 @@ LOCAL void *chino_calloc(
                          int width
                          )
 {
-    CHINOL_LOG *d = (CHINOL_LOG *) calloc(1, sizeof(CHINOL_LOG));
+    CHINOL_LOG *d = calloc(1, sizeof(CHINOL_LOG));
     if (!d) {
         errlogPrintf("devChinoLogL: calloc failed\n");
         return NULL;
@@ -96,8 +96,7 @@ LOCAL void *chino_calloc(
 /*********************************************************************************
  * Link field parser for command/response I/O
  *********************************************************************************/
-LOCAL long chino_parse_link(
-                            struct link *plink,
+LOCAL long chino_parse_link(DBLINK *plink,
                             struct sockaddr_in *peer_addr,
                             int *option,
                             void *device
@@ -109,7 +108,7 @@ LOCAL long chino_parse_link(
     char *addr  = NULL;
     char *route = NULL;
     char *lopt  = NULL;
-    CHINOL_LOG *d = (CHINOL_LOG *) device;
+    CHINOL_LOG *d = (CHINOL_LOG *)device;
 
     if (parseLinkPlcCommon(
                            plink,
@@ -367,7 +366,7 @@ LOCAL long chino_parse_response(uint8_t *buf,    /* driver buf addr     */
     int i = ndata;
 
     while (i--) {
-        *rawVal++ = (float) *ptemp ++;
+        *rawVal++ = *ptemp++;
     }
 
     ret = 0; // returns always zero

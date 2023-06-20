@@ -42,7 +42,7 @@
 //LOCAL int sizeofTypes[] = {0,1,1,2,2,4,4,4,8,2};
 LOCAL int yew_max_ndata = 64;
 
-LOCAL long yew_parse_link(struct link *, struct sockaddr_in *, int *, void *);
+LOCAL long yew_parse_link(DBLINK *, struct sockaddr_in *, int *, void *);
 LOCAL int yew_get_protocol(void);
 LOCAL void *yew_calloc(int, uint8_t, uint32_t, int);
 
@@ -124,7 +124,7 @@ LOCAL void *yew_calloc(int cpu,
 /*********************************************************************************
  * Link field parser for both command/response I/O and event driven I/O
  *********************************************************************************/
-LOCAL long yew_parse_link(struct link *plink,
+LOCAL long yew_parse_link(DBLINK *plink,
                           struct sockaddr_in *peer_addr,
                           int *option,
                           void *device
@@ -136,7 +136,7 @@ LOCAL long yew_parse_link(struct link *plink,
     char *type  = NULL;
     char *addr  = NULL;
     char *lopt  = NULL;
-    YEW_PLC *d  = (YEW_PLC *) device;
+    YEW_PLC *d  = (YEW_PLC *)device;
 
     if (parseLinkPlcCommon(plink,
                            peer_addr,
@@ -465,7 +465,7 @@ LOCAL long yew_parse_response(uint8_t *buf,    /* driver buf addr     */
 
     if (!d->spmod) {
         /* CPU Module */
-        switch (d->width)  {
+        switch (d->width) {
         case 1:  /* bit device */
             response_type  = isRead(*option)? 0x81:0x82;
             number_of_data = isRead(*option)? htons(n):htons(0x0000);

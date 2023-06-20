@@ -209,7 +209,7 @@ static void monitor(struct statusRecord *pst)
 static long readValue(struct statusRecord *pst)
 {
     long status = 0; // avoid use of uninitialized value; is this OK?
-    struct statusdset *pdset = (struct statusdset *) (pst->dset);
+    struct statusdset *pdset = (struct statusdset *)(pst->dset);
 
     if (pst->pact == TRUE) {
         status = (*pdset->read_status)(pst);

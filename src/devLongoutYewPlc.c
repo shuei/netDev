@@ -21,10 +21,10 @@
 /***************************************************************
  * Long output (command/respons IO)
  ***************************************************************/
-LOCAL long init_longout_record(struct longoutRecord *);
-LOCAL long write_longout(struct longoutRecord *);
-LOCAL long config_longout_command(struct dbCommon *, int *, uint8_t *, int *, void *, int);
-LOCAL long parse_longout_response(struct dbCommon *, int *, uint8_t *, int *, void *, int);
+LOCAL long init_longout_record(longoutRecord *);
+LOCAL long write_longout(longoutRecord *);
+LOCAL long config_longout_command(dbCommon *, int *, uint8_t *, int *, void *, int);
+LOCAL long parse_longout_response(dbCommon *, int *, uint8_t *, int *, void *, int);
 
 INTEGERDSET devLoYewPlc = {
     5,
@@ -37,9 +37,9 @@ INTEGERDSET devLoYewPlc = {
 
 epicsExportAddress(dset, devLoYewPlc);
 
-LOCAL long init_longout_record(struct longoutRecord *plongout)
+LOCAL long init_longout_record(longoutRecord *plongout)
 {
-    return netDevInitXxRecord((struct dbCommon *) plongout,
+    return netDevInitXxRecord((dbCommon *)plongout,
                               &plongout->out,
                               MPF_WRITE | YEW_GET_PROTO | DEFAULT_TIMEOUT,
                               yew_calloc(0, 0, 0, 2),
@@ -49,12 +49,12 @@ LOCAL long init_longout_record(struct longoutRecord *plongout)
                               );
 }
 
-LOCAL long write_longout(struct longoutRecord *plongout)
+LOCAL long write_longout(longoutRecord *plongout)
 {
-    return netDevReadWriteXx((struct dbCommon *) plongout);
+    return netDevReadWriteXx((dbCommon *)plongout);
 }
 
-LOCAL long config_longout_command(struct dbCommon *pxx,
+LOCAL long config_longout_command(dbCommon *pxx,
                                   int *option,
                                   uint8_t *buf,
                                   int *len,
@@ -62,8 +62,8 @@ LOCAL long config_longout_command(struct dbCommon *pxx,
                                   int transaction_id
                                   )
 {
-    struct longoutRecord *plongout = (struct longoutRecord *)pxx;
-    YEW_PLC *d = (YEW_PLC *) device;
+    longoutRecord *plongout = (longoutRecord *)pxx;
+    YEW_PLC *d = (YEW_PLC *)device;
 
     if (d->flag == 'L') {
         int16_t val[2] = { plongout->val >>  0,
@@ -99,7 +99,7 @@ LOCAL long config_longout_command(struct dbCommon *pxx,
     }
 }
 
-LOCAL long parse_longout_response(struct dbCommon *pxx,
+LOCAL long parse_longout_response(dbCommon *pxx,
                                   int *option,
                                   uint8_t *buf,
                                   int *len,
@@ -107,8 +107,8 @@ LOCAL long parse_longout_response(struct dbCommon *pxx,
                                   int transaction_id
                                   )
 {
-    struct longoutRecord *plongout = (struct longoutRecord *)pxx;
-    YEW_PLC *d = (YEW_PLC *) device;
+    longoutRecord *plongout = (longoutRecord *)pxx;
+    YEW_PLC *d = (YEW_PLC *)device;
 
     return yew_parse_response(buf,
                               len,

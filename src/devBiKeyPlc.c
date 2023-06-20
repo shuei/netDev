@@ -18,10 +18,10 @@
 /***************************************************************
  * Binary input (command/response IO)
  ***************************************************************/
-LOCAL long init_bi_record(struct biRecord *);
-LOCAL long read_bi(struct biRecord *);
-LOCAL long config_bi_command(struct dbCommon *, int *, uint8_t *, int *, void *, int);
-LOCAL long parse_bi_response(struct dbCommon *, int *, uint8_t *, int *, void *, int);
+LOCAL long init_bi_record(biRecord *);
+LOCAL long read_bi(biRecord *);
+LOCAL long config_bi_command(dbCommon *, int *, uint8_t *, int *, void *, int);
+LOCAL long parse_bi_response(dbCommon *, int *, uint8_t *, int *, void *, int);
 
 INTEGERDSET devBiKeyPlc = {
     5,
@@ -34,11 +34,11 @@ INTEGERDSET devBiKeyPlc = {
 
 epicsExportAddress(dset, devBiKeyPlc);
 
-LOCAL long init_bi_record(struct biRecord *pbi)
+LOCAL long init_bi_record(biRecord *pbi)
 {
     pbi->mask = 1;
 
-    return netDevInitXxRecord((struct dbCommon *) pbi,
+    return netDevInitXxRecord((dbCommon *)pbi,
                               &pbi->inp,
                               MPF_READ | KEY_GET_PROTO | DEFAULT_TIMEOUT,
                               key_calloc(0, KEY_CMND_RD),
@@ -48,12 +48,12 @@ LOCAL long init_bi_record(struct biRecord *pbi)
                               );
 }
 
-LOCAL long read_bi(struct biRecord *pbi)
+LOCAL long read_bi(biRecord *pbi)
 {
-    return netDevReadWriteXx((struct dbCommon *) pbi);
+    return netDevReadWriteXx((dbCommon *)pbi);
 }
 
-LOCAL long config_bi_command(struct dbCommon *pxx,
+LOCAL long config_bi_command(dbCommon *pxx,
                              int *option,
                              uint8_t *buf,
                              int *len,
@@ -61,7 +61,7 @@ LOCAL long config_bi_command(struct dbCommon *pxx,
                              int transaction_id
                              )
 {
-    struct biRecord *pbi = (struct biRecord *)pxx;
+    biRecord *pbi = (biRecord *)pxx;
 
     return key_config_command(buf,
                               len,
@@ -69,11 +69,11 @@ LOCAL long config_bi_command(struct dbCommon *pxx,
                               DBF_ULONG,
                               1,
                               option,
-                              (KEY_PLC *) device
+                              (KEY_PLC *)device
                               );
 }
 
-LOCAL long parse_bi_response(struct dbCommon *pxx,
+LOCAL long parse_bi_response(dbCommon *pxx,
                              int *option,
                              uint8_t *buf,
                              int *len,
@@ -81,7 +81,7 @@ LOCAL long parse_bi_response(struct dbCommon *pxx,
                              int transaction_id
                              )
 {
-    struct biRecord *pbi = (struct biRecord *)pxx;
+    biRecord *pbi = (biRecord *)pxx;
 
     return key_parse_response(buf,
                               len,
@@ -89,6 +89,6 @@ LOCAL long parse_bi_response(struct dbCommon *pxx,
                               DBF_ULONG,
                               1,
                               option,
-                              (KEY_PLC *) device
+                              (KEY_PLC *)device
                               );
 }

@@ -27,13 +27,13 @@
 static int init_flag = 0;
 
 LOCAL void  net_dev_async_completion(CALLBACK *);
-LOCAL void *net_dev_init_private(struct link *, int *, parse_link_fn_t, void *);
+LOCAL void *net_dev_init_private(DBLINK *, int *, parse_link_fn_t, void *);
 LOCAL void  sync_io_completion(CALLBACK *);
 
 /*******************************************************************************
  * Get io interrupt info
  *******************************************************************************/
-long netDevGetIoIntInfo(int cmd, struct dbCommon * pxx, IOSCANPVT *ppvt)
+long netDevGetIoIntInfo(int cmd, dbCommon *pxx, IOSCANPVT *ppvt)
 {
     LOGMSG("devNetDev: netDevGetIoIntInfo(\"%s\",%d,%8p,%8p)\n", pxx->name, cmd, pxx, ppvt);
 
@@ -42,7 +42,7 @@ long netDevGetIoIntInfo(int cmd, struct dbCommon * pxx, IOSCANPVT *ppvt)
         return ERROR;
     }
 
-    TRANSACTION *t = (TRANSACTION *) pxx->dpvt;
+    TRANSACTION *t = (TRANSACTION *)pxx->dpvt;
 
     if (t->io.event.ioscanpvt == NULL) {
         scanIoInit(&t->io.event.ioscanpvt);
@@ -56,8 +56,8 @@ long netDevGetIoIntInfo(int cmd, struct dbCommon * pxx, IOSCANPVT *ppvt)
 /*******************************************************************************
  * Xx Initialization (Called one time for each Xx record)
  *******************************************************************************/
-long netDevInitXxRecord(struct dbCommon *pxx,
-                        struct link *plink,
+long netDevInitXxRecord(dbCommon *pxx,
+                        DBLINK *plink,
                         int option,
                         void *device,
                         parse_link_fn_t parse_link,
@@ -123,7 +123,7 @@ long netDevInitXxRecord(struct dbCommon *pxx,
 /*******************************************************************************
  * Perform read/write operation for Xx record
  *******************************************************************************/
-long netDevReadWriteXx(struct dbCommon *pxx)
+long netDevReadWriteXx(dbCommon *pxx)
 {
     TRANSACTION *t = (TRANSACTION *)pxx->dpvt;
 
@@ -177,7 +177,7 @@ LOCAL void net_dev_async_completion(CALLBACK *pcb)
 {
     LOGMSG("devNetDev: net_dev_async_completion(%8p)\n", pcb);
 
-    struct dbCommon *pxx;
+    dbCommon *pxx;
     callbackGetUser(pxx, pcb);
 
     rset *rset = pxx->rset;
@@ -206,7 +206,7 @@ long netDevInit(void)
 /********************************************************************************
  * net_dev_init_private()
  ********************************************************************************/
-LOCAL void *net_dev_init_private(struct link *plink,
+LOCAL void *net_dev_init_private(DBLINK *plink,
                                  int *option,
                                  parse_link_fn_t parse_link,
                                  void *device
@@ -219,7 +219,7 @@ LOCAL void *net_dev_init_private(struct link *plink,
         return NULL;
     }
 
-    TRANSACTION *t = (TRANSACTION *) calloc(1, sizeof(TRANSACTION));
+    TRANSACTION *t = calloc(1, sizeof(TRANSACTION));
 
     if (!t) {
         errlogPrintf("devNetDev: no memory for TRANSACTION\n");
@@ -272,7 +272,7 @@ LOCAL void sync_io_completion(CALLBACK *pcb)
     epicsEventSignal(semId);
 }
 
-TRANSACTION *netDevInitInternalIO(struct dbCommon *pxx,
+TRANSACTION *netDevInitInternalIO(dbCommon *pxx,
                                   struct sockaddr_in peer_addr,
                                   config_command_fn_t config_command,
                                   parse_response_fn_t parse_response,
@@ -283,7 +283,7 @@ TRANSACTION *netDevInitInternalIO(struct dbCommon *pxx,
 {
     LOGMSG("devNetDev: netDevInitInternalIO(\"%s\")\n", pxx->name);
 
-    TRANSACTION *t = (TRANSACTION *) calloc(1, sizeof(TRANSACTION));
+    TRANSACTION *t = calloc(1, sizeof(TRANSACTION));
     if (!t) {
         errlogPrintf("devNetDev: no memory for TRANSACTION\n");
         return NULL;
@@ -333,7 +333,7 @@ int netDevInternalIO(int option,
         return ERROR;
     }
 
-    TRANSACTION *t_org = (TRANSACTION *) t->record->dpvt;
+    TRANSACTION *t_org = (TRANSACTION *)t->record->dpvt;
     if (isNormal(t_org->option) && t->record->pact) {
         errlogPrintf("devNetDev: internal IO in async process\n");
         return ERROR;
@@ -416,7 +416,7 @@ uint32_t netDevGetSelfId(void)
     }
 
     /* ead == `xxx.xxx.xxx.xxx:netmask' */
-    (void) sscanf(sysBootParams.ead, "%[0-9.]", ead);
+    sscanf(sysBootParams.ead, "%[0-9.]", ead);
 
     host_ip = inet_addr(ead);
     if (host_ip == ERROR) {
@@ -426,7 +426,7 @@ uint32_t netDevGetSelfId(void)
     }
 
     /* network byte order to host local byte order */
-    return (uint32_t) ntohl(host_ip);
+    return ntohl(host_ip);
 }
 #else
 #define MAX_HOST_NAME  (256)
@@ -448,7 +448,7 @@ uint32_t netDevGetSelfId(void)
     }
 
     /* network byte order to host local byte order */
-    return (uint32_t) ntohl(host_ip);
+    return ntohl(host_ip);
 }
 #endif
 
@@ -478,7 +478,7 @@ long netDevGetHostId(char *hostname, in_addr_t *hostid)
 
     struct hostent *hostptr = gethostbyname(hostname);
     if (hostptr != NULL) {
-        *hostid = *((in_addr_t *) (hostptr->h_addr_list)[0]);
+        *hostid = *((in_addr_t *)(hostptr->h_addr_list)[0]);
     } else {
         *hostid = inet_addr(hostname);
         if (*hostid == ERROR) {
@@ -494,7 +494,7 @@ long netDevGetHostId(char *hostname, in_addr_t *hostid)
 /*******************************************************************************
  * Set event message length
  *******************************************************************************/
-long netDevSetEvMsgLeng(struct dbCommon *pxx, int len)
+long netDevSetEvMsgLeng(dbCommon *pxx, int len)
 {
     TRANSACTION *t = (TRANSACTION *)pxx->dpvt;
 

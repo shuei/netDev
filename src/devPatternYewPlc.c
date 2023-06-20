@@ -21,10 +21,10 @@
 /***************************************************************
  * Pattern (command/response IO)
  ***************************************************************/
-LOCAL long init_pattern_record(struct patternRecord *);
-LOCAL long read_pattern(struct patternRecord *);
-LOCAL long config_pattern_command(struct dbCommon *, int *, uint8_t *, int *, void *, int);
-LOCAL long parse_pattern_response(struct dbCommon *, int *, uint8_t *, int *, void *, int);
+LOCAL long init_pattern_record(patternRecord *);
+LOCAL long read_pattern(patternRecord *);
+LOCAL long config_pattern_command(dbCommon *, int *, uint8_t *, int *, void *, int);
+LOCAL long parse_pattern_response(dbCommon *, int *, uint8_t *, int *, void *, int);
 
 INTEGERDSET devPtnYewPlc = {
     5,
@@ -37,9 +37,9 @@ INTEGERDSET devPtnYewPlc = {
 
 epicsExportAddress(dset, devPtnYewPlc);
 
-LOCAL long init_pattern_record(struct patternRecord *pptn)
+LOCAL long init_pattern_record(patternRecord *pptn)
 {
-    return netDevInitXxRecord((struct dbCommon *) pptn,
+    return netDevInitXxRecord((dbCommon *)pptn,
                               &pptn->inp,
                               MPF_READ | YEW_GET_PROTO | DEFAULT_TIMEOUT,
                               yew_calloc(0, 0, 0, 2),
@@ -49,10 +49,10 @@ LOCAL long init_pattern_record(struct patternRecord *pptn)
                               );
 }
 
-LOCAL long read_pattern(struct patternRecord *pptn)
+LOCAL long read_pattern(patternRecord *pptn)
 {
-    TRANSACTION *t = (TRANSACTION *) pptn->dpvt;
-    YEW_PLC *d = (YEW_PLC *) t->device;
+    TRANSACTION *t = (TRANSACTION *)pptn->dpvt;
+    YEW_PLC *d = (YEW_PLC *)t->device;
 
     /*
      * make sure that those below are cleared in the event that
@@ -62,10 +62,10 @@ LOCAL long read_pattern(struct patternRecord *pptn)
     d->nleft = 0;
     d->noff = 0;
 
-    return netDevReadWriteXx((struct dbCommon *) pptn);
+    return netDevReadWriteXx((dbCommon *)pptn);
 }
 
-LOCAL long config_pattern_command(struct dbCommon *pxx,
+LOCAL long config_pattern_command(dbCommon *pxx,
                                   int *option,
                                   uint8_t *buf,
                                   int *len,
@@ -73,7 +73,7 @@ LOCAL long config_pattern_command(struct dbCommon *pxx,
                                   int transaction_id
                                   )
 {
-    struct patternRecord *pptn = (struct patternRecord *)pxx;
+    patternRecord *pptn = (patternRecord *)pxx;
 
     return yew_config_command(buf,
                               len,
@@ -81,11 +81,11 @@ LOCAL long config_pattern_command(struct dbCommon *pxx,
                               pptn->ftvl,
                               pptn->nelm,
                               option,
-                              (YEW_PLC *) device
+                              (YEW_PLC *)device
                               );
 }
 
-LOCAL long parse_pattern_response(struct dbCommon *pxx,
+LOCAL long parse_pattern_response(dbCommon *pxx,
                                   int *option,
                                   uint8_t *buf,
                                   int *len,
@@ -93,8 +93,8 @@ LOCAL long parse_pattern_response(struct dbCommon *pxx,
                                   int transaction_id
                                   )
 {
-    struct patternRecord *pptn = (struct patternRecord *)pxx;
-    YEW_PLC *d = (YEW_PLC *) device;
+    patternRecord *pptn = (patternRecord *)pxx;
+    YEW_PLC *d = (YEW_PLC *)device;
 
     long ret = yew_parse_response(buf,
                                   len,

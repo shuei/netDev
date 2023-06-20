@@ -30,7 +30,7 @@
 
 //LOCAL int sizeofTypes[] = {0,1,1,2,2,4,4,4,8,2};
 
-LOCAL long key_parse_link(struct link *,
+LOCAL long key_parse_link(DBLINK *,
                           struct sockaddr_in *,
                           int *,
                           void *
@@ -103,7 +103,7 @@ LOCAL void *key_calloc(uint32_t addr,
                        int cmnd
                        )
 {
-    KEY_PLC *d = (KEY_PLC *) calloc(1, sizeof(KEY_PLC));
+    KEY_PLC *d = calloc(1, sizeof(KEY_PLC));
     if (!d) {
         errlogPrintf("devKeyPlc: calloc failed\n");
         return NULL;
@@ -129,7 +129,7 @@ LOCAL void *key_calloc(uint32_t addr,
 /*********************************************************************************
  * Link field parser for both command/response I/O and event driven I/O
  *********************************************************************************/
-LOCAL long key_parse_link(struct link *plink,
+LOCAL long key_parse_link(DBLINK *plink,
                           struct sockaddr_in *peer_addr,
                           int *option,
                           void *device
@@ -141,7 +141,7 @@ LOCAL long key_parse_link(struct link *plink,
     char *type  = NULL;
     char *addr  = NULL;
     char *lopt  = NULL;
-    KEY_PLC *d = (KEY_PLC *) device;
+    KEY_PLC *d = (KEY_PLC *)device;
     CMND_INFO *pcmnd;
     int found = 0;
 
@@ -308,11 +308,11 @@ LOCAL long key_config_command(uint8_t *buf,    /* driver buf addr     */
             return ERROR;
         }
 
-        int j = (int) strlen((char *)buf);
+        int j = (int)strlen((char *)buf);
 
         for (int i = 0; i < n; i++) {
-            unsigned int data = (unsigned int) temp_buf[i];
-            sprintf((char *)&buf[j + 6*i], " %05d", (int) data);
+            unsigned int data = (unsigned int)temp_buf[i];
+            sprintf((char *)&buf[j + 6*i], " %05d", (int)data);
         }
 
         break;
@@ -322,7 +322,7 @@ LOCAL long key_config_command(uint8_t *buf,    /* driver buf addr     */
     }
 
     strcat((char *)buf, "\r");
-    *len = (int) strlen((char *)buf);
+    *len = (int)strlen((char *)buf);
 
     return OK;
 }
@@ -365,7 +365,7 @@ LOCAL long key_parse_response(uint8_t *buf,    /* driver buf addr     */
                 errlogPrintf("devKeyPlc: unrecognized error code\n");
                 return ERROR;
             }
-        } else if ((d->cmnd == KEY_CMND_ST_RS  || d->cmnd == KEY_CMND_WRE ) &&
+        } else if ((d->cmnd == KEY_CMND_ST_RS  || d->cmnd == KEY_CMND_WRE) &&
                    (c1 == 'O' && c2 == 'K')) {
             return ret;
         } else if (d->cmnd == KEY_CMND_RD) {
@@ -376,10 +376,10 @@ LOCAL long key_parse_response(uint8_t *buf,    /* driver buf addr     */
 
             switch (c1) {
             case '0':
-                *((unsigned long *) bptr) = 0;
+                *((unsigned long *)bptr) = 0;
                 return ret;
             case '1':
-                *((unsigned long *) bptr) = 1;
+                *((unsigned long *)bptr) = 1;
                 return ret;
             default:
                 errlogPrintf("devKeyPlc: unrecognized error code\n");
@@ -394,7 +394,7 @@ LOCAL long key_parse_response(uint8_t *buf,    /* driver buf addr     */
                     errlogPrintf("devKeyPlc: failed in getting data\n");
                     return ERROR;
                 }
-                temp_buf[i] = (int16_t) data;
+                temp_buf[i] = (int16_t)data;
                 if (i != n-1) {
                     if (buf[6*i + 5] != ' ') {
                         errlogPrintf("devKeyPlc: unrecognized delimiter\n");

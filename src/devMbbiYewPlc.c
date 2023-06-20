@@ -21,10 +21,10 @@
 /***************************************************************
  * Mult-bit binary input (command/response IO)
  ***************************************************************/
-LOCAL long init_mbbi_record(struct mbbiRecord *);
-LOCAL long read_mbbi(struct mbbiRecord *);
-LOCAL long config_mbbi_command(struct dbCommon *, int *, uint8_t *, int *, void *, int);
-LOCAL long parse_mbbi_response(struct dbCommon *, int *, uint8_t *, int *, void *, int);
+LOCAL long init_mbbi_record(mbbiRecord *);
+LOCAL long read_mbbi(mbbiRecord *);
+LOCAL long config_mbbi_command(dbCommon *, int *, uint8_t *, int *, void *, int);
+LOCAL long parse_mbbi_response(dbCommon *, int *, uint8_t *, int *, void *, int);
 
 INTEGERDSET devMbbiYewPlc = {
     5,
@@ -37,9 +37,9 @@ INTEGERDSET devMbbiYewPlc = {
 
 epicsExportAddress(dset, devMbbiYewPlc);
 
-LOCAL long init_mbbi_record(struct mbbiRecord *prec)
+LOCAL long init_mbbi_record(mbbiRecord *prec)
 {
-    long status = netDevInitXxRecord((struct dbCommon *) prec,
+    long status = netDevInitXxRecord((dbCommon *)prec,
                                      &prec->inp,
                                      MPF_READ | YEW_GET_PROTO | DEFAULT_TIMEOUT,
                                      yew_calloc(0, 0, 0, 2),
@@ -55,21 +55,21 @@ LOCAL long init_mbbi_record(struct mbbiRecord *prec)
     return status;
 }
 
-LOCAL long read_mbbi(struct mbbiRecord *prec)
+LOCAL long read_mbbi(mbbiRecord *prec)
 {
-    return netDevReadWriteXx((struct dbCommon *) prec);
+    return netDevReadWriteXx((dbCommon *)prec);
 }
 
-LOCAL long config_mbbi_command(struct dbCommon *pxx,
-                                     int *option,
-                                     uint8_t *buf,
-                                     int *len,
-                                     void *device,
-                                     int transaction_id
-                                     )
+LOCAL long config_mbbi_command(dbCommon *pxx,
+                               int *option,
+                               uint8_t *buf,
+                               int *len,
+                               void *device,
+                               int transaction_id
+                               )
 {
-    struct mbbiRecord *prec = (struct mbbiRecord *)pxx;
-    YEW_PLC *d = (YEW_PLC *) device;
+    mbbiRecord *prec = (mbbiRecord *)pxx;
+    YEW_PLC *d = (YEW_PLC *)device;
 
     return yew_config_command(buf,
                               len,
@@ -81,16 +81,16 @@ LOCAL long config_mbbi_command(struct dbCommon *pxx,
                               );
 }
 
-LOCAL long parse_mbbi_response(struct dbCommon *pxx,
-                                     int *option,
-                                     uint8_t *buf,
-                                     int *len,
-                                     void *device,
-                                     int transaction_id
-                                     )
+LOCAL long parse_mbbi_response(dbCommon *pxx,
+                               int *option,
+                               uint8_t *buf,
+                               int *len,
+                               void *device,
+                               int transaction_id
+                               )
 {
-    struct mbbiRecord *prec = (struct mbbiRecord *)pxx;
-    YEW_PLC *d = (YEW_PLC *) device;
+    mbbiRecord *prec = (mbbiRecord *)pxx;
+    YEW_PLC *d = (YEW_PLC *)device;
 
     if (d->flag == 'L') {
         uint16_t val[2];

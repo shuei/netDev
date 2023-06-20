@@ -21,10 +21,10 @@
 /***************************************************************
  * Binary output (command/response IO)
  ***************************************************************/
-LOCAL long init_bo_record(struct boRecord *);
-LOCAL long write_bo(struct boRecord *);
-LOCAL long config_bo_command(struct dbCommon *, int *, uint8_t *, int *, void *, int);
-LOCAL long parse_bo_response(struct dbCommon *, int *, uint8_t *, int *, void *, int);
+LOCAL long init_bo_record(boRecord *);
+LOCAL long write_bo(boRecord *);
+LOCAL long config_bo_command(dbCommon *, int *, uint8_t *, int *, void *, int);
+LOCAL long parse_bo_response(dbCommon *, int *, uint8_t *, int *, void *, int);
 
 INTEGERDSET devBoYewPlc = {
     5,
@@ -37,11 +37,11 @@ INTEGERDSET devBoYewPlc = {
 
 epicsExportAddress(dset, devBoYewPlc);
 
-LOCAL long init_bo_record(struct boRecord *pbo)
+LOCAL long init_bo_record(boRecord *pbo)
 {
     pbo->mask = 1;
 
-    return netDevInitXxRecord((struct dbCommon *) pbo,
+    return netDevInitXxRecord((dbCommon *)pbo,
                               &pbo->out,
                               MPF_WRITE | YEW_GET_PROTO | DEFAULT_TIMEOUT,
                               yew_calloc(0, 0, 0, 1),
@@ -51,13 +51,13 @@ LOCAL long init_bo_record(struct boRecord *pbo)
                               );
 }
 
-LOCAL long write_bo(struct boRecord *pbo)
+LOCAL long write_bo(boRecord *pbo)
 {
-    return netDevReadWriteXx((struct dbCommon *) pbo);
+    return netDevReadWriteXx((dbCommon *)pbo);
 }
 
 
-LOCAL long config_bo_command(struct dbCommon *pxx,
+LOCAL long config_bo_command(dbCommon *pxx,
                              int *option,
                              uint8_t *buf,
                              int *len,
@@ -65,7 +65,7 @@ LOCAL long config_bo_command(struct dbCommon *pxx,
                              int transaction_id
                              )
 {
-    struct boRecord *pbo = (struct boRecord *)pxx;
+    boRecord *pbo = (boRecord *)pxx;
 
     return yew_config_command(buf,
                               len,
@@ -73,11 +73,11 @@ LOCAL long config_bo_command(struct dbCommon *pxx,
                               DBF_ULONG,
                               1,
                               option,
-                              (YEW_PLC *) device
+                              (YEW_PLC *)device
                               );
 }
 
-LOCAL long parse_bo_response(struct dbCommon *pxx,
+LOCAL long parse_bo_response(dbCommon *pxx,
                              int *option,
                              uint8_t *buf,
                              int *len,
@@ -85,7 +85,7 @@ LOCAL long parse_bo_response(struct dbCommon *pxx,
                              int transaction_id
                              )
 {
-    struct boRecord *pbo = (struct boRecord *)pxx;
+    boRecord *pbo = (boRecord *)pxx;
 
     return yew_parse_response(buf,
                               len,
@@ -93,6 +93,6 @@ LOCAL long parse_bo_response(struct dbCommon *pxx,
                               DBF_ULONG,
                               1,
                               option,
-                              (YEW_PLC *) device
+                              (YEW_PLC *)device
                               );
 }

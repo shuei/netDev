@@ -18,10 +18,10 @@
 /***************************************************************
  * Long input (command/response IO)
  ***************************************************************/
-LOCAL long init_longin_record(struct longinRecord *);
-LOCAL long read_longin(struct longinRecord *);
-LOCAL long config_longin_command(struct dbCommon *, int *, uint8_t *, int *, void *, int);
-LOCAL long parse_longin_response(struct dbCommon *, int *, uint8_t *, int *, void *, int);
+LOCAL long init_longin_record(longinRecord *);
+LOCAL long read_longin(longinRecord *);
+LOCAL long config_longin_command(dbCommon *, int *, uint8_t *, int *, void *, int);
+LOCAL long parse_longin_response(dbCommon *, int *, uint8_t *, int *, void *, int);
 
 INTEGERDSET devLiKeyPlc = {
     5,
@@ -34,9 +34,9 @@ INTEGERDSET devLiKeyPlc = {
 
 epicsExportAddress(dset, devLiKeyPlc);
 
-LOCAL long init_longin_record(struct longinRecord *plongin)
+LOCAL long init_longin_record(longinRecord *plongin)
 {
-    return netDevInitXxRecord((struct dbCommon *) plongin,
+    return netDevInitXxRecord((dbCommon *)plongin,
                               &plongin->inp,
                               MPF_READ | KEY_GET_PROTO | DEFAULT_TIMEOUT,
                               key_calloc(0, KEY_CMND_RDE),
@@ -46,12 +46,12 @@ LOCAL long init_longin_record(struct longinRecord *plongin)
                               );
 }
 
-LOCAL long read_longin(struct longinRecord *plongin)
+LOCAL long read_longin(longinRecord *plongin)
 {
-    return netDevReadWriteXx((struct dbCommon *) plongin);
+    return netDevReadWriteXx((dbCommon *)plongin);
 }
 
-LOCAL long config_longin_command(struct dbCommon *pxx,
+LOCAL long config_longin_command(dbCommon *pxx,
                                  int *option,
                                  uint8_t *buf,
                                  int *len,
@@ -59,8 +59,8 @@ LOCAL long config_longin_command(struct dbCommon *pxx,
                                  int transaction_id
                                  )
 {
-    struct longinRecord *plongin = (struct longinRecord *)pxx;
-    KEY_PLC *d = (KEY_PLC *) device;
+    longinRecord *plongin = (longinRecord *)pxx;
+    KEY_PLC *d = (KEY_PLC *)device;
 
     return key_config_command(buf,
                               len,
@@ -72,7 +72,7 @@ LOCAL long config_longin_command(struct dbCommon *pxx,
                               );
 }
 
-LOCAL long parse_longin_response(struct dbCommon *pxx,
+LOCAL long parse_longin_response(dbCommon *pxx,
                                  int *option,
                                  uint8_t *buf,
                                  int *len,
@@ -80,8 +80,8 @@ LOCAL long parse_longin_response(struct dbCommon *pxx,
                                  int transaction_id
                                  )
 {
-    struct longinRecord *plongin = (struct longinRecord *)pxx;
-    KEY_PLC *d = (KEY_PLC *) device;
+    longinRecord *plongin = (longinRecord *)pxx;
+    KEY_PLC *d = (KEY_PLC *)device;
 
     int16_t val;
     long ret = key_parse_response(buf,
@@ -91,7 +91,7 @@ LOCAL long parse_longin_response(struct dbCommon *pxx,
                                   1,
                                   option,
                                   d
-                              );
+                                  );
     plongin->val = val;
     return ret;
 }

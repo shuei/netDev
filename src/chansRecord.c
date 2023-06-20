@@ -175,10 +175,10 @@ static void monitor(chansRecord *pchans)
     db_post_events(pchans,  pchans->date, DBE_VALUE|DBE_LOG);
     db_post_events(pchans,  pchans->atim, DBE_VALUE|DBE_LOG);
 
-    //double *data = (double *) &pchans->ch01;
-    char  (*stat)[8] = (char (*)[8]) pchans->st01;
-    char  (*alrm)[8] = (char (*)[8]) pchans->al01;
-    char  (*unit)[8] = (char (*)[8]) pchans->eu01;
+    //double *data = (double *)&pchans->ch01;
+    char (*stat)[8] = (char (*)[8])pchans->st01;
+    char (*alrm)[8] = (char (*)[8])pchans->al01;
+    char (*unit)[8] = (char (*)[8])pchans->eu01;
 
     for (int n = 0; n < pchans->noch; n++) {
         //printf("&data[%02d]= 0x%08x\n", n, &data[n]);
@@ -191,13 +191,13 @@ static void monitor(chansRecord *pchans)
     return;
 }
 
-static long cvt_dbaddr(struct dbAddr *paddr)
+static long cvt_dbaddr(dbAddr *paddr)
 {
-    chansRecord *pchans = (chansRecord *) paddr->precord;
+    chansRecord *pchans = (chansRecord *)paddr->precord;
 
     if (paddr->pfield == &pchans->val) {
         paddr->pfield         = &pchans->ch01;
-        paddr->no_elements    = (long) pchans->noch;
+        paddr->no_elements    = (long)pchans->noch;
         paddr->field_type     = DBF_DOUBLE;
         paddr->field_size     = sizeof(double);
         paddr->dbr_field_type = DBR_DOUBLE;

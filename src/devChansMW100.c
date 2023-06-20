@@ -21,10 +21,10 @@
 /***************************************************************
  * Chans (command/response I/O)
  ***************************************************************/
-LOCAL long init_chans_record(struct chansRecord *);
-LOCAL long read_chans(struct chansRecord *);
-LOCAL long config_chans_command(struct dbCommon *, int *, uint8_t *, int *, void *, int);
-LOCAL long parse_chans_response(struct dbCommon *, int *, uint8_t *, int *, void *, int);
+LOCAL long init_chans_record(chansRecord *);
+LOCAL long read_chans(chansRecord *);
+LOCAL long config_chans_command(dbCommon *, int *, uint8_t *, int *, void *, int);
+LOCAL long parse_chans_response(dbCommon *, int *, uint8_t *, int *, void *, int);
 
 INTEGERDSET devChansMW100 = {
     5,
@@ -37,12 +37,12 @@ INTEGERDSET devChansMW100 = {
 
 epicsExportAddress(dset, devChansMW100);
 
-LOCAL long init_chans_record(struct chansRecord *pchans)
+LOCAL long init_chans_record(chansRecord *pchans)
 {
     LOGMSG("devChansMW100: init_chans_record(\"%s\")\n", pchans->name);
 
     MW100 *d = MW100_calloc();
-    if (netDevInitXxRecord((struct dbCommon *) pchans,
+    if (netDevInitXxRecord((dbCommon *)pchans,
                            &pchans->inp,
                            MPF_READ | MPF_TCP | MW100_TIMEOUT,
                            d,
@@ -58,17 +58,17 @@ LOCAL long init_chans_record(struct chansRecord *pchans)
     return OK;
 }
 
-LOCAL long read_chans(struct chansRecord *pchans)
+LOCAL long read_chans(chansRecord *pchans)
 {
     LOGMSG("devChansMW100: read_chans_record(\"%s\")\n", pchans->name);
 
-    return netDevReadWriteXx((struct dbCommon *) pchans);
+    return netDevReadWriteXx((dbCommon *)pchans);
 }
 
 
 #define RESPONSE_LENGTH(x)  (4 + 15 + 15 + 28*(x) + 4)
 
-LOCAL long config_chans_command(struct dbCommon *pxx,
+LOCAL long config_chans_command(dbCommon *pxx,
                                 int *option,
                                 uint8_t *buf,
                                 int *len,
@@ -78,7 +78,7 @@ LOCAL long config_chans_command(struct dbCommon *pxx,
 {
     LOGMSG("devChansMW100: config_chans_command(\"%s\")\n", pxx->name);
 
-    MW100 *d = (MW100 *) device;
+    MW100 *d = (MW100 *)device;
 
     if (*len < d->com_len) {
         errlogPrintf("devMW100: buffer is running short\n");
@@ -88,13 +88,13 @@ LOCAL long config_chans_command(struct dbCommon *pxx,
     memcpy(buf, d->com_FD, d->com_len);
     *len = d->com_len;
 
-    struct chansRecord *pchans = (struct chansRecord *)pxx;
+    chansRecord *pchans = (chansRecord *)pxx;
 
     return RESPONSE_LENGTH(pchans->noch);
 }
 
 
-LOCAL long parse_chans_response(struct dbCommon *pxx,
+LOCAL long parse_chans_response(dbCommon *pxx,
                                 int *option,
                                 uint8_t *buf,
                                 int *len,
@@ -104,12 +104,12 @@ LOCAL long parse_chans_response(struct dbCommon *pxx,
 {
     LOGMSG("devChansMW100: parse_chans_response(%8p,0x%08x,%8p,%d,%8p,%d)\n", pxx, *option, buf, *len, device, transaction_id);
 
-    struct chansRecord *pchans = (struct chansRecord *)pxx;
-    MW100 *d = (MW100 *) device;
-    double *data = (double *) &pchans->ch01;
-    char  (*stat)[4] = (char (*)[4]) pchans->st01;
-    char  (*alrm)[8] = (char (*)[8]) pchans->al01;
-    char  (*unit)[8] = (char (*)[8]) pchans->eu01;
+    chansRecord *pchans = (chansRecord *)pxx;
+    MW100 *d = (MW100 *)device;
+    double *data = (double *)&pchans->ch01;
+    char  (*stat)[4] = (char (*)[4])pchans->st01;
+    char  (*alrm)[8] = (char (*)[8])pchans->al01;
+    char  (*unit)[8] = (char (*)[8])pchans->eu01;
     char channel[8];
     int noch = pchans->noch;
     int ichan;

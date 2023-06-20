@@ -144,7 +144,7 @@ typedef struct {
 
 typedef struct {
     ELLNODE            node;
-    struct dbCommon   *record;
+    dbCommon          *record;
     void              *facility;
     int                option;
     int                transaction_id;
@@ -222,7 +222,7 @@ typedef struct {
 
 #define GET_PEER_INET_ADDR(t)    (((PEER *) ((TRANSACTION *) (t))->facility)->mpf.peer_addr.sin_addr.s_addr)
 #define GET_PEER_ID(t)           (((PEER *) ((TRANSACTION *) (t))->facility)->mpf.id)
-#define GET_DPVT(p)              (((struct dbCommon *) (p))->dpvt)
+#define GET_DPVT(p)              (((dbCommon *) (p))->dpvt)
 #define MPF_OPTION(t)            ( ((PEER *) ((TRANSACTION *) (t))->facility)->mpf.option)
 #define MPF_OPTION_PTR(t)        (&((PEER *) ((TRANSACTION *) (t))->facility)->mpf.option)
 #define MPF_VAR_PTR(t)           (&((PEER *) ((TRANSACTION *) (t))->facility)->mpf.mpf_var[0])

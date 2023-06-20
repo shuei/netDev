@@ -18,10 +18,10 @@
 /***************************************************************
  * Mult-bit binary input (command/response IO)
  ***************************************************************/
-LOCAL long init_mbbiDirect_record(struct mbbiDirectRecord *);
-LOCAL long read_mbbiDirect(struct mbbiDirectRecord *);
-LOCAL long config_mbbiDirect_command(struct dbCommon *, int *, uint8_t *, int *, void *, int);
-LOCAL long parse_mbbiDirect_response(struct dbCommon *, int *, uint8_t *, int *, void *, int);
+LOCAL long init_mbbiDirect_record(mbbiDirectRecord *);
+LOCAL long read_mbbiDirect(mbbiDirectRecord *);
+LOCAL long config_mbbiDirect_command(dbCommon *, int *, uint8_t *, int *, void *, int);
+LOCAL long parse_mbbiDirect_response(dbCommon *, int *, uint8_t *, int *, void *, int);
 
 INTEGERDSET devMbbiDirectKeyPlc = {
     5,
@@ -34,13 +34,13 @@ INTEGERDSET devMbbiDirectKeyPlc = {
 
 epicsExportAddress(dset, devMbbiDirectKeyPlc);
 
-LOCAL long init_mbbiDirect_record( struct mbbiDirectRecord *pMbbiDirect )
+LOCAL long init_mbbiDirect_record(mbbiDirectRecord *pMbbiDirect)
 {
     pMbbiDirect->nobt = 16;
     pMbbiDirect->mask = 0xFFFF;
     pMbbiDirect->shft = 0;
 
-    return netDevInitXxRecord((struct dbCommon *) pMbbiDirect,
+    return netDevInitXxRecord((dbCommon *)pMbbiDirect,
                               &pMbbiDirect->inp,
                               MPF_READ | KEY_GET_PROTO | DEFAULT_TIMEOUT,
                               key_calloc(0, KEY_CMND_RDE),
@@ -50,13 +50,13 @@ LOCAL long init_mbbiDirect_record( struct mbbiDirectRecord *pMbbiDirect )
                               );
 }
 
-LOCAL long read_mbbiDirect(struct mbbiDirectRecord *pMbbiDirect)
+LOCAL long read_mbbiDirect(mbbiDirectRecord *pMbbiDirect)
 {
-    return netDevReadWriteXx((struct dbCommon *) pMbbiDirect);
+    return netDevReadWriteXx((dbCommon *)pMbbiDirect);
 }
 
 
-LOCAL long config_mbbiDirect_command(struct dbCommon *pxx,
+LOCAL long config_mbbiDirect_command(dbCommon *pxx,
                                      int *option,
                                      uint8_t *buf,
                                      int *len,
@@ -64,7 +64,7 @@ LOCAL long config_mbbiDirect_command(struct dbCommon *pxx,
                                      int transaction_id
                                      )
 {
-    struct mbbiDirectRecord *pmbbiDirect = (struct mbbiDirectRecord *)pxx;
+    mbbiDirectRecord *pmbbiDirect = (mbbiDirectRecord *)pxx;
 
     return key_config_command(buf,
                               len,
@@ -72,11 +72,11 @@ LOCAL long config_mbbiDirect_command(struct dbCommon *pxx,
                               DBF_ULONG,
                               1,
                               option,
-                              (KEY_PLC *) device
+                              (KEY_PLC *)device
                               );
 }
 
-LOCAL long parse_mbbiDirect_response(struct dbCommon *pxx,
+LOCAL long parse_mbbiDirect_response(dbCommon *pxx,
                                      int *option,
                                      uint8_t *buf,
                                      int *len,
@@ -84,7 +84,7 @@ LOCAL long parse_mbbiDirect_response(struct dbCommon *pxx,
                                      int transaction_id
                                      )
 {
-    struct mbbiDirectRecord *pmbbiDirect = (struct mbbiDirectRecord *)pxx;
+    mbbiDirectRecord *pmbbiDirect = (mbbiDirectRecord *)pxx;
 
     return key_parse_response(buf,
                               len,
@@ -92,6 +92,6 @@ LOCAL long parse_mbbiDirect_response(struct dbCommon *pxx,
                               DBF_ULONG,
                               1,
                               option,
-                              (KEY_PLC *) device
+                              (KEY_PLC *)device
                               );
 }

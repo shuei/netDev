@@ -9,10 +9,10 @@
 /***************************************************************
  * Waveform (command/response IO)
  ***************************************************************/
-LOCAL long init_waveform_record(struct waveformRecord *);
-LOCAL long read_waveform(struct waveformRecord *);
-LOCAL long config_waveform_command(struct dbCommon *, int *, uint8_t *, int *, void *, int);
-LOCAL long parse_waveform_response(struct dbCommon *, int *, uint8_t *, int *, void *, int);
+LOCAL long init_waveform_record(waveformRecord *);
+LOCAL long read_waveform(waveformRecord *);
+LOCAL long config_waveform_command(dbCommon *, int *, uint8_t *, int *, void *, int);
+LOCAL long parse_waveform_response(dbCommon *, int *, uint8_t *, int *, void *, int);
 
 INTEGERDSET devWfChinoLogL = {
     5,
@@ -25,11 +25,11 @@ INTEGERDSET devWfChinoLogL = {
 
 epicsExportAddress(dset, devWfChinoLogL);
 
-LOCAL long init_waveform_record(struct waveformRecord *pwf)
+LOCAL long init_waveform_record(waveformRecord *pwf)
 {
     CHINOL_LOG *d  = chino_calloc(0, 0, 0, 0, 2);
 
-    return netDevInitXxRecord((struct dbCommon *) pwf,
+    return netDevInitXxRecord((dbCommon *)pwf,
                               &pwf->inp,
                               MPF_READ | CHINOL_GET_PROTO | DEFAULT_TIMEOUT,
                               d,
@@ -39,10 +39,10 @@ LOCAL long init_waveform_record(struct waveformRecord *pwf)
                               );
 }
 
-LOCAL long read_waveform(struct waveformRecord *pwf)
+LOCAL long read_waveform(waveformRecord *pwf)
 {
-//  TRANSACTION *t = (TRANSACTION *) pwf->dpvt;
-//  CHINOL_LOG *d = (CHINOL_LOG *) t->device;
+//  TRANSACTION *t = (TRANSACTION *)pwf->dpvt;
+//  CHINOL_LOG *d = (CHINOL_LOG *)t->device;
 
     /*
      * make sure that those below are cleared in the event that
@@ -50,10 +50,10 @@ LOCAL long read_waveform(struct waveformRecord *pwf)
      * middle of transacton
      */
 
-    return netDevReadWriteXx((struct dbCommon *) pwf);
+    return netDevReadWriteXx((dbCommon *)pwf);
 }
 
-LOCAL long config_waveform_command(struct dbCommon *pxx,
+LOCAL long config_waveform_command(dbCommon *pxx,
                                    int *option,
                                    uint8_t *buf,
                                    int *len,
@@ -61,8 +61,8 @@ LOCAL long config_waveform_command(struct dbCommon *pxx,
                                    int transaction_id
                                    )
 {
-    struct waveformRecord *pwaveform = (struct waveformRecord *)pxx;
-    CHINOL_LOG *d = (CHINOL_LOG *) device;
+    waveformRecord *pwaveform = (waveformRecord *)pxx;
+    CHINOL_LOG *d = (CHINOL_LOG *)device;
 
     return chino_config_command(buf,
                                 len,
@@ -75,7 +75,7 @@ LOCAL long config_waveform_command(struct dbCommon *pxx,
                                 );
 }
 
-LOCAL long parse_waveform_response(struct dbCommon *pxx,
+LOCAL long parse_waveform_response(dbCommon *pxx,
                                    int *option,
                                    uint8_t *buf,
                                    int *len,
@@ -83,8 +83,8 @@ LOCAL long parse_waveform_response(struct dbCommon *pxx,
                                    int transaction_id
                                    )
 {
-    struct waveformRecord *pwaveform = (struct waveformRecord *)pxx;
-    CHINOL_LOG *d = (CHINOL_LOG *) device;
+    waveformRecord *pwaveform = (waveformRecord *)pxx;
+    CHINOL_LOG *d = (CHINOL_LOG *)device;
 
     long ret = chino_parse_response(buf,
                                     len,

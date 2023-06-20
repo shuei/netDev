@@ -21,10 +21,10 @@
 /***************************************************************
  * Mult-bit binary output (command/response IO)
  ***************************************************************/
-LOCAL long init_mbbo_record(struct mbboRecord *);
-LOCAL long write_mbbo(struct mbboRecord *);
-LOCAL long config_mbbo_command(struct dbCommon *, int *, uint8_t *, int *, void *, int);
-LOCAL long parse_mbbo_response(struct dbCommon *, int *, uint8_t *, int *, void *, int);
+LOCAL long init_mbbo_record(mbboRecord *);
+LOCAL long write_mbbo(mbboRecord *);
+LOCAL long config_mbbo_command(dbCommon *, int *, uint8_t *, int *, void *, int);
+LOCAL long parse_mbbo_response(dbCommon *, int *, uint8_t *, int *, void *, int);
 
 INTEGERDSET devMbboYewPlc = {
     5,
@@ -37,9 +37,9 @@ INTEGERDSET devMbboYewPlc = {
 
 epicsExportAddress(dset, devMbboYewPlc);
 
-LOCAL long init_mbbo_record(struct mbboRecord *prec)
+LOCAL long init_mbbo_record(mbboRecord *prec)
 {
-    long status = netDevInitXxRecord((struct dbCommon *) prec,
+    long status = netDevInitXxRecord((dbCommon *)prec,
                                      &prec->out,
                                      MPF_WRITE | YEW_GET_PROTO | DEFAULT_TIMEOUT,
                                      yew_calloc(0, 0, 0, 2),
@@ -58,21 +58,21 @@ LOCAL long init_mbbo_record(struct mbboRecord *prec)
     return 2; // no conversion
 }
 
-LOCAL long write_mbbo(struct mbboRecord *prec)
+LOCAL long write_mbbo(mbboRecord *prec)
 {
-    return netDevReadWriteXx((struct dbCommon *) prec);
+    return netDevReadWriteXx((dbCommon *)prec);
 }
 
-LOCAL long config_mbbo_command(struct dbCommon *pxx,
-                                     int *option,
-                                     uint8_t *buf,
-                                     int *len,
-                                     void *device,
-                                     int transaction_id
-                                     )
+LOCAL long config_mbbo_command(dbCommon *pxx,
+                               int *option,
+                               uint8_t *buf,
+                               int *len,
+                               void *device,
+                               int transaction_id
+                               )
 {
-    struct mbboRecord *prec = (struct mbboRecord *)pxx;
-    YEW_PLC *d = (YEW_PLC *) device;
+    mbboRecord *prec = (mbboRecord *)pxx;
+    YEW_PLC *d = (YEW_PLC *)device;
 
     if (d->flag == 'L') {
         int16_t val[2] = { prec->rval >>  0,
@@ -108,16 +108,16 @@ LOCAL long config_mbbo_command(struct dbCommon *pxx,
     }
 }
 
-LOCAL long parse_mbbo_response(struct dbCommon *pxx,
-                                     int *option,
-                                     uint8_t *buf,
-                                     int *len,
-                                     void *device,
-                                     int transaction_id
-                                     )
+LOCAL long parse_mbbo_response(dbCommon *pxx,
+                               int *option,
+                               uint8_t *buf,
+                               int *len,
+                               void *device,
+                               int transaction_id
+                               )
 {
-    struct mbboRecord *prec = (struct mbboRecord *)pxx;
-    YEW_PLC *d = (YEW_PLC *) device;
+    mbboRecord *prec = (mbboRecord *)pxx;
+    YEW_PLC *d = (YEW_PLC *)device;
 
     return yew_parse_response(buf,
                               len,

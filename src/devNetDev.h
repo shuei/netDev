@@ -54,25 +54,25 @@ typedef struct {
     DEVSUPFUN     setup_attention;
 } ATTENTIONDSET;
 
-typedef long (* parse_link_fn_t)(struct link *, struct sockaddr_in *, int *, void *);
+typedef long (* parse_link_fn_t)(DBLINK *, struct sockaddr_in *, int *, void *);
 typedef long (* config_command_fn_t)(dbCommon *, int *, uint8_t *, int *, void *, int);
 typedef long (* parse_response_fn_t)(dbCommon *, int *, uint8_t *, int *, void *, int);
 typedef void (* CALLBACK_fn_t)(CALLBACK *);
 
-long         netDevInitXxRecord(struct dbCommon *, struct link *, int, void *,
+long         netDevInitXxRecord(dbCommon *, DBLINK *, int, void *,
                                 parse_link_fn_t, config_command_fn_t, parse_response_fn_t);
-long         netDevReadWriteXx(struct dbCommon *);
+long         netDevReadWriteXx(dbCommon *);
 long         netDevInfo();
 long         netDevInit(void);
 long         netDevGetHostId(char *, in_addr_t *);
 uint32_t     netDevGetSelfId(void);
-long         netDevSetEvMsgLeng(struct dbCommon *, int);
-long         netDevGetIoIntInfo(int, struct dbCommon *, IOSCANPVT *);
+long         netDevSetEvMsgLeng(dbCommon *, int);
+long         netDevGetIoIntInfo(int, dbCommon *, IOSCANPVT *);
 
 //
 uint32_t     netDevBcd2Int(uint16_t bcd, void *precord);
 uint16_t     netDevInt2Bcd(int32_t dec, void *precord);
-long         parseLinkPlcCommon(struct link *, struct sockaddr_in *,
+long         parseLinkPlcCommon(DBLINK *, struct sockaddr_in *,
                             char **, char **, char **, char **, char **, char **);
 long         fromRecordVal(void *, int, void *, int, int, int, int);
 long         toRecordVal(void *, int, int, void *, int, int, int);
@@ -81,7 +81,7 @@ long         toRecordVal(void *, int, int, void *, int, int, int);
 
 
 //
-TRANSACTION *netDevInitInternalIO(struct dbCommon *, struct sockaddr_in,
+TRANSACTION *netDevInitInternalIO(dbCommon *, struct sockaddr_in,
                                   config_command_fn_t, parse_response_fn_t, CALLBACK_fn_t, void *, int);
 
 int          netDevInternalIO(int, TRANSACTION *, void *, int);

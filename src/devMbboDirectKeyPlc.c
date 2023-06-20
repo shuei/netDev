@@ -18,10 +18,10 @@
 /***************************************************************
  * Mult-bit binary output (command/response IO)
  ***************************************************************/
-LOCAL long init_mbboDirect_record(struct mbboDirectRecord *);
-LOCAL long write_mbboDirect(struct mbboDirectRecord *);
-LOCAL long config_mbboDirect_command(struct dbCommon *, int *, uint8_t *, int *, void *, int);
-LOCAL long parse_mbboDirect_response(struct dbCommon *, int *, uint8_t *, int *, void *, int);
+LOCAL long init_mbboDirect_record(mbboDirectRecord *);
+LOCAL long write_mbboDirect(mbboDirectRecord *);
+LOCAL long config_mbboDirect_command(dbCommon *, int *, uint8_t *, int *, void *, int);
+LOCAL long parse_mbboDirect_response(dbCommon *, int *, uint8_t *, int *, void *, int);
 
 INTEGERDSET devMbboDirectKeyPlc = {
     5,
@@ -34,13 +34,13 @@ INTEGERDSET devMbboDirectKeyPlc = {
 
 epicsExportAddress(dset, devMbboDirectKeyPlc);
 
-LOCAL long init_mbboDirect_record(struct mbboDirectRecord *pMbboDirect)
+LOCAL long init_mbboDirect_record(mbboDirectRecord *pMbboDirect)
 {
     pMbboDirect->nobt = 16;
     pMbboDirect->mask = 0xFFFF;
     pMbboDirect->shft = 0;
 
-    long status = netDevInitXxRecord((struct dbCommon *) pMbboDirect,
+    long status = netDevInitXxRecord((dbCommon *)pMbboDirect,
                                      &pMbboDirect->out,
                                      MPF_WRITE | KEY_GET_PROTO | DEFAULT_TIMEOUT,
                                      key_calloc(0, KEY_CMND_WRE),
@@ -54,12 +54,12 @@ LOCAL long init_mbboDirect_record(struct mbboDirectRecord *pMbboDirect)
     return 2; // no conversion
 }
 
-LOCAL long write_mbboDirect(struct mbboDirectRecord *pMbboDirect)
+LOCAL long write_mbboDirect(mbboDirectRecord *pMbboDirect)
 {
-    return netDevReadWriteXx((struct dbCommon *) pMbboDirect);
+    return netDevReadWriteXx((dbCommon *)pMbboDirect);
 }
 
-LOCAL long config_mbboDirect_command(struct dbCommon *pxx,
+LOCAL long config_mbboDirect_command(dbCommon *pxx,
                                      int *option,
                                      uint8_t *buf,
                                      int *len,
@@ -67,7 +67,7 @@ LOCAL long config_mbboDirect_command(struct dbCommon *pxx,
                                      int transaction_id
                                      )
 {
-    struct mbboDirectRecord *pmbboDirect = (struct mbboDirectRecord *)pxx;
+    mbboDirectRecord *pmbboDirect = (mbboDirectRecord *)pxx;
 
     return key_config_command(buf,
                               len,
@@ -75,11 +75,11 @@ LOCAL long config_mbboDirect_command(struct dbCommon *pxx,
                               DBF_ULONG,
                               1,
                               option,
-                              (KEY_PLC *) device
+                              (KEY_PLC *)device
                               );
 }
 
-LOCAL long parse_mbboDirect_response(struct dbCommon *pxx,
+LOCAL long parse_mbboDirect_response(dbCommon *pxx,
                                      int *option,
                                      uint8_t *buf,
                                      int *len,
@@ -87,7 +87,7 @@ LOCAL long parse_mbboDirect_response(struct dbCommon *pxx,
                                      int transaction_id
                                      )
 {
-    struct mbboDirectRecord *pmbboDirect = (struct mbboDirectRecord *)pxx;
+    mbboDirectRecord *pmbboDirect = (mbboDirectRecord *)pxx;
 
     return key_parse_response(buf,
                               len,
@@ -95,6 +95,6 @@ LOCAL long parse_mbboDirect_response(struct dbCommon *pxx,
                               DBF_ULONG,
                               1,
                               option,
-                              (KEY_PLC *) device
+                              (KEY_PLC *)device
                               );
 }

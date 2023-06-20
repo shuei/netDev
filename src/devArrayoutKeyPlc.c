@@ -18,10 +18,10 @@
 /***************************************************************
  * Arrayout (command/response IO)
  ***************************************************************/
-LOCAL long init_arrayout_record(struct arrayoutRecord *);
-LOCAL long write_arrayout(struct arrayoutRecord *);
-LOCAL long config_arrayout_command(struct dbCommon *, int *, uint8_t *, int *, void *, int);
-LOCAL long parse_arrayout_response(struct dbCommon *, int *, uint8_t *, int *, void *, int);
+LOCAL long init_arrayout_record(arrayoutRecord *);
+LOCAL long write_arrayout(arrayoutRecord *);
+LOCAL long config_arrayout_command(dbCommon *, int *, uint8_t *, int *, void *, int);
+LOCAL long parse_arrayout_response(dbCommon *, int *, uint8_t *, int *, void *, int);
 
 INTEGERDSET devAroKeyPlc = {
     5,
@@ -34,9 +34,9 @@ INTEGERDSET devAroKeyPlc = {
 
 epicsExportAddress(dset, devAroKeyPlc);
 
-LOCAL long init_arrayout_record(struct arrayoutRecord *pao)
+LOCAL long init_arrayout_record(arrayoutRecord *pao)
 {
-    return netDevInitXxRecord((struct dbCommon *) pao,
+    return netDevInitXxRecord((dbCommon *)pao,
                               &pao->out,
                               MPF_WRITE | KEY_GET_PROTO | DEFAULT_TIMEOUT,
                               key_calloc(0, KEY_CMND_WRE),
@@ -46,10 +46,10 @@ LOCAL long init_arrayout_record(struct arrayoutRecord *pao)
                               );
 }
 
-LOCAL long write_arrayout(struct arrayoutRecord *pao)
+LOCAL long write_arrayout(arrayoutRecord *pao)
 {
-    TRANSACTION *t = (TRANSACTION *) pao->dpvt;
-    KEY_PLC *d = (KEY_PLC *) t->device;
+    TRANSACTION *t = (TRANSACTION *)pao->dpvt;
+    KEY_PLC *d = (KEY_PLC *)t->device;
 
     /*
      * make sure that those below are cleared in the event that
@@ -59,10 +59,10 @@ LOCAL long write_arrayout(struct arrayoutRecord *pao)
     d->nleft = 0;
     d->noff = 0;
 
-    return netDevReadWriteXx((struct dbCommon *) pao);
+    return netDevReadWriteXx((dbCommon *)pao);
 }
 
-LOCAL long config_arrayout_command(struct dbCommon *pxx,
+LOCAL long config_arrayout_command(dbCommon *pxx,
                                    int *option,
                                    uint8_t *buf,
                                    int *len,
@@ -70,7 +70,7 @@ LOCAL long config_arrayout_command(struct dbCommon *pxx,
                                    int transaction_id
                                    )
 {
-    struct arrayoutRecord *parrayout = (struct arrayoutRecord *)pxx;
+    arrayoutRecord *parrayout = (arrayoutRecord *)pxx;
 
     return key_config_command(buf,
                               len,
@@ -78,11 +78,11 @@ LOCAL long config_arrayout_command(struct dbCommon *pxx,
                               parrayout->ftvl,
                               parrayout->nelm,
                               option,
-                              (KEY_PLC *) device
+                              (KEY_PLC *)device
                               );
 }
 
-LOCAL long parse_arrayout_response(struct dbCommon *pxx,
+LOCAL long parse_arrayout_response(dbCommon *pxx,
                                    int *option,
                                    uint8_t *buf,
                                    int *len,
@@ -90,8 +90,8 @@ LOCAL long parse_arrayout_response(struct dbCommon *pxx,
                                    int transaction_id
                                    )
 {
-    struct arrayoutRecord *parrayout = (struct arrayoutRecord *)pxx;
-    KEY_PLC *d = (KEY_PLC *) device;
+    arrayoutRecord *parrayout = (arrayoutRecord *)pxx;
+    KEY_PLC *d = (KEY_PLC *)device;
 
     long ret = key_parse_response(buf,
                                   len,
