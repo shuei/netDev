@@ -808,7 +808,7 @@ uint32_t netDevBcd2Int(uint16_t bcd, void *precord)
             dec += digit * base;
         } else {
             // overflow
-            recGblSetSevr(precord, HIGH_ALARM, INVALID_ALARM);
+            recGblSetSevr((dbCommon *)precord, HIGH_ALARM, INVALID_ALARM); // cast required for base R3.14
             dec += 9 * base;
         }
         bcd >>= 4;
@@ -824,10 +824,10 @@ uint32_t netDevBcd2Int(uint16_t bcd, void *precord)
 uint16_t netDevInt2Bcd(int32_t dec, void *precord)
 {
     if (dec<BCDMIN_INT) {
-        recGblSetSevr(precord, HW_LIMIT_ALARM, INVALID_ALARM);
+        recGblSetSevr((dbCommon *)precord, HW_LIMIT_ALARM, INVALID_ALARM); // cast required for base R3.14
         return BCDMIN_BCD;
     } else if (dec>BCDMAX_INT) {
-        recGblSetSevr(precord, HW_LIMIT_ALARM, INVALID_ALARM);
+        recGblSetSevr((dbCommon *)precord, HW_LIMIT_ALARM, INVALID_ALARM); // cast required for base R3.14
         return BCDMAX_BCD;
     }
 
