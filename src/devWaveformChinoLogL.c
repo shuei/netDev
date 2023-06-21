@@ -27,7 +27,7 @@ epicsExportAddress(dset, devWfChinoLogL);
 
 LOCAL long init_waveform_record(waveformRecord *pwf)
 {
-    CHINOL_LOG *d  = chino_calloc(0, 0, 0, 0, 2);
+    CHINOL_LOG *d = chino_calloc(0, 0, 0, 0, 2);
 
     return netDevInitXxRecord((dbCommon *)pwf,
                               &pwf->inp,

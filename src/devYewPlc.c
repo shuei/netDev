@@ -161,7 +161,7 @@ LOCAL long yew_parse_link(DBLINK *plink,
             strncmp(protocol, "tcp", 3) == 0) {
             setTcp(*option);
         } else if (strncmp(protocol, "UDP", 3) == 0 ||
-                   strncmp(protocol, "udp", 3) == 0)  {
+                   strncmp(protocol, "udp", 3) == 0) {
             setUdp(*option);
         } else {
             errlogPrintf("devYewPlc: unrecognized protocol\n");
@@ -391,24 +391,24 @@ LOCAL long yew_config_command(uint8_t *buf,    /* driver buf addr     */
             return ERROR;
         }
 
-        *((uint8_t  *) &buf[ 0]) = command_type;             /* R/W by bit/word       */
-        *((uint8_t  *) &buf[ 1]) = d->cpu;                   /* CPU No.               */
-        *((uint16_t *) &buf[ 2]) = bytes_follow;             /* n of data below       */
-        *((uint16_t *) &buf[ 4]) = htons(d->type);           /* device type           */
-        *((uint32_t *) &buf[ 6]) = htonl(d->addr + d->noff); /* device addr           */
-        *((uint16_t *) &buf[10]) = htons(n);                 /* n of data             */
+        *((uint8_t  *)&buf[ 0]) = command_type;             /* R/W by bit/word       */
+        *((uint8_t  *)&buf[ 1]) = d->cpu;                   /* CPU No.               */
+        *((uint16_t *)&buf[ 2]) = bytes_follow;             /* n of data below       */
+        *((uint16_t *)&buf[ 4]) = htons(d->type);           /* device type           */
+        *((uint32_t *)&buf[ 6]) = htonl(d->addr + d->noff); /* device addr           */
+        *((uint16_t *)&buf[10]) = htons(n);                 /* n of data             */
     } else {
         /* Special Module, "type" holds module unit/slot number */
         command_type = isRead(*option)? 0x31:0x32;
         bytes_follow = isRead(*option)? htons(0x0006):htons(0x0006 + n*2);
 
-        *((uint8_t  *) &buf[ 0]) = command_type;             /* R/W by bit/word       */
-        *((uint8_t  *) &buf[ 1]) = d->cpu;                   /* CPU No.               */
-        *((uint16_t *) &buf[ 2]) = bytes_follow;             /* n of data below       */
-        *((uint8_t  *) &buf[ 4]) = d->m_unit;                /* module unit           */
-        *((uint8_t  *) &buf[ 5]) = d->m_slot;                /* module slot           */
-        *((uint16_t *) &buf[ 6]) = htons(d->addr + d->noff); /* data position         */
-        *((uint16_t *) &buf[ 8]) = htons(n);                 /* n of data             */
+        *((uint8_t  *)&buf[ 0]) = command_type;             /* R/W by bit/word       */
+        *((uint8_t  *)&buf[ 1]) = d->cpu;                   /* CPU No.               */
+        *((uint16_t *)&buf[ 2]) = bytes_follow;             /* n of data below       */
+        *((uint8_t  *)&buf[ 4]) = d->m_unit;                /* module unit           */
+        *((uint8_t  *)&buf[ 5]) = d->m_slot;                /* module slot           */
+        *((uint16_t *)&buf[ 6]) = htons(d->addr + d->noff); /* data position         */
+        *((uint16_t *)&buf[ 8]) = htons(n);                 /* n of data             */
     }
 
     if (isWrite(*option)) {
@@ -495,7 +495,7 @@ LOCAL long yew_parse_response(uint8_t *buf,    /* driver buf addr     */
         return ERROR;
     }
 
-    if (*((uint16_t *) &buf[2]) != number_of_data) {
+    if (*((uint16_t *)&buf[2]) != number_of_data) {
         errlogPrintf("devYewPlc: number of data does not match\n");
         return NOT_MINE;
     }

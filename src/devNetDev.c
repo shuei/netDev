@@ -212,7 +212,7 @@ LOCAL void *net_dev_init_private(DBLINK *plink,
                                  void *device
                                  )
 {
-    LOGMSG("devNetDev: net_dev_init_private(%8p,%d,%8p,%8p)\n", plink, *option, parse_link,device);
+    LOGMSG("devNetDev: net_dev_init_private(%8p,%d,%8p,%8p)\n", plink, *option, parse_link, device);
 
     if (plink->type != INST_IO) {
         errlogPrintf("devNetDev: address type must be \"INST_IO\"\n");

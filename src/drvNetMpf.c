@@ -237,7 +237,7 @@ LOCAL long init(void)
       return ERROR;
     }
 
-    if ((showrttList.mutex = epicsMutexCreate()) == (epicsMutexId) 0) {
+    if ((showrttList.mutex = epicsMutexCreate()) == 0) {
         errlogPrintf("drvNetMpf: epicsMutexCreate failed\n");
         return ERROR;
     }
@@ -283,22 +283,22 @@ LOCAL long init(void)
 LOCAL long create_semaphores(PEER *p) {
     LOGMSG("drvNetMpf: create_semaphores(%8p)\n", p);
 
-    if ((p->in_t_mutex=epicsMutexCreate()) == (epicsMutexId) 0) {
+    if ((p->in_t_mutex=epicsMutexCreate()) == 0) {
         errlogPrintf("drvNetMpf: epicsMutexCreate failed\n");
         return ERROR;
     }
 
-    if ((p->reqQ_mutex=epicsMutexCreate()) == (epicsMutexId) 0) {
+    if ((p->reqQ_mutex=epicsMutexCreate()) == 0) {
         errlogPrintf("drvNetMpf: epicsMutexCreate failed\n");
         return ERROR;
     }
 
-    if ((p->req_queued=epicsEventCreate(epicsEventEmpty)) == (epicsEventId) 0) {
+    if ((p->req_queued=epicsEventCreate(epicsEventEmpty)) == 0) {
         errlogPrintf("drvNetMpf: epicsEventCreate failed\n");
         return ERROR;
     }
 
-    if ((p->next_cycle=epicsEventCreate(epicsEventEmpty)) == (epicsEventId) 0) {
+    if ((p->next_cycle=epicsEventCreate(epicsEventEmpty)) == 0) {
         errlogPrintf("drvNetMpf: epicsEventCreate failed\n");
         return ERROR;
     }
@@ -393,7 +393,7 @@ PEER *drvNetMpfInitPeer(struct sockaddr_in peer_addr, int option)
     PEER *p;
     epicsMutexMustLock(peerList.mutex);
     {
-        for (p = (PEER *) ellFirst(&peerList.list); p; p = (PEER *) ellNext(&p->mpf.node)) {
+        for (p = (PEER *)ellFirst(&peerList.list); p; p = (PEER *)ellNext(&p->mpf.node)) {
             if ((p->mpf.peer_addr.sin_addr.s_addr == peer_addr.sin_addr.s_addr || isOmron(option)) &&
                 p->mpf.peer_addr.sin_port == peer_addr.sin_port &&
                 GET_PROTOCOL(p->mpf.option) == GET_PROTOCOL(option)) {
@@ -440,7 +440,7 @@ PEER *drvNetMpfInitPeer(struct sockaddr_in peer_addr, int option)
         }
 
         if (!(p->wd_id = epicsTimerQueueCreateTimer(timerQueue,
-                                                    (epicsTimerCallback) mpf_timeout_handler,
+                                                    (epicsTimerCallback)mpf_timeout_handler,
                                                     p
                                                     ))) {
             errlogPrintf("drvNetMpf: epicsTimerQueueCreateTimer failed\n");
@@ -495,7 +495,7 @@ long drvNetMpfSendRequest(TRANSACTION *t)
     }
 
     PEER *p;
-    if (!(p = (PEER *) t->facility)) {
+    if (!(p = (PEER *)t->facility)) {
         errlogPrintf("drvNetMpf: null peer\n");
         return ERROR;
     }
@@ -614,7 +614,7 @@ LOCAL void reconnect(MPF_COMMON *m)
                          ntohs(my_addr.sin_port));
         }
 
-        while (bind(m->sfd, (struct sockaddr *) &my_addr, sizeof(my_addr)) == ERROR) {
+        while (bind(m->sfd, (struct sockaddr *)&my_addr, sizeof(my_addr)) == ERROR) {
             errlogPrintf("drvNetMpf: bind failed[%d]\n", errno);
             epicsThreadSleep(1.0);
         }
@@ -637,7 +637,7 @@ LOCAL void reconnect(MPF_COMMON *m)
         do {
             errlogPrintf("drvNetMpf: tcp client trying to connect to \"%s\"...\n", inet_string);
             epicsThreadSleep(1.0);
-        } while (connect(m->sfd, (struct sockaddr *) &m->peer_addr, (socklen_t) sizeof(m->peer_addr)) == ERROR);
+        } while (connect(m->sfd, (struct sockaddr *)&m->peer_addr, (socklen_t)sizeof(m->peer_addr)) == ERROR);
 
         errlogPrintf("drvNetMpf: connected to \"%s\"\n", inet_string);
 
@@ -669,7 +669,7 @@ LOCAL int recv_msg(MPF_COMMON *m)
                                cur,
                                m->recv_len ? m->recv_len : RECV_BUF_SIZE(m->option),
                                0,
-                               (struct sockaddr *) &m->sender_addr,
+                               (struct sockaddr *)&m->sender_addr,
                                &sender_addr_len
                                );
         if (len == ERROR) {
@@ -931,7 +931,7 @@ long drvNetMpfRegisterEvent(TRANSACTION *t)
     }
 
     SERVER *s;
-    if (!(s = (SERVER *) t->facility)) {
+    if (!(s = (SERVER *)t->facility)) {
         errlogPrintf("drvNetMpf: null server\n");
         return ERROR;
     }
@@ -964,7 +964,7 @@ LOCAL int tcp_parent(SERVER *s)
     for (;;) {
         errlogPrintf("drvNetMpf: tcp parent: trying to bind...\n");
 
-        if (bind(s->mpf.sfd, (struct sockaddr *) &my_addr, sizeof(my_addr)) == OK) {
+        if (bind(s->mpf.sfd, (struct sockaddr *)&my_addr, sizeof(my_addr)) == OK) {
             break;
         }
 
@@ -1043,7 +1043,7 @@ LOCAL int tcp_parent(SERVER *s)
         c->parent = s;
         ellInit(&c->eventQueue);
 
-        if ((c->eventQ_mutex = epicsMutexCreate()) == (epicsMutexId) 0) {
+        if ((c->eventQ_mutex = epicsMutexCreate()) == 0) {
             errlogPrintf("drvNetMpf: epicsMutexCreate failed\n");
             delete_server(c);
             continue; /* while (TRUE) */
@@ -1219,7 +1219,7 @@ SERVER *drvNetMpfInitServer(unsigned short port, int option)
     SERVER *s;
     epicsMutexMustLock(serverList.mutex);
     {
-        for (s = (SERVER *) ellFirst(&serverList.list); s; s = (SERVER *) ellNext(&s->mpf.node)) {
+        for (s = (SERVER *)ellFirst(&serverList.list); s; s = (SERVER *)ellNext(&s->mpf.node)) {
             if (s->port == port) {
                 break;
             }
@@ -1251,7 +1251,7 @@ SERVER *drvNetMpfInitServer(unsigned short port, int option)
         s->mpf.option = GET_MPF_OPTION(option);
         ellInit(&s->eventQueue);
 
-        if ((s->eventQ_mutex=epicsMutexCreate()) == (epicsMutexId) 0) {
+        if ((s->eventQ_mutex=epicsMutexCreate()) == 0) {
             errlogPrintf("drvNetMpf: epicsMutexCreate failed\n");
             delete_server(s);
             epicsMutexUnlock(serverList.mutex);
@@ -1394,7 +1394,7 @@ LOCAL void remove_server(SERVER *target)
     SERVER *s;
     epicsMutexMustLock(serverList.mutex);
     {
-        for (s = (SERVER *) ellFirst(&serverList.list); s; s = (SERVER *) ellNext(&s->mpf.node)) {
+        for (s = (SERVER *)ellFirst(&serverList.list); s; s = (SERVER *)ellNext(&s->mpf.node)) {
             if (s == target) {
                 ellDelete(&serverList.list, &s->mpf.node);
                 errlogPrintf("server: %d removed\n", s->mpf.id);
@@ -1472,7 +1472,7 @@ void peerShow(const iocshArgBuf *args)
     PEER *p;
     epicsMutexMustLock(peerList.mutex);
     {
-        for (p = (PEER *) ellFirst(&peerList.list); p; p = (PEER *) ellNext(&p->mpf.node)) {
+        for (p = (PEER *)ellFirst(&peerList.list); p; p = (PEER *)ellNext(&p->mpf.node)) {
             if (p->mpf.id == args[0].ival) {
                 break;
             }
@@ -1525,7 +1525,7 @@ void peerShowAll(const iocshArgBuf *args)
     PEER *p;
     epicsMutexMustLock(peerList.mutex);
     {
-        for (p = (PEER *) ellFirst(&peerList.list); p; p = (PEER *) ellNext(&p->mpf.node)) {
+        for (p = (PEER *)ellFirst(&peerList.list); p; p = (PEER *)ellNext(&p->mpf.node)) {
 #ifdef vxWorks
             char inet_string[256];
             inet_ntoa_b((struct in_addr)p->mpf.peer_addr.sin_addr, inet_string);
@@ -1549,7 +1549,7 @@ void serverShow(const iocshArgBuf *args)
     SERVER *s;
     epicsMutexMustLock(serverList.mutex);
     {
-        for (s = (SERVER *) ellFirst(&serverList.list); s; s = (SERVER *) ellNext(&s->mpf.node)) {
+        for (s = (SERVER *)ellFirst(&serverList.list); s; s = (SERVER *)ellNext(&s->mpf.node)) {
             if (s->mpf.id == args[0].ival) {
                 break;
             }
@@ -1598,7 +1598,7 @@ void serverShowAll(const iocshArgBuf *args)
 
     epicsMutexMustLock(serverList.mutex);
     {
-        for (s = (SERVER *) ellFirst(&serverList.list); s; s = (SERVER *) ellNext(&s->mpf.node)) {
+        for (s = (SERVER *)ellFirst(&serverList.list); s; s = (SERVER *)ellNext(&s->mpf.node)) {
 #ifdef vxWorks
             char inet_string[256];
             inet_ntoa_b((struct in_addr)s->mpf.sender_addr.sin_addr, inet_string);
@@ -1618,7 +1618,7 @@ void showMsg(const iocshArgBuf *args)
     PEER *p;
     epicsMutexMustLock(peerList.mutex);
     {
-        for (p = (PEER *) ellFirst(&peerList.list); p; p = (PEER *) ellNext(&p->mpf.node)) {
+        for (p = (PEER *)ellFirst(&peerList.list); p; p = (PEER *)ellNext(&p->mpf.node)) {
             if (p->mpf.id == args[0].ival) {
                 p->mpf.show_msg = args[1].ival? 2:1;
                 break;
@@ -1637,7 +1637,7 @@ void stopMsg(const iocshArgBuf *args)
     PEER *p;
     epicsMutexMustLock(peerList.mutex);
     {
-        for (p = (PEER *) ellFirst(&peerList.list); p; p = (PEER *) ellNext(&p->mpf.node)) {
+        for (p = (PEER *)ellFirst(&peerList.list); p; p = (PEER *)ellNext(&p->mpf.node)) {
             p->mpf.show_msg = 0;
         }
     }
@@ -1649,7 +1649,7 @@ void showEventMsg(const iocshArgBuf *args)
     SERVER *s;
     epicsMutexMustLock(serverList.mutex);
     {
-        for (s = (SERVER *) ellFirst(&serverList.list); s; s = (SERVER *) ellNext(&s->mpf.node)) {
+        for (s = (SERVER *)ellFirst(&serverList.list); s; s = (SERVER *)ellNext(&s->mpf.node)) {
             if (s->mpf.id == args[0].ival) {
                 s->mpf.show_msg = args[1].ival? 2:1;
                 break;
@@ -1668,7 +1668,7 @@ void stopEventMsg(const iocshArgBuf *args)
     SERVER *s;
     epicsMutexMustLock(serverList.mutex);
     {
-        for (s = (SERVER *) ellFirst(&serverList.list); s; s = (SERVER *) ellNext(&s->mpf.node)) {
+        for (s = (SERVER *)ellFirst(&serverList.list); s; s = (SERVER *)ellNext(&s->mpf.node)) {
             s->mpf.show_msg = 0;
         }
     }
@@ -1717,7 +1717,7 @@ void setTmoEventNum(const iocshArgBuf *args)
     PEER *p;
     epicsMutexMustLock(peerList.mutex);
     {
-        for (p = (PEER *) ellFirst(&peerList.list); p; p = (PEER *) ellNext(&p->mpf.node)) {
+        for (p = (PEER *)ellFirst(&peerList.list); p; p = (PEER *)ellNext(&p->mpf.node)) {
             if ((p->mpf.peer_addr.sin_addr.s_addr == peer_addr.sin_addr.s_addr || isOmron(option)) &&
                 p->mpf.peer_addr.sin_port == htons(port) &&
                 GET_PROTOCOL(p->mpf.option) == GET_PROTOCOL(option)) {
@@ -1753,7 +1753,7 @@ void enableTmoEvent(const iocshArgBuf *args)
     PEER *p;
     epicsMutexMustLock(peerList.mutex);
     {
-        for (p = (PEER *) ellFirst(&peerList.list); p; p = (PEER *) ellNext(&p->mpf.node)) {
+        for (p = (PEER *)ellFirst(&peerList.list); p; p = (PEER *)ellNext(&p->mpf.node)) {
             if ((p->mpf.peer_addr.sin_addr.s_addr == peer_addr.sin_addr.s_addr || isOmron(option)) &&
                 p->mpf.peer_addr.sin_port == htons(port) &&
                 GET_PROTOCOL(p->mpf.option) == GET_PROTOCOL(option)) {
@@ -1789,7 +1789,7 @@ void disableTmoEvent(const iocshArgBuf *args)
     PEER *p;
     epicsMutexMustLock(peerList.mutex);
     {
-        for (p = (PEER *) ellFirst(&peerList.list); p; p = (PEER *) ellNext(&p->mpf.node)) {
+        for (p = (PEER *)ellFirst(&peerList.list); p; p = (PEER *)ellNext(&p->mpf.node)) {
             if ((p->mpf.peer_addr.sin_addr.s_addr == peer_addr.sin_addr.s_addr || isOmron(option)) &&
                 p->mpf.peer_addr.sin_port == htons(port) &&
                 GET_PROTOCOL(p->mpf.option) == GET_PROTOCOL(option)) {

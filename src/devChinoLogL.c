@@ -110,8 +110,7 @@ LOCAL long chino_parse_link(DBLINK *plink,
     char *lopt  = NULL;
     CHINOL_LOG *d = (CHINOL_LOG *)device;
 
-    if (parseLinkPlcCommon(
-                           plink,
+    if (parseLinkPlcCommon(plink,
                            peer_addr,
                            &protocol,
                            &route, /* dummy */

@@ -220,16 +220,16 @@ typedef struct {
 } RTT_ITEM;
 
 
-#define GET_PEER_INET_ADDR(t)    (((PEER *) ((TRANSACTION *) (t))->facility)->mpf.peer_addr.sin_addr.s_addr)
-#define GET_PEER_ID(t)           (((PEER *) ((TRANSACTION *) (t))->facility)->mpf.id)
-#define GET_DPVT(p)              (((dbCommon *) (p))->dpvt)
-#define MPF_OPTION(t)            ( ((PEER *) ((TRANSACTION *) (t))->facility)->mpf.option)
-#define MPF_OPTION_PTR(t)        (&((PEER *) ((TRANSACTION *) (t))->facility)->mpf.option)
-#define MPF_VAR_PTR(t)           (&((PEER *) ((TRANSACTION *) (t))->facility)->mpf.mpf_var[0])
-#define GET_PEER_DEVICE(t)       (((TRANSACTION *) (t))->device)
-#define GET_CLIENT_INET_ADDR(t)  (((TRANSACTION *) (t))->io.event.client_addr.sin_addr.s_addr)
-#define GET_SERVER_PORT(t)       (((SERVER *) ((TRANSACTION *) (t))->facility)->port)
-#define GET_SERVER_ID(t)         (((SERVER *) ((TRANSACTION *) (t))->facility)->mpf.id)
+#define GET_PEER_INET_ADDR(t)    (((PEER *)((TRANSACTION *)(t))->facility)->mpf.peer_addr.sin_addr.s_addr)
+#define GET_PEER_ID(t)           (((PEER *)((TRANSACTION *)(t))->facility)->mpf.id)
+#define GET_DPVT(p)              (((dbCommon *)(p))->dpvt)
+#define MPF_OPTION(t)            ( ((PEER *)((TRANSACTION *)(t))->facility)->mpf.option)
+#define MPF_OPTION_PTR(t)        (&((PEER *)((TRANSACTION *)(t))->facility)->mpf.option)
+#define MPF_VAR_PTR(t)           (&((PEER *)((TRANSACTION *)(t))->facility)->mpf.mpf_var[0])
+#define GET_PEER_DEVICE(t)       (((TRANSACTION *)(t))->device)
+#define GET_CLIENT_INET_ADDR(t)  (((TRANSACTION *)(t))->io.event.client_addr.sin_addr.s_addr)
+#define GET_SERVER_PORT(t)       (((SERVER *)((TRANSACTION *)(t))->facility)->port)
+#define GET_SERVER_ID(t)         (((SERVER *)((TRANSACTION *)(t))->facility)->mpf.id)
 
 
 long drvNetMpfSendRequest(TRANSACTION *);
@@ -254,8 +254,8 @@ long drvNetMpfRegisterEvent(TRANSACTION *);
 
 #define SHOW_MESSAGE
 #ifdef SHOW_MESSAGE
-#define DUMP_MSG(arg0, arg1, arg2, arg3) {if ( ((MPF_COMMON *) (arg0))->show_msg ) \
-dump_msg( (arg1), (arg2), (arg3), ((MPF_COMMON *) (arg0))->show_msg );}
+#define DUMP_MSG(arg0, arg1, arg2, arg3) {if ( ((MPF_COMMON *)(arg0))->show_msg ) \
+dump_msg( (arg1), (arg2), (arg3), ((MPF_COMMON *)(arg0))->show_msg );}
 #else
 #define DUMP_MSG(arg0, arg1, arg2, arg3)
 #endif

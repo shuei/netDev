@@ -259,7 +259,7 @@ LOCAL long key_config_command(uint8_t *buf,    /* driver buf addr     */
 
     switch (d->cmnd) {
     case KEY_CMND_ST_RS:
-        if (*((unsigned long *) bptr)) {
+        if (*((unsigned long *)bptr)) {
             sprintf(format, "ST %s%s",
                     cmnd_tbl_RDE_WRE[d->indx].device,
                     cmnd_tbl_RDE_WRE[d->indx].addr_format);

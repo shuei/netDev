@@ -66,7 +66,7 @@ LOCAL long read_chans(chansRecord *pchans)
 }
 
 
-#define RESPONSE_LENGTH(x)  (4 + 15 + 15 + 28*(x) + 4)
+#define RESPONSE_LENGTH(x) (4 + 15 + 15 + 28*(x) + 4)
 
 LOCAL long config_chans_command(dbCommon *pxx,
                                 int *option,
@@ -105,8 +105,8 @@ LOCAL long parse_chans_response(dbCommon *pxx,
     LOGMSG("devChansMW100: parse_chans_response(%8p,0x%08x,%8p,%d,%8p,%d)\n", pxx, *option, buf, *len, device, transaction_id);
 
     chansRecord *pchans = (chansRecord *)pxx;
-    MW100 *d = (MW100 *)device;
-    double *data = (double *)&pchans->ch01;
+    MW100 *d         = (MW100 *)device;
+    double *data     = (double *)&pchans->ch01;
     char  (*stat)[4] = (char (*)[4])pchans->st01;
     char  (*alrm)[8] = (char (*)[8])pchans->al01;
     char  (*unit)[8] = (char (*)[8])pchans->eu01;

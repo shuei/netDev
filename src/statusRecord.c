@@ -76,14 +76,14 @@ rset statusRSET = {
 
 epicsExportAddress(rset, statusRSET);
 
-struct statusdset { /* status dset */
+typedef struct statusdset { /* status dset */
     long      number;
     DEVSUPFUN dev_report;
     DEVSUPFUN init;
     DEVSUPFUN init_record; /*returns: (-1,0)=>(failure,success)*/
     DEVSUPFUN get_ioint_info;
     DEVSUPFUN read_status; /*returns: (-1,0)=>(failure,success)*/
-};
+} statusdset;
 
 /*sizes of field types*/
 static int sizeofTypes[] = {0,1,1,2,2,4,4,4,8,2};
@@ -91,7 +91,7 @@ static int sizeofTypes[] = {0,1,1,2,2,4,4,4,8,2};
 static void monitor();
 static long readValue();
 
-static long init_record(struct statusRecord *pst, int pass)
+static long init_record(statusRecord *pst, int pass)
 {
     if (pass == 0) {
         if (pst->nelm <= 0) {
@@ -108,7 +108,7 @@ static long init_record(struct statusRecord *pst, int pass)
     }
 
     /* must have dset defined */
-    struct statusdset *pdset = (struct statusdset *)(pst->dset);
+    statusdset *pdset = (statusdset *)(pst->dset);
     if (!pdset) {
         recGblRecordError(S_dev_noDSET, pst, "status: init_record");
         return S_dev_noDSET;
@@ -130,9 +130,9 @@ static long init_record(struct statusRecord *pst, int pass)
     return 0;
 }
 
-static long process(struct statusRecord *pst)
+static long process(statusRecord *pst)
 {
-    struct statusdset *pdset = (struct statusdset *)(pst->dset);
+    statusdset *pdset = (statusdset *)(pst->dset);
     unsigned char pact = pst->pact;
 
     if ((pdset == NULL) || (pdset->read_status == NULL)) {
@@ -162,9 +162,9 @@ static long process(struct statusRecord *pst)
     return 0;
 }
 
-static long cvt_dbaddr(struct dbAddr *paddr)
+static long cvt_dbaddr(dbAddr *paddr)
 {
-    struct statusRecord *pst = (struct statusRecord *)paddr->precord;
+    statusRecord *pst = (statusRecord *)paddr->precord;
 
     paddr->pfield = &(pst->ch01);
     paddr->no_elements = pst->nelm;
@@ -174,18 +174,18 @@ static long cvt_dbaddr(struct dbAddr *paddr)
     return 0;
 }
 
-static long get_array_info(struct dbAddr *paddr, long *no_elements, long *offset)
+static long get_array_info(dbAddr *paddr, long *no_elements, long *offset)
 {
-    struct statusRecord *pst = (struct statusRecord *)paddr->precord;
+    statusRecord *pst = (statusRecord *)paddr->precord;
 
     *no_elements = pst->nord;
     *offset = 0;
     return 0;
 }
 
-static long put_array_info(struct dbAddr *paddr, long nNew)
+static long put_array_info(dbAddr *paddr, long nNew)
 {
-    struct statusRecord *pst = (struct statusRecord *)paddr->precord;
+    statusRecord *pst = (statusRecord *)paddr->precord;
 
     pst->nord = nNew;
     if (pst->nord > pst->nelm) {
@@ -194,7 +194,7 @@ static long put_array_info(struct dbAddr *paddr, long nNew)
     return 0;
 }
 
-static void monitor(struct statusRecord *pst)
+static void monitor(statusRecord *pst)
 {
     unsigned short monitor_mask;
 
@@ -206,10 +206,10 @@ static void monitor(struct statusRecord *pst)
     return;
 }
 
-static long readValue(struct statusRecord *pst)
+static long readValue(statusRecord *pst)
 {
     long status = 0; // avoid use of uninitialized value; is this OK?
-    struct statusdset *pdset = (struct statusdset *)(pst->dset);
+    statusdset *pdset = (statusdset *)(pst->dset);
 
     if (pst->pact == TRUE) {
         status = (*pdset->read_status)(pst);

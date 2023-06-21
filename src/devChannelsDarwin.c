@@ -186,7 +186,7 @@ LOCAL long parse_chan_response(dbCommon *pxx,
                  p[0], p[1], p[2], p[3], p[4], p[5], p[6]);
 #endif
         for (n = 0; n < nelm; n++) {
-            p = buf + CAHNNEL_OFFSET(n,alst); /* p points to Unit No. */
+            p = buf + CAHNNEL_OFFSET(n, alst); /* p points to Unit No. */
 
             if (d->unit && (*p != d->unit)) {
                 errlogPrintf("parse_chan_response: read Unit No.(%d) dose not match with specified(%d) (\"%s\")\n",
@@ -198,7 +198,7 @@ LOCAL long parse_chan_response(dbCommon *pxx,
 
             /* can not do consistency check without knowing the configuration of channels on the device */
             /*
-            if (*p != (uint8_t) (d->p1 + n)) {
+            if (*p != (uint8_t)(d->p1 + n)) {
                 errlogPrintf("parse_chan_response: Chan No.dose not match, %d, %d, %d(\"%s\")\n",
                              *p, d->p1 + n, d->p1, pchan->name);
                 return ERROR;
@@ -208,19 +208,19 @@ LOCAL long parse_chan_response(dbCommon *pxx,
             if (pchan->alst) {
                 p++; /* p points to Alarm Sts */
 #ifdef vxWorks
-                sprintf(((uint8_t *)albp) + ALARM_MSG_SIZE*(n),
+                sprintf(((uint8_t *)albp) + ALARM_MSG_SIZE*n,
                         "L1: %d, L2: %d, L3: %d, L4: %d",
                         (p[0]) & 0x0f, (p[0] >> 4) & 0x0f,
                         (p[1]) & 0x0f, (p[1] >> 4) & 0x0f);
 #else
-                snprintf(albp + ALARM_MSG_SIZE*(n),
+                snprintf(albp + ALARM_MSG_SIZE*n,
                          MAX_STRING_SIZE,
                          "L1: %d, L2: %d, L3: %d, L4: %d",
                          (p[0]) & 0x0f, (p[0] >> 4) & 0x0f,
                          (p[1]) & 0x0f, (p[1] >> 4) & 0x0f);
             }
 #endif
-            p = buf + DATA_OFFSET(n,alst); /* p points to Data on CH */
+            p = buf + DATA_OFFSET(n, alst); /* p points to Data on CH */
             if (DARWIN_NEEDS_SWAP) {
                 swap_bytes(p, 1);
             }
@@ -283,7 +283,7 @@ LOCAL long parse_chan_response(dbCommon *pxx,
                 }
             }
 
-            strcpy(eubp + 8 * (n), unit);
+            strcpy(eubp + 8*n, unit);
             ppbp[n] = (short)pos;
 
             n++;
