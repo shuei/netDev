@@ -156,7 +156,8 @@ static long process(arrayoutRecord *pao)
         pao->pact = TRUE;
         recGblRecordError(S_dev_missingSup, pao, "write_arrayout");
         return S_dev_missingSup;
-        }
+    }
+
     if (!pao->pact) {
         if ((pao->dol.type != CONSTANT)
            && (pao->omsl == menuOmslclosed_loop)) {
