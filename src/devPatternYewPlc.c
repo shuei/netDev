@@ -18,9 +18,9 @@
 
 #include <patternRecord.h>
 
-/***************************************************************
- * Pattern (command/response IO)
- ***************************************************************/
+//
+// Pattern (command/response IO)
+//
 LOCAL long init_pattern_record(patternRecord *);
 LOCAL long read_pattern(patternRecord *);
 LOCAL long config_pattern_command(dbCommon *, int *, uint8_t *, int *, void *, int);
@@ -54,11 +54,10 @@ LOCAL long read_pattern(patternRecord *pptn)
     TRANSACTION *t = (TRANSACTION *)pptn->dpvt;
     YEW_PLC *d = (YEW_PLC *)t->device;
 
-    /*
-     * make sure that those below are cleared in the event that
-     * a multi-step transfer is terminated by an error in the
-     * middle of transacton
-     */
+
+    // make sure that those below are cleared in the event that
+    // a multi-step transfer is terminated by an error in the
+    // middle of transacton
     d->nleft = 0;
     d->noff = 0;
 

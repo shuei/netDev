@@ -9,15 +9,12 @@
  * in file LICENSE that is included with this distribution.
  ****************************************************************************/
 /* Author: Jun-ichi Odagiri (jun-ichi.odagiri@kek.jp, KEK) */
-/* Modification Log:
- * -----------------
- */
 
 #include <mbboDirectRecord.h>
 
-/***************************************************************
- * Mult-bit binary output (command/response IO)
- ***************************************************************/
+//
+// Mult-bit binary output (command/response IO)
+//
 LOCAL long init_mbboDirect_record(mbboDirectRecord *);
 LOCAL long write_mbboDirect(mbboDirectRecord *);
 LOCAL long config_mbboDirect_command(dbCommon *, int *, uint8_t *, int *, void *, int);

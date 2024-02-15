@@ -17,9 +17,9 @@
 #include "drvNetMpf.h"
 #include "devNetDev.h"
 
-/******************************************************************************
- * Routines for signed integer data transfer
- ******************************************************************************/
+//
+// Routines for signed integer data transfer
+//
 LOCAL long toCharVal   (int8_t  *, int, void *, int, int, int);
 LOCAL long toShortVal  (int16_t *, int, void *, int, int, int);
 LOCAL long toLongVal   (int32_t *, int, void *, int, int, int);
@@ -27,9 +27,9 @@ LOCAL long fromCharVal (void *, int8_t *,  int, int, int, int);
 LOCAL long fromShortVal(void *, int16_t *, int, int, int, int);
 LOCAL long fromLongVal (void *, int32_t *, int, int, int, int);
 
-/******************************************************************************
- * Routines for unsigned integer data transfer
- ******************************************************************************/
+//
+// Routines for unsigned integer data transfer
+//
 LOCAL long toUcharVal   (uint8_t  *, int, void *, int, int, int);
 LOCAL long toUshortVal  (uint16_t *, int, void *, int, int, int);
 LOCAL long toUlongVal   (uint32_t *, int, void *, int, int, int);
@@ -37,18 +37,18 @@ LOCAL long fromUcharVal (void *, uint8_t  *, int, int, int, int);
 LOCAL long fromUshortVal(void *, uint16_t *, int, int, int, int);
 LOCAL long fromUlongVal (void *, uint32_t *, int, int, int, int);
 
-/******************************************************************************
- *
- ******************************************************************************/
+//
+//
+//
 #define BCDMAX_BCD 39321 // 0x9999
 #define BCDMAX_INT  9999 // 0x9999
 
 #define BCDMIN_BCD     0 // 0x9999
 #define BCDMIN_INT     0 //
 
-/******************************************************************************
- *
- ******************************************************************************/
+//
+//
+//
 void swap_bytes(void *ptr, int num)
 {
     uint16_t *p = ptr;
@@ -57,9 +57,9 @@ void swap_bytes(void *ptr, int num)
     }
 }
 
-/******************************************************************************
- * Link field parser for PLCs
- ******************************************************************************/
+//
+// Link field parser for PLCs
+//
 long parseLinkPlcCommon(DBLINK *plink,
                         struct sockaddr_in *peer_addr,
                         char **protocol,
@@ -77,11 +77,8 @@ long parseLinkPlcCommon(DBLINK *plink,
 
     LOGMSG("devNetDev: %s(%8p,%8p,%8p,%8p,%8p,%8p)\n", __func__, plink, peer_addr, route, unit, type, addr);
 
-    /*
-     * hostname[{routing_path}][:unit]#[type:]addr[&option]
-     *
-     * hostname[:unit]#[type:]addr
-     */
+    // hostname[{routing_path}][:unit]#[type:]addr[&option]
+    // hostname[:unit]#[type:]addr
 
     size_t size = strlen(plink->value.instio.string) + 1;
     if (size > MAX_INSTIO_STRING) {
@@ -127,7 +124,7 @@ long parseLinkPlcCommon(DBLINK *plink,
             LOGMSG("devNetDev: protocol: %s\n", *protocol);
         }
 
-        if (*port != '\0') { /* it was ':' */
+        if (*port != '\0') { // it was ':'
             LOGMSG("devNetDev: string port: %s\n", port);
 
             unsigned int iport;
@@ -172,7 +169,7 @@ long parseLinkPlcCommon(DBLINK *plink,
     }
 
     if (!pc2) {
-        /* no unit, no type ( hostname#addr ) */
+        // no unit, no type ( hostname#addr )
         *unit = NULL;
         *type = NULL;
         *addr = pc1;
@@ -180,22 +177,22 @@ long parseLinkPlcCommon(DBLINK *plink,
     } else {
         *pc2++ = '\0';
         if (pc2 > pc1) {
-            /* no unit, type exists ( hostname#type:addr ) */
+            // no unit, but type exists ( hostname#type:addr )
             *unit = NULL;
             *type = pc1;
             *addr = pc2;
             LOGMSG("devNetDev: no unit, type exists\n");
         } else {
-            /* unit exists. don't know about type. ( hostname:unit#[type:]addr ) */
+            // unit exists. don't know about type. ( hostname:unit#[type:]addr )
             *unit = pc2;
             pc3 = strchr(pc1, ':');
             if (!pc3) {
-                /* unit exists, but no type ( hostname:unit#addr ) */
+                // unit exists, but no type ( hostname:unit#addr )
                 *type = NULL;
                 *addr = pc1;
                 LOGMSG("devNetDev: unit exists, but no type\n");
             } else {
-                /* both unit and type exist ( hostname:unit#type:addr ) */
+                // both unit and type exist ( hostname:unit#type:addr )
                 *pc3++ = '\0';
                 *type = pc1;
                 *addr = pc3;
@@ -217,9 +214,9 @@ GET_HOSTNAME:
     return OK;
 }
 
-/******************************************************************************
- * Copy values from receive buffer to record
- ******************************************************************************/
+//
+// Copy values from receive buffer to record
+//
 long toRecordVal(void *bptr,
                  int   noff,
                  int   ftvl,
@@ -252,9 +249,9 @@ long toRecordVal(void *bptr,
     return OK;
 }
 
-/******************************************************************************
- * To Char record buffer
- ******************************************************************************/
+//
+// To Char record buffer
+//
 LOCAL long toCharVal(int8_t *to,
                      int noff,
                      void *from,
@@ -296,9 +293,9 @@ LOCAL long toCharVal(int8_t *to,
     return OK;
 }
 
-/******************************************************************************
- * To Short record buffer
- ******************************************************************************/
+//
+// To Short record buffer
+//
 LOCAL long toShortVal(int16_t *to,
                       int noff,
                       void *from,
@@ -335,9 +332,9 @@ LOCAL long toShortVal(int16_t *to,
     return OK;
 }
 
-/******************************************************************************
- * To Long record buffer
- ******************************************************************************/
+//
+// To Long record buffer
+//
 LOCAL long toLongVal(int32_t *to,
                      int noff,
                      void *from,
@@ -373,9 +370,9 @@ LOCAL long toLongVal(int32_t *to,
     return OK;
 }
 
-/******************************************************************************
- * To Uchar record buffer
- ******************************************************************************/
+//
+// To Uchar record buffer
+//
 LOCAL long toUcharVal(uint8_t *to,
                       int noff,
                       void *from,
@@ -416,9 +413,9 @@ LOCAL long toUcharVal(uint8_t *to,
     return OK;
 }
 
-/******************************************************************************
- * To Ushort record buffer
- ******************************************************************************/
+//
+// To Ushort record buffer
+//
 LOCAL long toUshortVal(uint16_t *to,
                        int noff,
                        void *from,
@@ -454,9 +451,9 @@ LOCAL long toUshortVal(uint16_t *to,
     return OK;
 }
 
-/******************************************************************************
- * To Ulong record buffer
- ******************************************************************************/
+//
+// To Ulong record buffer
+//
 LOCAL long toUlongVal(
           uint32_t *to,
           int noff,
@@ -493,9 +490,9 @@ LOCAL long toUlongVal(
     return OK;
 }
 
-/******************************************************************************
- * Copy values from record to send buffer
- ******************************************************************************/
+//
+// Copy values from record to send buffer
+//
 long fromRecordVal(void *buf,
                    int   width,
                    void *bptr,
@@ -528,9 +525,9 @@ long fromRecordVal(void *buf,
     return OK;
 }
 
-/******************************************************************************
- * From Char record buffer
- ******************************************************************************/
+//
+// From Char record buffer
+//
 LOCAL long fromCharVal(void *to,
                        int8_t *from,
                        int noff,
@@ -566,9 +563,9 @@ LOCAL long fromCharVal(void *to,
     return OK;
 }
 
-/******************************************************************************
- * From Short record buffer
- ******************************************************************************/
+//
+// From Short record buffer
+//
 LOCAL long fromShortVal(void *to,
                         int16_t *from,
                         int noff,
@@ -610,9 +607,9 @@ LOCAL long fromShortVal(void *to,
     return OK;
 }
 
-/******************************************************************************
- * From Long record buffer
- ******************************************************************************/
+//
+// From Long record buffer
+//
 LOCAL long fromLongVal(void *to,
                        int32_t *from,
                        int noff,
@@ -660,9 +657,9 @@ LOCAL long fromLongVal(void *to,
     return OK;
 }
 
-/******************************************************************************
- * From Uchar record buffer
- ******************************************************************************/
+//
+// From Uchar record buffer
+//
 LOCAL long fromUcharVal(void *to,
                         uint8_t *from,
                         int noff,
@@ -698,9 +695,9 @@ LOCAL long fromUcharVal(void *to,
     return OK;
 }
 
-/******************************************************************************
- * From Ushort record buffer
- ******************************************************************************/
+//
+// From Ushort record buffer
+//
 LOCAL long fromUshortVal(void *to,
                          uint16_t *from,
                          int noff,
@@ -741,9 +738,9 @@ LOCAL long fromUshortVal(void *to,
     return OK;
 }
 
-/******************************************************************************
- * From Ulong record buffer
- ******************************************************************************/
+//
+// From Ulong record buffer
+//
 LOCAL long fromUlongVal(void *to,
                         uint32_t *from,
                         int noff,
@@ -789,9 +786,9 @@ LOCAL long fromUlongVal(void *to,
     return OK;
 }
 
-/******************************************************************************
- * BCD to Integer conversion
- ******************************************************************************/
+//
+// BCD to Integer conversion
+//
 uint32_t netDevBcd2Int(uint16_t bcd, void *precord)
 {
     uint32_t base = 1;
@@ -818,9 +815,9 @@ uint32_t netDevBcd2Int(uint16_t bcd, void *precord)
     return dec;
 }
 
-/******************************************************************************
- * Integer to BCD conversion
- ******************************************************************************/
+//
+// Integer to BCD conversion
+//
 uint16_t netDevInt2Bcd(int32_t dec, void *precord)
 {
     if (dec<BCDMIN_INT) {

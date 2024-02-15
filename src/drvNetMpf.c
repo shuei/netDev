@@ -195,9 +195,9 @@ static const iocshFuncDef showrttDef = {"showrtt", 1, showrttArgs};
 
 static const iocshFuncDef stoprttDef = {"stoprtt", 0, NULL};
 
-/*
- * Report
- */
+//
+// Report
+//
 LOCAL long report(void)
 {
     printf("drvNetMpf: report() has currently nothing to do.\n");
@@ -205,9 +205,9 @@ LOCAL long report(void)
     return OK;
 }
 
-/*
- *
- */
+//
+// Init
+//
 LOCAL long init(void)
 {
     LOGMSG("drvNetMpf: init() entered\n");
@@ -277,9 +277,9 @@ LOCAL long init(void)
     return OK;
 }
 
-/*
- * Creates semaphores
- */
+//
+// Creates semaphores
+//
 LOCAL long create_semaphores(PEER *p) {
     LOGMSG("drvNetMpf: create_semaphores(%8p)\n", p);
 
@@ -306,9 +306,9 @@ LOCAL long create_semaphores(PEER *p) {
     return OK;
 }
 
-/*
- * Spawn I/O tasks
- */
+//
+// Spawn I/O tasks
+//
 LOCAL long spawn_io_tasks(PEER *p)
 {
     char *send_t_name = "tSndTsk";
@@ -346,11 +346,11 @@ LOCAL long spawn_io_tasks(PEER *p)
     return OK;
 }
 
-/*
- * Deletes peer
- * This function should be called only before
- * the peer is added to the peerList.
- */
+//
+// Deletes peer
+// This function should be called only before
+// the peer is added to the peerList.
+//
 LOCAL void delete_peer(PEER *p)
 {
     LOGMSG("drvNetMpf: delete_peer(%8p)\n", p);
@@ -358,9 +358,9 @@ LOCAL void delete_peer(PEER *p)
     if (p->mpf.sfd) {
         close(p->mpf.sfd);
     }
-    /*
-      if (p->wd_id)epicsTimerDestroy(p->wd_id);
-    */
+
+    //if (p->wd_id) epicsTimerDestroy(p->wd_id);
+
     if (p->next_cycle) {
         epicsEventDestroy(p->next_cycle);
     }
@@ -380,9 +380,9 @@ LOCAL void delete_peer(PEER *p)
     free(p);
 }
 
-/*
- * Creates and initialize peer structure
- */
+//
+// Creates and initialize peer structure
+//
 PEER *drvNetMpfInitPeer(struct sockaddr_in peer_addr, int option)
 {
     if (!init_flag) {
@@ -482,9 +482,9 @@ PEER *drvNetMpfInitPeer(struct sockaddr_in peer_addr, int option)
     return p;
 }
 
-/*
- * Send request
- */
+//
+// Send request
+//
 long drvNetMpfSendRequest(TRANSACTION *t)
 {
     LOGMSG("drvNetMpf: drvNetMpfSendRequest(%8p)\n", t);
@@ -515,9 +515,9 @@ long drvNetMpfSendRequest(TRANSACTION *t)
     return OK;
 }
 
-/*
- * Get request from queue
- */
+//
+// Get request from queue
+//
 LOCAL TRANSACTION *get_request_from_queue(PEER *p)
 {
     TRANSACTION *t;
@@ -530,9 +530,9 @@ LOCAL TRANSACTION *get_request_from_queue(PEER *p)
     return t;
 }
 
-/*
- * Send message
- */
+//
+// Send message
+//
 LOCAL int send_msg(MPF_COMMON *m)
 {
     void *cur = m->send_buf;
@@ -576,9 +576,9 @@ LOCAL int send_msg(MPF_COMMON *m)
     return OK;
 }
 
-/*
- * Reconnect
- */
+//
+// Reconnect
+//
 LOCAL void reconnect(MPF_COMMON *m)
 {
     LOGMSG("drvNetMpf: reconnect(%8p)\n", m);
@@ -620,10 +620,8 @@ LOCAL void reconnect(MPF_COMMON *m)
         }
     } else {
         int true = TRUE;
-        /*
-         * turn on KEEPALIVE so if the client system crashes
-         * this task will find out and suspend
-         */
+        // turn on KEEPALIVE so if the client system crashes
+        // this task will find out and suspend
         while (setsockopt(m->sfd,
                           SOL_SOCKET,
                           SO_KEEPALIVE,
@@ -645,9 +643,9 @@ LOCAL void reconnect(MPF_COMMON *m)
     }
 }
 
-/*
- * Receive message
- */
+//
+// Receive message
+//
 LOCAL int recv_msg(MPF_COMMON *m)
 {
     void *cur = m->recv_buf;
@@ -712,9 +710,9 @@ LOCAL int recv_msg(MPF_COMMON *m)
     return OK;
 }
 
-/*
- * Send task
- */
+//
+// Send task
+//
 LOCAL void send_task(PEER *p)
 {
     for (;;) {
@@ -764,7 +762,7 @@ LOCAL void send_task(PEER *p)
             }
 #ifdef SANITY_CHECK
             {
-                /* sanity check */
+                // sanity check
                 uint32_t delta =
                         t->io.async.cancel_counter + t->io.async.receive_counter +
                         t->io.async.timeout_counter - t->io.async.send_counter;
@@ -783,9 +781,9 @@ LOCAL void send_task(PEER *p)
                     errlogPrintf("send   : %d times\n", t->io.async.send_counter);
                     errlogPrintf("delta  : %d times\n", delta);
                 }
-#endif /* SANITY_PRINT */
+#endif // SANITY_PRINT
             }
-#endif /* SANITY_CHECK */
+#endif // SANITY_CHECK
 
             t->io.async.timeout_flag = 0;
             p->in_transaction = t;
@@ -816,9 +814,9 @@ LOCAL void send_task(PEER *p)
     }
 }
 
-/*
- * Receve task
- */
+//
+// Receve task
+//
 LOCAL void receive_task(PEER *p)
 {
     reconnect(&p->mpf);
@@ -883,9 +881,9 @@ LOCAL void receive_task(PEER *p)
     }
 }
 
-/*
- * Timeout handler
- */
+//
+// Timeout handler
+//
 LOCAL void mpf_timeout_handler(PEER *p)
 {
     TRANSACTION *t;
@@ -918,9 +916,9 @@ LOCAL void mpf_timeout_handler(PEER *p)
     }
 }
 
-/*
- * Register event
- */
+//
+// Register event
+//
 long drvNetMpfRegisterEvent(TRANSACTION *t)
 {
     LOGMSG("drvNetMpf: drvNetMpfRegisterEvent(%8p)\n", t);
@@ -988,10 +986,8 @@ LOCAL int tcp_parent(SERVER *s)
             continue;
         }
 
-        /*
-         * turn on KEEPALIVE so if the client system crashes
-         * this task will find out and suspend
-         */
+        // turn on KEEPALIVE so if the client system crashes
+        // this task will find out and suspend
         int true = TRUE;
         if (setsockopt(new_sfd,
                        SOL_SOCKET,
@@ -1025,7 +1021,7 @@ LOCAL int tcp_parent(SERVER *s)
         if (!t) {
             errlogPrintf("drvNetMpf: unexpected connection request from %s\n", visitor);
             close(new_sfd);
-            continue; /* while (TRUE) */
+            continue; // while (TRUE)
         }
 
         errlogPrintf("drvNetMpf: connection request from %s\n", visitor);
@@ -1034,7 +1030,7 @@ LOCAL int tcp_parent(SERVER *s)
         if (!c) {
             errlogPrintf("drvNetMpf: calloc failed\n");
             close(new_sfd);
-            continue; /* while (TRUE) */
+            continue; // while (TRUE)
         }
 
         c->mpf.sfd = new_sfd;
@@ -1046,7 +1042,7 @@ LOCAL int tcp_parent(SERVER *s)
         if ((c->eventQ_mutex = epicsMutexCreate()) == 0) {
             errlogPrintf("drvNetMpf: epicsMutexCreate failed\n");
             delete_server(c);
-            continue; /* while (TRUE) */
+            continue; // while (TRUE)
         }
 
         epicsMutexMustLock(c->eventQ_mutex);
@@ -1059,20 +1055,20 @@ LOCAL int tcp_parent(SERVER *s)
         if (!c->mpf.send_buf) {
             errlogPrintf("drvNetMpf: calloc failed (send_buf)\n");
             delete_server(c);
-            continue; /* while (TRUE) */
+            continue; // while (TRUE)
         }
 
         c->mpf.recv_buf = calloc(1, RECV_BUF_SIZE(c->mpf.option));
         if (!c->mpf.recv_buf) {
             errlogPrintf("drvNetMpf: calloc failed (recv_buf)\n");
             delete_server(c);
-            continue; /* while (TRUE) */
+            continue; // while (TRUE)
         }
 
         if (spawn_server_task(c) == ERROR) {
             errlogPrintf("drvNetMpf: spawn_sever_tasks failed\n");
             delete_server(c);
-            continue; /* while (TRUE) */
+            continue; // while (TRUE)
         }
 
         epicsMutexMustLock(serverList.mutex);
@@ -1083,9 +1079,9 @@ LOCAL int tcp_parent(SERVER *s)
     }
 }
 
-/*
- * Create TCP parent
- */
+//
+// Create TCP parent
+//
 LOCAL long spawn_tcp_parent(SERVER *s)
 {
     LOGMSG("drvNetMpf: spawn_tcp_parent(%8p)\n", s);
@@ -1107,9 +1103,9 @@ LOCAL long spawn_tcp_parent(SERVER *s)
     return OK;
 }
 
-/*
- * Creates socket and connect
- */
+//
+// Creates socket and connect
+//
 LOCAL long prepare_udp_server_socket(SERVER *s)
 {
     LOGMSG("drvNetMpf: prepare_udp_server_socket(%8p)\n", s);
@@ -1141,9 +1137,9 @@ LOCAL long prepare_udp_server_socket(SERVER *s)
     return OK;
 }
 
-/*
- * Spawn server task
- */
+//
+// Spawn server task
+//
 LOCAL long spawn_server_task(SERVER *s)
 {
     LOGMSG("drvNetMpf: spawn_server_task(%8p)\n", s);
@@ -1166,15 +1162,13 @@ LOCAL long spawn_server_task(SERVER *s)
     return OK;
 }
 
-/*
- * Deletes server
- */
+//
+// Delete server
+//
 LOCAL void delete_server(SERVER *s)
 {
-    /*
-     * This function should be called only before
-     * the server is added to the serverList.
-     */
+    // This function should be called only before
+    // the server is added to the serverList.
     LOGMSG("drvNetMpf: delete_server(%8p)\n", s);
 
     if (s->parent) {
@@ -1209,9 +1203,9 @@ LOCAL void delete_server(SERVER *s)
     free(s);
 }
 
-/*
- * Creates and initialize server structure
- */
+//
+// Creates and initialize server structure
+//
 SERVER *drvNetMpfInitServer(unsigned short port, int option)
 {
     LOGMSG("drvNetMpf: drvNetMpfInitServer(0x%04x,0x%08x)\n", port, option);
@@ -1232,9 +1226,7 @@ SERVER *drvNetMpfInitServer(unsigned short port, int option)
                 return NULL;
             }
 
-            /*
-             * only one (parent) server for a specific port
-             */
+            // only one (parent) server for a specific port
             epicsMutexUnlock(serverList.mutex);
             return s;
         }
@@ -1304,9 +1296,9 @@ SERVER *drvNetMpfInitServer(unsigned short port, int option)
     return s;
 }
 
-/*
- * Searches for event acceptor
- */
+//
+// Searches for event acceptor
+//
 LOCAL int event_server(SERVER *s)
 {
     for (;;) {
@@ -1386,9 +1378,9 @@ LOCAL int event_server(SERVER *s)
     return OK;
 }
 
-/*
- * remove server
- */
+//
+// Remove server
+//
 LOCAL void remove_server(SERVER *target)
 {
     SERVER *s;
@@ -1409,17 +1401,17 @@ LOCAL void remove_server(SERVER *target)
     }
 }
 
-/*
- * Prints diagnosis facilities
- */
+//
+// Starts event server
+//
 void startEventServer(const iocshArgBuf *args)
 {
     event_server_start_flag = 1;
 }
 
-/*
- * Prints diagnosis facilities
- */
+//
+// Prints diagnosis facilities
+//
 void mpfHelp(const iocshArgBuf *args)
 {
     printf("\n");
@@ -1464,9 +1456,9 @@ void mpfHelp(const iocshArgBuf *args)
     printf("\n");
 }
 
-/*
- * Shows peer info
- */
+//
+// Shows peer info
+//
 void peerShow(const iocshArgBuf *args)
 {
     PEER *p;
@@ -1509,17 +1501,15 @@ void peerShow(const iocshArgBuf *args)
         printf("  recv_buf_addr:     %8p\n", p->mpf.recv_buf);
     }
 
-    if (args[1].ival > 1) {
-        /*
-          d(p->mpf.recv_buf, 0, 1);
-          printf("\n\n\n");
-        */
-    }
+    //if (args[1].ival > 1) {
+    //    d(p->mpf.recv_buf, 0, 1);
+    //    printf("\n\n\n");
+    //}
 }
 
-/*
- * peerShow for all peers
- */
+//
+// peerShow for all peers
+//
 void peerShowAll(const iocshArgBuf *args)
 {
     PEER *p;
@@ -1541,9 +1531,9 @@ void peerShowAll(const iocshArgBuf *args)
     epicsMutexUnlock(peerList.mutex);
 }
 
-/*
- * Shows server info
- */
+//
+// Shows server info
+//
 void serverShow(const iocshArgBuf *args)
 {
     SERVER *s;
@@ -1581,17 +1571,15 @@ void serverShow(const iocshArgBuf *args)
         printf("  recv_buff_addr:      %8p\n", s->mpf.recv_buf);
     }
 
-    if (args[1].ival > 1) {
-        /*
-          d(s->mpf.recv_buf, 0, 1);
-          printf("\n\n\n");
-        */
-    }
+    //if (args[1].ival > 1) {
+    //    d(s->mpf.recv_buf, 0, 1);
+    //    printf("\n\n\n");
+    //}
 }
 
-/*
- * serverShow for all servers
- */
+//
+// serverShow for all servers
+//
 void serverShowAll(const iocshArgBuf *args)
 {
     SERVER *s;
@@ -1613,6 +1601,9 @@ void serverShowAll(const iocshArgBuf *args)
     epicsMutexUnlock(serverList.mutex);
 }
 
+//
+//
+//
 void showMsg(const iocshArgBuf *args)
 {
     PEER *p;
@@ -1632,6 +1623,9 @@ void showMsg(const iocshArgBuf *args)
     }
 }
 
+//
+//
+//
 void stopMsg(const iocshArgBuf *args)
 {
     PEER *p;
@@ -1644,6 +1638,9 @@ void stopMsg(const iocshArgBuf *args)
     epicsMutexUnlock(peerList.mutex);
 }
 
+//
+//
+//
 void showEventMsg(const iocshArgBuf *args)
 {
     SERVER *s;
@@ -1675,9 +1672,9 @@ void stopEventMsg(const iocshArgBuf *args)
     epicsMutexUnlock(serverList.mutex);
 }
 
-/*
- * Dumps message
- */
+//
+// Dumps message
+//
 void dump_msg(uint8_t *pbuf, ssize_t count, int dir, int flag)
 {
     if (dir) {
@@ -1696,6 +1693,9 @@ void dump_msg(uint8_t *pbuf, ssize_t count, int dir, int flag)
     printf("\n");
 }
 
+//
+//
+//
 void setTmoEventNum(const iocshArgBuf *args)
 {
     char *hostname = args[0].sval;
@@ -1733,6 +1733,9 @@ void setTmoEventNum(const iocshArgBuf *args)
     }
 }
 
+//
+//
+//
 void enableTmoEvent(const iocshArgBuf *args)
 {
     char *hostname = args[0].sval;
@@ -1769,6 +1772,9 @@ void enableTmoEvent(const iocshArgBuf *args)
     }
 }
 
+//
+//
+//
 void disableTmoEvent(const iocshArgBuf *args)
 {
     char *hostname = args[0].sval;
@@ -1805,6 +1811,9 @@ void disableTmoEvent(const iocshArgBuf *args)
     }
 }
 
+//
+//
+//
 void showmsg(const iocshArgBuf *args)
 {
     char *hostname = args[0].sval;
@@ -1862,11 +1871,17 @@ void showmsg(const iocshArgBuf *args)
     epicsMutexUnlock(showmsgList.mutex);
 }
 
+//
+//
+//
 void stopmsg(const iocshArgBuf *args)
 {
     ellFree(&showmsgList.list);
 }
 
+//
+//
+//
 void do_showmsg(MPF_COMMON *m, uint8_t *buf, int count, int dir)
 {
     epicsMutexMustLock(showmsgList.mutex);
@@ -1885,6 +1900,9 @@ void do_showmsg(MPF_COMMON *m, uint8_t *buf, int count, int dir)
     epicsMutexUnlock(showmsgList.mutex);
 }
 
+//
+//
+//
 void showio(const iocshArgBuf *args)
 {
     char *pv_name = args[0].sval;
@@ -1926,12 +1944,17 @@ void showio(const iocshArgBuf *args)
     epicsMutexUnlock(showioList.mutex);
 }
 
+//
+//
+//
 void stopio(const iocshArgBuf *args)
 {
     ellFree(&showioList.list);
 }
 
-
+//
+//
+//
 void do_showio(TRANSACTION *t, int dir)
 {
     static char *act[2] = {"Got", "Sending"};
@@ -1959,6 +1982,9 @@ void do_showio(TRANSACTION *t, int dir)
     epicsMutexUnlock(showioList.mutex);
 }
 
+//
+//
+//
 void showrtt(const iocshArgBuf *args)
 {
     char *hostname = args[0].sval;
@@ -1998,12 +2024,17 @@ void showrtt(const iocshArgBuf *args)
     epicsMutexUnlock(showrttList.mutex);
 }
 
+//
+//
+//
 void stoprtt(const iocshArgBuf *args)
 {
     ellFree(&showrttList.list);
 }
 
-
+//
+//
+//
 void do_showrtt(PEER *p)
 {
     epicsMutexMustLock(showrttList.mutex);

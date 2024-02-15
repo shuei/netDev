@@ -18,9 +18,9 @@
 
 #include <boRecord.h>
 
-/***************************************************************
- * Binary output (command/response IO)
- ***************************************************************/
+//
+// Binary output (command/response IO)
+//
 LOCAL long init_bo_record(boRecord *);
 LOCAL long write_bo(boRecord *);
 LOCAL long config_bo_command(dbCommon *, int *, uint8_t *, int *, void *, int);

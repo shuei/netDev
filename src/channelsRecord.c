@@ -31,7 +31,7 @@
 #include "channelsRecord.h"
 #undef  GEN_SIZE_OFFSET
 
-/* Create RSET - Record Support Entry Table */
+// Create RSET - Record Support Entry Table
 #define report NULL
 #define initialize NULL
 static long init_record(dbCommon *, int);
@@ -76,11 +76,12 @@ epicsExportAddress(rset, channelsRSET);
 #define ALARM_MSG_SIZE  MAX_STRING_SIZE
 #define ENG_UNIT_SIZE   8
 
-typedef struct channels_dset { /* channels dset */
+// channels dset
+typedef struct channels_dset {
     long       number;
     DEVSUPFUN  dev_report;
     DEVSUPFUN  init;
-    DEVSUPFUN  init_record; /*returns: (-1,0)=>(failure,success)*/
+    DEVSUPFUN  init_record; // returns: (-1,0)=>(failure,success)
     DEVSUPFUN  get_ioint_info;
     DEVSUPFUN  read_channels;
 } channels_dset;
@@ -102,7 +103,7 @@ static long init_record(dbCommon *precord, int pass)
         return S_dev_noDSET;
     }
 
-    /* must have read_channels function defined */
+    // must have read_channels function defined
     if ((pdset->number < 5) || (pdset->read_channels == NULL)) {
         recGblRecordError(S_dev_missingSup, pchan, "channels: Bad DSET");
         return S_dev_missingSup;
@@ -130,10 +131,10 @@ static long process(dbCommon *precord)
         return S_dev_missingSup;
     }
 
-    /* pact must not be set until after calling device support */
+    // pact must not be set until after calling device support
     long status = (*pdset->read_channels)(pchan);
 
-    /* check if device support set pact */
+    // check if device support set pact
     if (!pact && pchan->pact) {
         return 0;
     }
@@ -141,11 +142,11 @@ static long process(dbCommon *precord)
     pchan->pact = TRUE;
 
     recGblGetTimeStamp(pchan);
-    /* check for alarms */
+    // check for alarms
     checkAlarms(pchan);
-    /* check event list */
+    // check event list
     monitor(pchan);
-    /* process the forward scan link record */
+    // process the forward scan link record
     recGblFwdLink(pchan);
 
     pchan->pact=FALSE;

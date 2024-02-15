@@ -18,9 +18,9 @@
 
 #include <longoutRecord.h>
 
-/***************************************************************
- * Long output (command/respons IO)
- ***************************************************************/
+//
+// Long output (command/respons IO)
+//
 LOCAL long init_longout_record(longoutRecord *);
 LOCAL long write_longout(longoutRecord *);
 LOCAL long config_longout_command(dbCommon *, int *, uint8_t *, int *, void *, int);

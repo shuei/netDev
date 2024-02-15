@@ -34,7 +34,7 @@
 #include "statusRecord.h"
 #undef  GEN_SIZE_OFFSET
 
-/* Create RSET - Record Support Entry Table*/
+// Create RSET - Record Support Entry Table
 #define report NULL
 #define initialize NULL
 static long init_record();
@@ -76,16 +76,17 @@ rset statusRSET = {
 
 epicsExportAddress(rset, statusRSET);
 
-typedef struct statusdset { /* status dset */
+// status dset
+typedef struct statusdset {
     long      number;
     DEVSUPFUN dev_report;
     DEVSUPFUN init;
-    DEVSUPFUN init_record; /*returns: (-1,0)=>(failure,success)*/
+    DEVSUPFUN init_record; // returns: (-1,0)=>(failure,success)
     DEVSUPFUN get_ioint_info;
-    DEVSUPFUN read_status; /*returns: (-1,0)=>(failure,success)*/
+    DEVSUPFUN read_status; // returns: (-1,0)=>(failure,success)
 } statusdset;
 
-/*sizes of field types*/
+// sizes of field types
 static int sizeofTypes[] = {0,1,1,2,2,4,4,4,8,2};
 
 static void monitor();
@@ -107,14 +108,14 @@ static long init_record(statusRecord *pst, int pass)
         return 0;
     }
 
-    /* must have dset defined */
+    // must have dset defined/
     statusdset *pdset = (statusdset *)(pst->dset);
     if (!pdset) {
         recGblRecordError(S_dev_noDSET, pst, "status: init_record");
         return S_dev_noDSET;
     }
 
-    /* must have read_status function defined */
+    // must have read_status function defined
     if ((pdset->number < 5) || (pdset->read_status == NULL)) {
         recGblRecordError(S_dev_missingSup, pst, "status: init_record");
         return S_dev_missingSup;
@@ -141,10 +142,10 @@ static long process(statusRecord *pst)
         return S_dev_missingSup;
     }
 
-    /* status= */
-    readValue(pst); /* read the new value */
+    // status=
+    readValue(pst); // read the new value
 
-    /* check if device support set pact */
+    // check if device support set pact
     if (!pact && pst->pact) {
         return 0;
     }
@@ -155,7 +156,7 @@ static long process(statusRecord *pst)
 
     monitor(pst);
 
-    /* process the forward scan link record */
+    // process the forward scan link record
     recGblFwdLink(pst);
 
     pst->pact = FALSE;
@@ -213,8 +214,8 @@ static long readValue(statusRecord *pst)
 
     if (pst->pact == TRUE) {
         status = (*pdset->read_status)(pst);
-        return status; /* it seems that return value is not used at all */
+        return status; // it seems that return value is not used at all
     }
 
-    return status; /* it seems that return value is not used at all */
+    return status; // it seems that return value is not used at all
 }

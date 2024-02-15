@@ -40,7 +40,7 @@
 #include "arrayoutRecord.h"
 #undef  GEN_SIZE_OFFSET
 
-/* Create RSET - Record Support Entry Table*/
+// Create RSET - Record Support Entry Table
 #define report NULL
 #define initialize NULL
 static long init_record();
@@ -82,16 +82,17 @@ rset arrayoutRSET = {
 
 epicsExportAddress(rset, arrayoutRSET);
 
-typedef struct arodset { /* arrayout dset */
+// arrayout dset
+typedef struct arodset {
         long            number;
         DEVSUPFUN       dev_report;
         DEVSUPFUN       init;
-        DEVSUPFUN       init_record; /*returns: (-1,0)=>(failure,success)*/
+        DEVSUPFUN       init_record; // returns: (-1,0)=>(failure,success)
         DEVSUPFUN       get_ioint_info;
-        DEVSUPFUN       write_aro; /*returns: (-1,0)=>(failure,success)*/
+        DEVSUPFUN       write_aro;   // returns: (-1,0)=>(failure,success)
 } arodset;
 
-/*sizes of field types*/
+// sizes of field types
 static int sizeofTypes[] = {0,1,1,2,2,4,4,4,8,2};
 static void monitor();
 static long writeValue();
@@ -118,22 +119,24 @@ static long init_record(arrayoutRecord *pao, int pass)
         return 0;
     }
 
-    /* aro.siml must be a CONSTANT or a PV_LINK or a DB_LINK */
+    // aro.siml must be a CONSTANT, a PV_LINK, or a DB_LINK
     if (pao->siml.type == CONSTANT) {
         recGblInitConstantLink(&pao->siml, DBF_USHORT, &pao->simm);
     }
 
-    /* must have dset defined */
+    // must have dset defined
     arodset *pdset = (arodset *)(pao->dset);
     if (!pdset) {
         recGblRecordError(S_dev_noDSET, pao, "arrayout: No DSET");
         return S_dev_noDSET;
     }
-    /* must have write_aro function defined */
+
+    // must have write_aro function defined
     if ((pdset->number < 5) || (pdset->write_aro == NULL)) {
         recGblRecordError(S_dev_missingSup, pao, "arrayout: Bad DSET");
         return S_dev_missingSup;
     }
+
     if (pdset->init_record) {
         long status = (*pdset->init_record)(pao);
         if (status) {
@@ -169,8 +172,9 @@ static long process(arrayoutRecord *pao)
     }
 
     //long status =
-    writeValue(pao); /* write the new value */
-    /* check if device support set pact */
+    writeValue(pao); // write the new value
+
+    // check if device support set pact
     if (!pact && pao->pact) {
         return 0;
     }
@@ -180,7 +184,8 @@ static long process(arrayoutRecord *pao)
     recGblGetTimeStamp(pao);
 
     monitor(pao);
-    /* process the forward scan link record */
+
+    // process the forward scan link record
     recGblFwdLink(pao);
 
     pao->pact = FALSE;
@@ -304,7 +309,8 @@ static long writeValue(arrayoutRecord *pao)
     if (pao->simm == menuYesNoYES) {
         long nRequest = pao->nelm;
         status=dbPutLink(&(pao->siol), pao->ftvl, pao->bptr, nRequest);
-        /* nowt set only for db links: needed for old db_access */
+
+        // nowt set only for db links: needed for old db_access
         if (pao->siol.type != CONSTANT) {
             pao->nowt = nRequest;
             if (status == 0) {

@@ -9,16 +9,13 @@
  * in file LICENSE that is included with this distribution.
  ****************************************************************************/
 /* Author: Jun-ichi Odagiri */
-/* Modification Log:
- * -----------------
- */
 
 #include <epicsExport.h>
 #include <stringoutRecord.h>
 
-/***************************************************************
- * String output (command/respons IO)
- ***************************************************************/
+//
+// String output (command/respons IO)
+//
 LOCAL long init_so_record(stringoutRecord *);
 LOCAL long write_so(stringoutRecord *);
 LOCAL long config_so_command(dbCommon *, int *, uint8_t *, int *, void *, int);

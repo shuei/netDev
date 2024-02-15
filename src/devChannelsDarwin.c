@@ -9,21 +9,16 @@
  * in file LICENSE that is included with this distribution.
  ****************************************************************************/
 /* Author: Jun-ichi Odagiri*/
-/* Modification Log:
- * -----------------
- */
 
 #include <epicsExport.h>
 #include <channelsRecord.h>
 
-/* cmtout = not debub
-#define DEBUG
- */
+// #define DEBUG // uncomment to enable debug output
 #define MAX_NUM_CHANNELS  90
 
-/***************************************************************
- * Response parser
- ***************************************************************/
+//
+// Response parser
+//
 LOCAL long init_chan_record(channelsRecord *);
 LOCAL long read_chan(channelsRecord *);
 LOCAL long config_chan_command(dbCommon *, int *, uint8_t *, int *, void *, int);
@@ -162,7 +157,7 @@ LOCAL long parse_chan_response(dbCommon *pxx,
     if (strncmp(pchan->mode, "EF", 2) == 0) {
         p = buf + DATA_LENGTH_OFFSET;
         if (DARWIN_NEEDS_SWAP) {
-            /* printf("swapping Data Length\n"); */
+            // printf("swapping Data Length\n");
             swap_bytes(p, 1);
         }
 
@@ -186,7 +181,7 @@ LOCAL long parse_chan_response(dbCommon *pxx,
                  p[0], p[1], p[2], p[3], p[4], p[5], p[6]);
 #endif
         for (n = 0; n < nelm; n++) {
-            p = buf + CAHNNEL_OFFSET(n, alst); /* p points to Unit No. */
+            p = buf + CAHNNEL_OFFSET(n, alst); // p points to Unit No.
 
             if (d->unit && (*p != d->unit)) {
                 errlogPrintf("parse_chan_response: read Unit No.(%d) dose not match with specified(%d) (\"%s\")\n",
@@ -194,19 +189,17 @@ LOCAL long parse_chan_response(dbCommon *pxx,
                 return ERROR;
             }
 
-            p++; /* p points to Chan No. */
+            p++; // p points to Chan No.
 
-            /* can not do consistency check without knowing the configuration of channels on the device */
-            /*
-            if (*p != (uint8_t)(d->p1 + n)) {
-                errlogPrintf("parse_chan_response: Chan No.dose not match, %d, %d, %d(\"%s\")\n",
-                             *p, d->p1 + n, d->p1, pchan->name);
-                return ERROR;
-            }
-            */
+            // can not do consistency check without knowing the configuration of channels on the device
+            //if (*p != (uint8_t)(d->p1 + n)) {
+            //    errlogPrintf("parse_chan_response: Chan No.dose not match, %d, %d, %d(\"%s\")\n",
+            //                 *p, d->p1 + n, d->p1, pchan->name);
+            //    return ERROR;
+            //}
 
             if (pchan->alst) {
-                p++; /* p points to Alarm Sts */
+                p++; // p points to Alarm Sts
 #ifdef vxWorks
                 sprintf(((uint8_t *)albp) + ALARM_MSG_SIZE*n,
                         "L1: %d, L2: %d, L3: %d, L4: %d",
@@ -220,7 +213,7 @@ LOCAL long parse_chan_response(dbCommon *pxx,
                          (p[1]) & 0x0f, (p[1] >> 4) & 0x0f);
             }
 #endif
-            p = buf + DATA_OFFSET(n, alst); /* p points to Data on CH */
+            p = buf + DATA_OFFSET(n, alst); // p points to Data on CH
             if (DARWIN_NEEDS_SWAP) {
                 swap_bytes(p, 1);
             }
@@ -254,14 +247,12 @@ LOCAL long parse_chan_response(dbCommon *pxx,
 
             unit[6] = '\0';
 
-            /* can not do consistency check without knowing the configuration of channels on the device */
-            /*
-            if (chan != d->p1 + n) {
-                errlogPrintf("parse_chan_response:EL channel dose not match: %d, %d\n", chan, d->p1 + n);
-                strcpy(pchan->mode, "EF");
-                return ERROR;
-            }
-            */
+            // can not do consistency check without knowing the configuration of channels on the device
+            //if (chan != d->p1 + n) {
+            //    errlogPrintf("parse_chan_response:EL channel dose not match: %d, %d\n", chan, d->p1 + n);
+            //    strcpy(pchan->mode, "EF");
+            //    return ERROR;
+            //}
 
             if (sps != ' ') {
                 LOGMSG("parse_chan_response:EL leading char is not SPACE(\"%s\", 0x%02x, %d)\n", pchan->name, sts,chan);

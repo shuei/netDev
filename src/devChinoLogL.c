@@ -17,9 +17,6 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  ****************************************************************************/
 /* Author : Makoto Tobiyama 19/Jul/2005 */
-/* Modification Log:
- * -----------------
- */
 
 #include <dbFldTypes.h>
 #include <epicsExport.h>
@@ -27,7 +24,7 @@
 #include "drvNetMpf.h"
 #include "devNetDev.h"
 
-#define CHINOL_CMND_LENGTH 8  /* not correct */
+#define CHINOL_CMND_LENGTH 8  // not correct
 #define CHINOL_UDP_PORT    11111
 #define CHINOL_GET_PROTO chino_get_protocol()
 #define CHINOL_MAX_NDATA 5120
@@ -93,9 +90,9 @@ LOCAL void *chino_calloc(
 
 #include "devWaveformChinoLogL.c"
 
-/*********************************************************************************
- * Link field parser for command/response I/O
- *********************************************************************************/
+//
+// Link field parser for command/response I/O
+//
 LOCAL long chino_parse_link(DBLINK *plink,
                             struct sockaddr_in *peer_addr,
                             int *option,
@@ -113,7 +110,7 @@ LOCAL long chino_parse_link(DBLINK *plink,
     if (parseLinkPlcCommon(plink,
                            peer_addr,
                            &protocol,
-                           &route, /* dummy */
+                           &route, // dummy
                            &unit,
                            &type,
                            &addr,
@@ -173,9 +170,9 @@ LOCAL long chino_parse_link(DBLINK *plink,
     return OK;
 }
 
-/******************************************************************************
- * Command constructor for command/response I/O
- ******************************************************************************/
+//
+// Command constructor for command/response I/O
+//
 LOCAL unsigned short calCRC(unsigned char cd[], int nmax)
 {
     unsigned short iP  = 0x0000;
@@ -215,12 +212,12 @@ LOCAL unsigned short calCRC(unsigned char cd[], int nmax)
     return iC1*256 + iC2;
 }
 
-LOCAL long chino_config_command(uint8_t *buf,    /* driver buf addr     */
-                                int     *len,    /* driver buf size     */
-                                void    *bptr,   /* record buf addr     */
-                                int      ftvl,   /* record field type   */
-                                int      ndata,  /* n to be transferred */
-                                int     *option, /* direction etc.      */
+LOCAL long chino_config_command(uint8_t *buf,    // driver buf addr
+                                int     *len,    // driver buf size
+                                void    *bptr,   // record buf addr
+                                int      ftvl,   // record field type
+                                int      ndata,  // n to be transferred
+                                int     *option, // direction etc.
                                 CHINOL_LOG *d,
                                 int      sid
                                 )
@@ -236,17 +233,17 @@ LOCAL long chino_config_command(uint8_t *buf,    /* driver buf addr     */
         return ERROR;
     }
 
-    buf[ 0] = d->slvA;           /* slave address */
-    buf[ 1] = d->cmd;            /* command */
-    buf[ 2] = d->start>>8;       /* start address (H) */
-    buf[ 3] = d->start;          /* start address (L) */
-    buf[ 4] = 0x00;              /* number (H) */
-    buf[ 5] = (d->data_trans)*2; /* number (L) 0x0c */
+    buf[ 0] = d->slvA;           // slave address
+    buf[ 1] = d->cmd;            // command
+    buf[ 2] = d->start>>8;       // start address (H)
+    buf[ 3] = d->start;          // start address (L)
+    buf[ 4] = 0x00;              // number (H)
+    buf[ 5] = (d->data_trans)*2; // number (L) 0x0c
 
     int resCRC = calCRC(buf,6);
 
-    buf[ 6] = resCRC>>8;          /* crc (H) */
-    buf[ 7] = resCRC;             /* crc (L) */
+    buf[ 6] = resCRC>>8;          // crc (H)
+    buf[ 7] = resCRC;             // crc (L)
 
     LOGMSG("devChinoLogL: command = %x %x %x %x %x %x %x %x\n",buf[0],buf[1],buf[2],buf[3],buf[4],buf[5],buf[6],buf[7]);
 
@@ -276,9 +273,9 @@ LOCAL long chino_config_command(uint8_t *buf,    /* driver buf addr     */
     return 0;
 }
 
-/*******************************************************************************
- * Response parser for command/response I/O
- *******************************************************************************/
+//
+// Response parser for command/response I/O
+//
 LOCAL int TwoRawToVal(unsigned char bu[], int offset, float *res)
 {
     float f1;
@@ -316,12 +313,12 @@ LOCAL int TwoRawToVal(unsigned char bu[], int offset, float *res)
     return (bu[offset+3] & 0xf0);
 }
 
-LOCAL long chino_parse_response(uint8_t *buf,    /* driver buf addr     */
-                                int     *len,    /* driver buf size     */
-                                void    *bptr,   /* record buf addr     */
-                                int      ftvl,   /* record field type   */
-                                int      ndata,  /* n to be transferred */
-                                int     *option, /* direction etc.      */
+LOCAL long chino_parse_response(uint8_t *buf,    // driver buf addr
+                                int     *len,    // driver buf size
+                                void    *bptr,   // record buf addr
+                                int      ftvl,   // record field type
+                                int      ndata,  // n to be transferred
+                                int     *option, // direction etc.
                                 CHINOL_LOG *d,
                                 int      sid
                                 )

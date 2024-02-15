@@ -9,9 +9,6 @@
  * in file LICENSE that is included with this distribution.
  ****************************************************************************/
 /* Author: Jun-ichi Odagiri (jun-ichi.odagiri@kek.jp, KEK) */
-/* Modification Log:
- * -----------------
- */
 
 #include <netdb.h>
 
@@ -30,9 +27,9 @@ LOCAL void  net_dev_async_completion(CALLBACK *);
 LOCAL void *net_dev_init_private(DBLINK *, int *, parse_link_fn_t, void *);
 LOCAL void  sync_io_completion(CALLBACK *);
 
-/*******************************************************************************
- * Get io interrupt info
- *******************************************************************************/
+//
+// Get io interrupt info
+//
 long netDevGetIoIntInfo(int cmd, dbCommon *pxx, IOSCANPVT *ppvt)
 {
     LOGMSG("devNetDev: netDevGetIoIntInfo(\"%s\",%d,%8p,%8p)\n", pxx->name, cmd, pxx, ppvt);
@@ -53,9 +50,9 @@ long netDevGetIoIntInfo(int cmd, dbCommon *pxx, IOSCANPVT *ppvt)
     return OK;
 }
 
-/*******************************************************************************
- * Xx Initialization (Called one time for each Xx record)
- *******************************************************************************/
+//
+// Xx Initialization (Called one time for each Xx record)
+//
 long netDevInitXxRecord(dbCommon *pxx,
                         DBLINK *plink,
                         int option,
@@ -120,9 +117,9 @@ long netDevInitXxRecord(dbCommon *pxx,
     return OK;
 }
 
-/*******************************************************************************
- * Perform read/write operation for Xx record
- *******************************************************************************/
+//
+// Perform read/write operation for Xx record
+//
 long netDevReadWriteXx(dbCommon *pxx)
 {
     TRANSACTION *t = (TRANSACTION *)pxx->dpvt;
@@ -170,9 +167,9 @@ long netDevReadWriteXx(dbCommon *pxx)
     return OK;
 }
 
-/*******************************************************************************
- * Asynchrouos read completion routine for Xx record
- *******************************************************************************/
+//
+// Asynchrouos read completion routine for Xx record
+//
 LOCAL void net_dev_async_completion(CALLBACK *pcb)
 {
     LOGMSG("devNetDev: net_dev_async_completion(%8p)\n", pcb);
@@ -188,9 +185,9 @@ LOCAL void net_dev_async_completion(CALLBACK *pcb)
     dbScanUnlock(pxx);
 }
 
-/*******************************************************************************
- * netDevInit()
- *******************************************************************************/
+//
+// netDevInit()
+//
 long netDevInit(void)
 {
     if (init_flag != 0) {
@@ -203,9 +200,9 @@ long netDevInit(void)
     return OK;
 }
 
-/********************************************************************************
- * net_dev_init_private()
- ********************************************************************************/
+//
+// net_dev_init_private()
+//
 LOCAL void *net_dev_init_private(DBLINK *plink,
                                  int *option,
                                  parse_link_fn_t parse_link,
@@ -388,16 +385,15 @@ int netDevDeleteInternalIO(TRANSACTION *t)
     return OK;
 }
 
-/*******************************************************************************
- * Get host(self) id in cpu native byte order
- *******************************************************************************/
+//
+// Get host(self) id in cpu native byte order
+//
 #ifdef vxWorks
 #include <sysLib.h>
-/*
- * Modified from We7000_get_host_ip
- * Returns the IP address of IOC *** WITHOUT *** converting
- * it into network byte ordering.
- */
+// Modified from We7000_get_host_ip
+// Returns the IP address of IOC *** WITHOUT *** converting
+// it into network byte ordering.
+//
 uint32_t netDevGetSelfId(void)
 {
     static long host_ip = 0;
@@ -415,7 +411,7 @@ uint32_t netDevGetSelfId(void)
         return ERROR;
     }
 
-    /* ead == `xxx.xxx.xxx.xxx:netmask' */
+    // ead == `xxx.xxx.xxx.xxx:netmask'
     sscanf(sysBootParams.ead, "%[0-9.]", ead);
 
     host_ip = inet_addr(ead);
@@ -425,7 +421,7 @@ uint32_t netDevGetSelfId(void)
         return ERROR;
     }
 
-    /* network byte order to host local byte order */
+    // network byte order to host local byte order
     return ntohl(host_ip);
 }
 #else
@@ -447,14 +443,14 @@ uint32_t netDevGetSelfId(void)
         return ERROR;
     }
 
-    /* network byte order to host local byte order */
+    // network byte order to host local byte order
     return ntohl(host_ip);
 }
 #endif
 
-/*******************************************************************************
- * Get host id
- *******************************************************************************/
+//
+// Get host id
+//
 #ifdef vxWorks
 long netDevGetHostId(char *hostname, int *hostid)
 {
@@ -468,7 +464,7 @@ long netDevGetHostId(char *hostname, int *hostid)
         }
     }
 
-    /* already in network byte order */
+    // already in network byte order
     return OK;
 }
 #else
@@ -486,14 +482,14 @@ long netDevGetHostId(char *hostname, in_addr_t *hostid)
         }
     }
 
-    /* already in network byte order */
+    // already in network byte order
     return OK;
 }
 #endif
 
-/*******************************************************************************
- * Set event message length
- *******************************************************************************/
+//
+// Set event message length
+//
 long netDevSetEvMsgLeng(dbCommon *pxx, int len)
 {
     TRANSACTION *t = (TRANSACTION *)pxx->dpvt;

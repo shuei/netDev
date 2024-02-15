@@ -9,9 +9,6 @@
  * in file LICENSE that is included with this distribution.
  ****************************************************************************/
 /* Author: Jun-ichi Odagiri (jun-ichi.odagiri@kek.jp, KEK) */
-/* Modification Log:
- * -----------------
- */
 
 #include <devSup.h>
 #include <dbCommon.h>
@@ -76,9 +73,6 @@ long         parseLinkPlcCommon(DBLINK *, struct sockaddr_in *,
                             char **, char **, char **, char **, char **, char **);
 long         fromRecordVal(void *, int, void *, int, int, int, int);
 long         toRecordVal(void *, int, int, void *, int, int, int);
-
-
-
 
 //
 TRANSACTION *netDevInitInternalIO(dbCommon *, struct sockaddr_in,

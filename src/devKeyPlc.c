@@ -9,9 +9,6 @@
  * in file LICENSE that is included with this distribution.
  ****************************************************************************/
 /* Author: Jun-ichi Odagiri (jun-ichi.odagiri@kek.jp, KEK) */
-/* Modification Log:
- * -----------------
- */
 
 #include <dbFldTypes.h>
 #include <epicsExport.h>
@@ -126,9 +123,9 @@ LOCAL void *key_calloc(uint32_t addr,
 #include        "devWaveformKeyPlc.c"
 #include        "devArrayoutKeyPlc.c"
 
-/*********************************************************************************
- * Link field parser for both command/response I/O and event driven I/O
- *********************************************************************************/
+//
+// Link field parser for both command/response I/O and event driven I/O
+//
 LOCAL long key_parse_link(DBLINK *plink,
                           struct sockaddr_in *peer_addr,
                           int *option,
@@ -148,7 +145,7 @@ LOCAL long key_parse_link(DBLINK *plink,
     if (parseLinkPlcCommon(plink,
                            peer_addr,
                            &protocol,
-                           &route, /* dummy */
+                           &route, // dummy
                            &unit,
                            &type,
                            &addr,
@@ -165,7 +162,7 @@ LOCAL long key_parse_link(DBLINK *plink,
 
     if (unit) {
         errlogPrintf("devKeyPlc: neglected specified unit \"%s\"\n", unit);
-        /* keep going */
+        // keep going
     }
 
     if (!type) {
@@ -221,15 +218,15 @@ LOCAL long key_parse_link(DBLINK *plink,
     return OK;
 }
 
-/******************************************************************************
- * Command constructor for command/response I/O
- ******************************************************************************/
-LOCAL long key_config_command(uint8_t *buf,    /* driver buf addr     */
-                              int     *len,    /* driver buf size     */
-                              void    *bptr,   /* record buf addr     */
-                              int      ftvl,   /* record field type   */
-                              int      ndata,  /* number of elements to be transferred */
-                              int     *option, /* direction etc.      */
+//
+// Command constructor for command/response I/O
+//
+LOCAL long key_config_command(uint8_t *buf,    // driver buf addr
+                              int     *len,    // driver buf size
+                              void    *bptr,   // record buf addr
+                              int      ftvl,   // record field type
+                              int      ndata,  // number of elements to be transferred
+                              int     *option, // direction etc.
                               KEY_PLC *d
                               )
 {
@@ -238,7 +235,7 @@ LOCAL long key_config_command(uint8_t *buf,    /* driver buf addr     */
     int n;
     if (ndata > KEY_MAX_NDATA) {
         if (!d->noff) {
-            /* for the first time */
+            // for the first time
             d->nleft = ndata;
         }
 
@@ -327,15 +324,15 @@ LOCAL long key_config_command(uint8_t *buf,    /* driver buf addr     */
     return OK;
 }
 
-/*******************************************************************************
- * Response parser for command/response I/O
- *******************************************************************************/
-LOCAL long key_parse_response(uint8_t *buf,    /* driver buf addr     */
-                              int     *len,    /* driver buf size     */
-                              void    *bptr,   /* record buf addr     */
-                              int      ftvl,   /* record field type   */
-                              int      ndata,  /* number of elements to be transferred */
-                              int     *option, /* direction etc.      */
+//
+// Response parser for command/response I/O
+//
+LOCAL long key_parse_response(uint8_t *buf,    // driver buf addr
+                              int     *len,    // driver buf size
+                              void    *bptr,   // record buf addr
+                              int      ftvl,   // record field type
+                              int      ndata,  // number of elements to be transferred
+                              int     *option, // direction etc.
                               KEY_PLC *d
                               )
 {
@@ -430,7 +427,7 @@ LOCAL long key_parse_response(uint8_t *buf,    /* driver buf addr     */
         d->noff  += n;
 
         if (!d->nleft) {
-            /* for the last time */
+            // for the last time
             d->noff = 0;
         }
     }

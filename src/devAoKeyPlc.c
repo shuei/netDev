@@ -9,16 +9,13 @@
  * in file LICENSE that is included with this distribution.
  ****************************************************************************/
 /* Author: Jun-ichi Odagiri (jun-ichi.odagiri@kek.jp, KEK) */
-/* Modification Log:
- * -----------------
- */
 
 #include <aoRecord.h>
 #include <menuConvert.h>
 
-/***************************************************************
- * Analog output (command/response IO)
- ***************************************************************/
+//
+// Analog output (command/response IO)
+//
 LOCAL long init_ao_record(aoRecord *);
 LOCAL long write_ao(aoRecord *);
 LOCAL long ao_linear_convert(aoRecord *, int);

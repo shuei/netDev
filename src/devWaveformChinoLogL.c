@@ -1,14 +1,11 @@
 /* devWaveformChinoLogL.c */
 /* Author : Makoto Tobiyama 19/Jul/2005 */
-/* Modification Log:
- * -----------------
- */
 
 #include <waveformRecord.h>
 
-/***************************************************************
- * Waveform (command/response IO)
- ***************************************************************/
+//
+// Waveform (command/response IO)
+//
 LOCAL long init_waveform_record(waveformRecord *);
 LOCAL long read_waveform(waveformRecord *);
 LOCAL long config_waveform_command(dbCommon *, int *, uint8_t *, int *, void *, int);
@@ -44,11 +41,10 @@ LOCAL long read_waveform(waveformRecord *pwf)
 //  TRANSACTION *t = (TRANSACTION *)pwf->dpvt;
 //  CHINOL_LOG *d = (CHINOL_LOG *)t->device;
 
-    /*
-     * make sure that those below are cleared in the event that
-     * a multi-step transfer is terminated by an error in the
-     * middle of transacton
-     */
+
+    // make sure that those below are cleared in the event that
+    // a multi-step transfer is terminated by an error in the
+    // middle of transacton
 
     return netDevReadWriteXx((dbCommon *)pwf);
 }

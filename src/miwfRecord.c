@@ -35,7 +35,7 @@
 #include "miwfRecord.h"
 #undef  GEN_SIZE_OFFSET
 
-/* Create RSET - Record Support Entry Table*/
+// Create RSET - Record Support Entry Table
 #define report NULL
 #define initialize NULL
 static long init_record();
@@ -77,17 +77,19 @@ rset miwfRSET = {
 
 epicsExportAddress(rset, miwfRSET);
 
-typedef struct wfdset { /* miwf dset */
+// miwf dset
+typedef struct wfdset {
     long      number;
     DEVSUPFUN dev_report;
     DEVSUPFUN init;
-    DEVSUPFUN init_record; /*returns: (-1,0)=>(failure,success)*/
+    DEVSUPFUN init_record; // returns: (-1,0)=>(failure,success)
     DEVSUPFUN get_ioint_info;
-    DEVSUPFUN read_wf; /*returns: (-1,0)=>(failure,success)*/
+    DEVSUPFUN read_wf;     // returns: (-1,0)=>(failure,success)
 } wfdset;
 
-/*sizes of field types*/
+//sizes of field types
 static int sizeofTypes[] = {0,1,1,2,2,4,4,4,8,2};
+
 static void monitor();
 static long readValue();
 
@@ -114,19 +116,19 @@ static long init_record(miwfRecord *mipwf, int pass)
         return 0;
     }
 
-    /* wf.siml must be a CONSTANT or a PV_LINK or a DB_LINK */
+    // wf.siml must be a CONSTANT, a PV_LINK, or a DB_LINK
     if (mipwf->siml.type == CONSTANT) {
         recGblInitConstantLink(&mipwf->siml, DBF_USHORT, &mipwf->simm);
     }
 
-    /* must have dset defined */
+    // must have dset defined
     wfdset *pdset = (wfdset *)(mipwf->dset);
     if (!pdset) {
         recGblRecordError(S_dev_noDSET, mipwf, "miwf: init_record");
         return S_dev_noDSET;
     }
 
-    /* must have read_wf function defined */
+    // must have read_wf function defined
     if ((pdset->number < 5) || (pdset->read_wf == NULL)) {
         recGblRecordError(S_dev_missingSup, mipwf, "miwf: init_record");
         return S_dev_missingSup;
@@ -157,9 +159,9 @@ static long process(miwfRecord *mipwf)
     }
 
     // long status =
-    readValue(mipwf); /* read the new value */
+    readValue(mipwf); // read the new value
 
-    /* check if device support set pact */
+    // check if device support set pact
     if (!pact && mipwf->pact) {
         return 0;
     }
@@ -171,7 +173,7 @@ static long process(miwfRecord *mipwf)
 
     monitor(mipwf);
 
-    /* process the forward scan link record */
+    // process the forward scan link record
     recGblFwdLink(mipwf);
 
     mipwf->pact = FALSE;
@@ -300,7 +302,7 @@ static long readValue(miwfRecord *mipwf)
     if (mipwf->simm == menuYesNoYES) {
         long nRequest = mipwf->nelm;
         status = dbGetLink(&(mipwf->siol), mipwf->ftvl, mipwf->bptr, 0, &nRequest);
-        /* nord set only for db links: needed for old db_access */
+        // nord set only for db links: needed for old db_access
         if (mipwf->siol.type != CONSTANT) {
             mipwf->nord = nRequest;
             if (status == 0) {

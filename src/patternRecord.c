@@ -35,7 +35,7 @@
 #include "patternRecord.h"
 #undef  GEN_SIZE_OFFSET
 
-/* Create RSET - Record Support Entry Table*/
+// Create RSET - Record Support Entry Table
 #define report NULL
 #define initialize NULL
 static long init_record();
@@ -77,16 +77,17 @@ rset patternRSET = {
 
 epicsExportAddress(rset,patternRSET);
 
-typedef struct ptndset { /* pattern dset */
+// pattern dset
+typedef struct ptndset {
     long      number;
     DEVSUPFUN dev_report;
     DEVSUPFUN init;
-    DEVSUPFUN init_record; /*returns: (-1,0)=>(failure,success)*/
+    DEVSUPFUN init_record; // returns: (-1,0)=>(failure,success)
     DEVSUPFUN get_ioint_info;
-    DEVSUPFUN read_ptn; /*returns: (-1,0)=>(failure,success)*/
+    DEVSUPFUN read_ptn;    // returns: (-1,0)=>(failure,success)
 } ptndset;
 
-/*sizes of field types*/
+// sizes of field types
 static int sizeofTypes[] = {0,1,1,2,2,4,4,4,8,2};
 
 static void monitor();
@@ -115,19 +116,19 @@ static long init_record(patternRecord *pptn, int pass)
         return 0;
     }
 
-    /* ptn.siml must be a CONSTANT or a PV_LINK or a DB_LINK */
+    // ptn.siml must be a CONSTANT, a PV_LINK, or a DB_LINK
     if (pptn->siml.type == CONSTANT) {
         recGblInitConstantLink(&pptn->siml, DBF_USHORT, &pptn->simm);
     }
 
-    /* must have dset defined */
+    // must have dset defined
     ptndset *pdset = (ptndset *)(pptn->dset);
     if (!pdset) {
         recGblRecordError(S_dev_noDSET, pptn, "ptn: init_record");
         return S_dev_noDSET;
     }
 
-    /* must have read_ptn function defined */
+    // must have read_ptn function defined
     if ((pdset->number < 5) || (pdset->read_ptn == NULL)) {
         recGblRecordError(S_dev_missingSup, pptn, "ptn: init_record");
         return S_dev_missingSup;
@@ -166,7 +167,7 @@ static long process(patternRecord *pptn)
     }
 
     // long status=
-    readValue(pptn); /* read the new value */
+    readValue(pptn); // read the new value
 
     for (int i=0; i < pptn->nelm; i++) {
         switch (pptn->ftvl) {
@@ -194,7 +195,7 @@ static long process(patternRecord *pptn)
         }
     }
 
-    /* check if device support set pact */
+    // check if device support set pact
     if (!pact && pptn->pact) {
         return 0;
     }
@@ -206,7 +207,7 @@ static long process(patternRecord *pptn)
 
     monitor(pptn);
 
-    /* process the forward scan link record */
+    // process the forward scan link record
     recGblFwdLink(pptn);
 
     pptn->pact = FALSE;
@@ -336,7 +337,8 @@ static long readValue(patternRecord *pptn)
     if (pptn->simm == menuYesNoYES) {
         long nRequest = pptn->nelm;
         status = dbGetLink(&(pptn->siol), pptn->ftvl, pptn->rptr, 0, &nRequest);
-        /* nord set only for db links: needed for old db_access */
+
+        // nord set only for db links: needed for old db_access
         if (pptn->siol.type != CONSTANT) {
             pptn->nord = nRequest;
             if (status == 0) {

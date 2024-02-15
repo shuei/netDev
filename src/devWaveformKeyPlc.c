@@ -9,15 +9,12 @@
  * in file LICENSE that is included with this distribution.
  ****************************************************************************/
 /* Author: Jun-ichi Odagiri (jun-ichi.odagiri@kek.jp, KEK) */
-/* Modification Log:
- * -----------------
- */
 
 #include <waveformRecord.h>
 
-/***************************************************************
- * Waveform (command/response IO)
- ***************************************************************/
+//
+// Waveform (command/response IO)
+//
 LOCAL long init_waveform_record(waveformRecord *);
 LOCAL long read_waveform(waveformRecord *);
 LOCAL long config_waveform_command(dbCommon *, int *, uint8_t *, int *, void *, int);
@@ -51,11 +48,9 @@ LOCAL long read_waveform(waveformRecord *pwf)
     TRANSACTION *t = (TRANSACTION *)pwf->dpvt;
     KEY_PLC *d = (KEY_PLC *)t->device;
 
-    /*
-     * make sure that those below are cleared in the event that
-     * a multi-step transfer is terminated by an error in the
-     * middle of transacton
-     */
+    // make sure that those below are cleared in the event that
+    // a multi-step transfer is terminated by an error in the
+    // middle of transacton
     d->nleft = 0;
     d->noff = 0;
 

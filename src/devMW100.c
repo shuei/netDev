@@ -9,9 +9,6 @@
  * in file LICENSE that is included with this distribution.
  ****************************************************************************/
 /* Author: Jun-ichi Odagiri */
-/* Modification Log:
- * -----------------
- */
 
 #include <epicsExport.h>
 #include <dbFldTypes.h>
@@ -55,9 +52,9 @@ LOCAL void *MW100_calloc(void)
 #include "devSoMW100.c"
 #include "devChansMW100.c"
 
-/*******************************************************************************
- * Link field parser for both command/response I/O and event driven I/O
- ******************************************************************************/
+//
+// Link field parser for both command/response I/O and event driven I/O
+//
 LOCAL long MW100_parse_link(DBLINK *plink,
                             struct sockaddr_in *peer_addr,
                             int *option,
@@ -74,7 +71,7 @@ LOCAL long MW100_parse_link(DBLINK *plink,
     if (parseLinkPlcCommon(plink,
                            peer_addr,
                            &protocol,
-                           &route, /* dummy */
+                           &route, // dummy
                            &unit,
                            &type,
                            &addr,

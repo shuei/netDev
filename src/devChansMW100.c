@@ -9,18 +9,15 @@
  * in file LICENSE that is included with this distribution.
  ****************************************************************************/
 /* Author: Jun-ichi Odagiri*/
-/* Modification Log:
- * -----------------
- */
 
 #include <epicsExport.h>
 #include <chansRecord.h>
 
 #define DEBUG
 
-/***************************************************************
- * Chans (command/response I/O)
- ***************************************************************/
+//
+// Chans (command/response I/O)
+//
 LOCAL long init_chans_record(chansRecord *);
 LOCAL long read_chans(chansRecord *);
 LOCAL long config_chans_command(dbCommon *, int *, uint8_t *, int *, void *, int);
@@ -116,16 +113,13 @@ LOCAL long parse_chans_response(dbCommon *pxx,
     int n;
     int i;
 
-    /* clear NORD */
-
+    // clear NORD
     pchans->nord = 0;
 
-    /* terminate response message with NULL */
-
+    // terminate response message with NULL
     buf[*len] = '\0';
 
-    /* check EA */
-
+    // check EA
     char *pC1 = (char *)buf;
     char *pC2 = strchr(pC1, '\r');
     if (!pC2) {
@@ -142,7 +136,7 @@ LOCAL long parse_chans_response(dbCommon *pxx,
         return ERROR;
     }
 
-    /* get DATE */
+    // get DATE
     pC1 = ++pC2;
     pC2 = strchr(pC1, '\r');
     if (!pC2) {
@@ -161,7 +155,7 @@ LOCAL long parse_chans_response(dbCommon *pxx,
         return ERROR;
     }
 
-    /* get TIME */
+    // get TIME
     pC1 = ++pC2;
     pC2 = strchr(pC1, '\r');
     if (!pC2) {
@@ -220,7 +214,7 @@ LOCAL long parse_chans_response(dbCommon *pxx,
         pchans->nord++;
     }
 
-    /* check EN */
+    // check EN
     pC1 = ++pC2;
     pC2 = strchr(pC1, '\r');
     if (!pC2) {

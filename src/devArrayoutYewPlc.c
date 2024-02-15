@@ -18,9 +18,9 @@
 
 #include <arrayoutRecord.h>
 
-/***************************************************************
- * Arrayout (command/response IO)
- ***************************************************************/
+//
+// Arrayout (command/response IO)
+//
 LOCAL long init_arrayout_record(arrayoutRecord *);
 LOCAL long write_arrayout(arrayoutRecord *);
 LOCAL long config_arrayout_command(dbCommon *, int *, uint8_t *, int *, void *, int);
@@ -54,11 +54,9 @@ LOCAL long write_arrayout(arrayoutRecord *paro)
     TRANSACTION *t = (TRANSACTION *)paro->dpvt;
     YEW_PLC *d = (YEW_PLC *)t->device;
 
-    /*
-     * make sure that those below are cleared in the event that
-     * a multi-step transfer is terminated by an error in the
-     * middle of transacton
-     */
+    // make sure that those below are cleared in the event that
+    // a multi-step transfer is terminated by an error in the
+    // middle of transacton
     d->nleft = 0;
     d->noff = 0;
 

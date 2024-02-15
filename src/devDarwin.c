@@ -9,13 +9,8 @@
  * in file LICENSE that is included with this distribution.
  ****************************************************************************/
 /* Author: Jun-ichi Odagiri */
-/* Modification Log:
- * -----------------
- */
 
-/* cmtout = not debub
-#define DEBUG
- */
+// #define DEBUG // uncomment to enable debug output
 
 #include <dbFldTypes.h>
 #include <epicsExport.h>
@@ -61,9 +56,9 @@ LOCAL void *darwin_calloc(void)
 #include        "devSoDarwin.c"
 #include        "devChannelsDarwin.c"
 
-/*********************************************************************************
- * Link field parser for both command/response I/O and event driven I/O
- *********************************************************************************/
+//
+// Link field parser for both command/response I/O and event driven I/O
+//
 LOCAL long darwin_parse_link(DBLINK *plink,
                              struct sockaddr_in *peer_addr,
                              int *option,
@@ -71,8 +66,7 @@ LOCAL long darwin_parse_link(DBLINK *plink,
                              )
 {
     DARWIN *d = (DARWIN *)device;
-    /*char terminator[2] = {'\n','\0'};
-     */
+    // char terminator[2] = {'\n','\0'};
     char terminator[3] = "\r\n";
     char *protocol = NULL;
     char *unit  = NULL;
@@ -86,7 +80,7 @@ LOCAL long darwin_parse_link(DBLINK *plink,
     if (parseLinkPlcCommon(plink,
                            peer_addr,
                            &protocol,
-                           &route, /* dummy */
+                           &route, // dummy
                            &unit,
                            &type,
                            &addr,
@@ -117,7 +111,7 @@ LOCAL long darwin_parse_link(DBLINK *plink,
 
     switch (d->port) {
     case DARWIN_TCP_PORT_SET:
-        /* nothing to do */
+        // nothing to do
         break;
     case DARWIN_TCP_PORT_MES:
         for (src = (uint8_t *)addr, dst = &tmp_buf[0];

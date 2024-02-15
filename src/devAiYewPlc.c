@@ -22,9 +22,9 @@
 #include <aiRecord.h>
 #include <menuConvert.h>
 
-/***************************************************************
- * Analog input (command/response IO)
- ***************************************************************/
+//
+// Analog input (command/response IO)
+//
 LOCAL long init_ai_record(aiRecord *);
 LOCAL long read_ai(aiRecord *);
 LOCAL long ai_linear_convert(aiRecord *, int);
@@ -130,7 +130,7 @@ LOCAL long parse_ai_response(dbCommon *pxx,
             // todo : consider SMOO field
             pai->val = *pfloat;
             pai->udf = isnan(pai->val);
-            ret = 2; /* Don't convert */
+            ret = 2; // Don't convert
         }
         return ret;
     } else if (d->flag == 'L') {

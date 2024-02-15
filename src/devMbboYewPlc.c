@@ -18,9 +18,9 @@
 
 #include <mbboRecord.h>
 
-/***************************************************************
- * Mult-bit binary output (command/response IO)
- ***************************************************************/
+//
+// Mult-bit binary output (command/response IO)
+//
 LOCAL long init_mbbo_record(mbboRecord *);
 LOCAL long write_mbbo(mbboRecord *);
 LOCAL long config_mbbo_command(dbCommon *, int *, uint8_t *, int *, void *, int);

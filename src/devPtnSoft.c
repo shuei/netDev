@@ -25,7 +25,7 @@
 
 #include "patternRecord.h"
 
-/* Create the dset for devPtnSoft */
+// Create the dset for devPtnSoft
 static long init_record();
 static long read_wf();
 
@@ -49,7 +49,7 @@ epicsExportAddress(dset, devPtnSoft);
 
 static long init_record(patternRecord *pptn)
 {
-    /* wf.inp must be a CONSTANT or a PV_LINK or a DB_LINK or a CA_LINK*/
+    // wf.inp must be a CONSTANT, a PV_LINK, a DB_LINK, or a CA_LINK
     switch (pptn->inp.type) {
     case (CONSTANT) :
         pptn->nord = 0;
@@ -72,7 +72,7 @@ static long read_wf(patternRecord *pptn)
     // long status =
     dbGetLink(&pptn->inp, pptn->ftvl,pptn->bptr, 0, &nRequest);
 
-    /*If dbGetLink got no values leave things as they were*/
+    // If dbGetLink got no values leave things as they were
     if (nRequest>0) {
         pptn->nord = nRequest;
     }

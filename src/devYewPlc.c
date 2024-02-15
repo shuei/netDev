@@ -121,9 +121,9 @@ LOCAL void *yew_calloc(int cpu,
 #include "devPatternYewPlc.c"
 #include "devStatusYewPlc.c"
 
-/*********************************************************************************
- * Link field parser for both command/response I/O and event driven I/O
- *********************************************************************************/
+//
+// Link field parser for both command/response I/O and event driven I/O
+//
 LOCAL long yew_parse_link(DBLINK *plink,
                           struct sockaddr_in *peer_addr,
                           int *option,
@@ -141,8 +141,8 @@ LOCAL long yew_parse_link(DBLINK *plink,
     if (parseLinkPlcCommon(plink,
                            peer_addr,
                            &protocol,
-                           &route, /* dummy */
-                           &cpu, /* passed as 'unit' in parseLinkPlcCommon() */
+                           &route, // dummy
+                           &cpu,   // passed as 'unit' in parseLinkPlcCommon()
                            &type,
                            &addr,
                            &lopt
@@ -193,7 +193,7 @@ LOCAL long yew_parse_link(DBLINK *plink,
 
     if (type) {
         if (isalpha(type[0])) {
-            /* CPU or digial I/O Module */
+            // CPU Module or digital I/O Module
             if (sscanf(type, "%c", &d->type) != 1) {
                 errlogPrintf("devYewPlc: can't get device type\n");
                 return ERROR;
@@ -201,7 +201,7 @@ LOCAL long yew_parse_link(DBLINK *plink,
         }
 #ifdef YEW_SPECIAL_MODULE
         else {
-            /* Special Module */
+            // Special Module
             if (sscanf(type, "%d,%d", &d->m_unit, &d->m_slot) == 2) {
                 // module-unit number and slot number
             } else if (sscanf(type, "%d", &d->m_slot) == 1) {
@@ -227,11 +227,8 @@ LOCAL long yew_parse_link(DBLINK *plink,
             }
         }
     } else {
-        /*
-         * for backward compatibility
-         * no delimiter (:) between "type" and "addr"
-         */
-
+        // for backward compatibility
+        // no delimiter (:) between "type" and "addr"
         if (strncmp(addr + 1, "0x", 2) == 0) {
             if (sscanf(addr, "%c%x", &d->type, &d->addr) != 2) {
                 errlogPrintf("devYewPlc: can't get device type or addr\n");
@@ -265,22 +262,22 @@ LOCAL long yew_parse_link(DBLINK *plink,
     }
 
     if (!d->spmod) {
-        /* CPU Module */
+        // CPU Module or digial I/O Module
         switch (d->width) {
         case 1:
             switch (d->type) {
-            case  'X':    /* input relay         */
+            case  'X':    // input relay
                 if (isWrite(*option)) {
                     errlogPrintf("devYewPlc: write access to read-only device\n");
                     return ERROR;
                 }
-            case  'Y':    /* output relay        */
-            case  'I':    /* internal relay      */
-            case  'E':    /* shared relay        */
-            case  'M':    /* special relay       */
-            case  'T':    /* timer relay         */
-            case  'C':    /* counter relay       */
-            case  'L':    /* link relay          */
+            case  'Y':    // output relay
+            case  'I':    // internal relay
+            case  'E':    // shared relay
+            case  'M':    // special relay
+            case  'T':    // timer relay
+            case  'C':    // counter relay
+            case  'L':    // link relay
                 break;
             default:
                 errlogPrintf("devYewPlc: illegal device specification \'%c\' (width %d)\n", d->type, d->width);
@@ -289,32 +286,32 @@ LOCAL long yew_parse_link(DBLINK *plink,
             break;
         case 2:
             switch (d->type) {
-            case  'X':    /* input relay         */
-            case 0x20:    /* timer set           */
-            case 0x30:    /* counter set         */
+            case  'X':    // input relay
+            case 0x20:    // timer set
+            case 0x30:    // counter set
                 if (isWrite(*option)) {
                     errlogPrintf("devYewPlc: write access to read-only device\n");
                     return ERROR;
                 }
-            case  'Y':    /* output relay        */
-            case  'I':    /* internal relay      */
-            case  'E':    /* shared relay        */
-            case  'M':    /* special relay       */ // accessing special relays with 16-bit width data type may cause error within CPU.
-            case  'T':    /* timer relay         */
-            case  'C':    /* counter relay       */
-            case  'L':    /* link relay          */
-            case  'D':    /* data register       */
-            case  'B':    /* file register       */
-            case  'F':    /* cache register      */
-            case  'R':    /* shared register     */
-            case  'V':    /* index register      */
-            case  'Z':    /* special register    */
-            case  'W':    /* link register       */
-            case 0x61:    /* timer current       */
-            case 0x65:    /* timer current (count up) */
-            case 0x70:    /* counter set         */
-            case 0x71:    /* counter current     */
-            case 0x75:    /* counter current (count up) */
+            case  'Y':    // output relay
+            case  'I':    // internal relay
+            case  'E':    // shared relay
+            case  'M':    // special relay - accessing special relays with 16-bit width data type may cause error within CPU.
+            case  'T':    // timer relay
+            case  'C':    // counter relay
+            case  'L':    // link relay
+            case  'D':    // data register
+            case  'B':    // file register
+            case  'F':    // cache register
+            case  'R':    // shared register
+            case  'V':    // index register
+            case  'Z':    // special register
+            case  'W':    // link register
+            case 0x61:    // timer current
+            case 0x65:    // timer current (count up)
+            case 0x70:    // counter set
+            case 0x71:    // counter current
+            case 0x75:    // counter current (count up)
                 break;
             default:
                 errlogPrintf("devYewPlc: unknown device type \'%c\'\n", d->type);
@@ -326,10 +323,10 @@ LOCAL long yew_parse_link(DBLINK *plink,
             return ERROR;
         }
 
-        d->type = d->type - '@'; /* subtract 0x40 to get data class */
+        d->type = d->type - '@'; // subtract 0x40 to get data class
 
     } else {
-        /* Special Module */
+        // Special Module
         if (d->m_slot < 1 || d->m_slot > 16) {
             errlogPrintf("devYewPlc: slot number (%d) out of range\n", d->m_slot);
             return ERROR;
@@ -339,15 +336,15 @@ LOCAL long yew_parse_link(DBLINK *plink,
     return OK;
 }
 
-/******************************************************************************
- * Command constructor for command/response I/O
- ******************************************************************************/
-LOCAL long yew_config_command(uint8_t *buf,    /* driver buf addr     */
-                              int     *len,    /* driver buf size     */
-                              void    *bptr,   /* record buf addr     */
-                              int      ftvl,   /* record field type   */
-                              int      ndata,  /* number of elements to be transferred */
-                              int     *option, /* direction etc.      */
+//
+// Command constructor for command/response I/O
+//
+LOCAL long yew_config_command(uint8_t *buf,    // driver buf addr
+                              int     *len,    // driver buf size
+                              void    *bptr,   // record buf addr
+                              int      ftvl,   // record field type
+                              int      ndata,  // number of elements to be transferred
+                              int     *option, // direction etc.
                               YEW_PLC *d
                               )
 {
@@ -356,7 +353,7 @@ LOCAL long yew_config_command(uint8_t *buf,    /* driver buf addr     */
     int n;
     if (ndata > YEW_MAX_NDATA) {
         if (!d->noff) {
-            /* for the first time */
+            // for the first time
             d->nleft = ndata;
         }
 
@@ -376,13 +373,13 @@ LOCAL long yew_config_command(uint8_t *buf,    /* driver buf addr     */
     uint16_t bytes_follow;
 
     if (!d->spmod) {
-        /* CPU Module */
+        // CPU Module or digital I/O Module
         switch (d->width) {
-        case 1:  /* bit device */
+        case 1:  // bit device
             command_type = isRead(*option)? 0x01:0x02;
             bytes_follow = isRead(*option)? htons(0x0008):htons(0x0008 + n);
             break;
-        case 2:  /* word device */
+        case 2:  // word device
             command_type = isRead(*option)? 0x11:0x12;
             bytes_follow = isRead(*option)? htons(0x0008):htons(0x0008 + n*2);
             break;
@@ -391,24 +388,24 @@ LOCAL long yew_config_command(uint8_t *buf,    /* driver buf addr     */
             return ERROR;
         }
 
-        *((uint8_t  *)&buf[ 0]) = command_type;             /* R/W by bit/word       */
-        *((uint8_t  *)&buf[ 1]) = d->cpu;                   /* CPU No.               */
-        *((uint16_t *)&buf[ 2]) = bytes_follow;             /* n of data below       */
-        *((uint16_t *)&buf[ 4]) = htons(d->type);           /* device type           */
-        *((uint32_t *)&buf[ 6]) = htonl(d->addr + d->noff); /* device addr           */
-        *((uint16_t *)&buf[10]) = htons(n);                 /* n of data             */
+        *((uint8_t  *)&buf[ 0]) = command_type;             // R/W by bit/word
+        *((uint8_t  *)&buf[ 1]) = d->cpu;                   // CPU No.
+        *((uint16_t *)&buf[ 2]) = bytes_follow;             // n of data below
+        *((uint16_t *)&buf[ 4]) = htons(d->type);           // device type
+        *((uint32_t *)&buf[ 6]) = htonl(d->addr + d->noff); // device addr
+        *((uint16_t *)&buf[10]) = htons(n);                 // n of data
     } else {
-        /* Special Module, "type" holds module unit/slot number */
+        // Special Module, "type" holds module unit/slot number
         command_type = isRead(*option)? 0x31:0x32;
         bytes_follow = isRead(*option)? htons(0x0006):htons(0x0006 + n*2);
 
-        *((uint8_t  *)&buf[ 0]) = command_type;             /* R/W by bit/word       */
-        *((uint8_t  *)&buf[ 1]) = d->cpu;                   /* CPU No.               */
-        *((uint16_t *)&buf[ 2]) = bytes_follow;             /* n of data below       */
-        *((uint8_t  *)&buf[ 4]) = d->m_unit;                /* module unit           */
-        *((uint8_t  *)&buf[ 5]) = d->m_slot;                /* module slot           */
-        *((uint16_t *)&buf[ 6]) = htons(d->addr + d->noff); /* data position         */
-        *((uint16_t *)&buf[ 8]) = htons(n);                 /* n of data             */
+        *((uint8_t  *)&buf[ 0]) = command_type;             // R/W by bit/word
+        *((uint8_t  *)&buf[ 1]) = d->cpu;                   // CPU No.
+        *((uint16_t *)&buf[ 2]) = bytes_follow;             // n of data below
+        *((uint8_t  *)&buf[ 4]) = d->m_unit;                // module unit
+        *((uint8_t  *)&buf[ 5]) = d->m_slot;                // module slot
+        *((uint16_t *)&buf[ 6]) = htons(d->addr + d->noff); // data position
+        *((uint16_t *)&buf[ 8]) = htons(n);                 // n of data
     }
 
     if (isWrite(*option)) {
@@ -427,22 +424,21 @@ LOCAL long yew_config_command(uint8_t *buf,    /* driver buf addr     */
 
     *len = YEW_CMND_LENGTH(d->spmod) + nwrite;
 
-    /*
-      nread  = isRead(*option)? (d->width)*n:0;
-      return (YEW_DATA_OFFSET + nread);
-    */
+    //nread  = isRead(*option)? (d->width)*n:0;
+    //return (YEW_DATA_OFFSET + nread);
+
     return 0;
 }
 
-/*******************************************************************************
- * Response parser for command/response I/O
- *******************************************************************************/
-LOCAL long yew_parse_response(uint8_t *buf,    /* driver buf addr     */
-                              int     *len,    /* driver buf size     */
-                              void    *bptr,   /* record buf addr     */
-                              int      ftvl,   /* record field type   */
-                              int      ndata,  /* number of elements to be transferred */
-                              int     *option, /* direction etc.      */
+//
+// Response parser for command/response I/O
+//
+LOCAL long yew_parse_response(uint8_t *buf,    // driver buf addr
+                              int     *len,    // driver buf size
+                              void    *bptr,   // record buf addr
+                              int      ftvl,   // record field type
+                              int      ndata,  // number of elements to be transferred
+                              int     *option, // direction etc.
                               YEW_PLC *d
                               )
 {
@@ -464,13 +460,13 @@ LOCAL long yew_parse_response(uint8_t *buf,    /* driver buf addr     */
     uint16_t number_of_data;
 
     if (!d->spmod) {
-        /* CPU Module */
+        // CPU Module or digital I/O Module
         switch (d->width) {
-        case 1:  /* bit device */
+        case 1:  // bit device
             response_type  = isRead(*option)? 0x81:0x82;
             number_of_data = isRead(*option)? htons(n):htons(0x0000);
             break;
-        case 2:  /* word device */
+        case 2:  // word device
             response_type  = isRead(*option)? 0x91:0x92;
             number_of_data = isRead(*option)? htons(n*2):htons(0x0000);
             break;
@@ -479,7 +475,7 @@ LOCAL long yew_parse_response(uint8_t *buf,    /* driver buf addr     */
             return ERROR;
         }
     } else {
-      /* Special Module */
+        // Special Module
         response_type  = isRead(*option)? 0xB1:0xB2;
         number_of_data = isRead(*option)? htons(n*2):htons(0x0000);
     }
@@ -519,7 +515,7 @@ LOCAL long yew_parse_response(uint8_t *buf,    /* driver buf addr     */
         d->noff  += n;
 
         if (!d->nleft) {
-            /* for the last time */
+            // for the last time
             d->noff = 0;
         }
     }

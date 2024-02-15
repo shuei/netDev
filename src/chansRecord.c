@@ -31,7 +31,7 @@
 #include "chansRecord.h"
 #undef  GEN_SIZE_OFFSET
 
-/* Create RSET - Record Support Entry Table */
+// Create RSET - Record Support Entry Table
 #define report NULL
 #define initialize NULL
 static long init_record(dbCommon *, int);
@@ -73,11 +73,12 @@ rset chansRSET = {
 
 epicsExportAddress(rset, chansRSET);
 
-typedef struct chans_dset { /* chans dset */
+// chans dset
+typedef struct chans_dset {
     long      number;
     DEVSUPFUN dev_report;
     DEVSUPFUN init;
-    DEVSUPFUN init_record; /*returns: (-1,0)=>(failure,success)*/
+    DEVSUPFUN init_record; // returns: (-1,0)=>(failure,success)
     DEVSUPFUN get_ioint_info;
     DEVSUPFUN read_chans;
 } chans_dset;
@@ -99,7 +100,7 @@ static long init_record(dbCommon *precord, int pass)
         return S_dev_noDSET;
     }
 
-    /* must have read_chans function defined */
+    // must have read_chans function defined
     if ((pdset->number < 5) || (pdset->read_chans == NULL)) {
         recGblRecordError(S_dev_missingSup, pchans, "chans: Bad DSET");
         return S_dev_missingSup;
@@ -126,11 +127,11 @@ static long process(dbCommon *precord)
         return S_dev_missingSup;
     }
 
-    /* pact must not be set until after calling device support */
+    // pact must not be set until after calling device support
     unsigned char pact = pchans->pact;
     long status = (*pdset->read_chans)(pchans);
 
-    /* check if device support set pact */
+    // check if device support set pact
     if (!pact && pchans->pact) {
         return 0;
     }
@@ -138,11 +139,11 @@ static long process(dbCommon *precord)
     pchans->pact = TRUE;
 
     recGblGetTimeStamp(pchans);
-    /* check for alarms */
+    // check for alarms
     checkAlarms(pchans);
-    /* check event list */
+    // check event list
     monitor(pchans);
-    /* process the forward scan link record */
+    // process the forward scan link record
     recGblFwdLink(pchans);
 
     pchans->pact = FALSE;

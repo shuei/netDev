@@ -25,7 +25,7 @@
 
 #include "miwfRecord.h"
 
-/* Create the dset for devMiwfSoft */
+// Create the dset for devMiwfSoft
 static long init_record();
 static long read_wf();
 struct {
@@ -62,7 +62,7 @@ epicsExportAddress(dset,devMiwfSoft);
 static long init_record(miwfRecord *pmiwf)
 {
     int linkflag = 0;
-    /* wf.inp must be a PV_LINK or a DB_LINK or a CA_LINK*/
+    // wf.inp must be a PV_LINK, a DB_LINK, or a CA_LINK
     check_link(pmiwf->inp0, "devMiwfSoft (init_record) Illegal INP0 field");
     check_link(pmiwf->inp1, "devMiwfSoft (init_record) Illegal INP1 field");
     check_link(pmiwf->inp2, "devMiwfSoft (init_record) Illegal INP2 field");
@@ -114,7 +114,7 @@ static long read_wf(miwfRecord *pmiwf)
     // long status =
     dbGetLink(plink, pmiwf->ftvl, pmiwf->bptr, 0, &nRequest);
 
-    /*If dbGetLink got no values leave things as they were*/
+    // If dbGetLink got no values leave things as they were
     if (nRequest > 0) {
         pmiwf->nord = nRequest;
     }

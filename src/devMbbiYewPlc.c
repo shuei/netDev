@@ -18,9 +18,9 @@
 
 #include <mbbiRecord.h>
 
-/***************************************************************
- * Mult-bit binary input (command/response IO)
- ***************************************************************/
+//
+// Mult-bit binary input (command/response IO)
+//
 LOCAL long init_mbbi_record(mbbiRecord *);
 LOCAL long read_mbbi(mbbiRecord *);
 LOCAL long config_mbbi_command(dbCommon *, int *, uint8_t *, int *, void *, int);

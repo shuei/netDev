@@ -18,9 +18,9 @@
 
 #include <statusRecord.h>
 
-/***************************************************************
- * Status (command/response IO)
- ***************************************************************/
+//
+// Status (command/response IO)
+//
 LOCAL long init_status_record(statusRecord *);
 LOCAL long read_status(statusRecord *);
 LOCAL long config_status_command(dbCommon *, int *, uint8_t *, int *, void *, int);
@@ -54,11 +54,9 @@ LOCAL long read_status(statusRecord *pst)
     TRANSACTION *t = (TRANSACTION *)pst->dpvt;
     YEW_PLC *d = (YEW_PLC *)t->device;
 
-    /*
-     * make sure that those below are cleared in the event that
-     * a multi-step transfer is terminated by an error in the
-     * middle of transacton
-     */
+    // make sure that those below are cleared in the event that
+    // a multi-step transfer is terminated by an error in the
+    // middle of transacton
     d->nleft = 0;
     d->noff = 0;
 

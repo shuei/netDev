@@ -9,9 +9,6 @@
  * in file LICENSE that is included with this distribution.
  ****************************************************************************/
 /* Author: Jun-ichi Odagiri (jun-ichi.odagiri@kek.jp, KEK) */
-/* Modification Log:
- * -----------------
- */
 
 #include <stdio.h>
 #include <unistd.h>
@@ -134,13 +131,11 @@ typedef struct {
     uint32_t           receive_counter;
 } ASYNC_IO;
 
-
 typedef struct {
     IOSCANPVT          ioscanpvt;
     struct sockaddr_in client_addr;
     int                ev_msg_len;
 } IO_EVENT;
-
 
 typedef struct {
     ELLNODE            node;
@@ -158,7 +153,6 @@ typedef struct {
     } io;
     struct sockaddr_in peer_addr; /* for OMRON ETN01 support */
 } TRANSACTION;
-
 
 typedef struct {
     ELLNODE            node;
@@ -219,7 +213,7 @@ typedef struct {
     struct sockaddr_in peer_addr;
 } RTT_ITEM;
 
-
+//
 #define GET_PEER_INET_ADDR(t)    (((PEER *)((TRANSACTION *)(t))->facility)->mpf.peer_addr.sin_addr.s_addr)
 #define GET_PEER_ID(t)           (((PEER *)((TRANSACTION *)(t))->facility)->mpf.id)
 #define GET_DPVT(p)              (((dbCommon *)(p))->dpvt)
@@ -231,15 +225,16 @@ typedef struct {
 #define GET_SERVER_PORT(t)       (((SERVER *)((TRANSACTION *)(t))->facility)->port)
 #define GET_SERVER_ID(t)         (((SERVER *)((TRANSACTION *)(t))->facility)->mpf.id)
 
-
+//
 long drvNetMpfSendRequest(TRANSACTION *);
 PEER *drvNetMpfInitPeer(struct sockaddr_in, int);
 SERVER *drvNetMpfInitServer(unsigned short, int);
 long drvNetMpfRegisterEvent(TRANSACTION *);
 
-
+//
 #define TICK_PER_SECOND  100
 
+//
 #define SANITY_CHECK
 //#define SANITY_PRINT
 //#define DEBUG

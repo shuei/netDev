@@ -9,15 +9,12 @@
  * in file LICENSE that is included with this distribution.
  ****************************************************************************/
 /* Author: Jun-ichi Odagiri (jun-ichi.odagiri@kek.jp, KEK) */
-/* Modification Log:
- * -----------------
- */
 
 #include <biRecord.h>
 
-/***************************************************************
- * Binary input (command/response IO)
- ***************************************************************/
+//
+// Binary input (command/response IO)
+//
 LOCAL long init_bi_record(biRecord *);
 LOCAL long read_bi(biRecord *);
 LOCAL long config_bi_command(dbCommon *, int *, uint8_t *, int *, void *, int);

@@ -9,16 +9,13 @@
  * in file LICENSE that is included with this distribution.
  ****************************************************************************/
 /* Author: Jun-ichi Odagiri (jun-ichi.odagiri@kek.jp, KEK) */
-/* Modification Log:
- * -----------------
- */
 
 #include <aiRecord.h>
 #include <menuConvert.h>
 
-/***************************************************************
- * Analog input (command/response IO)
- ***************************************************************/
+//
+// Analog input (command/response IO)
+//
 LOCAL long init_ai_record(aiRecord *);
 LOCAL long read_ai(aiRecord *);
 LOCAL long ai_linear_convert(aiRecord *, int);

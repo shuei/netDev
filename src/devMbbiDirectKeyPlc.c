@@ -9,15 +9,12 @@
  * in file LICENSE that is included with this distribution.
  ****************************************************************************/
 /* Author: Jun-ichi Odagiri (jun-ichi.odagiri@kek.jp, KEK) */
-/* Modification Log:
- * -----------------
- */
 
 #include <mbbiDirectRecord.h>
 
-/***************************************************************
- * Mult-bit binary input (command/response IO)
- ***************************************************************/
+//
+// Mult-bit binary input (command/response IO)
+//
 LOCAL long init_mbbiDirect_record(mbbiDirectRecord *);
 LOCAL long read_mbbiDirect(mbbiDirectRecord *);
 LOCAL long config_mbbiDirect_command(dbCommon *, int *, uint8_t *, int *, void *, int);
