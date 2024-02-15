@@ -150,7 +150,7 @@ typedef struct {
         ASYNC_IO async;
         IO_EVENT event;
     } io;
-    struct sockaddr_in peer_addr; /* for OMRON ETN01 support */
+    struct sockaddr_in peer_addr; // for OMRON ETN01 support
 } TRANSACTION;
 
 typedef struct {
