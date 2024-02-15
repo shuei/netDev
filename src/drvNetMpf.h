@@ -108,7 +108,6 @@
 #define NOT_DONE   (NOT_MINE - 1)
 #define RCV_MORE   (NOT_DONE - 1)
 #define NO_RESP    (RCV_MORE - 1)
-#define LOCAL      static
 #define SEND_BUF_SIZE(x) (4096 * (GET_BUFSIZE(x) + 1))
 #define RECV_BUF_SIZE(x) (4096 * (GET_BUFSIZE(x) + 1))
 #define SEND_PRIORITY         50

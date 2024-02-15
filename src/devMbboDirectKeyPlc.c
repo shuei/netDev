@@ -15,10 +15,10 @@
 //
 // Mult-bit binary output (command/response IO)
 //
-LOCAL long init_mbboDirect_record(mbboDirectRecord *);
-LOCAL long write_mbboDirect(mbboDirectRecord *);
-LOCAL long config_mbboDirect_command(dbCommon *, int *, uint8_t *, int *, void *, int);
-LOCAL long parse_mbboDirect_response(dbCommon *, int *, uint8_t *, int *, void *, int);
+static long init_mbboDirect_record(mbboDirectRecord *);
+static long write_mbboDirect(mbboDirectRecord *);
+static long config_mbboDirect_command(dbCommon *, int *, uint8_t *, int *, void *, int);
+static long parse_mbboDirect_response(dbCommon *, int *, uint8_t *, int *, void *, int);
 
 INTEGERDSET devMbboDirectKeyPlc = {
     5,
@@ -31,7 +31,7 @@ INTEGERDSET devMbboDirectKeyPlc = {
 
 epicsExportAddress(dset, devMbboDirectKeyPlc);
 
-LOCAL long init_mbboDirect_record(mbboDirectRecord *pMbboDirect)
+static long init_mbboDirect_record(mbboDirectRecord *pMbboDirect)
 {
     pMbboDirect->nobt = 16;
     pMbboDirect->mask = 0xFFFF;
@@ -51,18 +51,18 @@ LOCAL long init_mbboDirect_record(mbboDirectRecord *pMbboDirect)
     return 2; // no conversion
 }
 
-LOCAL long write_mbboDirect(mbboDirectRecord *pMbboDirect)
+static long write_mbboDirect(mbboDirectRecord *pMbboDirect)
 {
     return netDevReadWriteXx((dbCommon *)pMbboDirect);
 }
 
-LOCAL long config_mbboDirect_command(dbCommon *pxx,
-                                     int *option,
-                                     uint8_t *buf,
-                                     int *len,
-                                     void *device,
-                                     int transaction_id
-                                     )
+static long config_mbboDirect_command(dbCommon *pxx,
+                                      int *option,
+                                      uint8_t *buf,
+                                      int *len,
+                                      void *device,
+                                      int transaction_id
+                                      )
 {
     mbboDirectRecord *pmbboDirect = (mbboDirectRecord *)pxx;
 
@@ -76,13 +76,13 @@ LOCAL long config_mbboDirect_command(dbCommon *pxx,
                               );
 }
 
-LOCAL long parse_mbboDirect_response(dbCommon *pxx,
-                                     int *option,
-                                     uint8_t *buf,
-                                     int *len,
-                                     void *device,
-                                     int transaction_id
-                                     )
+static long parse_mbboDirect_response(dbCommon *pxx,
+                                      int *option,
+                                      uint8_t *buf,
+                                      int *len,
+                                      void *device,
+                                      int transaction_id
+                                      )
 {
     mbboDirectRecord *pmbboDirect = (mbboDirectRecord *)pxx;
 

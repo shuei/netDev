@@ -30,15 +30,15 @@ typedef struct {
     int      noch;
 } MW100;
 
-LOCAL long MW100_parse_link(DBLINK *,
+static long MW100_parse_link(DBLINK *,
                             struct sockaddr_in *,
                             int *,
                             void *
                             );
 
-LOCAL void *MW100_calloc(void);
+static void *MW100_calloc(void);
 
-LOCAL void *MW100_calloc(void)
+static void *MW100_calloc(void)
 {
     MW100 *d = calloc(1, sizeof(MW100));
     if (!d) {
@@ -55,11 +55,11 @@ LOCAL void *MW100_calloc(void)
 //
 // Link field parser for both command/response I/O and event driven I/O
 //
-LOCAL long MW100_parse_link(DBLINK *plink,
-                            struct sockaddr_in *peer_addr,
-                            int *option,
-                            void *device
-                            )
+static long MW100_parse_link(DBLINK *plink,
+                             struct sockaddr_in *peer_addr,
+                             int *option,
+                             void *device
+                             )
 {
     MW100 *d = (MW100 *)device;
     char terminator[3] = "\r\n";

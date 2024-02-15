@@ -21,10 +21,10 @@
 //
 // Waveform (command/response IO)
 //
-LOCAL long init_waveform_record(waveformRecord *);
-LOCAL long read_waveform(waveformRecord *);
-LOCAL long config_waveform_command(dbCommon *, int *, uint8_t *, int *, void *, int);
-LOCAL long parse_waveform_response(dbCommon *, int *, uint8_t *, int *, void *, int);
+static long init_waveform_record(waveformRecord *);
+static long read_waveform(waveformRecord *);
+static long config_waveform_command(dbCommon *, int *, uint8_t *, int *, void *, int);
+static long parse_waveform_response(dbCommon *, int *, uint8_t *, int *, void *, int);
 
 INTEGERDSET devWfYewPlc = {
     5,
@@ -37,7 +37,7 @@ INTEGERDSET devWfYewPlc = {
 
 epicsExportAddress(dset, devWfYewPlc);
 
-LOCAL long init_waveform_record(waveformRecord *pwf)
+static long init_waveform_record(waveformRecord *pwf)
 {
     return netDevInitXxRecord((dbCommon *)pwf,
                               &pwf->inp,
@@ -49,7 +49,7 @@ LOCAL long init_waveform_record(waveformRecord *pwf)
                               );
 }
 
-LOCAL long read_waveform(waveformRecord *pwf)
+static long read_waveform(waveformRecord *pwf)
 {
     TRANSACTION *t = (TRANSACTION *)pwf->dpvt;
     YEW_PLC *d = (YEW_PLC *)t->device;
@@ -63,12 +63,12 @@ LOCAL long read_waveform(waveformRecord *pwf)
     return netDevReadWriteXx((dbCommon *)pwf);
 }
 
-LOCAL long config_waveform_command(dbCommon *pxx,
-                                   int *option,
-                                   uint8_t *buf,
-                                   int *len,
-                                   void *device,
-                                   int transaction_id
+static long config_waveform_command(dbCommon *pxx,
+                                    int *option,
+                                    uint8_t *buf,
+                                    int *len,
+                                    void *device,
+                                    int transaction_id
                                    )
 {
     waveformRecord *pwf = (waveformRecord *)pxx;
@@ -83,13 +83,13 @@ LOCAL long config_waveform_command(dbCommon *pxx,
                               );
 }
 
-LOCAL long parse_waveform_response(dbCommon *pxx,
-                                   int *option,
-                                   uint8_t *buf,
-                                   int *len,
-                                   void *device,
-                                   int transaction_id
-                                   )
+static long parse_waveform_response(dbCommon *pxx,
+                                    int *option,
+                                    uint8_t *buf,
+                                    int *len,
+                                    void *device,
+                                    int transaction_id
+                                    )
 {
     waveformRecord *pwf = (waveformRecord *)pxx;
     YEW_PLC *d = (YEW_PLC *)device;

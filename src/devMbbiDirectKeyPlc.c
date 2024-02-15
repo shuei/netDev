@@ -15,10 +15,10 @@
 //
 // Mult-bit binary input (command/response IO)
 //
-LOCAL long init_mbbiDirect_record(mbbiDirectRecord *);
-LOCAL long read_mbbiDirect(mbbiDirectRecord *);
-LOCAL long config_mbbiDirect_command(dbCommon *, int *, uint8_t *, int *, void *, int);
-LOCAL long parse_mbbiDirect_response(dbCommon *, int *, uint8_t *, int *, void *, int);
+static long init_mbbiDirect_record(mbbiDirectRecord *);
+static long read_mbbiDirect(mbbiDirectRecord *);
+static long config_mbbiDirect_command(dbCommon *, int *, uint8_t *, int *, void *, int);
+static long parse_mbbiDirect_response(dbCommon *, int *, uint8_t *, int *, void *, int);
 
 INTEGERDSET devMbbiDirectKeyPlc = {
     5,
@@ -31,7 +31,7 @@ INTEGERDSET devMbbiDirectKeyPlc = {
 
 epicsExportAddress(dset, devMbbiDirectKeyPlc);
 
-LOCAL long init_mbbiDirect_record(mbbiDirectRecord *pMbbiDirect)
+static long init_mbbiDirect_record(mbbiDirectRecord *pMbbiDirect)
 {
     pMbbiDirect->nobt = 16;
     pMbbiDirect->mask = 0xFFFF;
@@ -47,19 +47,19 @@ LOCAL long init_mbbiDirect_record(mbbiDirectRecord *pMbbiDirect)
                               );
 }
 
-LOCAL long read_mbbiDirect(mbbiDirectRecord *pMbbiDirect)
+static long read_mbbiDirect(mbbiDirectRecord *pMbbiDirect)
 {
     return netDevReadWriteXx((dbCommon *)pMbbiDirect);
 }
 
 
-LOCAL long config_mbbiDirect_command(dbCommon *pxx,
-                                     int *option,
-                                     uint8_t *buf,
-                                     int *len,
-                                     void *device,
-                                     int transaction_id
-                                     )
+static long config_mbbiDirect_command(dbCommon *pxx,
+                                      int *option,
+                                      uint8_t *buf,
+                                      int *len,
+                                      void *device,
+                                      int transaction_id
+                                      )
 {
     mbbiDirectRecord *pmbbiDirect = (mbbiDirectRecord *)pxx;
 
@@ -73,13 +73,13 @@ LOCAL long config_mbbiDirect_command(dbCommon *pxx,
                               );
 }
 
-LOCAL long parse_mbbiDirect_response(dbCommon *pxx,
-                                     int *option,
-                                     uint8_t *buf,
-                                     int *len,
-                                     void *device,
-                                     int transaction_id
-                                     )
+static long parse_mbbiDirect_response(dbCommon *pxx,
+                                      int *option,
+                                      uint8_t *buf,
+                                      int *len,
+                                      void *device,
+                                      int transaction_id
+                                      )
 {
     mbbiDirectRecord *pmbbiDirect = (mbbiDirectRecord *)pxx;
 

@@ -23,9 +23,9 @@
 
 static int init_flag = 0;
 
-LOCAL void  net_dev_async_completion(CALLBACK *);
-LOCAL void *net_dev_init_private(DBLINK *, int *, parse_link_fn_t, void *);
-LOCAL void  sync_io_completion(CALLBACK *);
+static void  net_dev_async_completion(CALLBACK *);
+static void *net_dev_init_private(DBLINK *, int *, parse_link_fn_t, void *);
+static void  sync_io_completion(CALLBACK *);
 
 //
 // Get io interrupt info
@@ -170,7 +170,7 @@ long netDevReadWriteXx(dbCommon *pxx)
 //
 // Asynchrouos read completion routine for Xx record
 //
-LOCAL void net_dev_async_completion(CALLBACK *pcb)
+static void net_dev_async_completion(CALLBACK *pcb)
 {
     LOGMSG("devNetDev: net_dev_async_completion(%8p)\n", pcb);
 
@@ -203,11 +203,11 @@ long netDevInit(void)
 //
 // net_dev_init_private()
 //
-LOCAL void *net_dev_init_private(DBLINK *plink,
-                                 int *option,
-                                 parse_link_fn_t parse_link,
-                                 void *device
-                                 )
+static void *net_dev_init_private(DBLINK *plink,
+                                  int *option,
+                                  parse_link_fn_t parse_link,
+                                  void *device
+                                  )
 {
     LOGMSG("devNetDev: net_dev_init_private(%8p,%d,%8p,%8p)\n", plink, *option, parse_link, device);
 
@@ -260,7 +260,7 @@ LOCAL void *net_dev_init_private(DBLINK *plink,
     return t;
 }
 
-LOCAL void sync_io_completion(CALLBACK *pcb)
+static void sync_io_completion(CALLBACK *pcb)
 {
     LOGMSG("devNetDev: sync_io_completion(%8p)\n", pcb);
 

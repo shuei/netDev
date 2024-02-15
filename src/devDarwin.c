@@ -36,14 +36,14 @@ typedef struct {
     int      p2;
 } DARWIN;
 
-LOCAL long darwin_parse_link(DBLINK *,
-                             struct sockaddr_in *,
-                             int *,
-                             void *
-                             );
-LOCAL void *darwin_calloc(void);
+static long darwin_parse_link(DBLINK *,
+                              struct sockaddr_in *,
+                              int *,
+                              void *
+                              );
+static void *darwin_calloc(void);
 
-LOCAL void *darwin_calloc(void)
+static void *darwin_calloc(void)
 {
     DARWIN *d = calloc(1, sizeof(DARWIN));
     if (!d) {
@@ -59,11 +59,11 @@ LOCAL void *darwin_calloc(void)
 //
 // Link field parser for both command/response I/O and event driven I/O
 //
-LOCAL long darwin_parse_link(DBLINK *plink,
-                             struct sockaddr_in *peer_addr,
-                             int *option,
-                             void *device
-                             )
+static long darwin_parse_link(DBLINK *plink,
+                              struct sockaddr_in *peer_addr,
+                              int *option,
+                              void *device
+                              )
 {
     DARWIN *d = (DARWIN *)device;
     // char terminator[2] = {'\n','\0'};

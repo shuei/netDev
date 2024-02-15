@@ -16,10 +16,10 @@
 //
 // String output (command/respons IO)
 //
-LOCAL long init_so_record(stringoutRecord *);
-LOCAL long write_so(stringoutRecord *);
-LOCAL long config_so_command(dbCommon *, int *, uint8_t *, int *, void *, int);
-LOCAL long parse_so_response(dbCommon *, int *, uint8_t *, int *, void *, int);
+static long init_so_record(stringoutRecord *);
+static long write_so(stringoutRecord *);
+static long config_so_command(dbCommon *, int *, uint8_t *, int *, void *, int);
+static long parse_so_response(dbCommon *, int *, uint8_t *, int *, void *, int);
 
 INTEGERDSET devSoDarwin = {
     5,
@@ -32,7 +32,7 @@ INTEGERDSET devSoDarwin = {
 
 epicsExportAddress(dset, devSoDarwin);
 
-LOCAL long init_so_record(stringoutRecord *pso)
+static long init_so_record(stringoutRecord *pso)
 {
     LOGMSG("devSoDarwin: init_so_record(\"%s\")\n", pso->name);
 
@@ -46,20 +46,20 @@ LOCAL long init_so_record(stringoutRecord *pso)
                               );
 }
 
-LOCAL long write_so(stringoutRecord *pso)
+static long write_so(stringoutRecord *pso)
 {
     LOGMSG("devSoDarwin: write_so(\"%s\")\n", pso->name);
 
     return netDevReadWriteXx((dbCommon *)pso);
 }
 
-LOCAL long config_so_command(dbCommon *pxx,
-                             int *option,
-                             uint8_t *buf,
-                             int *len,
-                             void *device,
-                             int transaction_id
-                             )
+static long config_so_command(dbCommon *pxx,
+                              int *option,
+                              uint8_t *buf,
+                              int *len,
+                              void *device,
+                              int transaction_id
+                              )
 {
     stringoutRecord *pso = (stringoutRecord *)pxx;
     //DARWIN *d = (DARWIN *)device;
@@ -79,13 +79,13 @@ LOCAL long config_so_command(dbCommon *pxx,
     return 0;
 }
 
-LOCAL long parse_so_response(dbCommon *pxx,
-                             int *option,
-                             uint8_t *buf,
-                             int *len,
-                             void *device,
-                             int transaction_id
-                             )
+static long parse_so_response(dbCommon *pxx,
+                              int *option,
+                              uint8_t *buf,
+                              int *len,
+                              void *device,
+                              int transaction_id
+                              )
 {
     int code;
 

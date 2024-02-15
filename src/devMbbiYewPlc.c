@@ -21,10 +21,10 @@
 //
 // Mult-bit binary input (command/response IO)
 //
-LOCAL long init_mbbi_record(mbbiRecord *);
-LOCAL long read_mbbi(mbbiRecord *);
-LOCAL long config_mbbi_command(dbCommon *, int *, uint8_t *, int *, void *, int);
-LOCAL long parse_mbbi_response(dbCommon *, int *, uint8_t *, int *, void *, int);
+static long init_mbbi_record(mbbiRecord *);
+static long read_mbbi(mbbiRecord *);
+static long config_mbbi_command(dbCommon *, int *, uint8_t *, int *, void *, int);
+static long parse_mbbi_response(dbCommon *, int *, uint8_t *, int *, void *, int);
 
 INTEGERDSET devMbbiYewPlc = {
     5,
@@ -37,7 +37,7 @@ INTEGERDSET devMbbiYewPlc = {
 
 epicsExportAddress(dset, devMbbiYewPlc);
 
-LOCAL long init_mbbi_record(mbbiRecord *prec)
+static long init_mbbi_record(mbbiRecord *prec)
 {
     long status = netDevInitXxRecord((dbCommon *)prec,
                                      &prec->inp,
@@ -55,18 +55,18 @@ LOCAL long init_mbbi_record(mbbiRecord *prec)
     return status;
 }
 
-LOCAL long read_mbbi(mbbiRecord *prec)
+static long read_mbbi(mbbiRecord *prec)
 {
     return netDevReadWriteXx((dbCommon *)prec);
 }
 
-LOCAL long config_mbbi_command(dbCommon *pxx,
-                               int *option,
-                               uint8_t *buf,
-                               int *len,
-                               void *device,
-                               int transaction_id
-                               )
+static long config_mbbi_command(dbCommon *pxx,
+                                int *option,
+                                uint8_t *buf,
+                                int *len,
+                                void *device,
+                                int transaction_id
+                                )
 {
     mbbiRecord *prec = (mbbiRecord *)pxx;
     YEW_PLC *d = (YEW_PLC *)device;
@@ -81,13 +81,13 @@ LOCAL long config_mbbi_command(dbCommon *pxx,
                               );
 }
 
-LOCAL long parse_mbbi_response(dbCommon *pxx,
-                               int *option,
-                               uint8_t *buf,
-                               int *len,
-                               void *device,
-                               int transaction_id
-                               )
+static long parse_mbbi_response(dbCommon *pxx,
+                                int *option,
+                                uint8_t *buf,
+                                int *len,
+                                void *device,
+                                int transaction_id
+                                )
 {
     mbbiRecord *prec = (mbbiRecord *)pxx;
     YEW_PLC *d = (YEW_PLC *)device;

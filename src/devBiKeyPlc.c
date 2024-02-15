@@ -15,10 +15,10 @@
 //
 // Binary input (command/response IO)
 //
-LOCAL long init_bi_record(biRecord *);
-LOCAL long read_bi(biRecord *);
-LOCAL long config_bi_command(dbCommon *, int *, uint8_t *, int *, void *, int);
-LOCAL long parse_bi_response(dbCommon *, int *, uint8_t *, int *, void *, int);
+static long init_bi_record(biRecord *);
+static long read_bi(biRecord *);
+static long config_bi_command(dbCommon *, int *, uint8_t *, int *, void *, int);
+static long parse_bi_response(dbCommon *, int *, uint8_t *, int *, void *, int);
 
 INTEGERDSET devBiKeyPlc = {
     5,
@@ -31,7 +31,7 @@ INTEGERDSET devBiKeyPlc = {
 
 epicsExportAddress(dset, devBiKeyPlc);
 
-LOCAL long init_bi_record(biRecord *pbi)
+static long init_bi_record(biRecord *pbi)
 {
     pbi->mask = 1;
 
@@ -45,18 +45,18 @@ LOCAL long init_bi_record(biRecord *pbi)
                               );
 }
 
-LOCAL long read_bi(biRecord *pbi)
+static long read_bi(biRecord *pbi)
 {
     return netDevReadWriteXx((dbCommon *)pbi);
 }
 
-LOCAL long config_bi_command(dbCommon *pxx,
-                             int *option,
-                             uint8_t *buf,
-                             int *len,
-                             void *device,
-                             int transaction_id
-                             )
+static long config_bi_command(dbCommon *pxx,
+                              int *option,
+                              uint8_t *buf,
+                              int *len,
+                              void *device,
+                              int transaction_id
+                              )
 {
     biRecord *pbi = (biRecord *)pxx;
 
@@ -70,13 +70,13 @@ LOCAL long config_bi_command(dbCommon *pxx,
                               );
 }
 
-LOCAL long parse_bi_response(dbCommon *pxx,
-                             int *option,
-                             uint8_t *buf,
-                             int *len,
-                             void *device,
-                             int transaction_id
-                             )
+static long parse_bi_response(dbCommon *pxx,
+                              int *option,
+                              uint8_t *buf,
+                              int *len,
+                              void *device,
+                              int transaction_id
+                              )
 {
     biRecord *pbi = (biRecord *)pxx;
 

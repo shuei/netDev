@@ -22,11 +22,11 @@
 //
 // Analog output (command/response IO)
 //
-LOCAL long init_ao_record(aoRecord *);
-LOCAL long write_ao(aoRecord *);
-LOCAL long ao_linear_convert(aoRecord *, int);
-LOCAL long config_ao_command(dbCommon *, int *, uint8_t *, int *, void *, int);
-LOCAL long parse_ao_response(dbCommon *, int *, uint8_t *, int *, void *, int);
+static long init_ao_record(aoRecord *);
+static long write_ao(aoRecord *);
+static long ao_linear_convert(aoRecord *, int);
+static long config_ao_command(dbCommon *, int *, uint8_t *, int *, void *, int);
+static long parse_ao_response(dbCommon *, int *, uint8_t *, int *, void *, int);
 
 FLOATDSET devAoYewPlc = {
     6,
@@ -40,7 +40,7 @@ FLOATDSET devAoYewPlc = {
 
 epicsExportAddress(dset, devAoYewPlc);
 
-LOCAL long init_ao_record(aoRecord *pao)
+static long init_ao_record(aoRecord *pao)
 {
     if (pao->linr == menuConvertLINEAR) {
         pao->eslo = (pao->eguf - pao->egul) / 0xFFFF;
@@ -57,12 +57,12 @@ LOCAL long init_ao_record(aoRecord *pao)
                               );
 }
 
-LOCAL long write_ao(aoRecord *pao)
+static long write_ao(aoRecord *pao)
 {
     return netDevReadWriteXx((dbCommon *)pao);
 }
 
-LOCAL long ao_linear_convert(aoRecord *pao, int after)
+static long ao_linear_convert(aoRecord *pao, int after)
 {
     if (!after) {
         return OK;
@@ -76,13 +76,13 @@ LOCAL long ao_linear_convert(aoRecord *pao, int after)
     return OK;
 }
 
-LOCAL long config_ao_command(dbCommon *pxx,
-                             int *option,
-                             uint8_t *buf,
-                             int *len,
-                             void *device,
-                             int transaction_id
-                             )
+static long config_ao_command(dbCommon *pxx,
+                              int *option,
+                              uint8_t *buf,
+                              int *len,
+                              void *device,
+                              int transaction_id
+                              )
 {
     aoRecord *pao = (aoRecord *)pxx;
     YEW_PLC *d = (YEW_PLC *)device;
@@ -128,13 +128,13 @@ LOCAL long config_ao_command(dbCommon *pxx,
     }
 }
 
-LOCAL long parse_ao_response(dbCommon *pxx,
-                             int *option,
-                             uint8_t *buf,
-                             int *len,
-                             void *device,
-                             int transaction_id
-                             )
+static long parse_ao_response(dbCommon *pxx,
+                              int *option,
+                              uint8_t *buf,
+                              int *len,
+                              void *device,
+                              int transaction_id
+                              )
 {
     aoRecord *pao = (aoRecord *)pxx;
     YEW_PLC *d = (YEW_PLC *)device;

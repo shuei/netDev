@@ -15,10 +15,10 @@
 //
 // Long input (command/response IO)
 //
-LOCAL long init_longin_record(longinRecord *);
-LOCAL long read_longin(longinRecord *);
-LOCAL long config_longin_command(dbCommon *, int *, uint8_t *, int *, void *, int);
-LOCAL long parse_longin_response(dbCommon *, int *, uint8_t *, int *, void *, int);
+static long init_longin_record(longinRecord *);
+static long read_longin(longinRecord *);
+static long config_longin_command(dbCommon *, int *, uint8_t *, int *, void *, int);
+static long parse_longin_response(dbCommon *, int *, uint8_t *, int *, void *, int);
 
 INTEGERDSET devLiKeyPlc = {
     5,
@@ -31,7 +31,7 @@ INTEGERDSET devLiKeyPlc = {
 
 epicsExportAddress(dset, devLiKeyPlc);
 
-LOCAL long init_longin_record(longinRecord *plongin)
+static long init_longin_record(longinRecord *plongin)
 {
     return netDevInitXxRecord((dbCommon *)plongin,
                               &plongin->inp,
@@ -43,18 +43,18 @@ LOCAL long init_longin_record(longinRecord *plongin)
                               );
 }
 
-LOCAL long read_longin(longinRecord *plongin)
+static long read_longin(longinRecord *plongin)
 {
     return netDevReadWriteXx((dbCommon *)plongin);
 }
 
-LOCAL long config_longin_command(dbCommon *pxx,
-                                 int *option,
-                                 uint8_t *buf,
-                                 int *len,
-                                 void *device,
-                                 int transaction_id
-                                 )
+static long config_longin_command(dbCommon *pxx,
+                                  int *option,
+                                  uint8_t *buf,
+                                  int *len,
+                                  void *device,
+                                  int transaction_id
+                                  )
 {
     longinRecord *plongin = (longinRecord *)pxx;
     KEY_PLC *d = (KEY_PLC *)device;
@@ -69,13 +69,13 @@ LOCAL long config_longin_command(dbCommon *pxx,
                               );
 }
 
-LOCAL long parse_longin_response(dbCommon *pxx,
-                                 int *option,
-                                 uint8_t *buf,
-                                 int *len,
-                                 void *device,
-                                 int transaction_id
-                                 )
+static long parse_longin_response(dbCommon *pxx,
+                                  int *option,
+                                  uint8_t *buf,
+                                  int *len,
+                                  void *device,
+                                  int transaction_id
+                                  )
 {
     longinRecord *plongin = (longinRecord *)pxx;
     KEY_PLC *d = (KEY_PLC *)device;

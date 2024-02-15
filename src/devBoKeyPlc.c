@@ -15,10 +15,10 @@
 //
 // Binary output (command/response IO)
 //
-LOCAL long init_bo_record(boRecord *);
-LOCAL long write_bo(boRecord *);
-LOCAL long config_bo_command(dbCommon *, int *, uint8_t *, int *, void *, int);
-LOCAL long parse_bo_response(dbCommon *, int *, uint8_t *, int *, void *, int);
+static long init_bo_record(boRecord *);
+static long write_bo(boRecord *);
+static long config_bo_command(dbCommon *, int *, uint8_t *, int *, void *, int);
+static long parse_bo_response(dbCommon *, int *, uint8_t *, int *, void *, int);
 
 INTEGERDSET devBoKeyPlc = {
     5,
@@ -31,7 +31,7 @@ INTEGERDSET devBoKeyPlc = {
 
 epicsExportAddress(dset, devBoKeyPlc);
 
-LOCAL long init_bo_record(boRecord *pbo)
+static long init_bo_record(boRecord *pbo)
 {
     pbo->mask = 1;
 
@@ -45,19 +45,19 @@ LOCAL long init_bo_record(boRecord *pbo)
                               );
 }
 
-LOCAL long write_bo(boRecord *pbo)
+static long write_bo(boRecord *pbo)
 {
     return netDevReadWriteXx((dbCommon *)pbo);
 }
 
 
-LOCAL long config_bo_command(dbCommon *pxx,
-                             int *option,
-                             uint8_t *buf,
-                             int *len,
-                             void *device,
-                             int transaction_id
-                             )
+static long config_bo_command(dbCommon *pxx,
+                              int *option,
+                              uint8_t *buf,
+                              int *len,
+                              void *device,
+                              int transaction_id
+                              )
 {
     boRecord *pbo = (boRecord *)pxx;
 
@@ -71,13 +71,13 @@ LOCAL long config_bo_command(dbCommon *pxx,
                               );
 }
 
-LOCAL long parse_bo_response(dbCommon *pxx,
-                             int *option,
-                             uint8_t *buf,
-                             int *len,
-                             void *device,
-                             int transaction_id
-                             )
+static long parse_bo_response(dbCommon *pxx,
+                              int *option,
+                              uint8_t *buf,
+                              int *len,
+                              void *device,
+                              int transaction_id
+                              )
 {
     boRecord *pbo = (boRecord *)pxx;
 

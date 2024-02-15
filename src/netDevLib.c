@@ -20,22 +20,22 @@
 //
 // Routines for signed integer data transfer
 //
-LOCAL long toCharVal   (int8_t  *, int, void *, int, int, int);
-LOCAL long toShortVal  (int16_t *, int, void *, int, int, int);
-LOCAL long toLongVal   (int32_t *, int, void *, int, int, int);
-LOCAL long fromCharVal (void *, int8_t *,  int, int, int, int);
-LOCAL long fromShortVal(void *, int16_t *, int, int, int, int);
-LOCAL long fromLongVal (void *, int32_t *, int, int, int, int);
+static long toCharVal   (int8_t  *, int, void *, int, int, int);
+static long toShortVal  (int16_t *, int, void *, int, int, int);
+static long toLongVal   (int32_t *, int, void *, int, int, int);
+static long fromCharVal (void *, int8_t *,  int, int, int, int);
+static long fromShortVal(void *, int16_t *, int, int, int, int);
+static long fromLongVal (void *, int32_t *, int, int, int, int);
 
 //
 // Routines for unsigned integer data transfer
 //
-LOCAL long toUcharVal   (uint8_t  *, int, void *, int, int, int);
-LOCAL long toUshortVal  (uint16_t *, int, void *, int, int, int);
-LOCAL long toUlongVal   (uint32_t *, int, void *, int, int, int);
-LOCAL long fromUcharVal (void *, uint8_t  *, int, int, int, int);
-LOCAL long fromUshortVal(void *, uint16_t *, int, int, int, int);
-LOCAL long fromUlongVal (void *, uint32_t *, int, int, int, int);
+static long toUcharVal   (uint8_t  *, int, void *, int, int, int);
+static long toUshortVal  (uint16_t *, int, void *, int, int, int);
+static long toUlongVal   (uint32_t *, int, void *, int, int, int);
+static long fromUcharVal (void *, uint8_t  *, int, int, int, int);
+static long fromUshortVal(void *, uint16_t *, int, int, int, int);
+static long fromUlongVal (void *, uint32_t *, int, int, int, int);
 
 //
 //
@@ -252,13 +252,13 @@ long toRecordVal(void *bptr,
 //
 // To Char record buffer
 //
-LOCAL long toCharVal(int8_t *to,
-                     int noff,
-                     void *from,
-                     int width,
-                     int ndata,
-                     int swap
-                     )
+static long toCharVal(int8_t *to,
+                      int noff,
+                      void *from,
+                      int width,
+                      int ndata,
+                      int swap
+                      )
 {
     LOGMSG("devNetDev: %s(%8p,%d,%8p,%d,%d)\n", __func__, to, noff, from, width, ndata);
 
@@ -296,13 +296,13 @@ LOCAL long toCharVal(int8_t *to,
 //
 // To Short record buffer
 //
-LOCAL long toShortVal(int16_t *to,
-                      int noff,
-                      void *from,
-                      int width,
-                      int ndata,
-                      int swap
-                      )
+static long toShortVal(int16_t *to,
+                       int noff,
+                       void *from,
+                       int width,
+                       int ndata,
+                       int swap
+                       )
 {
     LOGMSG("devNetDev: %s(%8p,%d,%8p,%d,%d)\n", __func__, to, noff, from, width, ndata);
     //printf("%s: %s(to=%8p, noff=%d, from=%8p, width=%d, ndata=%d, swap=%d)\n", __FILE__, __func__, to, noff, from, width, ndata, swap);
@@ -335,13 +335,13 @@ LOCAL long toShortVal(int16_t *to,
 //
 // To Long record buffer
 //
-LOCAL long toLongVal(int32_t *to,
-                     int noff,
-                     void *from,
-                     int width,
-                     int ndata,
-                     int swap
-                     )
+static long toLongVal(int32_t *to,
+                      int noff,
+                      void *from,
+                      int width,
+                      int ndata,
+                      int swap
+                      )
 {
     LOGMSG("devNetDev: %s(%8p,%d,%8p,%d,%d)\n", __func__, to, noff, from, width, ndata);
 
@@ -373,13 +373,13 @@ LOCAL long toLongVal(int32_t *to,
 //
 // To Uchar record buffer
 //
-LOCAL long toUcharVal(uint8_t *to,
-                      int noff,
-                      void *from,
-                      int width,
-                      int ndata,
-                      int swap
-                      )
+static long toUcharVal(uint8_t *to,
+                       int noff,
+                       void *from,
+                       int width,
+                       int ndata,
+                       int swap
+                       )
 {
     LOGMSG("devNetDev: %s(%8p,%d,%8p,%d,%d)\n", __func__, to, noff, from, width, ndata);
 
@@ -416,13 +416,13 @@ LOCAL long toUcharVal(uint8_t *to,
 //
 // To Ushort record buffer
 //
-LOCAL long toUshortVal(uint16_t *to,
-                       int noff,
-                       void *from,
-                       int width,
-                       int ndata,
-                       int swap
-                       )
+static long toUshortVal(uint16_t *to,
+                        int noff,
+                        void *from,
+                        int width,
+                        int ndata,
+                        int swap
+                        )
 {
     LOGMSG("devNetDev: %s(%8p,%d,%8p,%d,%d)\n", __func__, to, noff, from, width, ndata);
 
@@ -454,14 +454,13 @@ LOCAL long toUshortVal(uint16_t *to,
 //
 // To Ulong record buffer
 //
-LOCAL long toUlongVal(
-          uint32_t *to,
-          int noff,
-          void *from,
-          int width,
-          int ndata,
-          int swap
-          )
+static long toUlongVal(uint32_t *to,
+                       int noff,
+                       void *from,
+                       int width,
+                       int ndata,
+                       int swap
+                       )
 {
     LOGMSG("devNetDev: %s(%8p,%d,%8p,%d,%d)\n", __func__, to, noff, from, width, ndata);
 
@@ -528,13 +527,13 @@ long fromRecordVal(void *buf,
 //
 // From Char record buffer
 //
-LOCAL long fromCharVal(void *to,
-                       int8_t *from,
-                       int noff,
-                       int width,
-                       int ndata,
-                       int swap
-                       )
+static long fromCharVal(void *to,
+                        int8_t *from,
+                        int noff,
+                        int width,
+                        int ndata,
+                        int swap
+                        )
 {
     LOGMSG("devNetDev: %s(%8p,%d,%8p,%d,%d)\n", __func__, to, noff, from, width, ndata);
 
@@ -566,13 +565,13 @@ LOCAL long fromCharVal(void *to,
 //
 // From Short record buffer
 //
-LOCAL long fromShortVal(void *to,
-                        int16_t *from,
-                        int noff,
-                        int width,
-                        int ndata,
-                        int swap
-                        )
+static long fromShortVal(void *to,
+                         int16_t *from,
+                         int noff,
+                         int width,
+                         int ndata,
+                         int swap
+                         )
 {
     LOGMSG("devNetDev: %s(%8p,%d,%8p,%d,%d)\n", __func__, to, noff, from, width, ndata);
 
@@ -610,13 +609,13 @@ LOCAL long fromShortVal(void *to,
 //
 // From Long record buffer
 //
-LOCAL long fromLongVal(void *to,
-                       int32_t *from,
-                       int noff,
-                       int width,
-                       int ndata,
-                       int swap
-                       )
+static long fromLongVal(void *to,
+                        int32_t *from,
+                        int noff,
+                        int width,
+                        int ndata,
+                        int swap
+                        )
 {
     LOGMSG("devNetDev: %s(%8p,%d,%8p,%d,%d)\n", __func__, to, noff, from, width, ndata);
 
@@ -660,13 +659,13 @@ LOCAL long fromLongVal(void *to,
 //
 // From Uchar record buffer
 //
-LOCAL long fromUcharVal(void *to,
-                        uint8_t *from,
-                        int noff,
-                        int width,
-                        int ndata,
-                        int swap
-                        )
+static long fromUcharVal(void *to,
+                         uint8_t *from,
+                         int noff,
+                         int width,
+                         int ndata,
+                         int swap
+                         )
 {
     LOGMSG("devNetDev: %s(%8p,%d,%8p,%d,%d)\n", __func__, to, noff, from, width, ndata);
 
@@ -698,13 +697,13 @@ LOCAL long fromUcharVal(void *to,
 //
 // From Ushort record buffer
 //
-LOCAL long fromUshortVal(void *to,
-                         uint16_t *from,
-                         int noff,
-                         int width,
-                         int ndata,
-                         int swap
-                         )
+static long fromUshortVal(void *to,
+                          uint16_t *from,
+                          int noff,
+                          int width,
+                          int ndata,
+                          int swap
+                          )
 {
     LOGMSG("devNetDev: %s(%8p,%d,%8p,%d,%d)\n", __func__, to, noff, from, width, ndata);
 
@@ -741,13 +740,13 @@ LOCAL long fromUshortVal(void *to,
 //
 // From Ulong record buffer
 //
-LOCAL long fromUlongVal(void *to,
-                        uint32_t *from,
-                        int noff,
-                        int width,
-                        int ndata,
-                        int swap
-                        )
+static long fromUlongVal(void *to,
+                         uint32_t *from,
+                         int noff,
+                         int width,
+                         int ndata,
+                         int swap
+                         )
 {
     LOGMSG("devNetDev: %s(%8p,%d,%8p,%d,%d)\n", __func__, to, noff, from, width, ndata);
 

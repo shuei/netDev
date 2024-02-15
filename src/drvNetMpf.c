@@ -35,25 +35,25 @@ static int globalServerCount;
 static int event_server_start_flag;
 static epicsTimerQueueId timerQueue;
 
-LOCAL long create_semaphores(PEER *);
-LOCAL long prepare_udp_server_socket(SERVER *);
-LOCAL long spawn_io_tasks(PEER *);
-LOCAL long spawn_server_task(SERVER *);
-LOCAL void delete_peer(PEER *);
-LOCAL void delete_server(SERVER *);
-LOCAL void remove_server(SERVER *);
-LOCAL TRANSACTION *get_request_from_queue(PEER *);
-LOCAL int send_msg(MPF_COMMON *);
-LOCAL int recv_msg(MPF_COMMON *);
-LOCAL void send_task(PEER *);
-LOCAL void receive_task(PEER *);
-LOCAL void mpf_timeout_handler(PEER *);
-LOCAL long init(void);
-LOCAL long report(void);
-LOCAL long spawn_tcp_parent(SERVER *);
-LOCAL int tcp_parent(SERVER *);
-LOCAL void reconnect(MPF_COMMON *);
-LOCAL int event_server(SERVER *);
+static long create_semaphores(PEER *);
+static long prepare_udp_server_socket(SERVER *);
+static long spawn_io_tasks(PEER *);
+static long spawn_server_task(SERVER *);
+static void delete_peer(PEER *);
+static void delete_server(SERVER *);
+static void remove_server(SERVER *);
+static TRANSACTION *get_request_from_queue(PEER *);
+static int send_msg(MPF_COMMON *);
+static int recv_msg(MPF_COMMON *);
+static void send_task(PEER *);
+static void receive_task(PEER *);
+static void mpf_timeout_handler(PEER *);
+static long init(void);
+static long report(void);
+static long spawn_tcp_parent(SERVER *);
+static int tcp_parent(SERVER *);
+static void reconnect(MPF_COMMON *);
+static int event_server(SERVER *);
 void dump_msg(uint8_t *, ssize_t, int, int);
 void startEventServer(const iocshArgBuf *);
 void mpfHelp(const iocshArgBuf *);
@@ -198,7 +198,7 @@ static const iocshFuncDef stoprttDef = {"stoprtt", 0, NULL};
 //
 // Report
 //
-LOCAL long report(void)
+static long report(void)
 {
     printf("drvNetMpf: report() has currently nothing to do.\n");
 
@@ -208,7 +208,7 @@ LOCAL long report(void)
 //
 // Init
 //
-LOCAL long init(void)
+static long init(void)
 {
     LOGMSG("drvNetMpf: init() entered\n");
 
@@ -280,7 +280,7 @@ LOCAL long init(void)
 //
 // Creates semaphores
 //
-LOCAL long create_semaphores(PEER *p) {
+static long create_semaphores(PEER *p) {
     LOGMSG("drvNetMpf: create_semaphores(%8p)\n", p);
 
     if ((p->in_t_mutex=epicsMutexCreate()) == 0) {
@@ -309,7 +309,7 @@ LOCAL long create_semaphores(PEER *p) {
 //
 // Spawn I/O tasks
 //
-LOCAL long spawn_io_tasks(PEER *p)
+static long spawn_io_tasks(PEER *p)
 {
     char *send_t_name = "tSndTsk";
     char *recv_t_name = "tRcvTsk";
@@ -351,7 +351,7 @@ LOCAL long spawn_io_tasks(PEER *p)
 // This function should be called only before
 // the peer is added to the peerList.
 //
-LOCAL void delete_peer(PEER *p)
+static void delete_peer(PEER *p)
 {
     LOGMSG("drvNetMpf: delete_peer(%8p)\n", p);
 
@@ -518,7 +518,7 @@ long drvNetMpfSendRequest(TRANSACTION *t)
 //
 // Get request from queue
 //
-LOCAL TRANSACTION *get_request_from_queue(PEER *p)
+static TRANSACTION *get_request_from_queue(PEER *p)
 {
     TRANSACTION *t;
     epicsMutexMustLock(p->reqQ_mutex);
@@ -533,7 +533,7 @@ LOCAL TRANSACTION *get_request_from_queue(PEER *p)
 //
 // Send message
 //
-LOCAL int send_msg(MPF_COMMON *m)
+static int send_msg(MPF_COMMON *m)
 {
     void *cur = m->send_buf;
 
@@ -579,7 +579,7 @@ LOCAL int send_msg(MPF_COMMON *m)
 //
 // Reconnect
 //
-LOCAL void reconnect(MPF_COMMON *m)
+static void reconnect(MPF_COMMON *m)
 {
     LOGMSG("drvNetMpf: reconnect(%8p)\n", m);
 
@@ -646,7 +646,7 @@ LOCAL void reconnect(MPF_COMMON *m)
 //
 // Receive message
 //
-LOCAL int recv_msg(MPF_COMMON *m)
+static int recv_msg(MPF_COMMON *m)
 {
     void *cur = m->recv_buf;
     void *end = m->recv_buf + RECV_BUF_SIZE(m->option);
@@ -713,7 +713,7 @@ LOCAL int recv_msg(MPF_COMMON *m)
 //
 // Send task
 //
-LOCAL void send_task(PEER *p)
+static void send_task(PEER *p)
 {
     for (;;) {
         epicsEventMustWait(p->req_queued);
@@ -817,7 +817,7 @@ LOCAL void send_task(PEER *p)
 //
 // Receve task
 //
-LOCAL void receive_task(PEER *p)
+static void receive_task(PEER *p)
 {
     reconnect(&p->mpf);
 
@@ -884,7 +884,7 @@ LOCAL void receive_task(PEER *p)
 //
 // Timeout handler
 //
-LOCAL void mpf_timeout_handler(PEER *p)
+static void mpf_timeout_handler(PEER *p)
 {
     TRANSACTION *t;
     epicsMutexMustLock(p->in_t_mutex);
@@ -943,7 +943,7 @@ long drvNetMpfRegisterEvent(TRANSACTION *t)
     return OK;
 }
 
-LOCAL int tcp_parent(SERVER *s)
+static int tcp_parent(SERVER *s)
 {
     if ((s->mpf.sfd = socket(AF_INET,
                              SOCK_STREAM,
@@ -1082,7 +1082,7 @@ LOCAL int tcp_parent(SERVER *s)
 //
 // Create TCP parent
 //
-LOCAL long spawn_tcp_parent(SERVER *s)
+static long spawn_tcp_parent(SERVER *s)
 {
     LOGMSG("drvNetMpf: spawn_tcp_parent(%8p)\n", s);
 
@@ -1106,7 +1106,7 @@ LOCAL long spawn_tcp_parent(SERVER *s)
 //
 // Creates socket and connect
 //
-LOCAL long prepare_udp_server_socket(SERVER *s)
+static long prepare_udp_server_socket(SERVER *s)
 {
     LOGMSG("drvNetMpf: prepare_udp_server_socket(%8p)\n", s);
 
@@ -1140,7 +1140,7 @@ LOCAL long prepare_udp_server_socket(SERVER *s)
 //
 // Spawn server task
 //
-LOCAL long spawn_server_task(SERVER *s)
+static long spawn_server_task(SERVER *s)
 {
     LOGMSG("drvNetMpf: spawn_server_task(%8p)\n", s);
 
@@ -1165,7 +1165,7 @@ LOCAL long spawn_server_task(SERVER *s)
 //
 // Delete server
 //
-LOCAL void delete_server(SERVER *s)
+static void delete_server(SERVER *s)
 {
     // This function should be called only before
     // the server is added to the serverList.
@@ -1299,7 +1299,7 @@ SERVER *drvNetMpfInitServer(unsigned short port, int option)
 //
 // Searches for event acceptor
 //
-LOCAL int event_server(SERVER *s)
+static int event_server(SERVER *s)
 {
     for (;;) {
         if (!event_server_start_flag) {
@@ -1381,7 +1381,7 @@ LOCAL int event_server(SERVER *s)
 //
 // Remove server
 //
-LOCAL void remove_server(SERVER *target)
+static void remove_server(SERVER *target)
 {
     SERVER *s;
     epicsMutexMustLock(serverList.mutex);

@@ -19,10 +19,10 @@
 //
 // Response parser
 //
-LOCAL long init_chan_record(channelsRecord *);
-LOCAL long read_chan(channelsRecord *);
-LOCAL long config_chan_command(dbCommon *, int *, uint8_t *, int *, void *, int);
-LOCAL long parse_chan_response(dbCommon *, int *, uint8_t *, int *, void *, int);
+static long init_chan_record(channelsRecord *);
+static long read_chan(channelsRecord *);
+static long config_chan_command(dbCommon *, int *, uint8_t *, int *, void *, int);
+static long parse_chan_response(dbCommon *, int *, uint8_t *, int *, void *, int);
 
 INTEGERDSET devChannelsDarwin = {
     5,
@@ -36,7 +36,7 @@ INTEGERDSET devChannelsDarwin = {
 epicsExportAddress(dset, devChannelsDarwin);
 extern void swap_bytes(void *ptr, int num);
 
-LOCAL long init_chan_record(channelsRecord *pchan)
+static long init_chan_record(channelsRecord *pchan)
 {
     DARWIN *d = darwin_calloc();
 
@@ -65,7 +65,7 @@ LOCAL long init_chan_record(channelsRecord *pchan)
     return OK;
 }
 
-LOCAL long read_chan(channelsRecord *pchan)
+static long read_chan(channelsRecord *pchan)
 {
     LOGMSG("devChanDarwin: read_chan_record(\"%s\")\n", pchan->name);
 
@@ -79,13 +79,13 @@ LOCAL long read_chan(channelsRecord *pchan)
 #define ALARM_MSG_SIZE         MAX_STRING_SIZE
 #define EL_RESP_LENGTH         15
 
-LOCAL long config_chan_command(dbCommon *pxx,
-                               int *option,
-                               uint8_t *buf,
-                               int *len,
-                               void *device,
-                               int transaction_id
-                               )
+static long config_chan_command(dbCommon *pxx,
+                                int *option,
+                                uint8_t *buf,
+                                int *len,
+                                void *device,
+                                int transaction_id
+                                )
 {
     channelsRecord *pchan = (channelsRecord *)pxx;
     DARWIN *d = (DARWIN *)device;
@@ -132,13 +132,13 @@ LOCAL long config_chan_command(dbCommon *pxx,
     return resp_length;
 }
 
-LOCAL long parse_chan_response(dbCommon *pxx,
-                               int *option,
-                               uint8_t *buf,
-                               int *len,
-                               void *device,
-                               int transaction_id
-                               )
+static long parse_chan_response(dbCommon *pxx,
+                                int *option,
+                                uint8_t *buf,
+                                int *len,
+                                void *device,
+                                int transaction_id
+                                )
 {
     channelsRecord *pchan = (channelsRecord *)pxx;
     DARWIN *d    = (DARWIN *)device;

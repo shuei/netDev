@@ -21,10 +21,10 @@
 //
 // Mult-bit binary output (command/response IO)
 //
-LOCAL long init_mbbo_record(mbboRecord *);
-LOCAL long write_mbbo(mbboRecord *);
-LOCAL long config_mbbo_command(dbCommon *, int *, uint8_t *, int *, void *, int);
-LOCAL long parse_mbbo_response(dbCommon *, int *, uint8_t *, int *, void *, int);
+static long init_mbbo_record(mbboRecord *);
+static long write_mbbo(mbboRecord *);
+static long config_mbbo_command(dbCommon *, int *, uint8_t *, int *, void *, int);
+static long parse_mbbo_response(dbCommon *, int *, uint8_t *, int *, void *, int);
 
 INTEGERDSET devMbboYewPlc = {
     5,
@@ -37,7 +37,7 @@ INTEGERDSET devMbboYewPlc = {
 
 epicsExportAddress(dset, devMbboYewPlc);
 
-LOCAL long init_mbbo_record(mbboRecord *prec)
+static long init_mbbo_record(mbboRecord *prec)
 {
     long status = netDevInitXxRecord((dbCommon *)prec,
                                      &prec->out,
@@ -58,18 +58,18 @@ LOCAL long init_mbbo_record(mbboRecord *prec)
     return 2; // no conversion
 }
 
-LOCAL long write_mbbo(mbboRecord *prec)
+static long write_mbbo(mbboRecord *prec)
 {
     return netDevReadWriteXx((dbCommon *)prec);
 }
 
-LOCAL long config_mbbo_command(dbCommon *pxx,
-                               int *option,
-                               uint8_t *buf,
-                               int *len,
-                               void *device,
-                               int transaction_id
-                               )
+static long config_mbbo_command(dbCommon *pxx,
+                                int *option,
+                                uint8_t *buf,
+                                int *len,
+                                void *device,
+                                int transaction_id
+                                )
 {
     mbboRecord *prec = (mbboRecord *)pxx;
     YEW_PLC *d = (YEW_PLC *)device;
@@ -108,13 +108,13 @@ LOCAL long config_mbbo_command(dbCommon *pxx,
     }
 }
 
-LOCAL long parse_mbbo_response(dbCommon *pxx,
-                               int *option,
-                               uint8_t *buf,
-                               int *len,
-                               void *device,
-                               int transaction_id
-                               )
+static long parse_mbbo_response(dbCommon *pxx,
+                                int *option,
+                                uint8_t *buf,
+                                int *len,
+                                void *device,
+                                int transaction_id
+                                )
 {
     mbboRecord *prec = (mbboRecord *)pxx;
     YEW_PLC *d = (YEW_PLC *)device;

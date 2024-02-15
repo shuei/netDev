@@ -39,12 +39,12 @@
 #define YEW_NEEDS_SWAP (__BYTE_ORDER==__LITTLE_ENDIAN)
 #define YEW_SPECIAL_MODULE
 
-//LOCAL int sizeofTypes[] = {0,1,1,2,2,4,4,4,8,2};
-LOCAL int yew_max_ndata = 64;
+//static int sizeofTypes[] = {0,1,1,2,2,4,4,4,8,2};
+static int yew_max_ndata = 64;
 
-LOCAL long yew_parse_link(DBLINK *, struct sockaddr_in *, int *, void *);
-LOCAL int yew_get_protocol(void);
-LOCAL void *yew_calloc(int, uint8_t, uint32_t, int);
+static long yew_parse_link(DBLINK *, struct sockaddr_in *, int *, void *);
+static int yew_get_protocol(void);
+static void *yew_calloc(int, uint8_t, uint32_t, int);
 
 typedef struct {
     int      cpu;
@@ -59,15 +59,15 @@ typedef struct {
     char     flag;
 } YEW_PLC;
 
-LOCAL long yew_config_command(uint8_t *, int *, void *, int, int, int *, YEW_PLC *);
-LOCAL long yew_parse_response(uint8_t *, int *, void *, int, int, int *, YEW_PLC *);
+static long yew_config_command(uint8_t *, int *, void *, int, int, int *, YEW_PLC *);
+static long yew_parse_response(uint8_t *, int *, void *, int, int, int *, YEW_PLC *);
 
 int yewPlcUseTcp;
 
 int yewGetMaxTransfer(void);
 void yewSetMaxTransfer(int);
 
-LOCAL int yew_get_protocol(void)
+static int yew_get_protocol(void)
 {
     if (yewPlcUseTcp) {
         return MPF_TCP;
@@ -85,11 +85,7 @@ void yewSetMaxTransfer(int ndata)
     yew_max_ndata = ndata;
 }
 
-LOCAL void *yew_calloc(int cpu,
-                       uint8_t type,
-                       uint32_t addr,
-                       int width
-                       )
+static void *yew_calloc(int cpu, uint8_t type, uint32_t addr, int width)
 {
     YEW_PLC *d = calloc(1, sizeof(YEW_PLC));
     if (!d) {
@@ -124,11 +120,11 @@ LOCAL void *yew_calloc(int cpu,
 //
 // Link field parser for both command/response I/O and event driven I/O
 //
-LOCAL long yew_parse_link(DBLINK *plink,
-                          struct sockaddr_in *peer_addr,
-                          int *option,
-                          void *device
-                          )
+static long yew_parse_link(DBLINK *plink,
+                           struct sockaddr_in *peer_addr,
+                           int *option,
+                           void *device
+                           )
 {
     char *protocol = NULL;
     char *route = NULL;
@@ -339,14 +335,14 @@ LOCAL long yew_parse_link(DBLINK *plink,
 //
 // Command constructor for command/response I/O
 //
-LOCAL long yew_config_command(uint8_t *buf,    // driver buf addr
-                              int     *len,    // driver buf size
-                              void    *bptr,   // record buf addr
-                              int      ftvl,   // record field type
-                              int      ndata,  // number of elements to be transferred
-                              int     *option, // direction etc.
-                              YEW_PLC *d
-                              )
+static long yew_config_command(uint8_t *buf,    // driver buf addr
+                               int     *len,    // driver buf size
+                               void    *bptr,   // record buf addr
+                               int      ftvl,   // record field type
+                               int      ndata,  // number of elements to be transferred
+                               int     *option, // direction etc.
+                               YEW_PLC *d
+                               )
 {
     LOGMSG("devYewPlc: yew_config_command(%8p,%d,%8p,%d,%d,%d,%8p)\n", buf, *len, bptr, ftvl, ndata, *option, d);
 
@@ -433,14 +429,14 @@ LOCAL long yew_config_command(uint8_t *buf,    // driver buf addr
 //
 // Response parser for command/response I/O
 //
-LOCAL long yew_parse_response(uint8_t *buf,    // driver buf addr
-                              int     *len,    // driver buf size
-                              void    *bptr,   // record buf addr
-                              int      ftvl,   // record field type
-                              int      ndata,  // number of elements to be transferred
-                              int     *option, // direction etc.
-                              YEW_PLC *d
-                              )
+static long yew_parse_response(uint8_t *buf,    // driver buf addr
+                               int     *len,    // driver buf size
+                               void    *bptr,   // record buf addr
+                               int      ftvl,   // record field type
+                               int      ndata,  // number of elements to be transferred
+                               int     *option, // direction etc.
+                               YEW_PLC *d
+                               )
 {
     LOGMSG("devYewPlc: yew_parse_response(%8p,%d,%8p,%d,%d,%d,%8p)\n", buf, *len, bptr, ftvl, ndata, *option, d);
 

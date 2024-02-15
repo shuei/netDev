@@ -25,15 +25,15 @@
 #define KEY_CMND_WRE     4
 #define KEY_CMND_LENGTH(x) ((x) == KEY_CMND_RDE || (x) == KEY_CMND_WRE) ? 18 : 12
 
-//LOCAL int sizeofTypes[] = {0,1,1,2,2,4,4,4,8,2};
+//static int sizeofTypes[] = {0,1,1,2,2,4,4,4,8,2};
 
-LOCAL long key_parse_link(DBLINK *,
-                          struct sockaddr_in *,
-                          int *,
-                          void *
-                          );
-LOCAL int key_get_protocol(void);
-LOCAL void *key_calloc(uint32_t, int);
+static long key_parse_link(DBLINK *,
+                           struct sockaddr_in *,
+                           int *,
+                           void *
+                           );
+static int key_get_protocol(void);
+static void *key_calloc(uint32_t, int);
 
 typedef struct {
     uint8_t  indx;
@@ -83,12 +83,12 @@ static CMND_INFO cmnd_tbl_RDE_WRE[] = {
     {NULL, NULL, NULL, NULL}
 };
 
-LOCAL long key_config_command(uint8_t *, int *, void *, int, int, int *, KEY_PLC *);
-LOCAL long key_parse_response(uint8_t *, int *, void *, int, int, int *, KEY_PLC *);
+static long key_config_command(uint8_t *, int *, void *, int, int, int *, KEY_PLC *);
+static long key_parse_response(uint8_t *, int *, void *, int, int, int *, KEY_PLC *);
 
 int keyPlcUseTcp;
 
-LOCAL int key_get_protocol(void)
+static int key_get_protocol(void)
 {
     if (keyPlcUseTcp) {
         return MPF_TCP;
@@ -96,9 +96,7 @@ LOCAL int key_get_protocol(void)
     return MPF_UDP;
 }
 
-LOCAL void *key_calloc(uint32_t addr,
-                       int cmnd
-                       )
+static void *key_calloc(uint32_t addr, int cmnd)
 {
     KEY_PLC *d = calloc(1, sizeof(KEY_PLC));
     if (!d) {
@@ -126,11 +124,11 @@ LOCAL void *key_calloc(uint32_t addr,
 //
 // Link field parser for both command/response I/O and event driven I/O
 //
-LOCAL long key_parse_link(DBLINK *plink,
-                          struct sockaddr_in *peer_addr,
-                          int *option,
-                          void *device
-                          )
+static long key_parse_link(DBLINK *plink,
+                           struct sockaddr_in *peer_addr,
+                           int *option,
+                           void *device
+                           )
 {
     char *protocol = NULL;
     char *route = NULL;
@@ -221,14 +219,14 @@ LOCAL long key_parse_link(DBLINK *plink,
 //
 // Command constructor for command/response I/O
 //
-LOCAL long key_config_command(uint8_t *buf,    // driver buf addr
-                              int     *len,    // driver buf size
-                              void    *bptr,   // record buf addr
-                              int      ftvl,   // record field type
-                              int      ndata,  // number of elements to be transferred
-                              int     *option, // direction etc.
-                              KEY_PLC *d
-                              )
+static long key_config_command(uint8_t *buf,    // driver buf addr
+                               int     *len,    // driver buf size
+                               void    *bptr,   // record buf addr
+                               int      ftvl,   // record field type
+                               int      ndata,  // number of elements to be transferred
+                               int     *option, // direction etc.
+                               KEY_PLC *d
+                               )
 {
     LOGMSG("devKeyPlc: key_config_command(%8p,%d,%8p,%d,%d,%d,%8p)\n", buf, *len, bptr, ftvl, ndata, *option, d);
 
@@ -327,14 +325,14 @@ LOCAL long key_config_command(uint8_t *buf,    // driver buf addr
 //
 // Response parser for command/response I/O
 //
-LOCAL long key_parse_response(uint8_t *buf,    // driver buf addr
-                              int     *len,    // driver buf size
-                              void    *bptr,   // record buf addr
-                              int      ftvl,   // record field type
-                              int      ndata,  // number of elements to be transferred
-                              int     *option, // direction etc.
-                              KEY_PLC *d
-                              )
+static long key_parse_response(uint8_t *buf,    // driver buf addr
+                               int     *len,    // driver buf size
+                               void    *bptr,   // record buf addr
+                               int      ftvl,   // record field type
+                               int      ndata,  // number of elements to be transferred
+                               int     *option, // direction etc.
+                               KEY_PLC *d
+                               )
 {
     LOGMSG("devKeyPlc: key_parse_response(%8p,%d,%8p,%d,%d,%d,%8p)\n", buf, *len, bptr, ftvl, ndata, *option, d);
 

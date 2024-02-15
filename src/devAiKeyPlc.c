@@ -16,11 +16,11 @@
 //
 // Analog input (command/response IO)
 //
-LOCAL long init_ai_record(aiRecord *);
-LOCAL long read_ai(aiRecord *);
-LOCAL long ai_linear_convert(aiRecord *, int);
-LOCAL long config_ai_command(dbCommon *, int *, uint8_t *, int *, void *, int);
-LOCAL long parse_ai_response(dbCommon *, int *, uint8_t *, int *, void *, int);
+static long init_ai_record(aiRecord *);
+static long read_ai(aiRecord *);
+static long ai_linear_convert(aiRecord *, int);
+static long config_ai_command(dbCommon *, int *, uint8_t *, int *, void *, int);
+static long parse_ai_response(dbCommon *, int *, uint8_t *, int *, void *, int);
 
 FLOATDSET devAiKeyPlc = {
     6,
@@ -34,7 +34,7 @@ FLOATDSET devAiKeyPlc = {
 
 epicsExportAddress(dset, devAiKeyPlc);
 
-LOCAL long init_ai_record(aiRecord *pai)
+static long init_ai_record(aiRecord *pai)
 {
     if (pai->linr == menuConvertLINEAR) {
         pai->eslo = (pai->eguf - pai->egul) / 0xFFFF;
@@ -51,13 +51,13 @@ LOCAL long init_ai_record(aiRecord *pai)
                               );
 }
 
-LOCAL long read_ai(aiRecord *pai)
+static long read_ai(aiRecord *pai)
 {
     return netDevReadWriteXx((dbCommon *)pai);
 }
 
 
-LOCAL long ai_linear_convert(aiRecord *pai, int after)
+static long ai_linear_convert(aiRecord *pai, int after)
 {
     if (!after) {
         return OK;
@@ -71,13 +71,13 @@ LOCAL long ai_linear_convert(aiRecord *pai, int after)
     return OK;
 }
 
-LOCAL long config_ai_command(dbCommon *pxx,
-                             int *option,
-                             uint8_t *buf,
-                             int *len,
-                             void *device,
-                             int transaction_id
-                             )
+static long config_ai_command(dbCommon *pxx,
+                              int *option,
+                              uint8_t *buf,
+                              int *len,
+                              void *device,
+                              int transaction_id
+                              )
 {
     aiRecord *pai = (aiRecord *)pxx;
     KEY_PLC *d = (KEY_PLC *)device;
@@ -92,13 +92,13 @@ LOCAL long config_ai_command(dbCommon *pxx,
                               );
 }
 
-LOCAL long parse_ai_response(dbCommon *pxx,
-                             int *option,
-                             uint8_t *buf,
-                             int *len,
-                             void *device,
-                             int transaction_id
-                             )
+static long parse_ai_response(dbCommon *pxx,
+                              int *option,
+                              uint8_t *buf,
+                              int *len,
+                              void *device,
+                              int transaction_id
+                              )
 {
     aiRecord *pai = (aiRecord *)pxx;
     KEY_PLC *d = (KEY_PLC *)device;

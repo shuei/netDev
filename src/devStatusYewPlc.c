@@ -21,10 +21,10 @@
 //
 // Status (command/response IO)
 //
-LOCAL long init_status_record(statusRecord *);
-LOCAL long read_status(statusRecord *);
-LOCAL long config_status_command(dbCommon *, int *, uint8_t *, int *, void *, int);
-LOCAL long parse_status_response(dbCommon *, int *, uint8_t *, int *, void *, int);
+static long init_status_record(statusRecord *);
+static long read_status(statusRecord *);
+static long config_status_command(dbCommon *, int *, uint8_t *, int *, void *, int);
+static long parse_status_response(dbCommon *, int *, uint8_t *, int *, void *, int);
 
 INTEGERDSET devStatusYewPlc = {
     5,
@@ -37,7 +37,7 @@ INTEGERDSET devStatusYewPlc = {
 
 epicsExportAddress(dset, devStatusYewPlc);
 
-LOCAL long init_status_record(statusRecord *pst)
+static long init_status_record(statusRecord *pst)
 {
     return netDevInitXxRecord((dbCommon *)pst,
                               &pst->inp,
@@ -49,7 +49,7 @@ LOCAL long init_status_record(statusRecord *pst)
                               );
 }
 
-LOCAL long read_status(statusRecord *pst)
+static long read_status(statusRecord *pst)
 {
     TRANSACTION *t = (TRANSACTION *)pst->dpvt;
     YEW_PLC *d = (YEW_PLC *)t->device;
@@ -63,12 +63,12 @@ LOCAL long read_status(statusRecord *pst)
     return netDevReadWriteXx((dbCommon *)pst);
 }
 
-LOCAL long config_status_command(dbCommon *pxx,
-                                 int *option,
-                                 uint8_t *buf,
-                                 int *len,
-                                 void *device,
-                                 int transaction_id
+static long config_status_command(dbCommon *pxx,
+                                  int *option,
+                                  uint8_t *buf,
+                                  int *len,
+                                  void *device,
+                                  int transaction_id
                                  )
 {
     statusRecord *pst = (statusRecord *)pxx;
@@ -83,13 +83,13 @@ LOCAL long config_status_command(dbCommon *pxx,
                               );
 }
 
-LOCAL long parse_status_response(dbCommon *pxx,
-                                 int *option,
-                                 uint8_t *buf,
-                                 int *len,
-                                 void *device,
-                                 int transaction_id
-                                 )
+static long parse_status_response(dbCommon *pxx,
+                                  int *option,
+                                  uint8_t *buf,
+                                  int *len,
+                                  void *device,
+                                  int transaction_id
+                                  )
 {
     statusRecord *pst = (statusRecord *)pxx;
     YEW_PLC *d = (YEW_PLC *)device;

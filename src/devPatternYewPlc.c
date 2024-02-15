@@ -21,10 +21,10 @@
 //
 // Pattern (command/response IO)
 //
-LOCAL long init_pattern_record(patternRecord *);
-LOCAL long read_pattern(patternRecord *);
-LOCAL long config_pattern_command(dbCommon *, int *, uint8_t *, int *, void *, int);
-LOCAL long parse_pattern_response(dbCommon *, int *, uint8_t *, int *, void *, int);
+static long init_pattern_record(patternRecord *);
+static long read_pattern(patternRecord *);
+static long config_pattern_command(dbCommon *, int *, uint8_t *, int *, void *, int);
+static long parse_pattern_response(dbCommon *, int *, uint8_t *, int *, void *, int);
 
 INTEGERDSET devPtnYewPlc = {
     5,
@@ -37,7 +37,7 @@ INTEGERDSET devPtnYewPlc = {
 
 epicsExportAddress(dset, devPtnYewPlc);
 
-LOCAL long init_pattern_record(patternRecord *pptn)
+static long init_pattern_record(patternRecord *pptn)
 {
     return netDevInitXxRecord((dbCommon *)pptn,
                               &pptn->inp,
@@ -49,7 +49,7 @@ LOCAL long init_pattern_record(patternRecord *pptn)
                               );
 }
 
-LOCAL long read_pattern(patternRecord *pptn)
+static long read_pattern(patternRecord *pptn)
 {
     TRANSACTION *t = (TRANSACTION *)pptn->dpvt;
     YEW_PLC *d = (YEW_PLC *)t->device;
@@ -64,13 +64,13 @@ LOCAL long read_pattern(patternRecord *pptn)
     return netDevReadWriteXx((dbCommon *)pptn);
 }
 
-LOCAL long config_pattern_command(dbCommon *pxx,
-                                  int *option,
-                                  uint8_t *buf,
-                                  int *len,
-                                  void *device,
-                                  int transaction_id
-                                  )
+static long config_pattern_command(dbCommon *pxx,
+                                   int *option,
+                                   uint8_t *buf,
+                                   int *len,
+                                   void *device,
+                                   int transaction_id
+                                   )
 {
     patternRecord *pptn = (patternRecord *)pxx;
 
@@ -84,13 +84,13 @@ LOCAL long config_pattern_command(dbCommon *pxx,
                               );
 }
 
-LOCAL long parse_pattern_response(dbCommon *pxx,
-                                  int *option,
-                                  uint8_t *buf,
-                                  int *len,
-                                  void *device,
-                                  int transaction_id
-                                  )
+static long parse_pattern_response(dbCommon *pxx,
+                                   int *option,
+                                   uint8_t *buf,
+                                   int *len,
+                                   void *device,
+                                   int transaction_id
+                                   )
 {
     patternRecord *pptn = (patternRecord *)pxx;
     YEW_PLC *d = (YEW_PLC *)device;

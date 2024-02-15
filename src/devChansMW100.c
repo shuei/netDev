@@ -18,10 +18,10 @@
 //
 // Chans (command/response I/O)
 //
-LOCAL long init_chans_record(chansRecord *);
-LOCAL long read_chans(chansRecord *);
-LOCAL long config_chans_command(dbCommon *, int *, uint8_t *, int *, void *, int);
-LOCAL long parse_chans_response(dbCommon *, int *, uint8_t *, int *, void *, int);
+static long init_chans_record(chansRecord *);
+static long read_chans(chansRecord *);
+static long config_chans_command(dbCommon *, int *, uint8_t *, int *, void *, int);
+static long parse_chans_response(dbCommon *, int *, uint8_t *, int *, void *, int);
 
 INTEGERDSET devChansMW100 = {
     5,
@@ -34,7 +34,7 @@ INTEGERDSET devChansMW100 = {
 
 epicsExportAddress(dset, devChansMW100);
 
-LOCAL long init_chans_record(chansRecord *pchans)
+static long init_chans_record(chansRecord *pchans)
 {
     LOGMSG("devChansMW100: init_chans_record(\"%s\")\n", pchans->name);
 
@@ -55,23 +55,22 @@ LOCAL long init_chans_record(chansRecord *pchans)
     return OK;
 }
 
-LOCAL long read_chans(chansRecord *pchans)
+static long read_chans(chansRecord *pchans)
 {
     LOGMSG("devChansMW100: read_chans_record(\"%s\")\n", pchans->name);
 
     return netDevReadWriteXx((dbCommon *)pchans);
 }
 
-
 #define RESPONSE_LENGTH(x) (4 + 15 + 15 + 28*(x) + 4)
 
-LOCAL long config_chans_command(dbCommon *pxx,
-                                int *option,
-                                uint8_t *buf,
-                                int *len,
-                                void *device,
-                                int transaction_id
-                                )
+static long config_chans_command(dbCommon *pxx,
+                                 int *option,
+                                 uint8_t *buf,
+                                 int *len,
+                                 void *device,
+                                 int transaction_id
+                                 )
 {
     LOGMSG("devChansMW100: config_chans_command(\"%s\")\n", pxx->name);
 
@@ -90,14 +89,13 @@ LOCAL long config_chans_command(dbCommon *pxx,
     return RESPONSE_LENGTH(pchans->noch);
 }
 
-
-LOCAL long parse_chans_response(dbCommon *pxx,
-                                int *option,
-                                uint8_t *buf,
-                                int *len,
-                                void *device,
-                                int transaction_id
-                                )
+static long parse_chans_response(dbCommon *pxx,
+                                 int *option,
+                                 uint8_t *buf,
+                                 int *len,
+                                 void *device,
+                                 int transaction_id
+                                 )
 {
     LOGMSG("devChansMW100: parse_chans_response(%8p,0x%08x,%8p,%d,%8p,%d)\n", pxx, *option, buf, *len, device, transaction_id);
 

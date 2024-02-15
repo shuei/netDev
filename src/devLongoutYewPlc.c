@@ -21,10 +21,10 @@
 //
 // Long output (command/respons IO)
 //
-LOCAL long init_longout_record(longoutRecord *);
-LOCAL long write_longout(longoutRecord *);
-LOCAL long config_longout_command(dbCommon *, int *, uint8_t *, int *, void *, int);
-LOCAL long parse_longout_response(dbCommon *, int *, uint8_t *, int *, void *, int);
+static long init_longout_record(longoutRecord *);
+static long write_longout(longoutRecord *);
+static long config_longout_command(dbCommon *, int *, uint8_t *, int *, void *, int);
+static long parse_longout_response(dbCommon *, int *, uint8_t *, int *, void *, int);
 
 INTEGERDSET devLoYewPlc = {
     5,
@@ -37,7 +37,7 @@ INTEGERDSET devLoYewPlc = {
 
 epicsExportAddress(dset, devLoYewPlc);
 
-LOCAL long init_longout_record(longoutRecord *plongout)
+static long init_longout_record(longoutRecord *plongout)
 {
     return netDevInitXxRecord((dbCommon *)plongout,
                               &plongout->out,
@@ -49,18 +49,18 @@ LOCAL long init_longout_record(longoutRecord *plongout)
                               );
 }
 
-LOCAL long write_longout(longoutRecord *plongout)
+static long write_longout(longoutRecord *plongout)
 {
     return netDevReadWriteXx((dbCommon *)plongout);
 }
 
-LOCAL long config_longout_command(dbCommon *pxx,
-                                  int *option,
-                                  uint8_t *buf,
-                                  int *len,
-                                  void *device,
-                                  int transaction_id
-                                  )
+static long config_longout_command(dbCommon *pxx,
+                                   int *option,
+                                   uint8_t *buf,
+                                   int *len,
+                                   void *device,
+                                   int transaction_id
+                                   )
 {
     longoutRecord *plongout = (longoutRecord *)pxx;
     YEW_PLC *d = (YEW_PLC *)device;
@@ -99,13 +99,13 @@ LOCAL long config_longout_command(dbCommon *pxx,
     }
 }
 
-LOCAL long parse_longout_response(dbCommon *pxx,
-                                  int *option,
-                                  uint8_t *buf,
-                                  int *len,
-                                  void *device,
-                                  int transaction_id
-                                  )
+static long parse_longout_response(dbCommon *pxx,
+                                   int *option,
+                                   uint8_t *buf,
+                                   int *len,
+                                   void *device,
+                                   int transaction_id
+                                   )
 {
     longoutRecord *plongout = (longoutRecord *)pxx;
     YEW_PLC *d = (YEW_PLC *)device;

@@ -30,12 +30,12 @@
 #define CHINOL_MAX_NDATA 5120
 #define CHINOL_DATA_OFFSET 3
 
-//LOCAL int finsUseSamePortNumber = MPF_SAMEPORT;
-LOCAL unsigned short calCRC(unsigned char cd[], int nmax);
-LOCAL int TwoRawToVal(unsigned char bu[],int offset, float *res);
-LOCAL long chino_parse_link(DBLINK *, struct sockaddr_in *, int *, void *);
-LOCAL int chino_get_protocol(void);
-LOCAL void *chino_calloc(int, int, int, int, int);
+//static int finsUseSamePortNumber = MPF_SAMEPORT;
+static unsigned short calCRC(unsigned char cd[], int nmax);
+static int TwoRawToVal(unsigned char bu[],int offset, float *res);
+static long chino_parse_link(DBLINK *, struct sockaddr_in *, int *, void *);
+static int chino_get_protocol(void);
+static void *chino_calloc(int, int, int, int, int);
 
 typedef struct {
     int      unit;
@@ -51,12 +51,12 @@ typedef struct {
     char    *lopt;
 } CHINOL_LOG;
 
-LOCAL long chino_config_command(uint8_t *, int *, void *, int, int, int *, CHINOL_LOG *, int);
-LOCAL long chino_parse_response(uint8_t *, int *, void *, int, int, int *, CHINOL_LOG *, int);
+static long chino_config_command(uint8_t *, int *, void *, int, int, int *, CHINOL_LOG *, int);
+static long chino_parse_response(uint8_t *, int *, void *, int, int, int *, CHINOL_LOG *, int);
 
 int chinoLogLUseTcp = 1; // we'd better make this static until we are able to change this via iocsh command line.
 
-LOCAL int chino_get_protocol(void)
+static int chino_get_protocol(void)
 {
     if (chinoLogLUseTcp) {
         return MPF_TCP;
@@ -65,13 +65,7 @@ LOCAL int chino_get_protocol(void)
     return MPF_UDP;
 }
 
-LOCAL void *chino_calloc(
-                         int unit,
-                         int type,
-                         int chan,
-                         int bit,
-                         int width
-                         )
+static void *chino_calloc(int unit, int type, int chan, int bit, int width)
 {
     CHINOL_LOG *d = calloc(1, sizeof(CHINOL_LOG));
     if (!d) {
@@ -93,11 +87,11 @@ LOCAL void *chino_calloc(
 //
 // Link field parser for command/response I/O
 //
-LOCAL long chino_parse_link(DBLINK *plink,
-                            struct sockaddr_in *peer_addr,
-                            int *option,
-                            void *device
-                            )
+static long chino_parse_link(DBLINK *plink,
+                             struct sockaddr_in *peer_addr,
+                             int *option,
+                             void *device
+                             )
 {
     char *protocol = NULL;
     char *unit  = NULL;
@@ -173,7 +167,7 @@ LOCAL long chino_parse_link(DBLINK *plink,
 //
 // Command constructor for command/response I/O
 //
-LOCAL unsigned short calCRC(unsigned char cd[], int nmax)
+static unsigned short calCRC(unsigned char cd[], int nmax)
 {
     unsigned short iP  = 0x0000;
 
@@ -212,15 +206,15 @@ LOCAL unsigned short calCRC(unsigned char cd[], int nmax)
     return iC1*256 + iC2;
 }
 
-LOCAL long chino_config_command(uint8_t *buf,    // driver buf addr
-                                int     *len,    // driver buf size
-                                void    *bptr,   // record buf addr
-                                int      ftvl,   // record field type
-                                int      ndata,  // n to be transferred
-                                int     *option, // direction etc.
-                                CHINOL_LOG *d,
-                                int      sid
-                                )
+static long chino_config_command(uint8_t *buf,    // driver buf addr
+                                 int     *len,    // driver buf size
+                                 void    *bptr,   // record buf addr
+                                 int      ftvl,   // record field type
+                                 int      ndata,  // n to be transferred
+                                 int     *option, // direction etc.
+                                 CHINOL_LOG *d,
+                                 int      sid
+                                 )
 {
     LOGMSG("devChinoLogL: chino_config_command(0x%08x,%d,0x%08x,%d,%d,%d,0x%08x)\n",
            buf,*len,bptr,ftvl,ndata,*option,d,0,0);
@@ -276,7 +270,7 @@ LOCAL long chino_config_command(uint8_t *buf,    // driver buf addr
 //
 // Response parser for command/response I/O
 //
-LOCAL int TwoRawToVal(unsigned char bu[], int offset, float *res)
+static int TwoRawToVal(unsigned char bu[], int offset, float *res)
 {
     float f1;
 
@@ -313,15 +307,15 @@ LOCAL int TwoRawToVal(unsigned char bu[], int offset, float *res)
     return (bu[offset+3] & 0xf0);
 }
 
-LOCAL long chino_parse_response(uint8_t *buf,    // driver buf addr
-                                int     *len,    // driver buf size
-                                void    *bptr,   // record buf addr
-                                int      ftvl,   // record field type
-                                int      ndata,  // n to be transferred
-                                int     *option, // direction etc.
-                                CHINOL_LOG *d,
-                                int      sid
-                                )
+static long chino_parse_response(uint8_t *buf,    // driver buf addr
+                                 int     *len,    // driver buf size
+                                 void    *bptr,   // record buf addr
+                                 int      ftvl,   // record field type
+                                 int      ndata,  // n to be transferred
+                                 int     *option, // direction etc.
+                                 CHINOL_LOG *d,
+                                 int      sid
+                                 )
 {
     LOGMSG("devChinoLogL: chino_parse_response(0x%08x,%d,0x%08x,%d,%d,%d,0x%08x)\n",
            buf,len,bptr,ftvl,ndata,*option,d,0,0);
