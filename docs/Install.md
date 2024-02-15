@@ -20,13 +20,13 @@ for general network devices (netDev).
 
 # Prerequisite
 
-This device support works with EPICS base R3.14.12 on, tested up to R3.15.8 / R7.0.7.
+This device support was teested with R7.0.8, R3.15.8, and R3.14.12.3.
 
 # Building netDev
 
 ## Extracting distribution file
 
-Untar the tabell, e.g., `netDev-1.0.7.tar.gz`, to an appropriate direcory, e.g., `${EPICS_BASE}/../modules/src`:
+Untar the tabell, e.g., `netDev-1.2.3.tar.gz`, to an appropriate direcory, e.g., `${EPICS_BASE}/../modules/src`:
 ```shell
 
 mkdir -p ${EPICS_BASE}/../modules/src
