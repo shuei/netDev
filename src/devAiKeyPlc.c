@@ -80,7 +80,7 @@ static long config_ai_command(dbCommon *pxx,
                               )
 {
     aiRecord *pai = (aiRecord *)pxx;
-    KEY_PLC *d = (KEY_PLC *)device;
+    KEY_PLC *d = device;
 
     return key_config_command(buf,
                               len,
@@ -101,7 +101,7 @@ static long parse_ai_response(dbCommon *pxx,
                               )
 {
     aiRecord *pai = (aiRecord *)pxx;
-    KEY_PLC *d = (KEY_PLC *)device;
+    KEY_PLC *d = device;
 
     int16_t val;
     long ret = key_parse_response(buf,

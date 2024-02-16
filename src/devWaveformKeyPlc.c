@@ -45,8 +45,8 @@ static long init_waveform_record(waveformRecord *pwf)
 
 static long read_waveform(waveformRecord *pwf)
 {
-    TRANSACTION *t = (TRANSACTION *)pwf->dpvt;
-    KEY_PLC *d = (KEY_PLC *)t->device;
+    TRANSACTION *t = pwf->dpvt;
+    KEY_PLC *d = t->device;
 
     // make sure that those below are cleared in the event that
     // a multi-step transfer is terminated by an error in the
@@ -73,7 +73,7 @@ static long config_waveform_command(dbCommon *pxx,
                               pwaveform->ftvl,
                               pwaveform->nelm,
                               option,
-                              (KEY_PLC *)device
+                              device
                               );
 }
 
@@ -86,7 +86,7 @@ static long parse_waveform_response(dbCommon *pxx,
                                     )
 {
     waveformRecord *pwaveform = (waveformRecord *)pxx;
-    KEY_PLC *d = (KEY_PLC *)device;
+    KEY_PLC *d = device;
 
     long ret = key_parse_response(buf,
                                   len,

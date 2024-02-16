@@ -39,7 +39,7 @@ long netDevGetIoIntInfo(int cmd, dbCommon *pxx, IOSCANPVT *ppvt)
         return ERROR;
     }
 
-    TRANSACTION *t = (TRANSACTION *)pxx->dpvt;
+    TRANSACTION *t = pxx->dpvt;
 
     if (t->io.event.ioscanpvt == NULL) {
         scanIoInit(&t->io.event.ioscanpvt);
@@ -122,7 +122,7 @@ long netDevInitXxRecord(dbCommon *pxx,
 //
 long netDevReadWriteXx(dbCommon *pxx)
 {
-    TRANSACTION *t = (TRANSACTION *)pxx->dpvt;
+    TRANSACTION *t = pxx->dpvt;
 
     LOGMSG("devNetDev: netDevReadWriteXx(\"%s\",pact=%d, ret=%d)\n", pxx->name, pxx->pact, t->ret);
 
@@ -330,7 +330,7 @@ int netDevInternalIO(int option,
         return ERROR;
     }
 
-    TRANSACTION *t_org = (TRANSACTION *)t->record->dpvt;
+    TRANSACTION *t_org = t->record->dpvt;
     if (isNormal(t_org->option) && t->record->pact) {
         errlogPrintf("devNetDev: internal IO in async process\n");
         return ERROR;
@@ -492,7 +492,7 @@ long netDevGetHostId(char *hostname, in_addr_t *hostid)
 //
 long netDevSetEvMsgLeng(dbCommon *pxx, int len)
 {
-    TRANSACTION *t = (TRANSACTION *)pxx->dpvt;
+    TRANSACTION *t = pxx->dpvt;
 
     LOGMSG("devNetDev: netDevSetEvMsgLeng(\"%s\",%d)\n", pxx->name, len);
 

@@ -58,7 +58,7 @@ static long config_longout_command(dbCommon *pxx,
                                    )
 {
     longoutRecord *plongout = (longoutRecord *)pxx;
-    KEY_PLC *d = (KEY_PLC *)device;
+    KEY_PLC *d = device;
 
     int16_t val = plongout->val;
     return key_config_command(buf,
@@ -80,7 +80,7 @@ static long parse_longout_response(dbCommon *pxx,
                                    )
 {
     longoutRecord *plongout = (longoutRecord *)pxx;
-    KEY_PLC *d = (KEY_PLC *)device;
+    KEY_PLC *d = device;
 
     return key_parse_response(buf,
                               len,

@@ -69,7 +69,7 @@ static long config_mbbi_command(dbCommon *pxx,
                                 )
 {
     mbbiRecord *prec = (mbbiRecord *)pxx;
-    YEW_PLC *d = (YEW_PLC *)device;
+    YEW_PLC *d = device;
 
     return yew_config_command(buf,
                               len,
@@ -90,7 +90,7 @@ static long parse_mbbi_response(dbCommon *pxx,
                                 )
 {
     mbbiRecord *prec = (mbbiRecord *)pxx;
-    YEW_PLC *d = (YEW_PLC *)device;
+    YEW_PLC *d = device;
 
     if (d->flag == 'L') {
         uint16_t val[2];

@@ -69,7 +69,7 @@ static long config_mbbiDirect_command(dbCommon *pxx,
                               DBF_ULONG,
                               1,
                               option,
-                              (KEY_PLC *)device
+                              device
                               );
 }
 
@@ -89,6 +89,6 @@ static long parse_mbbiDirect_response(dbCommon *pxx,
                               DBF_ULONG,
                               1,
                               option,
-                              (KEY_PLC *)device
+                              device
                               );
 }

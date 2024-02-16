@@ -51,9 +51,8 @@ static long init_pattern_record(patternRecord *pptn)
 
 static long read_pattern(patternRecord *pptn)
 {
-    TRANSACTION *t = (TRANSACTION *)pptn->dpvt;
-    YEW_PLC *d = (YEW_PLC *)t->device;
-
+    TRANSACTION *t = pptn->dpvt;
+    YEW_PLC *d = t->device;
 
     // make sure that those below are cleared in the event that
     // a multi-step transfer is terminated by an error in the
@@ -80,7 +79,7 @@ static long config_pattern_command(dbCommon *pxx,
                               pptn->ftvl,
                               pptn->nelm,
                               option,
-                              (YEW_PLC *)device
+                              device
                               );
 }
 
@@ -93,7 +92,7 @@ static long parse_pattern_response(dbCommon *pxx,
                                    )
 {
     patternRecord *pptn = (patternRecord *)pxx;
-    YEW_PLC *d = (YEW_PLC *)device;
+    YEW_PLC *d = device;
 
     long ret = yew_parse_response(buf,
                                   len,

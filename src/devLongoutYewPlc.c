@@ -63,7 +63,7 @@ static long config_longout_command(dbCommon *pxx,
                                    )
 {
     longoutRecord *plongout = (longoutRecord *)pxx;
-    YEW_PLC *d = (YEW_PLC *)device;
+    YEW_PLC *d = device;
 
     if (d->flag == 'L') {
         int16_t val[2] = { plongout->val >>  0,
@@ -108,7 +108,7 @@ static long parse_longout_response(dbCommon *pxx,
                                    )
 {
     longoutRecord *plongout = (longoutRecord *)pxx;
-    YEW_PLC *d = (YEW_PLC *)device;
+    YEW_PLC *d = device;
 
     return yew_parse_response(buf,
                               len,

@@ -45,8 +45,8 @@ static long init_arrayout_record(arrayoutRecord *pao)
 
 static long write_arrayout(arrayoutRecord *pao)
 {
-    TRANSACTION *t = (TRANSACTION *)pao->dpvt;
-    KEY_PLC *d = (KEY_PLC *)t->device;
+    TRANSACTION *t = pao->dpvt;
+    KEY_PLC *d = t->device;
 
     // make sure that those below are cleared in the event that
     // a multi-step transfer is terminated by an error in the
@@ -73,7 +73,7 @@ static long config_arrayout_command(dbCommon *pxx,
                               parrayout->ftvl,
                               parrayout->nelm,
                               option,
-                              (KEY_PLC *)device
+                              device
                               );
 }
 
@@ -86,7 +86,7 @@ static long parse_arrayout_response(dbCommon *pxx,
                                     )
 {
     arrayoutRecord *parrayout = (arrayoutRecord *)pxx;
-    KEY_PLC *d = (KEY_PLC *)device;
+    KEY_PLC *d = device;
 
     long ret = key_parse_response(buf,
                                   len,

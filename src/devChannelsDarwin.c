@@ -88,7 +88,7 @@ static long config_chan_command(dbCommon *pxx,
                                 )
 {
     channelsRecord *pchan = (channelsRecord *)pxx;
-    DARWIN *d = (DARWIN *)device;
+    DARWIN *d = device;
     int nelm = pchan->nelm;
     int alst = pchan->alst;
     int resp_length = 0;
@@ -141,7 +141,7 @@ static long parse_chan_response(dbCommon *pxx,
                                 )
 {
     channelsRecord *pchan = (channelsRecord *)pxx;
-    DARWIN *d    = (DARWIN *)device;
+    DARWIN *d    = device;
     double *bptr = (double *)&pchan->ch01;
     char   *albp = (char   *)&pchan->al01;
     char   *eubp = (char   *)&pchan->eu01;

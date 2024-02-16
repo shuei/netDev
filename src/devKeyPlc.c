@@ -136,7 +136,7 @@ static long key_parse_link(DBLINK *plink,
     char *type  = NULL;
     char *addr  = NULL;
     char *lopt  = NULL;
-    KEY_PLC *d = (KEY_PLC *)device;
+    KEY_PLC *d = device;
     CMND_INFO *pcmnd;
     int found = 0;
 

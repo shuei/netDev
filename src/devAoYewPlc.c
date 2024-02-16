@@ -85,7 +85,7 @@ static long config_ao_command(dbCommon *pxx,
                               )
 {
     aoRecord *pao = (aoRecord *)pxx;
-    YEW_PLC *d = (YEW_PLC *)device;
+    YEW_PLC *d = device;
 
     if (d->flag == 'F') {
         float fval = pao->val;
@@ -137,7 +137,7 @@ static long parse_ao_response(dbCommon *pxx,
                               )
 {
     aoRecord *pao = (aoRecord *)pxx;
-    YEW_PLC *d = (YEW_PLC *)device;
+    YEW_PLC *d = device;
 
     return yew_parse_response(buf,
                               len,

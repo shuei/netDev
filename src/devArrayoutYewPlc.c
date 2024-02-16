@@ -51,8 +51,8 @@ static long init_arrayout_record(arrayoutRecord *paro)
 
 static long write_arrayout(arrayoutRecord *paro)
 {
-    TRANSACTION *t = (TRANSACTION *)paro->dpvt;
-    YEW_PLC *d = (YEW_PLC *)t->device;
+    TRANSACTION *t = paro->dpvt;
+    YEW_PLC *d = t->device;
 
     // make sure that those below are cleared in the event that
     // a multi-step transfer is terminated by an error in the
@@ -72,7 +72,7 @@ static long config_arrayout_command(dbCommon *pxx,
                                     )
 {
     arrayoutRecord *paro = (arrayoutRecord *)pxx;
-    YEW_PLC *d = (YEW_PLC *)device;
+    YEW_PLC *d = device;
 
     return yew_config_command(buf,
                               len,
@@ -93,7 +93,7 @@ static long parse_arrayout_response(dbCommon *pxx,
                                     )
 {
     arrayoutRecord *paro = (arrayoutRecord *)pxx;
-    YEW_PLC *d = (YEW_PLC *)device;
+    YEW_PLC *d = device;
 
     long ret = yew_parse_response(buf,
                                   len,

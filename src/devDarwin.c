@@ -65,7 +65,7 @@ static long darwin_parse_link(DBLINK *plink,
                               void *device
                               )
 {
-    DARWIN *d = (DARWIN *)device;
+    DARWIN *d = device;
     // char terminator[2] = {'\n','\0'};
     char terminator[3] = "\r\n";
     char *protocol = NULL;

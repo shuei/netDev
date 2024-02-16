@@ -74,7 +74,7 @@ static long config_chans_command(dbCommon *pxx,
 {
     LOGMSG("devChansMW100: config_chans_command(\"%s\")\n", pxx->name);
 
-    MW100 *d = (MW100 *)device;
+    MW100 *d = device;
 
     if (*len < d->com_len) {
         errlogPrintf("devMW100: buffer is running short\n");
@@ -100,7 +100,7 @@ static long parse_chans_response(dbCommon *pxx,
     LOGMSG("devChansMW100: parse_chans_response(%8p,0x%08x,%8p,%d,%8p,%d)\n", pxx, *option, buf, *len, device, transaction_id);
 
     chansRecord *pchans = (chansRecord *)pxx;
-    MW100 *d         = (MW100 *)device;
+    MW100 *d         = device;
     double *data     = (double *)&pchans->ch01;
     char  (*stat)[4] = (char (*)[4])pchans->st01;
     char  (*alrm)[8] = (char (*)[8])pchans->al01;

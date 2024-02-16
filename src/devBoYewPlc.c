@@ -73,7 +73,7 @@ static long config_bo_command(dbCommon *pxx,
                               DBF_ULONG,
                               1,
                               option,
-                              (YEW_PLC *)device
+                              device
                               );
 }
 
@@ -93,6 +93,6 @@ static long parse_bo_response(dbCommon *pxx,
                               DBF_ULONG,
                               1,
                               option,
-                              (YEW_PLC *)device
+                              device
                               );
 }

@@ -88,7 +88,7 @@ static long config_ai_command(dbCommon *pxx,
                               )
 {
     aiRecord *pai = (aiRecord *)pxx;
-    YEW_PLC *d = (YEW_PLC *)device;
+    YEW_PLC *d = device;
 
     return yew_config_command(buf,
                               len,
@@ -109,7 +109,7 @@ static long parse_ai_response(dbCommon *pxx,
                               )
 {
     aiRecord *pai = (aiRecord *)pxx;
-    YEW_PLC *d = (YEW_PLC *)device;
+    YEW_PLC *d = device;
 
     if (d->flag == 'F') {
         uint16_t val[2];

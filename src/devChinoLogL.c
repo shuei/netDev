@@ -99,7 +99,7 @@ static long chino_parse_link(DBLINK *plink,
     char *addr  = NULL;
     char *route = NULL;
     char *lopt  = NULL;
-    CHINOL_LOG *d = (CHINOL_LOG *)device;
+    CHINOL_LOG *d = device;
 
     if (parseLinkPlcCommon(plink,
                            peer_addr,

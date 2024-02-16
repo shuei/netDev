@@ -132,7 +132,7 @@ static long yew_parse_link(DBLINK *plink,
     char *type  = NULL;
     char *addr  = NULL;
     char *lopt  = NULL;
-    YEW_PLC *d  = (YEW_PLC *)device;
+    YEW_PLC *d  = device;
 
     if (parseLinkPlcCommon(plink,
                            peer_addr,

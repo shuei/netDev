@@ -66,7 +66,7 @@ static long config_bi_command(dbCommon *pxx,
                               DBF_ULONG,
                               1,
                               option,
-                              (KEY_PLC *)device
+                              device
                               );
 }
 
@@ -86,6 +86,6 @@ static long parse_bi_response(dbCommon *pxx,
                               DBF_ULONG,
                               1,
                               option,
-                              (KEY_PLC *)device
+                              device
                               );
 }

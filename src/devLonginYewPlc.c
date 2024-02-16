@@ -63,7 +63,7 @@ static long config_longin_command(dbCommon *pxx,
                                   )
 {
     longinRecord *plongin = (longinRecord *)pxx;
-    YEW_PLC *d = (YEW_PLC *)device;
+    YEW_PLC *d = device;
 
     return yew_config_command(buf,
                               len,
@@ -84,7 +84,7 @@ static long parse_longin_response(dbCommon *pxx,
                                   )
 {
     longinRecord *plongin = (longinRecord *)pxx;
-    YEW_PLC *d = (YEW_PLC *)device;
+    YEW_PLC *d = device;
 
     if (d->flag == 'L') {
         uint16_t val[2];

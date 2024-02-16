@@ -61,7 +61,7 @@ static long MW100_parse_link(DBLINK *plink,
                              void *device
                              )
 {
-    MW100 *d = (MW100 *)device;
+    MW100 *d = device;
     char terminator[3] = "\r\n";
     char *protocol = NULL;
     char *unit  = NULL;

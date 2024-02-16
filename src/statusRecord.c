@@ -108,7 +108,7 @@ static long init_record(statusRecord *pst, int pass)
         return 0;
     }
 
-    // must have dset defined/
+    // must have dset defined
     statusdset *pdset = (statusdset *)(pst->dset);
     if (!pdset) {
         recGblRecordError(S_dev_noDSET, pst, "status: init_record");

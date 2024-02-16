@@ -57,7 +57,7 @@ static long config_longin_command(dbCommon *pxx,
                                   )
 {
     longinRecord *plongin = (longinRecord *)pxx;
-    KEY_PLC *d = (KEY_PLC *)device;
+    KEY_PLC *d = device;
 
     return key_config_command(buf,
                               len,
@@ -78,7 +78,7 @@ static long parse_longin_response(dbCommon *pxx,
                                   )
 {
     longinRecord *plongin = (longinRecord *)pxx;
-    KEY_PLC *d = (KEY_PLC *)device;
+    KEY_PLC *d = device;
 
     int16_t val;
     long ret = key_parse_response(buf,

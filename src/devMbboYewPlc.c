@@ -72,7 +72,7 @@ static long config_mbbo_command(dbCommon *pxx,
                                 )
 {
     mbboRecord *prec = (mbboRecord *)pxx;
-    YEW_PLC *d = (YEW_PLC *)device;
+    YEW_PLC *d = device;
 
     if (d->flag == 'L') {
         int16_t val[2] = { prec->rval >>  0,
@@ -117,7 +117,7 @@ static long parse_mbbo_response(dbCommon *pxx,
                                 )
 {
     mbboRecord *prec = (mbboRecord *)pxx;
-    YEW_PLC *d = (YEW_PLC *)device;
+    YEW_PLC *d = device;
 
     return yew_parse_response(buf,
                               len,

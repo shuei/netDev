@@ -51,8 +51,8 @@ static long init_waveform_record(waveformRecord *pwf)
 
 static long read_waveform(waveformRecord *pwf)
 {
-    TRANSACTION *t = (TRANSACTION *)pwf->dpvt;
-    YEW_PLC *d = (YEW_PLC *)t->device;
+    TRANSACTION *t = pwf->dpvt;
+    YEW_PLC *d = t->device;
 
     // make sure that those below are cleared in the event that
     // a multi-step transfer is terminated by an error in the
@@ -79,7 +79,7 @@ static long config_waveform_command(dbCommon *pxx,
                               pwf->ftvl,
                               pwf->nelm,
                               option,
-                              (YEW_PLC *)device
+                              device
                               );
 }
 
@@ -92,7 +92,7 @@ static long parse_waveform_response(dbCommon *pxx,
                                     )
 {
     waveformRecord *pwf = (waveformRecord *)pxx;
-    YEW_PLC *d = (YEW_PLC *)device;
+    YEW_PLC *d = device;
 
     long ret = yew_parse_response(buf,
                                   len,

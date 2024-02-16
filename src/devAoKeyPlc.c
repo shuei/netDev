@@ -79,7 +79,7 @@ static long config_ao_command(dbCommon *pxx,
                               )
 {
     aoRecord *pao = (aoRecord *)pxx;
-    KEY_PLC *d = (KEY_PLC *)device;
+    KEY_PLC *d = device;
     int16_t val = pao->rval;
     return key_config_command(buf,
                               len,
@@ -100,7 +100,7 @@ static long parse_ao_response(dbCommon *pxx,
                               )
 {
     aoRecord *pao = (aoRecord *)pxx;
-    KEY_PLC *d = (KEY_PLC *)device;
+    KEY_PLC *d = device;
 
     return key_parse_response(buf,
                               len,

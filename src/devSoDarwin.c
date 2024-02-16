@@ -62,7 +62,7 @@ static long config_so_command(dbCommon *pxx,
                               )
 {
     stringoutRecord *pso = (stringoutRecord *)pxx;
-    //DARWIN *d = (DARWIN *)device;
+    //DARWIN *d = device;
     char terminator[3] = "\r\n";
 
     LOGMSG("devSoDarwin: config_so_command(\"%s\")\n", pxx->name);

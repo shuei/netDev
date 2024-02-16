@@ -51,8 +51,8 @@ static long init_status_record(statusRecord *pst)
 
 static long read_status(statusRecord *pst)
 {
-    TRANSACTION *t = (TRANSACTION *)pst->dpvt;
-    YEW_PLC *d = (YEW_PLC *)t->device;
+    TRANSACTION *t = pst->dpvt;
+    YEW_PLC *d = t->device;
 
     // make sure that those below are cleared in the event that
     // a multi-step transfer is terminated by an error in the
@@ -79,7 +79,7 @@ static long config_status_command(dbCommon *pxx,
                               DBF_USHORT,
                               pst->nelm,
                               option,
-                              (YEW_PLC *)device
+                              device
                               );
 }
 
@@ -92,7 +92,8 @@ static long parse_status_response(dbCommon *pxx,
                                   )
 {
     statusRecord *pst = (statusRecord *)pxx;
-    YEW_PLC *d = (YEW_PLC *)device;
+    YEW_PLC *d = device;
+
     long ret = yew_parse_response(buf,
                                   len,
                                   &pst->ch01,
