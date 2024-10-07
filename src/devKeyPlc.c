@@ -25,8 +25,6 @@
 #define KEY_CMND_WRE     4
 #define KEY_CMND_LENGTH(x) ((x) == KEY_CMND_RDE || (x) == KEY_CMND_WRE) ? 18 : 12
 
-//static int sizeofTypes[] = {0,1,1,2,2,4,4,4,8,2};
-
 static long key_parse_link(DBLINK *,
                            struct sockaddr_in *,
                            int *,

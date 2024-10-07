@@ -39,7 +39,6 @@
 #define YEW_NEEDS_SWAP (__BYTE_ORDER==__LITTLE_ENDIAN)
 #define YEW_SPECIAL_MODULE
 
-//static int sizeofTypes[] = {0,1,1,2,2,4,4,4,8,2};
 static int yew_max_ndata = 64;
 
 static long yew_parse_link(DBLINK *, struct sockaddr_in *, int *, void *);
