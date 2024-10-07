@@ -87,9 +87,6 @@ typedef struct wfdset {
     DEVSUPFUN read_wf;     // returns: (-1,0)=>(failure,success)
 } wfdset;
 
-//sizes of field types
-static int sizeofTypes[] = {0,1,1,2,2,4,4,4,8,2};
-
 static void monitor();
 static long readValue();
 
@@ -105,7 +102,7 @@ static long init_record(miwfRecord *mipwf, int pass)
             if (mipwf->ftvl > DBF_ENUM) {
                 mipwf->ftvl = 2;
             }
-            mipwf->bptr = calloc(mipwf->nelm, sizeofTypes[mipwf->ftvl]);
+            mipwf->bptr = calloc(mipwf->nelm, dbValueSize(mipwf->ftvl));
         }
         if (mipwf->nelm == 1) {
             mipwf->nord = 1;
@@ -191,7 +188,7 @@ static long cvt_dbaddr(dbAddr *paddr)
     if (mipwf->ftvl == 0) {
         paddr->field_size = MAX_STRING_SIZE;
     } else {
-        paddr->field_size = sizeofTypes[mipwf->ftvl];
+        paddr->field_size = dbValueSize(mipwf->ftvl);
     }
     paddr->dbr_field_type = mipwf->ftvl;
     return 0;

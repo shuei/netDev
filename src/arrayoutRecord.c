@@ -92,8 +92,6 @@ typedef struct arodset {
         DEVSUPFUN       write_aro;   // returns: (-1,0)=>(failure,success)
 } arodset;
 
-// sizes of field types
-static int sizeofTypes[] = {0,1,1,2,2,4,4,4,8,2};
 static void monitor();
 static long writeValue();
 
@@ -109,7 +107,7 @@ static long init_record(arrayoutRecord *pao, int pass)
             if (pao->ftvl > DBF_ENUM) {
                 pao->ftvl = 2;
             }
-            pao->bptr = calloc(pao->nelm, sizeofTypes[pao->ftvl]);
+            pao->bptr = calloc(pao->nelm, dbValueSize(pao->ftvl));
         }
         if (pao->nelm == 1) {
             pao->nowt = 1;
@@ -203,7 +201,7 @@ static long cvt_dbaddr(dbAddr *paddr)
     if (pao->ftvl == 0) {
         paddr->field_size = MAX_STRING_SIZE;
     } else {
-        paddr->field_size = sizeofTypes[pao->ftvl];
+        paddr->field_size = dbValueSize(pao->ftvl);
     }
     paddr->dbr_field_type = pao->ftvl;
     return 0;

@@ -87,9 +87,6 @@ typedef struct ptndset {
     DEVSUPFUN read_ptn;    // returns: (-1,0)=>(failure,success)
 } ptndset;
 
-// sizes of field types
-static int sizeofTypes[] = {0,1,1,2,2,4,4,4,8,2};
-
 static void monitor();
 static long readValue();
 
@@ -101,12 +98,12 @@ static long init_record(patternRecord *pptn, int pass)
         }
 
         if (pptn->ftvl >= DBF_CHAR && pptn->ftvl <= DBF_ULONG) {
-            pptn->rptr = calloc(pptn->nelm, sizeofTypes[pptn->ftvl]);
+            pptn->rptr = calloc(pptn->nelm, dbValueSize(pptn->ftvl));
         } else {
             recGblRecordError(S_db_badField, pptn, "pattern: init_record");
             return S_db_badField;
         }
-        pptn->bptr = calloc(pptn->nelm, sizeofTypes[DBF_DOUBLE]);
+        pptn->bptr = calloc(pptn->nelm, dbValueSize(DBF_DOUBLE));
 
         if (pptn->nelm == 1) {
             pptn->nord = 1;
@@ -222,7 +219,7 @@ static long cvt_dbaddr(dbAddr *paddr)
         paddr->pfield = pptn->bptr;
         paddr->no_elements = pptn->nelm;
         paddr->field_type = DBF_DOUBLE;
-        paddr->field_size = sizeofTypes[DBF_DOUBLE];
+        paddr->field_size = dbValueSize(DBF_DOUBLE);
         paddr->dbr_field_type = DBR_DOUBLE;
     }
 
@@ -230,7 +227,7 @@ static long cvt_dbaddr(dbAddr *paddr)
         paddr->pfield = pptn->rptr;
         paddr->no_elements = pptn->nelm;
         paddr->field_type = pptn->ftvl;
-        paddr->field_size = sizeofTypes[pptn->ftvl];
+        paddr->field_size = dbValueSize(pptn->ftvl);
         paddr->dbr_field_type = pptn->ftvl;
     }
 

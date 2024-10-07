@@ -86,9 +86,6 @@ typedef struct statusdset {
     DEVSUPFUN read_status; // returns: (-1,0)=>(failure,success)
 } statusdset;
 
-// sizes of field types
-static int sizeofTypes[] = {0,1,1,2,2,4,4,4,8,2};
-
 static void monitor();
 static long readValue();
 
@@ -170,7 +167,7 @@ static long cvt_dbaddr(dbAddr *paddr)
     paddr->pfield = &(pst->ch01);
     paddr->no_elements = pst->nelm;
     paddr->field_type = DBF_USHORT;
-    paddr->field_size = sizeofTypes[DBF_USHORT];
+    paddr->field_size = dbValueSize(DBF_USHORT);
     paddr->dbr_field_type = DBR_USHORT;
     return 0;
 }
