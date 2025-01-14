@@ -56,7 +56,6 @@ static long write_bo(boRecord *pbo)
     return netDevReadWriteXx((dbCommon *)pbo);
 }
 
-
 static long config_bo_command(dbCommon *pxx,
                               int *option,
                               uint8_t *buf,
@@ -65,6 +64,9 @@ static long config_bo_command(dbCommon *pxx,
                               int transaction_id
                               )
 {
+    //DEBUG
+    printf("\n%s: %s %s\n", __FILE__, __func__, pxx->name);
+
     boRecord *pbo = (boRecord *)pxx;
 
     return yew_config_command(buf,

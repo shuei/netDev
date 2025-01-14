@@ -70,6 +70,9 @@ static long config_mbboDirect_command(dbCommon *pxx,
                                       int transaction_id
                                       )
 {
+    //DEBUG
+    printf("\n%s: %s %s\n", __FILE__, __func__, pxx->name);
+
     mbboDirectRecord *pmbboDirect = (mbboDirectRecord *)pxx;
 
     return yew_config_command(buf,

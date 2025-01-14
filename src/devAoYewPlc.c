@@ -84,34 +84,47 @@ static long config_ao_command(dbCommon *pxx,
                               int transaction_id
                               )
 {
+    //DEBUG
+    printf("\n%s: %s %s\n", __FILE__, __func__, pxx->name);
+
     aoRecord *pao = (aoRecord *)pxx;
     YEW_PLC *d = device;
 
-    if (d->flag == 'F') {
-        float fval = pao->val;
+    if (0) {
+        //
+    } else if (d->flag == 'D') {
+        double val = pao->val;
         // todo : consider ASLO and AOFF field
 
-        void *tmp = &fval;
-        int32_t lval = *(int32_t *)tmp;
-        int16_t val[2] = { lval >>  0,
-                           lval >> 16, };
-        //pao->udf = isnan(fval);
+        //pao->udf = isnan(val);
         return yew_config_command(buf,
                                   len,
-                                  &val[0],
-                                  DBF_SHORT,
-                                  2,
+                                  &val,
+                                  DBF_DOUBLE,
+                                  1,
+                                  option,
+                                  d
+                                  );
+    } else if (d->flag == 'F') {
+        float val = pao->val;
+        // todo : consider ASLO and AOFF field
+
+        //pao->udf = isnan(val);
+        return yew_config_command(buf,
+                                  len,
+                                  &val,
+                                  DBF_FLOAT,
+                                  1,
                                   option,
                                   d
                                   );
     } else if (d->flag == 'L') {
-        int16_t val[2] = { pao->rval >>  0,
-                           pao->rval >> 16, };
+        int32_t val = pao->rval;
         return yew_config_command(buf,
                                   len,
-                                  &val[0],
-                                  DBF_SHORT,
-                                  2,
+                                  &val,
+                                  DBF_LONG,
+                                  1,
                                   option,
                                   d
                                   );
@@ -136,14 +149,12 @@ static long parse_ao_response(dbCommon *pxx,
                               int transaction_id
                               )
 {
-    YEW_PLC *d = device;
-
     return yew_parse_response(buf,
                               len,
                               0, // not used in yew_parse_response
                               0, // not used in yew_parse_response
-                              (d->flag == 'L' || d->flag == 'F')? 2:1,
+                              1,
                               option,
-                              d
+                              device
                               );
 }

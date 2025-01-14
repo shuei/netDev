@@ -295,7 +295,7 @@ long toRecordVal(void *bptr,
     LOGMSG("devNetDev: %s(%8p,%d,%d,%8p,%d,%d,%d)\n", __func__, bptr, noff, ftvl, buf, width, ndata, swap);
 
     //DEBUG
-    //printf("%s: %-13s (to=%8p noff=%d from=%8p width=%d ndata=%d swap=%d)\n", __FILE__, __func__, bptr, noff, buf, width, ndata, swap);
+    printf("%s: %-13s (to=%8p noff=%d from=%8p width=%d ndata=%d swap=%d)\n", __FILE__, __func__, bptr, noff, buf, width, ndata, swap);
 
     switch (ftvl) {
     case DBF_CHAR:
@@ -335,32 +335,43 @@ static long toCharVal(int8_t *to,
 {
     LOGMSG("devNetDev: %s(%8p,%d,%8p,%d,%d)\n", __func__, to, noff, from, width, ndata);
 
-    to += noff;
-    if (width == 2) {
-        if (swap) {
-            swap_bytes(from, ndata);
-        }
-        int16_t *p = (int16_t *)from;
+    //DEBUG
+    //printf("%s: %-13s (to=%8p noff=%d from=%8p width=%d ndata=%d swap=%d)\n", __FILE__, __func__, to, noff, from, width, ndata, swap);
 
-        for (int i=0; i < ndata; i++) {
-            if ((*p & 0xff80) &&
-                (*p & 0xff80) != 0xff80) {
-                errlogPrintf("%s [%s:%d] illegal data conversion: width=%d ndata=%d from=%d\n", __func__, __FILE__, __LINE__, width, ndata, *p);
+    to += noff;
+
+    if (0) {
+        //
+    } else if (width == 2) {
+        int8_t *p = from;
+        for (int i = 0; i < ndata; i++) {
+            //DEBUG
+            //printf("%d %d 0x%08x 0x%08x\n", i, p[i], p[i], p[i]&0xff00);
+#if 1
+            if ((p[i] & 0xff00) /*&&
+                (p[i] & 0xff00) != 0xff00 */) { // need check
+                errlogPrintf("%s [%s:%d] illegal data conversion: width=%d ndata=%d i=%d from=%d\n", __func__, __FILE__, __LINE__, width, ndata, i, p[i]);
                 return ERROR;
             }
+#endif
+            to[i] = p[i];
+        }
 
-            *to++ = (int8_t)*p++;
+        if (swap) {
+            swap_bytes(to, ndata);
         }
     } else if (width == 1) {
         int8_t *p = from;
-
-        for (int i=0; i < ndata; i++) {
-            *to++ = (int8_t)*p++;
+        for (int i = 0; i < ndata; i++) {
+            to[i] = p[i];
         }
     } else {
         errlogPrintf("%s [%s:%d] illegal data width: %d\n", __func__, __FILE__, __LINE__, width);
         return ERROR;
     }
+
+    //DEBUG
+    dump(from, width, to, sizeof(*to), ndata, __FILE__, __func__);
 
     return OK;
 }
@@ -377,29 +388,35 @@ static long toShortVal(int16_t *to,
                        )
 {
     LOGMSG("devNetDev: %s(%8p,%d,%8p,%d,%d)\n", __func__, to, noff, from, width, ndata);
-    //printf("%s: %s(to=%8p, noff=%d, from=%8p, width=%d, ndata=%d, swap=%d)\n", __FILE__, __func__, to, noff, from, width, ndata, swap);
+
+    //DEBUG
+    //printf("%s: %-13s (to=%8p noff=%d from=%8p width=%d ndata=%d swap=%d)\n", __FILE__, __func__, to, noff, from, width, ndata, swap);
 
     to += noff;
 
-    if (width==2) {
-        if (swap) {
-            swap_bytes(from, ndata);
-        }
+    if (0) {
+        //
+    } else if (width == 2) {
         int16_t *p = from;
+        for (int i = 0; i < ndata; i++) {
+            to[i] = p[i];
+        }
 
-        for (int i=0; i < ndata; i++) {
-            *to++ = (int16_t)*p++;
+        if (swap) {
+            swap_bytes(to, ndata);
         }
     } else if (width == 1) {
-        int8_t *p = (int8_t *)from;
-
-        for (int i=0; i < ndata; i++) {
-            *to++ = (int16_t)*p++;
+        int8_t *p = from;
+        for (int i = 0; i < ndata; i++) {
+            to[i] = p[i];
         }
     } else {
         errlogPrintf("%s [%s:%d] illegal data width: %d\n", __func__, __FILE__, __LINE__, width);
         return ERROR;
     }
+
+    //DEBUG
+    dump(from, width, to, sizeof(*to), ndata, __FILE__, __func__);
 
     return OK;
 }
@@ -417,27 +434,43 @@ static long toLongVal(int32_t *to,
 {
     LOGMSG("devNetDev: %s(%8p,%d,%8p,%d,%d)\n", __func__, to, noff, from, width, ndata);
 
+    //DEBUG
+    //printf("%s: %-13s (to=%8p noff=%d from=%8p width=%d ndata=%d swap=%d)\n", __FILE__, __func__, to, noff, from, width, ndata, swap);
+
     to += noff;
 
-    if (width == 2) {
-        if (swap) {
-            swap_bytes(from, ndata);
+    if (0) {
+        //
+    } else if (width == 4) {
+        uint16_t *p = from;
+        for (int i = 0; i < ndata; i++) {
+            to[i] = (p[i*2+1]<<16) | p[i*2];
         }
-        int16_t *p = from;
 
-        for (int i=0; i < ndata; i++) {
-            *to++ = (int32_t)*p++;
+        if (swap) {
+            swap_bytes(to, 2*ndata);
+        }
+    } else if (width == 2) {
+        int16_t *p = from;
+        for (int i = 0; i < ndata; i++) {
+            to[i] = p[i];
+        }
+
+        if (swap) {
+            swap_bytes(to, ndata);
         }
     } else if (width == 1) {
         int8_t *p = from;
-
-        for (int i=0; i < ndata; i++) {
-            *to++ = (int32_t)*p++;
+        for (int i = 0; i < ndata; i++) {
+            to[i] = p[i];
         }
     } else {
         errlogPrintf("%s [%s:%d] illegal data width: %d\n", __func__, __FILE__, __LINE__, width);
         return ERROR;
     }
+
+    //DEBUG
+    dump(from, width, to, sizeof(*to), ndata, __FILE__, __func__);
 
     return OK;
 }
@@ -455,32 +488,44 @@ static long toUcharVal(uint8_t *to,
 {
     LOGMSG("devNetDev: %s(%8p,%d,%8p,%d,%d)\n", __func__, to, noff, from, width, ndata);
 
+    //DEBUG
+    //printf("%s: %-13s (to=%8p noff=%d from=%8p width=%d ndata=%d swap=%d)\n", __FILE__, __func__, to, noff, from, width, ndata, swap);
+
     to += noff;
 
-    if (width == 2) {
-        if (swap) {
-            swap_bytes(from, ndata);
-        }
+    if (0) {
+        //
+    } else if (width == 2) {
         uint16_t *p = from;
-
-        for (int i=0; i < ndata; i++) {
-            if (*p & 0xff00) {
-                errlogPrintf("%s [%s:%d] illegal data conversion: width=%d ndata=%d from=%d\n", __func__, __FILE__, __LINE__, width, ndata, *p);
+        for (int i = 0; i < ndata; i++) {
+            //DEBUG
+            //printf("%d %d 0x%08x 0x%08x\n", i, p[i], p[i], p[i]&0xff00);
+#if 1
+            if ((p[i] & 0xff00) /*&&
+                (p[i] & 0xff00) != 0xff00 */) { // need check
+                errlogPrintf("%s [%s:%d] illegal data conversion: width=%d ndata=%d i=%d from=%d\n", __func__, __FILE__, __LINE__, width, ndata, i, p[i]);
                 return ERROR;
             }
+#endif
+            to[i] = p[i];
+        }
 
-            *to++ = (uint8_t)*p++;
+        if (swap) {
+            swap_bytes(to, ndata);
         }
     } else if (width == 1) {
         uint8_t *p = from;
 
-        for (int i=0; i < ndata; i++) {
-            *to++ = (uint8_t)*p++;
+        for (int i = 0; i < ndata; i++) {
+            to[i] = p[i];
         }
     } else {
         errlogPrintf("%s [%s:%d] illegal data width: %d\n", __func__, __FILE__, __LINE__, width);
         return ERROR;
     }
+
+    //DEBUG
+    dump(from, width, to, sizeof(*to), ndata, __FILE__, __func__);
 
     return OK;
 }
@@ -498,27 +543,34 @@ static long toUshortVal(uint16_t *to,
 {
     LOGMSG("devNetDev: %s(%8p,%d,%8p,%d,%d)\n", __func__, to, noff, from, width, ndata);
 
+    //DEBUG
+    //printf("%s: %-13s (to=%8p noff=%d from=%8p width=%d ndata=%d swap=%d)\n", __FILE__, __func__, to, noff, from, width, ndata, swap);
+
     to += noff;
 
-    if (width == 2) {
-        if (swap) {
-            swap_bytes(from, ndata);
-        }
+    if (0) {
+        //
+    } else if (width == 2) {
         uint16_t *p = from;
+        for (int i = 0; i < ndata; i++) {
+            to[i] = p[i];
+        }
 
-        for (int i=0; i < ndata; i++) {
-            *to++ = (uint16_t)*p++;
+        if (swap) {
+            swap_bytes(to, ndata);
         }
     } else if (width == 1) {
         uint8_t *p = from;
-
-        for (int i=0; i < ndata; i++) {
-            *to++ = (uint16_t)*p++;
+        for (int i = 0; i < ndata; i++) {
+            to[i] = p[i];
         }
     } else {
         errlogPrintf("%s [%s:%d] illegal data width: %d\n", __func__, __FILE__, __LINE__, width);
         return ERROR;
     }
+
+    //DEBUG
+    dump(from, width, to, sizeof(*to), ndata, __FILE__, __func__);
 
     return OK;
 }
@@ -536,27 +588,43 @@ static long toUlongVal(uint32_t *to,
 {
     LOGMSG("devNetDev: %s(%8p,%d,%8p,%d,%d)\n", __func__, to, noff, from, width, ndata);
 
+    //DEBUG
+    //printf("%s: %-13s (to=%8p noff=%d from=%8p width=%d ndata=%d swap=%d)\n", __FILE__, __func__, to, noff, from, width, ndata, swap);
+
     to += noff;
 
-    if (width == 2) {
-        if (swap) {
-            swap_bytes(from, ndata);
+    if (0) {
+        //
+    } else if (width == 4) {
+        int16_t *p = from;
+        for (int i = 0; i < ndata; i++) {
+            to[i] = (p[i*2+1]<<16) | p[i*2];
         }
-        uint16_t *p = from;
 
-        for (int i=0; i < ndata; i++) {
-            *to++ = (uint32_t)*p++;
+        if (swap) {
+            swap_bytes(to, 2*ndata);
+        }
+    } else if (width == 2) {
+        uint16_t *p = from;
+        for (int i = 0; i < ndata; i++) {
+            to[i] = p[i];
+        }
+
+        if (swap) {
+            swap_bytes(to, ndata);
         }
     } else if (width == 1) {
         uint8_t *p = from;
-
-        for (int i=0; i < ndata; i++) {
-            *to++ = (uint32_t)*p++;
+        for (int i = 0; i < ndata; i++) {
+            to[i] = p[i];
         }
     } else {
         errlogPrintf("%s [%s:%d] illegal data width: %d\n", __func__, __FILE__, __LINE__, width);
         return ERROR;
     }
+
+    //DEBUG
+    dump(from, width, to, sizeof(*to), ndata, __FILE__, __func__);
 
     return OK;
 }
@@ -597,9 +665,7 @@ static long toFloatVal(float *to,
     }
 
     //DEBUG
-    if (0) {
-        dump(from, width, to, sizeof(*to), ndata, __FILE__, __func__);
-    }
+    dump(from, width, to, sizeof(*to), ndata, __FILE__, __func__);
 
     return OK;
 }
@@ -644,9 +710,7 @@ static long toDoubleVal(double *to,
     }
 
     //DEBUG
-    if (0) {
-        dump(from, width, to, sizeof(*to), ndata, __FILE__, __func__);
-    }
+    dump(from, width, to, sizeof(*to), ndata, __FILE__, __func__);
 
     return OK;
 }
@@ -664,6 +728,9 @@ long fromRecordVal(void *buf,
                    )
 {
     LOGMSG("devNetDev: %s(%8p,%d,%8p,%d,%d,%d,%d)\n", __func__, buf, width, bptr, noff, ftvl, ndata, swap);
+
+    //DEBUG
+    printf("%s: %-13s (to=%8p noff=%d from=%8p width=%d ndata=%d swap=%d)\n", __FILE__, __func__, buf, noff, bptr, width, ndata, swap);
 
     switch (ftvl) {
     case DBF_CHAR:
@@ -703,27 +770,34 @@ static long fromCharVal(void *to,
 {
     LOGMSG("devNetDev: %s(%8p,%d,%8p,%d,%d)\n", __func__, to, noff, from, width, ndata);
 
+    //DEBUG
+    //printf("%s: %-13s (to=%8p noff=%d from=%8p width=%d ndata=%d swap=%d)\n", __FILE__, __func__, to, noff, from, width, ndata, swap);
+
     from += noff;
 
-    if (width == 2) {
+    if (0) {
+        //
+    } else if (width == 2) {
         int16_t *p = to;
-
-        for (int i=0; i < ndata; i++) {
-            *p++ = (int16_t)*from++;
+        for (int i = 0; i < ndata; i++) {
+            p[i] = from[i];
         }
+
         if (swap) {
             swap_bytes(to, ndata);
         }
     } else if (width == 1) {
         int8_t *p = to;
-
-        for (int i=0; i < ndata; i++) {
-            *p++ = (int8_t)*from++;
+        for (int i = 0; i < ndata; i++) {
+            p[i] = from[i];
         }
     } else {
         errlogPrintf("%s [%s:%d] illegal data width: %d\n", __func__, __FILE__, __LINE__, width);
         return ERROR;
     }
+
+    //DEBUG
+    dump(from, sizeof(*from), to, width, ndata, __FILE__, __func__);
 
     return OK;
 }
@@ -741,33 +815,43 @@ static long fromShortVal(void *to,
 {
     LOGMSG("devNetDev: %s(%8p,%d,%8p,%d,%d)\n", __func__, to, noff, from, width, ndata);
 
+    //DEBUG
+    //printf("%s: %-13s (to=%8p noff=%d from=%8p width=%d ndata=%d swap=%d)\n", __FILE__, __func__, to, noff, from, width, ndata, swap);
+
     from += noff;
 
-    if (width == 2) {
+    if (0) {
+        //
+    } else if (width == 2) {
         int16_t *p = to;
-
-        for (int i=0; i < ndata; i++) {
-            *p++ = (int16_t)*from++;
+        for (int i = 0; i < ndata; i++) {
+            p[i] = from[i];
         }
+
         if (swap) {
             swap_bytes(to, ndata);
         }
     } else if (width == 1) {
         int8_t *p = to;
-
-        for (int i=0; i < ndata; i++) {
-            if ((*from & 0xff80) &&
-                (*from & 0xff80) != 0xff80) {
-                errlogPrintf("%s [%s:%d] illegal data conversion: width=%d ndata=%d from=%d\n", __func__, __FILE__, __LINE__, width, ndata, *from);
+        for (int i = 0; i < ndata; i++) {
+            //DEBUG
+            //printf("%d %d 0x%08x 0x%08x\n", i, from[i], from[i], from[i]&0xff00);
+#if 1
+            if ((from[i] & 0xff00) /*&&
+                (from[i] & 0xff00) != 0xff00 */) { // need check
+                errlogPrintf("%s [%s:%d] illegal data conversion: width=%d ndata=%d i=%d from=%d\n", __func__, __FILE__, __LINE__, width, ndata, i, from[i]);
                 return ERROR;
             }
-
-            *p++ = (int8_t)*from++;
+#endif
+            p[i] = from[i];
         }
     } else {
         errlogPrintf("%s [%s:%d] illegal data width: %d\n", __func__, __FILE__, __LINE__, width);
         return ERROR;
     }
+
+    //DEBUG
+    dump(from, sizeof(*from), to, width, ndata, __FILE__, __func__);
 
     return OK;
 }
@@ -785,39 +869,62 @@ static long fromLongVal(void *to,
 {
     LOGMSG("devNetDev: %s(%8p,%d,%8p,%d,%d)\n", __func__, to, noff, from, width, ndata);
 
+    //DEBUG
+    //printf("%s: %-13s (to=%8p noff=%d from=%8p width=%d ndata=%d swap=%d)\n", __FILE__, __func__, to, noff, from, width, ndata, swap);
+
     from += noff;
 
-    if (width == 2) {
-        int16_t *p = to;
+    if (0) {
+        //
+    } else if (width == 4) {
+        uint16_t *p = to;
+        for (int i = 0; i < ndata; i++) {
+            p[2*i  ] = from[i]>> 0;
+            p[2*i+1] = from[i]>>16;
+        }
 
-        for (int i=0; i < ndata; i++) {
-            if ((*from & 0xffff8000) &&
-                (*from & 0xffff8000) != 0xffff8000) {
-                errlogPrintf("%s [%s:%d] illegal data conversion: width=%d ndata=%d from=%d\n", __func__, __FILE__, __LINE__, width, ndata, *from);
+        if (swap) {
+            swap_bytes(to, 2*ndata);
+        }
+    } else if (width == 2) {
+        int16_t *p = to;
+        for (int i = 0; i < ndata; i++) {
+            //DEBUG
+            //printf("%d %d 0x%08x 0x%08x\n", i, from[i], from[i], from[i]&0xffff0000);
+#if 1
+            if ((from[i] & 0xffff0000) /* &&
+                (from[i] & 0xffff0000) != 0xffff0000 */) { // need check
+                errlogPrintf("%s [%s:%d] illegal data conversion: width=%d ndata=%d i=%d from=%d\n", __func__, __FILE__, __LINE__, width, ndata, i, from[i]);
                 return ERROR;
             }
-
-            *p++ = (int16_t)*from++;
+#endif
+            p[i] = from[i];
         }
+
         if (swap) {
             swap_bytes(to, ndata);
         }
     } else if (width == 1) {
         int8_t *p = to;
-
-        for (int i=0; i < ndata; i++) {
-            if ((*from & 0xffffff80) &&
-                (*from & 0xffffff80) != 0xffffff80) {
+        for (int i = 0; i < ndata; i++) {
+            //DEBUG
+            //printf("%d %d 0x%08x 0x%08x\n", i, from[i], from[i], from[i]&0xffffff00);
+#if 1
+            if ((from[i] & 0xffffff00) /* &&
+                (from[i] & 0xffffff00) != 0xffffff00 */) { // need check
                 errlogPrintf("%s [%s:%d] illegal data conversion: width=%d ndata=%d from=%d\n", __func__, __FILE__, __LINE__, width, ndata, *from);
                 return ERROR;
             }
-
-            *p++ = (int8_t)*from++;
+#endif
+            p[i] = from[i];
         }
     } else {
         errlogPrintf("%s [%s:%d] illegal data width: %d\n", __func__, __FILE__, __LINE__, width);
         return ERROR;
     }
+
+    //DEBUG
+    dump(from, sizeof(*from), to, width, ndata, __FILE__, __func__);
 
     return OK;
 }
@@ -835,27 +942,34 @@ static long fromUcharVal(void *to,
 {
     LOGMSG("devNetDev: %s(%8p,%d,%8p,%d,%d)\n", __func__, to, noff, from, width, ndata);
 
+    //DEBUG
+    //printf("%s: %-13s (to=%8p noff=%d from=%8p width=%d ndata=%d swap=%d)\n", __FILE__, __func__, to, noff, from, width, ndata, swap);
+
     from += noff;
 
-    if (width == 2) {
+    if (0) {
+        //
+    } else if (width == 2) {
         uint16_t *p = to;
-
-        for (int i=0; i < ndata; i++) {
-            *p++ = (uint16_t)*from++;
+        for (int i = 0; i < ndata; i++) {
+            p[i] = from[i];
         }
+
         if (swap) {
             swap_bytes(to, ndata);
         }
     } else if (width == 1) {
         uint8_t *p = to;
-
-        for (int i=0; i < ndata; i++) {
-            *p++ = (uint8_t)*from++;
+        for (int i = 0; i < ndata; i++) {
+            p[i] = from[i];
         }
     } else {
         errlogPrintf("%s [%s:%d] illegal data width: %d\n", __func__, __FILE__, __LINE__, width);
         return ERROR;
     }
+
+    //DEBUG
+    dump(from, sizeof(*from), to, width, ndata, __FILE__, __func__);
 
     return OK;
 }
@@ -873,32 +987,43 @@ static long fromUshortVal(void *to,
 {
     LOGMSG("devNetDev: %s(%8p,%d,%8p,%d,%d)\n", __func__, to, noff, from, width, ndata);
 
+    //DEBUG
+    //printf("%s: %-13s (to=%8p noff=%d from=%8p width=%d ndata=%d swap=%d)\n", __FILE__, __func__, to, noff, from, width, ndata, swap);
+
     from += noff;
 
-    if (width == 2) {
+    if (0) {
+        //
+    } else if (width == 2) {
         uint16_t *p = to;
-
-        for (int i=0; i < ndata; i++) {
-            *p++ = (uint16_t)*from++;
+        for (int i = 0; i < ndata; i++) {
+            p[i] = from[i];
         }
+
         if (swap) {
             swap_bytes(to, ndata);
         }
     } else if (width == 1) {
         uint8_t *p = to;
-
-        for (int i=0; i < ndata; i++) {
-            if (*from & 0xff00) {
-                errlogPrintf("%s [%s:%d] illegal data conversion: width=%d ndata=%d from=%d\n", __func__, __FILE__, __LINE__, width, ndata, *from);
+        for (int i = 0; i < ndata; i++) {
+            //DEBUG
+            //printf("%d %d 0x%08x 0x%08x\n", i, from[i], from[i], from[i]&0xff00);
+#if 1
+            if ((from[i] & 0xff00) /*&&
+                (from[i] & 0xff00) != 0xff00 */) { // need check
+                errlogPrintf("%s [%s:%d] illegal data conversion: width=%d ndata=%d i=%d from=%d\n", __func__, __FILE__, __LINE__, width, ndata, i, from[i]);
                 return ERROR;
             }
-
-            *p++ = (uint8_t)*from++;
+#endif
+            p[i] = from[i];
         }
     } else {
         errlogPrintf("%s [%s:%d] illegal data width: %d\n", __func__, __FILE__, __LINE__, width);
         return ERROR;
     }
+
+    //DEBUG
+    dump(from, sizeof(*from), to, width, ndata, __FILE__, __func__);
 
     return OK;
 }
@@ -916,37 +1041,62 @@ static long fromUlongVal(void *to,
 {
     LOGMSG("devNetDev: %s(%8p,%d,%8p,%d,%d)\n", __func__, to, noff, from, width, ndata);
 
+    //DEBUG
+    //printf("%s: %-13s (to=%8p noff=%d from=%8p width=%d ndata=%d swap=%d)\n", __FILE__, __func__, to, noff, from, width, ndata, swap);
+
     from += noff;
 
-    if (width == 2) {
+    if (0) {
+        //
+    } else if (width == 4) {
         uint16_t *p = to;
+        for (int i = 0; i < ndata; i++) {
+            p[2*i  ] = from[i]>> 0;
+            p[2*i+1] = from[i]>>16;
+        }
 
-        for (int i=0; i < ndata; i++) {
-            if (*from & 0xffff0000) {
-                errlogPrintf("%s [%s:%d] illegal data conversion: width=%d ndata=%d from=%d\n", __func__, __FILE__, __LINE__, width, ndata, *from);
+        if (swap) {
+            swap_bytes(to, 2*ndata);
+        }
+    } else if (width == 2) {
+        uint16_t *p = to;
+        for (int i = 0; i < ndata; i++) {
+            //DEBUG
+            //printf("%d %d 0x%08x 0x%08x\n", i, from[i], from[i], from[i]&0xffff0000);
+#if 1
+            if ((from[i] & 0xffff0000) /* &&
+                (from[i] & 0xffff0000) != 0xffff0000 */) { // need check
+                errlogPrintf("%s [%s:%d] illegal data conversion: width=%d ndata=%d i=%d from=%d\n", __func__, __FILE__, __LINE__, width, ndata, i, from[i]);
                 return ERROR;
             }
-
-            *p++ = (uint16_t)*from++;
+#endif
+            p[i] = from[i];
         }
+
         if (swap) {
             swap_bytes(to, ndata);
         }
     } else if (width == 1) {
-        uint8_t *p = (uint8_t *)to;
-
-        for (int i=0; i < ndata; i++) {
-            if (*from & 0xffffff00) {
+        uint8_t *p = to;
+        for (int i = 0; i < ndata; i++) {
+            //DEBUG
+            //printf("%d %d 0x%08x 0x%08x\n", i, from[i], from[i], from[i]&0xffffff00);
+#if 1
+            if ((from[i] & 0xffffff00) /* &&
+                (from[i] & 0xffffff00) != 0xffffff00 */) { // need check
                 errlogPrintf("%s [%s:%d] illegal data conversion: width=%d ndata=%d from=%d\n", __func__, __FILE__, __LINE__, width, ndata, *from);
                 return ERROR;
             }
-
-            *p++ = (uint8_t)*from++;
+#endif
+            p[i] = from[i];
         }
     } else {
         errlogPrintf("%s [%s:%d] illegal data width: %d\n", __func__, __FILE__, __LINE__, width);
         return ERROR;
     }
+
+    //DEBUG
+    dump(from, sizeof(*from), to, width, ndata, __FILE__, __func__);
 
     return OK;
 }
@@ -989,9 +1139,7 @@ static long fromFloatVal(void *to,
     }
 
     //DEBUG
-    if (0) {
-        dump(from, sizeof(*from), to, width, ndata, __FILE__, __func__);
-    }
+    dump(from, sizeof(*from), to, width, ndata, __FILE__, __func__);
 
     return OK;
 }
@@ -1036,9 +1184,7 @@ static long fromDoubleVal(void *to,
     }
 
     //DEBUG
-    if (0) {
-        dump(from, sizeof(*from), to, width, ndata, __FILE__, __func__);
-    }
+    dump(from, sizeof(*from), to, width, ndata, __FILE__, __func__);
 
     return OK;
 }
@@ -1056,7 +1202,7 @@ uint32_t netDevBcd2Int(uint16_t bcd, void *precord)
     //    return BCDMAX_INT;
     //}
 
-    while (bcd>0) {
+    while (bcd > 0) {
         int digit = bcd & 0x000f;
         if (digit <= 9) {
             dec += digit * base;
@@ -1088,7 +1234,7 @@ uint16_t netDevInt2Bcd(int32_t dec, void *precord)
     uint32_t base = 0;
     uint16_t bcd  = 0;
 
-    while (dec>0) {
+    while (dec > 0) {
         bcd |= ((dec%10) << base);
         dec /= 10;
         base += 4;

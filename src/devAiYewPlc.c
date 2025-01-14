@@ -87,15 +87,13 @@ static long config_ai_command(dbCommon *pxx,
                               int transaction_id
                               )
 {
-    YEW_PLC *d = device;
-
     return yew_config_command(buf,
                               len,
                               0, // not used in yew_config_command
                               0, // not used in yew_config_command
-                              (d->flag == 'L' || d->flag == 'F')? 2:1,
+                              1,
                               option,
-                              d
+                              device
                               );
 }
 
@@ -107,42 +105,63 @@ static long parse_ai_response(dbCommon *pxx,
                               int transaction_id
                               )
 {
+    //DEBUG
+    printf("\n%s: %s %s\n", __FILE__, __func__, pxx->name);
+
     aiRecord *pai = (aiRecord *)pxx;
     YEW_PLC *d = device;
 
-    if (d->flag == 'F') {
-        uint16_t val[2];
+    if (0) {
+        //
+    } else if (d->flag == 'D') {
+        double val;
         long ret = yew_parse_response(buf,
                                       len,
-                                      &val[0],
-                                      DBF_USHORT,
-                                      2,
+                                      &val,
+                                      DBF_DOUBLE,
+                                      1,
                                       option,
                                       d
                                       );
-        uint32_t lval = val[1] << 16 | val[0];
-        void *tmp = &lval;
-        float *pfloat = tmp;
 
         if (ret == OK) {
             // todo : consider ASLO and AOFF field
             // todo : consider SMOO field
-            pai->val = *pfloat;
-            pai->udf = isnan(pai->val);
+            pai->val = val;
+            pai->udf = isnan(val);
+            ret = 2; // Don't convert
+        }
+        return ret;
+    } else if (d->flag == 'F') {
+        float val;
+        long ret = yew_parse_response(buf,
+                                      len,
+                                      &val,
+                                      DBF_FLOAT,
+                                      1,
+                                      option,
+                                      d
+                                      );
+
+        if (ret == OK) {
+            // todo : consider ASLO and AOFF field
+            // todo : consider SMOO field
+            pai->val = val;
+            pai->udf = isnan(val);
             ret = 2; // Don't convert
         }
         return ret;
     } else if (d->flag == 'L') {
-        uint16_t val[2];
+        int32_t val;
         long ret = yew_parse_response(buf,
                                       len,
-                                      &val[0],
-                                      DBF_USHORT,
-                                      2,
+                                      &val,
+                                      DBF_LONG,
+                                      1,
                                       option,
                                       d
                                       );
-        pai->rval = (val[1]<<16) | (val[0]);
+        pai->rval = val;
         return ret;
     } else if (d->flag == 'U') {
         uint16_t val;

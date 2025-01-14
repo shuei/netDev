@@ -71,17 +71,21 @@ static long config_mbbo_command(dbCommon *pxx,
                                 int transaction_id
                                 )
 {
+    //DEBUG
+    printf("\n%s: %s %s\n", __FILE__, __func__, pxx->name);
+
     mbboRecord *prec = (mbboRecord *)pxx;
     YEW_PLC *d = device;
 
-    if (d->flag == 'L') {
-        int16_t val[2] = { prec->rval >>  0,
-                           prec->rval >> 16, };
+    if (0) {
+        //
+    } else if (d->flag == 'L') {
+        int32_t val = prec->rval;
         return yew_config_command(buf,
                                   len,
                                   &val,
-                                  DBF_SHORT,
-                                  2,
+                                  DBF_LONG,
+                                  1,
                                   option,
                                   d
                                   );
@@ -116,14 +120,12 @@ static long parse_mbbo_response(dbCommon *pxx,
                                 int transaction_id
                                 )
 {
-    YEW_PLC *d = device;
-
     return yew_parse_response(buf,
                               len,
                               0, // not used in yew_parse_response
                               0, // not used in yew_parse_response
-                              (d->flag == 'L')? 2:1,
+                              1,
                               option,
-                              d
+                              device
                               );
 }

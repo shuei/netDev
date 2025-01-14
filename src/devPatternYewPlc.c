@@ -91,6 +91,9 @@ static long parse_pattern_response(dbCommon *pxx,
                                    int transaction_id
                                    )
 {
+    //DEBUG
+    printf("\n%s: %s %s\n", __FILE__, __func__, pxx->name);
+
     patternRecord *pptn = (patternRecord *)pxx;
     YEW_PLC *d = device;
 

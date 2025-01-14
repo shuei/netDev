@@ -7,17 +7,18 @@ ToDo list for netDev
 - [x] Clean up treatment of options in devYewPlc.c: lopt/dword/fdpat.
 - [x] Check if NaN with '&F' option.
 - [x] Add '&U' option to support unsigned short values.
-  - [ ] Add '&U' option for waveform records
+  - [x] Add '&U' option for waveform records
 - [x] Add '&L' option to support int32_t values.
-  - [ ] Add '&U' option for waveform records
+  - [x] Add '&L' option for waveform records
 - [ ] Add 64bit integer option (presumably &Z?) for waveform records
+  - [ ] Add '&Z' option for waveform records
 - [x] Add '&F' option to support double precision.
-  - [ ] Add '&F' option for waveform records
-- [ ] Add '&D' option to support double precision.
-  - [ ] Add '&D' option for waveform records
+  - [x] Add '&F' option for waveform records
+- [x] Add '&D' option to support double precision.
+  - [x] Add '&D' option for waveform records
 - [ ] Consider ASLO/AOFF and SMOO fields for ai records with &F (or &D) option.
 - [ ] Consider ASLO/AOFF fields for ao records with &F (or &D) option.
-- [ ] Round ao records to int16_t / uint16_t according to no-flag and '&U' flag.
+- [x] Round ao records to int16_t / uint16_t according to no-flag and '&U' flag.
 - [ ] Add support for aai/aao records for YewPlc.
 - [x] Add support for mbbi/mbbo records for YewPlc
   - [x] Add &U option support

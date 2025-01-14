@@ -84,6 +84,9 @@ static long parse_mbbiDirect_response(dbCommon *pxx,
                                       int transaction_id
                                       )
 {
+    //DEBUG
+    printf("\n%s: %s %s\n", __FILE__, __func__, pxx->name);
+
     mbbiDirectRecord *pmbbiDirect = (mbbiDirectRecord *)pxx;
 
     return yew_parse_response(buf,

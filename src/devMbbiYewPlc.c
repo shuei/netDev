@@ -68,15 +68,13 @@ static long config_mbbi_command(dbCommon *pxx,
                                 int transaction_id
                                 )
 {
-    YEW_PLC *d = device;
-
     return yew_config_command(buf,
                               len,
                               0, // not used in yew_config_command
                               0, // not used in yew_config_command
-                              (d->flag == 'L')? 2:1,
+                              1,
                               option,
-                              d
+                              device
                               );
 }
 
@@ -88,20 +86,25 @@ static long parse_mbbi_response(dbCommon *pxx,
                                 int transaction_id
                                 )
 {
+    //DEBUG
+    printf("\n%s: %s %s\n", __FILE__, __func__, pxx->name);
+
     mbbiRecord *prec = (mbbiRecord *)pxx;
     YEW_PLC *d = device;
 
-    if (d->flag == 'L') {
-        uint16_t val[2];
+    if (0) {
+        //
+    } else if (d->flag == 'L') {
+        int32_t val;
         long ret = yew_parse_response(buf,
                                       len,
-                                      &val[0],
-                                      DBF_USHORT,
-                                      2,
+                                      &val,
+                                      DBF_LONG,
+                                      1,
                                       option,
                                       d
                                       );
-        prec->rval = (val[1]<<16) | (val[0]);
+        prec->rval = val;
         return ret;
     } else if (d->flag == 'U') {
         uint16_t val;

@@ -71,16 +71,18 @@ static long config_arrayout_command(dbCommon *pxx,
                                     int transaction_id
                                     )
 {
+    //DEBUG
+    printf("\n%s: %s %s\n", __FILE__, __func__, pxx->name);
+
     arrayoutRecord *paro = (arrayoutRecord *)pxx;
-    YEW_PLC *d = device;
 
     return yew_config_command(buf,
                               len,
                               paro->bptr,
-                              paro->ftvl,
+                              paro->ftvl, // This has nothing to do with options such as \&F or \&L
                               paro->nelm,
                               option,
-                              d
+                              device
                               );
 }
 

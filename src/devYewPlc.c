@@ -35,12 +35,12 @@
 #define YEW_DEFAULT_MODULE_UNIT  0
 #define YEW_DEFAULT_PORT         0x3001
 #define YEW_GET_PROTO            ((yewPlcUseTcp) ? MPF_TCP : MPF_UDP)
-#define YEW_MAX_NDATA            yewGetMaxTransfer()
+#define YEW_MAX_BYTES            (yewMaxBytes)
 #define YEW_NEEDS_SWAP           (__BYTE_ORDER==__LITTLE_ENDIAN)
 #define YEW_SPECIAL_MODULE
 
 static int yewPlcUseTcp = 0;     // 0:UDP, 1:TCP
-static int yew_max_ndata = 64;
+static int yewMaxBytes  = 64*2;  // Maximum transfer bytes allowed
 
 //
 typedef enum {
@@ -48,6 +48,7 @@ typedef enum {
     kWord  = 2, // Word device
     kDWord = 4, // Word device w/ Long-Word (2 words) access
     kQWord = 8, // Word device w/ Double-Long-Word (4 words) access
+//    kXWord = 4, // Word device w/ Long-Word (2 words) access (F3XP01 / 02)
 } width_t;
 
 //
@@ -70,19 +71,9 @@ static long yew_parse_link(DBLINK *, struct sockaddr_in *, int *, void *);
 static long yew_config_command(uint8_t *, int *, void *, int, int, int *, YEW_PLC *);
 static long yew_parse_response(uint8_t *, int *, void *, int, int, int *, YEW_PLC *);
 
-int yewGetMaxTransfer(void);
-void yewSetMaxTransfer(int);
-
-int yewGetMaxTransfer(void)
-{
-    return yew_max_ndata;
-}
-
-void yewSetMaxTransfer(int ndata)
-{
-    yew_max_ndata = ndata;
-}
-
+//
+//
+//
 static void *yew_calloc(int cpu, uint8_t type, uint32_t addr, width_t width)
 {
     YEW_PLC *d = calloc(1, sizeof(YEW_PLC));
@@ -235,11 +226,19 @@ static long yew_parse_link(DBLINK *plink,
     }
 
     if (lopt) {
-        if (lopt[0] == 'F') {
+        if (0) {
+            //
+        } else if (lopt[0] == 'D') {
+            d->flag = 'D';
+            d->width = kQWord;
+            LOGMSG("devYewPlc: found option to handle the data as double precision floating point data\n");
+        } else if (lopt[0] == 'F') {
             d->flag = 'F';
-            LOGMSG("devYewPlc: found option to handle the data as floating point data\n");
+            d->width = kDWord;
+            LOGMSG("devYewPlc: found option to handle the data as single precision floating point data\n");
         } else if (lopt[0] == 'L') {
             d->flag = 'L';
+            d->width = kDWord;
             LOGMSG("devYewPlc: found option to handle the data as long word data\n");
         } else if (lopt[0] == 'U') {
             d->flag = 'U';
@@ -343,20 +342,26 @@ static long yew_config_command(uint8_t *buf,    // driver buf addr
                                )
 {
     LOGMSG("devYewPlc: yew_config_command(%8p,%d,%8p,%d,%d,%d,%8p)\n", buf, *len, bptr, ftvl, ndata, *option, d);
+    const int nbytes = (d->width)*ndata;
 
-    int n;
-    if (ndata > YEW_MAX_NDATA) {
+    //DEBUG
+    //if (bptr) { // don't show debug message for read request
+        printf("%s: %s (buf=%8p len=%4d bptr=%8p ftvl=%d ndata=%4d width=%d nbytes=%d nleft=%d noff=%d isWrite=%d)\n", __FILE__, __func__, buf, *len, bptr, ftvl, ndata, d->width, nbytes, d->nleft, d->noff, isWrite(*option));
+    //}
+
+    int nread = nbytes;
+
+    // Read/Write request exceeding the maximum will be read/written for the next time
+    if (nbytes > YEW_MAX_BYTES) {
         if (!d->noff) {
             // for the first time
-            d->nleft = ndata;
+            d->nleft = nbytes;
         }
 
-        n = (d->nleft > YEW_MAX_NDATA) ? YEW_MAX_NDATA : d->nleft;
-    } else  {
-        n = ndata;
+        nread = (d->nleft > YEW_MAX_BYTES) ? YEW_MAX_BYTES : d->nleft;
     }
 
-    int nwrite = isWrite(*option) ? (d->width)*n : 0;
+    int nwrite = isWrite(*option) ? nread : 0;
 
     if (*len < YEW_CMND_LENGTH(d->spmod) + nwrite) {
         errlogPrintf("devYewPlc: buffer is running short\n");
@@ -365,52 +370,65 @@ static long yew_config_command(uint8_t *buf,    // driver buf addr
 
     uint8_t  command_type;
     uint16_t bytes_follow;
+    int      offset;
+    int      npoint;
 
     if (!d->spmod) {
         // CPU Module or Digital I/O Module
         switch (d->width) {
-        case kBit:
+        case kBit:  // bit device
             command_type = isRead(*option)? 0x01:0x02;
-            bytes_follow = isRead(*option)? htons(0x0008):htons(0x0008 + n);
+            bytes_follow = isRead(*option)? htons(0x0008):htons(0x0008 + nwrite);
+            offset       = d->noff;
+            npoint       = nread;
             break;
-        case kWord:
-        case kDWord:
-        case kQWord:
+        case kWord:  // word device
+        case kDWord: // word device x2
+        case kQWord: // word device x4
             command_type = isRead(*option)? 0x11:0x12;
-            bytes_follow = isRead(*option)? htons(0x0008):htons(0x0008 + n*2);
+            bytes_follow = isRead(*option)? htons(0x0008):htons(0x0008 + nwrite);
+            offset       = d->noff / 2;
+            npoint       = nread / 2;
             break;
         default:
-            errlogPrintf("devYewPlc: unsupported data width\n");
+            errlogPrintf("devYewPlc: unsupported data width : addr:%d width:%d\n", d->addr, d->width);
             return ERROR;
         }
 
         *((uint8_t  *)&buf[ 0]) = command_type;             // R/W by bit/word
         *((uint8_t  *)&buf[ 1]) = d->cpu;                   // CPU No.
-        *((uint16_t *)&buf[ 2]) = bytes_follow;             // n of data below
+        *((uint16_t *)&buf[ 2]) = bytes_follow;             // number of data below
         *((uint16_t *)&buf[ 4]) = htons(d->type);           // device type
-        *((uint32_t *)&buf[ 6]) = htonl(d->addr + d->noff); // device addr
-        *((uint16_t *)&buf[10]) = htons(n);                 // n of data
+        *((uint32_t *)&buf[ 6]) = htonl(d->addr + offset);  // device addr
+        *((uint16_t *)&buf[10]) = htons(npoint);            // number of data
     } else {
         // Special Module, "type" holds module unit/slot number
         command_type = isRead(*option)? 0x31:0x32;
-        bytes_follow = isRead(*option)? htons(0x0006):htons(0x0006 + n*2);
+        bytes_follow = isRead(*option)? htons(0x0006):htons(0x0006 + nwrite);
+        offset       = d->noff / 2; // need check - do we have other than word device?
+        npoint       = nread / 2;   // need check - do we have other than word device?
 
         *((uint8_t  *)&buf[ 0]) = command_type;             // R/W by bit/word
         *((uint8_t  *)&buf[ 1]) = d->cpu;                   // CPU No.
-        *((uint16_t *)&buf[ 2]) = bytes_follow;             // n of data below
+        *((uint16_t *)&buf[ 2]) = bytes_follow;             // number of data below
         *((uint8_t  *)&buf[ 4]) = d->m_unit;                // module unit
         *((uint8_t  *)&buf[ 5]) = d->m_slot;                // module slot
-        *((uint16_t *)&buf[ 6]) = htons(d->addr + d->noff); // data position
-        *((uint16_t *)&buf[ 8]) = htons(n);                 // n of data
+        *((uint16_t *)&buf[ 6]) = htons(d->addr + offset);  // data position
+        *((uint16_t *)&buf[ 8]) = htons(npoint);            // number of data
     }
 
+    //DEBUG
+    printf("                     [req] => nbytes=%4d (npoint=%4d) @ addr=%4d [nleft=%4d noff=%4d]\n", nread, npoint, d->addr+offset, d->nleft, d->noff);
+
     if (isWrite(*option)) {
+        const int offset = d->noff / d->width;
+        const int npoint = nread / d->width;
         if (fromRecordVal(&buf[YEW_CMND_LENGTH(d->spmod)],
                           d->width,
                           bptr,
-                          d->noff,
+                          offset,
                           ftvl,
-                          n,
+                          npoint,
                           YEW_NEEDS_SWAP
                           )) {
             errlogPrintf("devYewPlc: illegal command\n");
@@ -439,15 +457,20 @@ static long yew_parse_response(uint8_t *buf,    // driver buf addr
                                )
 {
     LOGMSG("devYewPlc: yew_parse_response(%8p,%d,%8p,%d,%d,%d,%8p)\n", buf, *len, bptr, ftvl, ndata, *option, d);
+    const int nbytes = (d->width)*ndata;
 
-    int n;
-    int ret;
-    if (ndata > YEW_MAX_NDATA) {
-        n   = (d->nleft > YEW_MAX_NDATA) ? YEW_MAX_NDATA : d->nleft;
-        ret = (d->nleft > YEW_MAX_NDATA) ? NOT_DONE : 0;
-    } else {
-        n = ndata;
-        ret = 0;
+    //DEBUG
+    //if (bptr) { // don't show debug message for write request
+        printf("%s: %s (buf=%8p len=%4d bptr=%8p ftvl=%d ndata=%4d width=%d nbytes=%d nleft=%d noff=%d isWrite=%d)\n", __FILE__, __func__, buf, *len, bptr, ftvl, ndata, d->width, nbytes, d->nleft, d->noff, isWrite(*option));
+    //}
+
+    int nread = nbytes;
+    int ret = 0;
+
+    // Read request exceeding the maximum will be read for the next time
+    if (nread > YEW_MAX_BYTES) {
+        nread = (d->nleft > YEW_MAX_BYTES) ? YEW_MAX_BYTES : d->nleft;
+        ret   = (d->nleft > YEW_MAX_BYTES) ? NOT_DONE : 0;
     }
 
     // int nread  = isRead(*option)? (d->width)*n:0;
@@ -458,15 +481,15 @@ static long yew_parse_response(uint8_t *buf,    // driver buf addr
     if (!d->spmod) {
         // CPU Module or Digital I/O Module
         switch (d->width) {
-        case kBit:
+        case kBit:  // bit device
             response_type  = isRead(*option)? 0x81:0x82;
-            number_of_data = isRead(*option)? htons(n):htons(0x0000);
+            number_of_data = isRead(*option)? htons(nread):htons(0x0000);
             break;
-        case kWord:
-        case kDWord:
-        case kQWord:
+        case kWord:  // word device
+        case kDWord: // word device x2
+        case kQWord: // word device x4
             response_type  = isRead(*option)? 0x91:0x92;
-            number_of_data = isRead(*option)? htons(n*2):htons(0x0000);
+            number_of_data = isRead(*option)? htons(nread):htons(0x0000);
             break;
         default:
             errlogPrintf("devYewPlc: unsupported data width\n");
@@ -475,7 +498,7 @@ static long yew_parse_response(uint8_t *buf,    // driver buf addr
     } else {
         // Special Module
         response_type  = isRead(*option)? 0xB1:0xB2;
-        number_of_data = isRead(*option)? htons(n*2):htons(0x0000);
+        number_of_data = isRead(*option)? htons(nread):htons(0x0000);
     }
 
     if (buf[0] != response_type) {
@@ -490,33 +513,43 @@ static long yew_parse_response(uint8_t *buf,    // driver buf addr
     }
 
     if (*((uint16_t *)&buf[2]) != number_of_data) {
-        errlogPrintf("devYewPlc: number of data does not match\n");
+        errlogPrintf("devYewPlc: number of data does not match: Expected=%d Received=%d\n",
+                     number_of_data, *((uint16_t *)&buf[2]));
         return NOT_MINE;
     }
 
     if (isRead(*option)) {
+        const int npoint = nread / d->width;
+        const int offset = d->noff / d->width;
+
+        //DEBUG
+        printf("                     [fil] => nbytes=%4d (npoint=%4d) @ addr=%4d [nleft=%4d noff=%4d]\n", nread, npoint, d->addr+offset, d->nleft, d->noff);
+
         if (toRecordVal(bptr,
-                        d->noff,
+                        offset,
                         ftvl,
                         &buf[YEW_DATA_OFFSET],
                         d->width,
-                        n,
+                        npoint,
                         YEW_NEEDS_SWAP
                         )) {
             errlogPrintf("devYewPlc: illegal or error response\n");
-            return ERROR;
+            ret = ERROR;
         }
     }
 
-    if (ndata > YEW_MAX_NDATA) {
-        d->nleft -= n;
-        d->noff  += n;
+    // Number of remaining data and its staring position for the next time
+    d->nleft -= nread;
+    d->noff  += nread;
 
-        if (!d->nleft) {
-            // for the last time
-            d->noff = 0;
-        }
+    if (d->nleft <= 0) {
+        // No remaining data
+        d->nleft = 0; // do we need this?
+        d->noff = 0;
     }
+
+    //DEBUG
+    printf("                     [ret] => ret=%4d                              [nleft=%4d noff=%4d]\n", ret, d->nleft, d->noff);
 
     return ret;
 }

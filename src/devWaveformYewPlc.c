@@ -69,7 +69,7 @@ static long config_waveform_command(dbCommon *pxx,
                                     int *len,
                                     void *device,
                                     int transaction_id
-                                   )
+                                    )
 {
     waveformRecord *pwf = (waveformRecord *)pxx;
 
@@ -91,13 +91,16 @@ static long parse_waveform_response(dbCommon *pxx,
                                     int transaction_id
                                     )
 {
+    //DEBUG
+    printf("\n%s: %s %s\n", __FILE__, __func__, pxx->name);
+
     waveformRecord *pwf = (waveformRecord *)pxx;
     YEW_PLC *d = device;
 
     long ret = yew_parse_response(buf,
                                   len,
                                   pwf->bptr,
-                                  pwf->ftvl,
+                                  pwf->ftvl, // This has nothing to do with options such as \&F or \&L
                                   pwf->nelm,
                                   option,
                                   d

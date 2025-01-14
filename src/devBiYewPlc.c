@@ -82,6 +82,9 @@ static long parse_bi_response(dbCommon *pxx,
                               int transaction_id
                               )
 {
+    //DEBUG
+    printf("\n%s: %s %s\n", __FILE__, __func__, pxx->name);
+
     biRecord *pbi = (biRecord *)pxx;
 
     return yew_parse_response(buf,

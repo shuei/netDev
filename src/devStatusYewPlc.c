@@ -69,7 +69,7 @@ static long config_status_command(dbCommon *pxx,
                                   int *len,
                                   void *device,
                                   int transaction_id
-                                 )
+                                  )
 {
     statusRecord *pst = (statusRecord *)pxx;
 
@@ -91,6 +91,9 @@ static long parse_status_response(dbCommon *pxx,
                                   int transaction_id
                                   )
 {
+    //DEBUG
+    printf("\n%s: %s %s\n", __FILE__, __func__, pxx->name);
+
     statusRecord *pst = (statusRecord *)pxx;
     YEW_PLC *d = device;
 

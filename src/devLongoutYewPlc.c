@@ -62,17 +62,21 @@ static long config_longout_command(dbCommon *pxx,
                                    int transaction_id
                                    )
 {
+    //DEBUG
+    printf("\n%s: %s %s\n", __FILE__, __func__, pxx->name);
+
     longoutRecord *plongout = (longoutRecord *)pxx;
     YEW_PLC *d = device;
 
-    if (d->flag == 'L') {
-        int16_t val[2] = { plongout->val >>  0,
-                           plongout->val >> 16, };
+    if (0) {
+        //
+    } else if (d->flag == 'L') {
+        int32_t val = plongout->val;
         return yew_config_command(buf,
                                   len,
-                                  &val[0],
-                                  DBF_SHORT,
-                                  2,
+                                  &val,
+                                  DBF_LONG,
+                                  1,
                                   option,
                                   d
                                   );
@@ -107,14 +111,12 @@ static long parse_longout_response(dbCommon *pxx,
                                    int transaction_id
                                    )
 {
-    YEW_PLC *d = device;
-
     return yew_parse_response(buf,
                               len,
                               0, // not used in yew_parse_response
                               0, // not used in yew_parse_response
-                              (d->flag == 'L')? 2:1,
+                              1,
                               option,
-                              d
+                              device
                               );
 }
