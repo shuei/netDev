@@ -42,7 +42,7 @@ static long init_status_record(statusRecord *pst)
     return netDevInitXxRecord((dbCommon *)pst,
                               &pst->inp,
                               MPF_READ | YEW_GET_PROTO | DEFAULT_TIMEOUT,
-                              yew_calloc(0, 0, 0, 2),
+                              yew_calloc(0, 0, 0, kWord),
                               yew_parse_link,
                               config_status_command,
                               parse_status_response

@@ -42,7 +42,7 @@ static long init_longin_record(longinRecord *plongin)
     return netDevInitXxRecord((dbCommon *)plongin,
                               &plongin->inp,
                               MPF_READ | YEW_GET_PROTO | DEFAULT_TIMEOUT,
-                              yew_calloc(0, 0, 0, 2),
+                              yew_calloc(0, 0, 0, kWord),
                               yew_parse_link,
                               config_longin_command,
                               parse_longin_response

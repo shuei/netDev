@@ -53,7 +53,7 @@ static long init_ai_record(aiRecord *pai)
     return netDevInitXxRecord((dbCommon *)pai,
                               &pai->inp,
                               MPF_READ | YEW_GET_PROTO | DEFAULT_TIMEOUT,
-                              yew_calloc(0, 0, 0, 2),
+                              yew_calloc(0, 0, 0, kWord),
                               yew_parse_link,
                               config_ai_command,
                               parse_ai_response

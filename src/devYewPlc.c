@@ -41,15 +41,23 @@
 
 static int yew_max_ndata = 64;
 
+//
+typedef enum {
+    kBit   = 1, // Bit device
+    kWord  = 2, // Word device
+    kDWord = 4, // Word device w/ Long-Word (2 words) access
+    kQWord = 8, // Word device w/ Double-Long-Word (4 words) access
+} width_t;
+
 static long yew_parse_link(DBLINK *, struct sockaddr_in *, int *, void *);
 static int yew_get_protocol(void);
-static void *yew_calloc(int, uint8_t, uint32_t, int);
+static void *yew_calloc(int, uint8_t, uint32_t, width_t);
 
 typedef struct {
     int      cpu;
     uint8_t  type;
     uint32_t addr;
-    int      width;
+    width_t  width;
     int      nleft;
     int      noff;
     int      spmod;
@@ -84,7 +92,7 @@ void yewSetMaxTransfer(int ndata)
     yew_max_ndata = ndata;
 }
 
-static void *yew_calloc(int cpu, uint8_t type, uint32_t addr, int width)
+static void *yew_calloc(int cpu, uint8_t type, uint32_t addr, width_t width)
 {
     YEW_PLC *d = calloc(1, sizeof(YEW_PLC));
     if (!d) {
@@ -95,7 +103,7 @@ static void *yew_calloc(int cpu, uint8_t type, uint32_t addr, int width)
     d->cpu   = cpu;
     d->type  = type;
     d->addr  = addr;
-    d->width = width;
+    d->width = width; // d->width might be modified in yew_parse_link()
     d->flag  = 'W';
 
     return d;
@@ -257,7 +265,7 @@ static long yew_parse_link(DBLINK *plink,
     if (!d->spmod) {
         // CPU Module or Digital I/O Module
         switch (d->width) {
-        case 1:
+        case kBit:
             switch (d->type) {
             case  'X':    // input relay
                 if (isWrite(*option)) {
@@ -277,7 +285,9 @@ static long yew_parse_link(DBLINK *plink,
                 return ERROR;
             }
             break;
-        case 2:
+        case kWord:
+        case kDWord:
+        case kQWord:
             switch (d->type) {
             case  'X':    // input relay
             case 0x20:    // timer set
@@ -368,11 +378,13 @@ static long yew_config_command(uint8_t *buf,    // driver buf addr
     if (!d->spmod) {
         // CPU Module or Digital I/O Module
         switch (d->width) {
-        case 1:  // bit device
+        case kBit:
             command_type = isRead(*option)? 0x01:0x02;
             bytes_follow = isRead(*option)? htons(0x0008):htons(0x0008 + n);
             break;
-        case 2:  // word device
+        case kWord:
+        case kDWord:
+        case kQWord:
             command_type = isRead(*option)? 0x11:0x12;
             bytes_follow = isRead(*option)? htons(0x0008):htons(0x0008 + n*2);
             break;
@@ -455,11 +467,13 @@ static long yew_parse_response(uint8_t *buf,    // driver buf addr
     if (!d->spmod) {
         // CPU Module or Digital I/O Module
         switch (d->width) {
-        case 1:  // bit device
+        case kBit:
             response_type  = isRead(*option)? 0x81:0x82;
             number_of_data = isRead(*option)? htons(n):htons(0x0000);
             break;
-        case 2:  // word device
+        case kWord:
+        case kDWord:
+        case kQWord:
             response_type  = isRead(*option)? 0x91:0x92;
             number_of_data = isRead(*option)? htons(n*2):htons(0x0000);
             break;

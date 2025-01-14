@@ -42,7 +42,7 @@ static long init_longout_record(longoutRecord *plongout)
     return netDevInitXxRecord((dbCommon *)plongout,
                               &plongout->out,
                               MPF_WRITE | YEW_GET_PROTO | DEFAULT_TIMEOUT,
-                              yew_calloc(0, 0, 0, 2),
+                              yew_calloc(0, 0, 0, kWord),
                               yew_parse_link,
                               config_longout_command,
                               parse_longout_response

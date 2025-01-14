@@ -44,7 +44,7 @@ static long init_bi_record(biRecord *pbi)
     return netDevInitXxRecord((dbCommon *)pbi,
                               &pbi->inp,
                               MPF_READ | YEW_GET_PROTO | DEFAULT_TIMEOUT,
-                              yew_calloc(0, 0, 0, 1),
+                              yew_calloc(0, 0, 0, kBit),
                               yew_parse_link,
                               config_bi_command,
                               parse_bi_response

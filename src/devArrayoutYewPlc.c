@@ -42,7 +42,7 @@ static long init_arrayout_record(arrayoutRecord *paro)
     return netDevInitXxRecord((dbCommon *)paro,
                               &paro->out,
                               MPF_WRITE | YEW_GET_PROTO | DEFAULT_TIMEOUT,
-                              yew_calloc(0, 0, 0, 2),
+                              yew_calloc(0, 0, 0, kWord),
                               yew_parse_link,
                               config_arrayout_command,
                               parse_arrayout_response

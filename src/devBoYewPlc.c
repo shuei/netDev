@@ -44,7 +44,7 @@ static long init_bo_record(boRecord *pbo)
     return netDevInitXxRecord((dbCommon *)pbo,
                               &pbo->out,
                               MPF_WRITE | YEW_GET_PROTO | DEFAULT_TIMEOUT,
-                              yew_calloc(0, 0, 0, 1),
+                              yew_calloc(0, 0, 0, kBit),
                               yew_parse_link,
                               config_bo_command,
                               parse_bo_response

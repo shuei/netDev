@@ -42,7 +42,7 @@ static long init_waveform_record(waveformRecord *pwf)
     return netDevInitXxRecord((dbCommon *)pwf,
                               &pwf->inp,
                               MPF_READ | YEW_GET_PROTO | DEFAULT_TIMEOUT,
-                              yew_calloc(0, 0, 0, 2),
+                              yew_calloc(0, 0, 0, kWord),
                               yew_parse_link,
                               config_waveform_command,
                               parse_waveform_response

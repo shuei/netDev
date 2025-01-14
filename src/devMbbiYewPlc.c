@@ -42,7 +42,7 @@ static long init_mbbi_record(mbbiRecord *prec)
     long status = netDevInitXxRecord((dbCommon *)prec,
                                      &prec->inp,
                                      MPF_READ | YEW_GET_PROTO | DEFAULT_TIMEOUT,
-                                     yew_calloc(0, 0, 0, 2),
+                                     yew_calloc(0, 0, 0, kWord),
                                      yew_parse_link,
                                      config_mbbi_command,
                                      parse_mbbi_response

@@ -46,7 +46,7 @@ static long init_mbboDirect_record(mbboDirectRecord *pMbboDirect)
     long status = netDevInitXxRecord((dbCommon *)pMbboDirect,
                                      &pMbboDirect->out,
                                      MPF_WRITE | YEW_GET_PROTO | DEFAULT_TIMEOUT,
-                                     yew_calloc(0, 0, 0, 2),
+                                     yew_calloc(0, 0, 0, kWord),
                                      yew_parse_link,
                                      config_mbboDirect_command,
                                      parse_mbboDirect_response

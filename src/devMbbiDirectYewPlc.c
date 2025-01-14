@@ -46,7 +46,7 @@ static long init_mbbiDirect_record(mbbiDirectRecord *pMbbiDirect)
     return netDevInitXxRecord((dbCommon *)pMbbiDirect,
                               &pMbbiDirect->inp,
                               MPF_READ | YEW_GET_PROTO | DEFAULT_TIMEOUT,
-                              yew_calloc(0, 0, 0, 2),
+                              yew_calloc(0, 0, 0, kWord),
                               yew_parse_link,
                               config_mbbiDirect_command,
                               parse_mbbiDirect_response

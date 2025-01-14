@@ -42,7 +42,7 @@ static long init_pattern_record(patternRecord *pptn)
     return netDevInitXxRecord((dbCommon *)pptn,
                               &pptn->inp,
                               MPF_READ | YEW_GET_PROTO | DEFAULT_TIMEOUT,
-                              yew_calloc(0, 0, 0, 2),
+                              yew_calloc(0, 0, 0, kWord),
                               yew_parse_link,
                               config_pattern_command,
                               parse_pattern_response

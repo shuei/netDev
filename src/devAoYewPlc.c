@@ -50,7 +50,7 @@ static long init_ao_record(aoRecord *pao)
     return netDevInitXxRecord((dbCommon *)pao,
                               &pao->out,
                               MPF_WRITE | YEW_GET_PROTO | DEFAULT_TIMEOUT,
-                              yew_calloc(0, 0, 0, 2),
+                              yew_calloc(0, 0, 0, kWord),
                               yew_parse_link,
                               config_ao_command,
                               parse_ao_response
