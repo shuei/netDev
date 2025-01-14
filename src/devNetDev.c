@@ -126,6 +126,11 @@ long netDevReadWriteXx(dbCommon *pxx)
 
     LOGMSG("devNetDev: netDevReadWriteXx(\"%s\",pact=%d, ret=%d)\n", pxx->name, pxx->pact, t->ret);
 
+    //DEBUG
+    //if (pxx->pact == 0) {
+    //    printf("\n%s : %s pact=%d\n", __func__, pxx->name, pxx->pact);
+    //}
+
     if (isEvent(t->option)) {
         if (t->record->scan != SCAN_IO_EVENT) {
             recGblSetSevr(pxx, INVALID_ALARM, INVALID_ALARM);
@@ -393,7 +398,6 @@ int netDevDeleteInternalIO(TRANSACTION *t)
 // Modified from We7000_get_host_ip
 // Returns the IP address of IOC *** WITHOUT *** converting
 // it into network byte ordering.
-//
 uint32_t netDevGetSelfId(void)
 {
     static long host_ip = 0;

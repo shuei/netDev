@@ -1,5 +1,5 @@
 /* devPtnSoft.c */
-/******************************************************************************
+/****************************************************************************
  *                         COPYRIGHT NOTIFICATION
  *
  * Copyright (c) All rights reserved
@@ -7,7 +7,7 @@
  * EPICS BASE Versions 3.13.7
  * and higher are distributed subject to a Software License Agreement found
  * in file LICENSE that is included with this distribution.
- ******************************************************************************/
+ ****************************************************************************/
 /* Current Author: Jun-ichi Odagiri (jun-ichi.odagiri@kek.jp, KEK) */
 
 #include <stdlib.h>

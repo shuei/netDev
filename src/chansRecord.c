@@ -1,5 +1,5 @@
 /* chansRecord.c */
-/******************************************************************************
+/****************************************************************************
  *                         COPYRIGHT NOTIFICATION
  *
  * Copyright (c) All rights reserved
@@ -8,7 +8,7 @@
  * and higher are distributed subject to a Software License Agreement found
  * in file LICENSE that is included with this distribution.
  * This work is based on waveformRecord.c
- ******************************************************************************/
+ ****************************************************************************/
 /* Current Author: Jun-ichi Odagiri (jun-ichi.odagiri@kek.jp, KEK) */
 
 #include <stddef.h>

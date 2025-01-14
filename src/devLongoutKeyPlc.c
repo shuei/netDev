@@ -43,7 +43,6 @@ static long init_longout_record(longoutRecord *plongout)
                               );
 }
 
-
 static long write_longout(longoutRecord *plongout)
 {
     return netDevReadWriteXx((dbCommon *)plongout);

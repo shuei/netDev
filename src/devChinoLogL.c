@@ -173,9 +173,9 @@ static unsigned short calCRC(unsigned char cd[], int nmax)
 
     unsigned short iCRC = 0xffff;
 
-    for (int i=0; i<nmax; i++) {
+    for (int i = 0; i < nmax; i++) {
         iCRC = iCRC ^ cd[i];
-        for (int j=1; j<=8; j++) {
+        for (int j = 1; j <= 8; j++) {
             unsigned short iCY = iCRC & 0x1;\
 
             if ((iCRC & 0x8000) == 0x8000) {
@@ -321,7 +321,7 @@ static long chino_parse_response(uint8_t *buf,    // driver buf addr
            buf,len,bptr,ftvl,ndata,*option,d,0,0);
 
 #if 0
-    for (int i=0;i<12;i++) {
+    for (int i = 0; i < 12; i++) {
         errlogPrintf("devChinoLogL buffer %d = %x %x %x %x\n",i*4,buf[CHINOL_DATA_OFFSET+i*4],buf[CHINOL_DATA_OFFSET+i*4+1],buf[CHINOL_DATA_OFFSET+i*4+2],buf[CHINOL_DATA_OFFSET+i*4+3]);
     }
 #endif
@@ -329,7 +329,7 @@ static long chino_parse_response(uint8_t *buf,    // driver buf addr
     float temp[1000];
     int ret = 0;
     if (isRead(*option)) {
-        for (int i=0; i<(d->data_trans); i++) {
+        for (int i = 0; i < (d->data_trans); i++) {
             ret = TwoRawToVal(buf, CHINOL_DATA_OFFSET+i*4, &temp[i]);
             if (ret != 0) {
                 switch (ret & 0xf0) {

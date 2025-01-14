@@ -80,6 +80,7 @@ static long config_ao_command(dbCommon *pxx,
 {
     aoRecord *pao = (aoRecord *)pxx;
     KEY_PLC *d = device;
+
     int16_t val = pao->rval;
     return key_config_command(buf,
                               len,

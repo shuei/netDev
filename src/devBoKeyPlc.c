@@ -50,7 +50,6 @@ static long write_bo(boRecord *pbo)
     return netDevReadWriteXx((dbCommon *)pbo);
 }
 
-
 static long config_bo_command(dbCommon *pxx,
                               int *option,
                               uint8_t *buf,
