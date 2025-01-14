@@ -1,6 +1,7 @@
 ToDo list for netDev
 ====
 
+- [ ] Allow debug print to be controlled at runtime instead of compile time
 - [x] Add Cache register support for SP76/SP71 CPU.
 - [x] BCD support for YewPlc.
 - [x] Clean up treatment of options in devYewPlc.c: lopt/dword/fdpat.
@@ -21,6 +22,12 @@ ToDo list for netDev
 - [x] Add support for mbbi/mbbo records for YewPlc
   - [x] Add &U option support
   - [x] Add &L option support
+    -- [ ] set NOBT to 32 with &L option, 16 without &L option
+  - [ ] Add &B option support
+  - [ ] Add &F option support
+  - [ ] Add &D option support
+- [ ] Add &L option support in mbbiDirect/mbboDirect records for YewPlc
+    -- [ ] set NOBT to 32 with &L option
 - [ ] Mark patternRecord as obsolete.
 - [ ] Drop vxWorks support.
 - [x] Add Chino KE3000 series data logger.
