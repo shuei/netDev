@@ -1,4 +1,4 @@
-/* drvNetMpf_314.c */
+/* drvNetMpf.c */
 /****************************************************************************
  *                         COPYRIGHT NOTIFICATION
  *
@@ -9,10 +9,6 @@
  * in file LICENSE that is included with this distribution.
  ****************************************************************************/
 /* Author: Jun-ichi Odagiri (jun-ichi.odagiri@kek.jp, KEK) */
-/* Modification Log:
- * -----------------
- * A bug in send_task has fixed.
- */
 
 #ifndef vxWorks
 #include <errno.h>
@@ -278,9 +274,10 @@ static long init(void)
 }
 
 //
-// Creates semaphores
+// Create semaphores
 //
-static long create_semaphores(PEER *p) {
+static long create_semaphores(PEER *p)
+{
     LOGMSG("drvNetMpf: create_semaphores(%8p)\n", p);
 
     if ((p->in_t_mutex=epicsMutexCreate()) == 0) {
@@ -347,7 +344,7 @@ static long spawn_io_tasks(PEER *p)
 }
 
 //
-// Deletes peer
+// Delete peer
 // This function should be called only before
 // the peer is added to the peerList.
 //
@@ -381,7 +378,7 @@ static void delete_peer(PEER *p)
 }
 
 //
-// Creates and initialize peer structure
+// Create and initialize peer structure
 //
 PEER *drvNetMpfInitPeer(struct sockaddr_in peer_addr, int option)
 {
@@ -619,9 +616,9 @@ static void reconnect(MPF_COMMON *m)
             epicsThreadSleep(1.0);
         }
     } else {
-        int true = TRUE;
         // turn on KEEPALIVE so if the client system crashes
         // this task will find out and suspend
+        int true = TRUE;
         while (setsockopt(m->sfd,
                           SOL_SOCKET,
                           SO_KEEPALIVE,
@@ -860,6 +857,12 @@ static void receive_task(PEER *p)
                 if (t->ret == NOT_DONE) {
                     drvNetMpfSendRequest(t);
                 } else {
+
+                    if (t->ret <0) {
+                        // This is unlikely to happen but a bug in the device support
+                        errlogPrintf("%s : drvNetMpf: %s() : \"parse_response()\" callback returned error code %d\n", t->record->name, __func__, t->ret);
+                    }
+
                     LOGMSG("drvNetMpf: requesting callback for \"%s\"\n", t->record->name);
 
                     setLast(t->option);
@@ -1104,7 +1107,7 @@ static long spawn_tcp_parent(SERVER *s)
 }
 
 //
-// Creates socket and connect
+// Create socket and connect
 //
 static long prepare_udp_server_socket(SERVER *s)
 {
@@ -1204,7 +1207,7 @@ static void delete_server(SERVER *s)
 }
 
 //
-// Creates and initialize server structure
+// Create and initialize server structure
 //
 SERVER *drvNetMpfInitServer(unsigned short port, int option)
 {
@@ -1457,7 +1460,7 @@ void mpfHelp(const iocshArgBuf *args)
 }
 
 //
-// Shows peer info
+// Show peer info
 //
 void peerShow(const iocshArgBuf *args)
 {
@@ -1532,7 +1535,7 @@ void peerShowAll(const iocshArgBuf *args)
 }
 
 //
-// Shows server info
+// Show server info
 //
 void serverShow(const iocshArgBuf *args)
 {
@@ -1660,6 +1663,9 @@ void showEventMsg(const iocshArgBuf *args)
     }
 }
 
+//
+//
+//
 void stopEventMsg(const iocshArgBuf *args)
 {
     SERVER *s;
@@ -1673,7 +1679,7 @@ void stopEventMsg(const iocshArgBuf *args)
 }
 
 //
-// Dumps message
+// Dump message
 //
 void dump_msg(uint8_t *pbuf, ssize_t count, int dir, int flag)
 {
