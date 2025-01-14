@@ -152,11 +152,9 @@ static long yew_parse_link(DBLINK *plink,
     }
 
     if (protocol) {
-        if (strncmp(protocol, "TCP", 3) == 0 ||
-            strncmp(protocol, "tcp", 3) == 0) {
+        if (strncasecmp(protocol, "TCP", 3) == 0) {
             setTcp(*option);
-        } else if (strncmp(protocol, "UDP", 3) == 0 ||
-                   strncmp(protocol, "udp", 3) == 0) {
+        } else if (strncasecmp(protocol, "UDP", 3) == 0) {
             setUdp(*option);
         } else {
             errlogPrintf("devYewPlc: unrecognized protocol\n");
@@ -188,7 +186,7 @@ static long yew_parse_link(DBLINK *plink,
 
     if (type) {
         if (isalpha(type[0])) {
-            // CPU Module or digital I/O Module
+            // CPU Module or Digital I/O Module
             if (sscanf(type, "%c", &d->type) != 1) {
                 errlogPrintf("devYewPlc: can't get device type\n");
                 return ERROR;
@@ -257,7 +255,7 @@ static long yew_parse_link(DBLINK *plink,
     }
 
     if (!d->spmod) {
-        // CPU Module or digial I/O Module
+        // CPU Module or Digital I/O Module
         switch (d->width) {
         case 1:
             switch (d->type) {
@@ -368,7 +366,7 @@ static long yew_config_command(uint8_t *buf,    // driver buf addr
     uint16_t bytes_follow;
 
     if (!d->spmod) {
-        // CPU Module or digital I/O Module
+        // CPU Module or Digital I/O Module
         switch (d->width) {
         case 1:  // bit device
             command_type = isRead(*option)? 0x01:0x02;
@@ -455,7 +453,7 @@ static long yew_parse_response(uint8_t *buf,    // driver buf addr
     uint16_t number_of_data;
 
     if (!d->spmod) {
-        // CPU Module or digital I/O Module
+        // CPU Module or Digital I/O Module
         switch (d->width) {
         case 1:  // bit device
             response_type  = isRead(*option)? 0x81:0x82;
