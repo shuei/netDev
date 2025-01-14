@@ -902,7 +902,7 @@ static void mpf_timeout_handler(PEER *p)
         char time[256];
 
         epicsTimeGetCurrent(&current);
-        epicsTimeToStrftime(time, sizeof(time), "%Y.%m/%d %H:%M:%S.%06f", &current);
+        epicsTimeToStrftime(time, sizeof(time), "%Y-%m-%d %H:%M:%S.%06f", &current);
         errlogPrintf("drvNetMpf: *** mpf_timeout_handler(\"%s\"):%s ***\n", t->record->name, time);
 
         t->io.async.timeout_flag = 1;
