@@ -29,16 +29,17 @@
 #include "drvNetMpf.h"
 #include "devNetDev.h"
 
-#define YEW_CMND_LENGTH(x) ((x) ? 10 : 12)
-#define YEW_DATA_OFFSET  4
-#define YEW_DEFAULT_CPU  1
-#define YEW_DEFAULT_MODULE_UNIT 0
-#define YEW_DEFAULT_PORT 0x3001
-#define YEW_GET_PROTO yew_get_protocol()
-#define YEW_MAX_NDATA yewGetMaxTransfer()
-#define YEW_NEEDS_SWAP (__BYTE_ORDER==__LITTLE_ENDIAN)
+#define YEW_CMND_LENGTH(x)       ((x) ? 10 : 12)
+#define YEW_DATA_OFFSET          4
+#define YEW_DEFAULT_CPU          1
+#define YEW_DEFAULT_MODULE_UNIT  0
+#define YEW_DEFAULT_PORT         0x3001
+#define YEW_GET_PROTO            ((yewPlcUseTcp) ? MPF_TCP : MPF_UDP)
+#define YEW_MAX_NDATA            yewGetMaxTransfer()
+#define YEW_NEEDS_SWAP           (__BYTE_ORDER==__LITTLE_ENDIAN)
 #define YEW_SPECIAL_MODULE
 
+static int yewPlcUseTcp = 0;     // 0:UDP, 1:TCP
 static int yew_max_ndata = 64;
 
 //
@@ -49,10 +50,7 @@ typedef enum {
     kQWord = 8, // Word device w/ Double-Long-Word (4 words) access
 } width_t;
 
-static long yew_parse_link(DBLINK *, struct sockaddr_in *, int *, void *);
-static int yew_get_protocol(void);
-static void *yew_calloc(int, uint8_t, uint32_t, width_t);
-
+//
 typedef struct {
     int      cpu;
     uint8_t  type;
@@ -66,21 +64,14 @@ typedef struct {
     char     flag;
 } YEW_PLC;
 
+//
+static void *yew_calloc(int, uint8_t, uint32_t, width_t);
+static long yew_parse_link(DBLINK *, struct sockaddr_in *, int *, void *);
 static long yew_config_command(uint8_t *, int *, void *, int, int, int *, YEW_PLC *);
 static long yew_parse_response(uint8_t *, int *, void *, int, int, int *, YEW_PLC *);
 
-int yewPlcUseTcp;
-
 int yewGetMaxTransfer(void);
 void yewSetMaxTransfer(int);
-
-static int yew_get_protocol(void)
-{
-    if (yewPlcUseTcp) {
-        return MPF_TCP;
-    }
-    return MPF_UDP;
-}
 
 int yewGetMaxTransfer(void)
 {
