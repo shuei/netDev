@@ -68,13 +68,12 @@ static long config_mbbi_command(dbCommon *pxx,
                                 int transaction_id
                                 )
 {
-    mbbiRecord *prec = (mbbiRecord *)pxx;
     YEW_PLC *d = device;
 
     return yew_config_command(buf,
                               len,
-                              &prec->rval, // not used in yew_config_command
-                              DBF_ULONG,   // not used in yew_config_command
+                              0, // not used in yew_config_command
+                              0, // not used in yew_config_command
                               (d->flag == 'L')? 2:1,
                               option,
                               d

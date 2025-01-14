@@ -75,8 +75,8 @@ static long config_status_command(dbCommon *pxx,
 
     return yew_config_command(buf,
                               len,
-                              &pst->ch01,
-                              DBF_USHORT,
+                              0, // not used in yew_config_command
+                              0, // not used in yew_config_command
                               pst->nelm,
                               option,
                               device

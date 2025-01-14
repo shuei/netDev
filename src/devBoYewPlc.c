@@ -85,12 +85,10 @@ static long parse_bo_response(dbCommon *pxx,
                               int transaction_id
                               )
 {
-    boRecord *pbo = (boRecord *)pxx;
-
     return yew_parse_response(buf,
                               len,
-                              &pbo->rval,
-                              DBF_ULONG,
+                              0, // not used in yew_parse_response
+                              0, // not used in yew_parse_response
                               1,
                               option,
                               device

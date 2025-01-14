@@ -116,13 +116,12 @@ static long parse_mbbo_response(dbCommon *pxx,
                                 int transaction_id
                                 )
 {
-    mbboRecord *prec = (mbboRecord *)pxx;
     YEW_PLC *d = device;
 
     return yew_parse_response(buf,
                               len,
-                              &prec->rval, // not used in yew_parse_response
-                              DBF_ULONG,   // not used in yew_parse_response
+                              0, // not used in yew_parse_response
+                              0, // not used in yew_parse_response
                               (d->flag == 'L')? 2:1,
                               option,
                               d

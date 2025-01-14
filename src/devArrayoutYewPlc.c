@@ -97,8 +97,8 @@ static long parse_arrayout_response(dbCommon *pxx,
 
     long ret = yew_parse_response(buf,
                                   len,
-                                  paro->bptr,
-                                  paro->ftvl,
+                                  0, // not used in yew_parse_response
+                                  0, // not used in yew_parse_response
                                   paro->nelm,
                                   option,
                                   d

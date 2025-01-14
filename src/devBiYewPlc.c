@@ -64,12 +64,10 @@ static long config_bi_command(dbCommon *pxx,
                               int transaction_id
                               )
 {
-    biRecord *pbi = (biRecord *)pxx;
-
     return yew_config_command(buf,
                               len,
-                              &pbi->rval,
-                              DBF_ULONG,
+                              0, // not used in yew_config_command
+                              0, // not used in yew_config_command
                               1,
                               option,
                               device

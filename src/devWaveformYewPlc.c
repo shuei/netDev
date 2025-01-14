@@ -75,8 +75,8 @@ static long config_waveform_command(dbCommon *pxx,
 
     return yew_config_command(buf,
                               len,
-                              pwf->bptr,
-                              pwf->ftvl,
+                              0, // not used in yew_config_command
+                              0, // not used in yew_config_command
                               pwf->nelm,
                               option,
                               device

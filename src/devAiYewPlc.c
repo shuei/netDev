@@ -87,13 +87,12 @@ static long config_ai_command(dbCommon *pxx,
                               int transaction_id
                               )
 {
-    aiRecord *pai = (aiRecord *)pxx;
     YEW_PLC *d = device;
 
     return yew_config_command(buf,
                               len,
-                              &pai->rval, // not used in yew_config_command
-                              DBF_LONG,   // not used in yew_config_command
+                              0, // not used in yew_config_command
+                              0, // not used in yew_config_command
                               (d->flag == 'L' || d->flag == 'F')? 2:1,
                               option,
                               d

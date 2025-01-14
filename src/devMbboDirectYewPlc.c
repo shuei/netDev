@@ -90,12 +90,10 @@ static long parse_mbboDirect_response(dbCommon *pxx,
                                       int transaction_id
                                       )
 {
-    mbboDirectRecord *pmbboDirect = (mbboDirectRecord *)pxx;
-
     return yew_parse_response(buf,
                               len,
-                              &pmbboDirect->rval,
-                              DBF_ULONG,
+                              0, // not used in yew_parse_response
+                              0, // not used in yew_parse_response
                               1,
                               option,
                               device

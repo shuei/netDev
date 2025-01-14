@@ -136,13 +136,12 @@ static long parse_ao_response(dbCommon *pxx,
                               int transaction_id
                               )
 {
-    aoRecord *pao = (aoRecord *)pxx;
     YEW_PLC *d = device;
 
     return yew_parse_response(buf,
                               len,
-                              &pao->rval, // not used in yew_parse_response
-                              DBF_LONG,   // not used in yew_parse_response
+                              0, // not used in yew_parse_response
+                              0, // not used in yew_parse_response
                               (d->flag == 'L' || d->flag == 'F')? 2:1,
                               option,
                               d

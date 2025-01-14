@@ -75,8 +75,8 @@ static long config_pattern_command(dbCommon *pxx,
 
     return yew_config_command(buf,
                               len,
-                              pptn->rptr,
-                              pptn->ftvl,
+                              0, // not used in yew_config_command
+                              0, // not used in yew_config_command
                               pptn->nelm,
                               option,
                               device

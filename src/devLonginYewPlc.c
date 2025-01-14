@@ -62,13 +62,12 @@ static long config_longin_command(dbCommon *pxx,
                                   int transaction_id
                                   )
 {
-    longinRecord *plongin = (longinRecord *)pxx;
     YEW_PLC *d = device;
 
     return yew_config_command(buf,
                               len,
-                              &plongin->val, // not used in yew_config_command
-                              DBF_LONG,      // not used in yew_config_command
+                              0, // not used in yew_config_command
+                              0, // not used in yew_config_command
                               (d->flag == 'L')? 2:1,
                               option,
                               d

@@ -66,12 +66,10 @@ static long config_mbbiDirect_command(dbCommon *pxx,
                                       int transaction_id
                                       )
 {
-    mbbiDirectRecord *pmbbiDirect = (mbbiDirectRecord *)pxx;
-
     return yew_config_command(buf,
                               len,
-                              &pmbbiDirect->rval,
-                              DBF_ULONG,
+                              0, // not used in yew_config_command
+                              0, // not used in yew_config_command
                               1,
                               option,
                               device

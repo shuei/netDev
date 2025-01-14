@@ -107,13 +107,12 @@ static long parse_longout_response(dbCommon *pxx,
                                    int transaction_id
                                    )
 {
-    longoutRecord *plongout = (longoutRecord *)pxx;
     YEW_PLC *d = device;
 
     return yew_parse_response(buf,
                               len,
-                              &plongout->val, // not used in yew_parse_response
-                              DBF_LONG,       // not used in yew_parse_response
+                              0, // not used in yew_parse_response
+                              0, // not used in yew_parse_response
                               (d->flag == 'L')? 2:1,
                               option,
                               d
