@@ -1,4 +1,5 @@
-/******************************************************************************
+/* netDevLib.c */
+/****************************************************************************
  *                         COPYRIGHT NOTIFICATION
  *
  * Copyright (c) All rights reserved
@@ -6,7 +7,7 @@
  * EPICS BASE Versions 3.13.7
  * and higher are distributed subject to a Software License Agreement found
  * in file LICENSE that is included with this distribution.
- ******************************************************************************/
+ ****************************************************************************/
 
 //
 #include <dbFldTypes.h>
@@ -16,6 +17,10 @@
 //
 #include "drvNetMpf.h"
 #include "devNetDev.h"
+
+//
+#define __STDC_FORMAT_MACROS
+#include <inttypes.h>
 
 //
 // Routines for signed integer data transfer
@@ -38,6 +43,14 @@ static long fromUshortVal(void *, uint16_t *, int, int, int, int);
 static long fromUlongVal (void *, uint32_t *, int, int, int, int);
 
 //
+// Routines for floating point data transfer
+//
+static long toFloatVal   (float *, int, void *, int, int, int);
+static long toDoubleVal  (double *, int, void *, int, int, int);
+static long fromFloatVal (void *, float *, int, int, int, int);
+static long fromDoubleVal(void *, double *, int, int, int, int);
+
+//
 //
 //
 #define BCDMAX_BCD 39321 // 0x9999
@@ -52,8 +65,61 @@ static long fromUlongVal (void *, uint32_t *, int, int, int, int);
 void swap_bytes(void *ptr, int num)
 {
     uint16_t *p = ptr;
-    for (int i=0; i<num; i++) {
+    for (int i = 0; i < num; i++) {
         p[i] = (uint16_t)(((p[i]>>8)&0x00ff) | ((p[i]&0x00ff)<<8));
+    }
+}
+
+#if 0
+static void swap_dword(void *ptr, int num)
+{
+    uint32_t *p = ptr;
+    for (int i = 0; i < num; i++) {
+        p[i] = (uint32_t)(((p[i]>>16)&0x0000ffff) | ((p[i]&0x0000ffff)<<16));
+    }
+}
+#endif
+
+static void dump(void *from, int fsiz, void *to, int tsiz, int ndata, char *file, const char *func)
+{
+    const int skip = 4;
+    for (int i = 0; i < ndata; i++) {
+        if (skip<=i && i+skip<ndata) {
+            continue;
+        }
+
+        printf("%s: %-13s [%4d", file, func, i+1);
+        if (fsiz == 1) {
+            uint8_t *p = from;
+            printf(" 0x%02x", p[i]);
+        } else if (fsiz == 2) {
+            uint16_t *p = from;
+            printf(" 0x%04x", p[i]);
+        } else if (fsiz == 4) {
+            uint32_t *p = from;
+            printf(" 0x%08x", p[i]);
+        } else if (fsiz == 8) {
+            uint64_t *p = from;
+            printf(" 0x%016"PRIx64, p[i]);
+        }
+
+        printf(" =>");
+
+        if (tsiz == 1) {
+            uint8_t *p = to;
+            printf(" 0x%02x", p[i]);
+        } else if (tsiz == 2) {
+            uint16_t *p = to;
+            printf(" 0x%04x", p[i]);
+        } else if (tsiz == 4) {
+            uint32_t *p = to;
+            printf(" 0x%08x", p[i]);
+        } else if (tsiz == 8) {
+            uint64_t *p = to;
+            printf(" 0x%016"PRIx64, p[i]);
+        }
+
+        printf("]\n");
     }
 }
 
@@ -183,7 +249,7 @@ long parseLinkPlcCommon(DBLINK *plink,
             *addr = pc2;
             LOGMSG("devNetDev: no unit, type exists\n");
         } else {
-            // unit exists. don't know about type. ( hostname:unit#[type:]addr )
+            // unit exists. don't know about type ( hostname:unit#[type:]addr )
             *unit = pc2;
             pc3 = strchr(pc1, ':');
             if (!pc3) {
@@ -228,6 +294,9 @@ long toRecordVal(void *bptr,
 {
     LOGMSG("devNetDev: %s(%8p,%d,%d,%8p,%d,%d,%d)\n", __func__, bptr, noff, ftvl, buf, width, ndata, swap);
 
+    //DEBUG
+    //printf("%s: %-13s (to=%8p noff=%d from=%8p width=%d ndata=%d swap=%d)\n", __FILE__, __func__, bptr, noff, buf, width, ndata, swap);
+
     switch (ftvl) {
     case DBF_CHAR:
         return toCharVal(bptr, noff, buf, width, ndata, swap);
@@ -241,6 +310,10 @@ long toRecordVal(void *bptr,
         return toUshortVal(bptr, noff, buf, width, ndata, swap);
     case DBF_ULONG:
         return toUlongVal(bptr, noff, buf, width, ndata, swap);
+    case DBF_FLOAT:
+        return toFloatVal(bptr, noff, buf, width, ndata, swap);
+    case DBF_DOUBLE:
+        return toDoubleVal(bptr, noff, buf, width, ndata, swap);
     default:
         errlogPrintf("devNetDev: %s: unsupported FTVL: %d\n", __func__, ftvl);
         return ERROR;
@@ -263,7 +336,6 @@ static long toCharVal(int8_t *to,
     LOGMSG("devNetDev: %s(%8p,%d,%8p,%d,%d)\n", __func__, to, noff, from, width, ndata);
 
     to += noff;
-
     if (width == 2) {
         if (swap) {
             swap_bytes(from, ndata);
@@ -490,6 +562,96 @@ static long toUlongVal(uint32_t *to,
 }
 
 //
+// To Float record buffer
+//
+static long toFloatVal(float *to,
+                       int noff,
+                       void *from,
+                       int width,
+                       int ndata,
+                       int swap
+                       )
+{
+    LOGMSG("devNetDev: %s(%8p,%d,%8p,%d,%d)\n", __func__, to, noff, from, width, ndata);
+
+    //DEBUG
+    //printf("%s: %-13s (to=%8p noff=%d from=%8p width=%d ndata=%d swap=%d)\n", __FILE__, __func__, to, noff, from, width, ndata, swap);
+
+    to += noff;
+
+    if (0) {
+        //
+    } else if (width == 4) {
+        uint16_t *p = from;
+        for (int i = 0; i < ndata; i++) {
+            uint32_t lval = (p[i*2+1]<<16) | p[i*2];
+            memcpy(&to[i], &lval, sizeof(float));
+        }
+
+        if (swap) {
+            swap_bytes(to, 2*ndata);
+        }
+    } else {
+        errlogPrintf("%s [%s:%d] illegal data width: %d\n", __func__, __FILE__, __LINE__, width);
+        return ERROR;
+    }
+
+    //DEBUG
+    if (0) {
+        dump(from, width, to, sizeof(*to), ndata, __FILE__, __func__);
+    }
+
+    return OK;
+}
+
+//
+// To Double record buffer
+//
+static long toDoubleVal(double *to,
+                        int noff,
+                        void *from,
+                        int width,
+                        int ndata,
+                        int swap
+                        )
+{
+    LOGMSG("devNetDev: %s(%8p,%d,%8p,%d,%d)\n", __func__, to, noff, from, width, ndata);
+
+    //DEBUG
+    //printf("%s: %-13s (to=%8p noff=%d from=%8p width=%d ndata=%d swap=%d)\n", __FILE__, __func__, to, noff, from, width, ndata, swap);
+
+    to += noff;
+
+    if (0) {
+        //
+    } else if (width == 8) {
+        uint16_t *p = from;
+        for (int i = 0; i < ndata; i++) {
+            uint64_t p0 = p[i*4+0];
+            uint64_t p1 = p[i*4+1];
+            uint64_t p2 = p[i*4+2];
+            uint64_t p3 = p[i*4+3];
+            uint64_t lval = (p3<<48) | (p2<<32) | (p1<<16) | p0;
+            memcpy(&to[i], &lval, sizeof(lval));
+        }
+
+        if (swap) {
+            swap_bytes(to, 4*ndata);
+        }
+    } else {
+        errlogPrintf("%s [%s:%d] illegal data width: %d\n", __func__, __FILE__, __LINE__, width);
+        return ERROR;
+    }
+
+    //DEBUG
+    if (0) {
+        dump(from, width, to, sizeof(*to), ndata, __FILE__, __func__);
+    }
+
+    return OK;
+}
+
+//
 // Copy values from record to send buffer
 //
 long fromRecordVal(void *buf,
@@ -516,6 +678,10 @@ long fromRecordVal(void *buf,
         return fromUshortVal(buf, bptr, noff, width, ndata, swap);
     case DBF_ULONG:
         return fromUlongVal(buf, bptr, noff, width, ndata, swap);
+    case DBF_FLOAT:
+        return fromFloatVal(buf, bptr, noff, width, ndata, swap);
+    case DBF_DOUBLE:
+        return fromDoubleVal(buf, bptr, noff, width, ndata, swap);
     default:
         errlogPrintf("devNetDev: %s: unsupported FTVL: %d\n", __func__, ftvl);
         return ERROR;
@@ -780,6 +946,98 @@ static long fromUlongVal(void *to,
     } else {
         errlogPrintf("%s [%s:%d] illegal data width: %d\n", __func__, __FILE__, __LINE__, width);
         return ERROR;
+    }
+
+    return OK;
+}
+
+//
+// From Float record buffer
+//
+static long fromFloatVal(void *to,
+                         float *from,
+                         int noff,
+                         int width,
+                         int ndata,
+                         int swap
+                         )
+{
+    LOGMSG("devNetDev: %s(%8p,%d,%8p,%d,%d)\n", __func__, to, noff, from, width, ndata);
+
+    //DEBUG
+    //printf("%s: %-13s (to=%8p noff=%d from=%8p width=%d ndata=%d swap=%d)\n", __FILE__, __func__, to, noff, from, width, ndata, swap);
+
+    from += noff;
+
+    if (0) {
+        //
+    } else if (width == 4) {
+        uint16_t *p = to;
+        for (int i = 0; i < ndata; i++) {
+            uint32_t lval;
+            memcpy(&lval, &from[i], sizeof(float));
+            p[2*i  ] = lval>> 0;
+            p[2*i+1] = lval>>16;
+        }
+
+        if (swap) {
+            swap_bytes(to, 2*ndata);
+        }
+    } else {
+        errlogPrintf("%s [%s:%d] illegal data width: %d\n", __func__, __FILE__, __LINE__, width);
+        return ERROR;
+    }
+
+    //DEBUG
+    if (0) {
+        dump(from, sizeof(*from), to, width, ndata, __FILE__, __func__);
+    }
+
+    return OK;
+}
+
+//
+// From Double record buffer
+//
+static long fromDoubleVal(void *to,
+                          double *from,
+                          int noff,
+                          int width,
+                          int ndata,
+                          int swap
+                          )
+{
+    LOGMSG("devNetDev: %s(%8p,%d,%8p,%d,%d)\n", __func__, to, noff, from, width, ndata);
+
+    //DEBUG
+    //printf("%s: %-13s (to=%8p noff=%d from=%8p width=%d ndata=%d swap=%d)\n", __FILE__, __func__, to, noff, from, width, ndata, swap);
+
+    from += noff;
+
+    if (0) {
+        //
+    } else if (width == 8) {
+        uint16_t *p = to;
+        for (int i = 0; i < ndata; i++) {
+            uint64_t lval;
+            memcpy(&lval, &from[i], sizeof(double));
+            p[4*i+0] = lval>> 0;
+            p[4*i+1] = lval>>16;
+            p[4*i+2] = lval>>32;
+            p[4*i+3] = lval>>48;
+        }
+
+        if (swap) {
+            swap_bytes(to, 4*ndata);
+        }
+    } else {
+        errlogPrintf("%s [%s:%d] illegal data width: %d\n", __func__, __FILE__, __LINE__, width);
+        return ERROR;
+    }
+
+    //DEBUG
+    if (0) {
+        dump(from, sizeof(*from), to, width, ndata, __FILE__, __func__);
     }
 
     return OK;
