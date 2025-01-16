@@ -12,6 +12,7 @@
 //
 #include <dbFldTypes.h>
 #include <alarm.h>
+#include <epicsExport.h>
 #include <recGbl.h>
 
 //
@@ -58,6 +59,11 @@ static long fromDoubleVal(void *, double *, int, int, int, int);
 
 #define BCDMIN_BCD     0 // 0x9999
 #define BCDMIN_INT     0 //
+
+//
+//
+//
+int netDevDebug = 0;
 
 //
 //
@@ -283,37 +289,37 @@ GET_HOSTNAME:
 //
 // Copy values from receive buffer to record
 //
-long toRecordVal(void *bptr,
+long toRecordVal(void *to,
                  int   noff,
                  int   ftvl,
-                 void *buf,
+                 void *from,
                  int   width,
                  int   ndata,
                  int   swap
                  )
 {
-    LOGMSG("devNetDev: %s(%8p,%d,%d,%8p,%d,%d,%d)\n", __func__, bptr, noff, ftvl, buf, width, ndata, swap);
-
     //DEBUG
-    printf("%s: %-13s (to=%8p noff=%d from=%8p width=%d ndata=%d swap=%d)\n", __FILE__, __func__, bptr, noff, buf, width, ndata, swap);
+    //if (netDevDebug>0) {
+    //    printf("%s: %-13s (to=%8p noff=%d from=%8p width=%d ndata=%d swap=%d)\n", __FILE__, __func__, to, noff, from, width, ndata, swap);
+    //}
 
     switch (ftvl) {
     case DBF_CHAR:
-        return toCharVal(bptr, noff, buf, width, ndata, swap);
+        return toCharVal(to, noff, from, width, ndata, swap);
     case DBF_SHORT:
-        return toShortVal(bptr, noff, buf, width, ndata, swap);
+        return toShortVal(to, noff, from, width, ndata, swap);
     case DBF_LONG:
-        return toLongVal(bptr, noff, buf, width, ndata, swap);
+        return toLongVal(to, noff, from, width, ndata, swap);
     case DBF_UCHAR:
-        return toUcharVal(bptr, noff, buf, width, ndata, swap);
+        return toUcharVal(to, noff, from, width, ndata, swap);
     case DBF_USHORT:
-        return toUshortVal(bptr, noff, buf, width, ndata, swap);
+        return toUshortVal(to, noff, from, width, ndata, swap);
     case DBF_ULONG:
-        return toUlongVal(bptr, noff, buf, width, ndata, swap);
+        return toUlongVal(to, noff, from, width, ndata, swap);
     case DBF_FLOAT:
-        return toFloatVal(bptr, noff, buf, width, ndata, swap);
+        return toFloatVal(to, noff, from, width, ndata, swap);
     case DBF_DOUBLE:
-        return toDoubleVal(bptr, noff, buf, width, ndata, swap);
+        return toDoubleVal(to, noff, from, width, ndata, swap);
     default:
         errlogPrintf("devNetDev: %s: unsupported FTVL: %d\n", __func__, ftvl);
         return ERROR;
@@ -333,10 +339,10 @@ static long toCharVal(int8_t *to,
                       int swap
                       )
 {
-    LOGMSG("devNetDev: %s(%8p,%d,%8p,%d,%d)\n", __func__, to, noff, from, width, ndata);
-
     //DEBUG
-    //printf("%s: %-13s (to=%8p noff=%d from=%8p width=%d ndata=%d swap=%d)\n", __FILE__, __func__, to, noff, from, width, ndata, swap);
+    if (netDevDebug>0) {
+        printf("%s: %-13s (to=%8p noff=%d from=%8p width=%d ndata=%d swap=%d)\n", __FILE__, __func__, to, noff, from, width, ndata, swap);
+    }
 
     to += noff;
 
@@ -346,7 +352,9 @@ static long toCharVal(int8_t *to,
         int8_t *p = from;
         for (int i = 0; i < ndata; i++) {
             //DEBUG
-            //printf("%d %d 0x%08x 0x%08x\n", i, p[i], p[i], p[i]&0xff00);
+            //if (netDevDebug>1) {
+            //    printf("%d %d 0x%08x 0x%08x\n", i, p[i], p[i], p[i]&0xff00);
+            //}
 #if 1
             if ((p[i] & 0xff00) /*&&
                 (p[i] & 0xff00) != 0xff00 */) { // need check
@@ -371,7 +379,9 @@ static long toCharVal(int8_t *to,
     }
 
     //DEBUG
-    dump(from, width, to, sizeof(*to), ndata, __FILE__, __func__);
+    if (netDevDebug>0) {
+        dump(from, width, to, sizeof(*to), ndata, __FILE__, __func__);
+    }
 
     return OK;
 }
@@ -387,10 +397,10 @@ static long toShortVal(int16_t *to,
                        int swap
                        )
 {
-    LOGMSG("devNetDev: %s(%8p,%d,%8p,%d,%d)\n", __func__, to, noff, from, width, ndata);
-
     //DEBUG
-    //printf("%s: %-13s (to=%8p noff=%d from=%8p width=%d ndata=%d swap=%d)\n", __FILE__, __func__, to, noff, from, width, ndata, swap);
+    if (netDevDebug>0) {
+        printf("%s: %-13s (to=%8p noff=%d from=%8p width=%d ndata=%d swap=%d)\n", __FILE__, __func__, to, noff, from, width, ndata, swap);
+    }
 
     to += noff;
 
@@ -416,7 +426,9 @@ static long toShortVal(int16_t *to,
     }
 
     //DEBUG
-    dump(from, width, to, sizeof(*to), ndata, __FILE__, __func__);
+    if (netDevDebug>0) {
+        dump(from, width, to, sizeof(*to), ndata, __FILE__, __func__);
+    }
 
     return OK;
 }
@@ -432,10 +444,10 @@ static long toLongVal(int32_t *to,
                       int swap
                       )
 {
-    LOGMSG("devNetDev: %s(%8p,%d,%8p,%d,%d)\n", __func__, to, noff, from, width, ndata);
-
     //DEBUG
-    //printf("%s: %-13s (to=%8p noff=%d from=%8p width=%d ndata=%d swap=%d)\n", __FILE__, __func__, to, noff, from, width, ndata, swap);
+    if (netDevDebug>0) {
+        printf("%s: %-13s (to=%8p noff=%d from=%8p width=%d ndata=%d swap=%d)\n", __FILE__, __func__, to, noff, from, width, ndata, swap);
+    }
 
     to += noff;
 
@@ -470,7 +482,9 @@ static long toLongVal(int32_t *to,
     }
 
     //DEBUG
-    dump(from, width, to, sizeof(*to), ndata, __FILE__, __func__);
+    if (netDevDebug>0) {
+        dump(from, width, to, sizeof(*to), ndata, __FILE__, __func__);
+    }
 
     return OK;
 }
@@ -486,10 +500,10 @@ static long toUcharVal(uint8_t *to,
                        int swap
                        )
 {
-    LOGMSG("devNetDev: %s(%8p,%d,%8p,%d,%d)\n", __func__, to, noff, from, width, ndata);
-
     //DEBUG
-    //printf("%s: %-13s (to=%8p noff=%d from=%8p width=%d ndata=%d swap=%d)\n", __FILE__, __func__, to, noff, from, width, ndata, swap);
+    if (netDevDebug>0) {
+        printf("%s: %-13s (to=%8p noff=%d from=%8p width=%d ndata=%d swap=%d)\n", __FILE__, __func__, to, noff, from, width, ndata, swap);
+    }
 
     to += noff;
 
@@ -499,7 +513,9 @@ static long toUcharVal(uint8_t *to,
         uint16_t *p = from;
         for (int i = 0; i < ndata; i++) {
             //DEBUG
-            //printf("%d %d 0x%08x 0x%08x\n", i, p[i], p[i], p[i]&0xff00);
+            //if (netDevDebug>0) {
+            //    printf("%d %d 0x%08x 0x%08x\n", i, p[i], p[i], p[i]&0xff00);
+            //}
 #if 1
             if ((p[i] & 0xff00) /*&&
                 (p[i] & 0xff00) != 0xff00 */) { // need check
@@ -525,7 +541,9 @@ static long toUcharVal(uint8_t *to,
     }
 
     //DEBUG
-    dump(from, width, to, sizeof(*to), ndata, __FILE__, __func__);
+    if (netDevDebug>0) {
+        dump(from, width, to, sizeof(*to), ndata, __FILE__, __func__);
+    }
 
     return OK;
 }
@@ -541,10 +559,10 @@ static long toUshortVal(uint16_t *to,
                         int swap
                         )
 {
-    LOGMSG("devNetDev: %s(%8p,%d,%8p,%d,%d)\n", __func__, to, noff, from, width, ndata);
-
     //DEBUG
-    //printf("%s: %-13s (to=%8p noff=%d from=%8p width=%d ndata=%d swap=%d)\n", __FILE__, __func__, to, noff, from, width, ndata, swap);
+    if (netDevDebug>0) {
+        printf("%s: %-13s (to=%8p noff=%d from=%8p width=%d ndata=%d swap=%d)\n", __FILE__, __func__, to, noff, from, width, ndata, swap);
+    }
 
     to += noff;
 
@@ -570,7 +588,9 @@ static long toUshortVal(uint16_t *to,
     }
 
     //DEBUG
-    dump(from, width, to, sizeof(*to), ndata, __FILE__, __func__);
+    if (netDevDebug>0) {
+        dump(from, width, to, sizeof(*to), ndata, __FILE__, __func__);
+    }
 
     return OK;
 }
@@ -586,10 +606,10 @@ static long toUlongVal(uint32_t *to,
                        int swap
                        )
 {
-    LOGMSG("devNetDev: %s(%8p,%d,%8p,%d,%d)\n", __func__, to, noff, from, width, ndata);
-
     //DEBUG
-    //printf("%s: %-13s (to=%8p noff=%d from=%8p width=%d ndata=%d swap=%d)\n", __FILE__, __func__, to, noff, from, width, ndata, swap);
+    if (netDevDebug>0) {
+        printf("%s: %-13s (to=%8p noff=%d from=%8p width=%d ndata=%d swap=%d)\n", __FILE__, __func__, to, noff, from, width, ndata, swap);
+    }
 
     to += noff;
 
@@ -624,7 +644,9 @@ static long toUlongVal(uint32_t *to,
     }
 
     //DEBUG
-    dump(from, width, to, sizeof(*to), ndata, __FILE__, __func__);
+    if (netDevDebug>0) {
+        dump(from, width, to, sizeof(*to), ndata, __FILE__, __func__);
+    }
 
     return OK;
 }
@@ -640,10 +662,10 @@ static long toFloatVal(float *to,
                        int swap
                        )
 {
-    LOGMSG("devNetDev: %s(%8p,%d,%8p,%d,%d)\n", __func__, to, noff, from, width, ndata);
-
     //DEBUG
-    //printf("%s: %-13s (to=%8p noff=%d from=%8p width=%d ndata=%d swap=%d)\n", __FILE__, __func__, to, noff, from, width, ndata, swap);
+    if (netDevDebug>0) {
+        printf("%s: %-13s (to=%8p noff=%d from=%8p width=%d ndata=%d swap=%d)\n", __FILE__, __func__, to, noff, from, width, ndata, swap);
+    }
 
     to += noff;
 
@@ -665,7 +687,9 @@ static long toFloatVal(float *to,
     }
 
     //DEBUG
-    dump(from, width, to, sizeof(*to), ndata, __FILE__, __func__);
+    if (netDevDebug>0) {
+        dump(from, width, to, sizeof(*to), ndata, __FILE__, __func__);
+    }
 
     return OK;
 }
@@ -681,10 +705,10 @@ static long toDoubleVal(double *to,
                         int swap
                         )
 {
-    LOGMSG("devNetDev: %s(%8p,%d,%8p,%d,%d)\n", __func__, to, noff, from, width, ndata);
-
     //DEBUG
-    //printf("%s: %-13s (to=%8p noff=%d from=%8p width=%d ndata=%d swap=%d)\n", __FILE__, __func__, to, noff, from, width, ndata, swap);
+    if (netDevDebug>0) {
+        printf("%s: %-13s (to=%8p noff=%d from=%8p width=%d ndata=%d swap=%d)\n", __FILE__, __func__, to, noff, from, width, ndata, swap);
+    }
 
     to += noff;
 
@@ -710,7 +734,9 @@ static long toDoubleVal(double *to,
     }
 
     //DEBUG
-    dump(from, width, to, sizeof(*to), ndata, __FILE__, __func__);
+    if (netDevDebug>0) {
+        dump(from, width, to, sizeof(*to), ndata, __FILE__, __func__);
+    }
 
     return OK;
 }
@@ -718,37 +744,37 @@ static long toDoubleVal(double *to,
 //
 // Copy values from record to send buffer
 //
-long fromRecordVal(void *buf,
+long fromRecordVal(void *to,
                    int   width,
-                   void *bptr,
+                   void *from,
                    int   noff,
                    int   ftvl,
                    int   ndata,
                    int   swap
                    )
 {
-    LOGMSG("devNetDev: %s(%8p,%d,%8p,%d,%d,%d,%d)\n", __func__, buf, width, bptr, noff, ftvl, ndata, swap);
-
     //DEBUG
-    printf("%s: %-13s (to=%8p noff=%d from=%8p width=%d ndata=%d swap=%d)\n", __FILE__, __func__, buf, noff, bptr, width, ndata, swap);
+    //if (netDevDebug>0) {
+    //    printf("%s: %-13s (to=%8p noff=%d from=%8p width=%d ndata=%d swap=%d)\n", __FILE__, __func__, to, noff, from, width, ndata, swap);
+    //}
 
     switch (ftvl) {
     case DBF_CHAR:
-        return fromCharVal(buf, bptr, noff, width, ndata, swap);
+        return fromCharVal(to, from, noff, width, ndata, swap);
     case DBF_SHORT:
-        return fromShortVal(buf, bptr, noff, width, ndata, swap);
+        return fromShortVal(to, from, noff, width, ndata, swap);
     case DBF_LONG:
-        return fromLongVal(buf, bptr, noff, width, ndata, swap);
+        return fromLongVal(to, from, noff, width, ndata, swap);
     case DBF_UCHAR:
-        return fromUcharVal(buf, bptr, noff, width, ndata, swap);
+        return fromUcharVal(to, from, noff, width, ndata, swap);
     case DBF_USHORT:
-        return fromUshortVal(buf, bptr, noff, width, ndata, swap);
+        return fromUshortVal(to, from, noff, width, ndata, swap);
     case DBF_ULONG:
-        return fromUlongVal(buf, bptr, noff, width, ndata, swap);
+        return fromUlongVal(to, from, noff, width, ndata, swap);
     case DBF_FLOAT:
-        return fromFloatVal(buf, bptr, noff, width, ndata, swap);
+        return fromFloatVal(to, from, noff, width, ndata, swap);
     case DBF_DOUBLE:
-        return fromDoubleVal(buf, bptr, noff, width, ndata, swap);
+        return fromDoubleVal(to, from, noff, width, ndata, swap);
     default:
         errlogPrintf("devNetDev: %s: unsupported FTVL: %d\n", __func__, ftvl);
         return ERROR;
@@ -768,10 +794,10 @@ static long fromCharVal(void *to,
                         int swap
                         )
 {
-    LOGMSG("devNetDev: %s(%8p,%d,%8p,%d,%d)\n", __func__, to, noff, from, width, ndata);
-
     //DEBUG
-    //printf("%s: %-13s (to=%8p noff=%d from=%8p width=%d ndata=%d swap=%d)\n", __FILE__, __func__, to, noff, from, width, ndata, swap);
+    if (netDevDebug>0) {
+        printf("%s: %-13s (to=%8p noff=%d from=%8p width=%d ndata=%d swap=%d)\n", __FILE__, __func__, to, noff, from, width, ndata, swap);
+    }
 
     from += noff;
 
@@ -797,7 +823,9 @@ static long fromCharVal(void *to,
     }
 
     //DEBUG
-    dump(from, sizeof(*from), to, width, ndata, __FILE__, __func__);
+    if (netDevDebug>0) {
+        dump(from, sizeof(*from), to, width, ndata, __FILE__, __func__);
+    }
 
     return OK;
 }
@@ -813,10 +841,10 @@ static long fromShortVal(void *to,
                          int swap
                          )
 {
-    LOGMSG("devNetDev: %s(%8p,%d,%8p,%d,%d)\n", __func__, to, noff, from, width, ndata);
-
     //DEBUG
-    //printf("%s: %-13s (to=%8p noff=%d from=%8p width=%d ndata=%d swap=%d)\n", __FILE__, __func__, to, noff, from, width, ndata, swap);
+    if (netDevDebug>0) {
+        printf("%s: %-13s (to=%8p noff=%d from=%8p width=%d ndata=%d swap=%d)\n", __FILE__, __func__, to, noff, from, width, ndata, swap);
+    }
 
     from += noff;
 
@@ -835,7 +863,9 @@ static long fromShortVal(void *to,
         int8_t *p = to;
         for (int i = 0; i < ndata; i++) {
             //DEBUG
-            //printf("%d %d 0x%08x 0x%08x\n", i, from[i], from[i], from[i]&0xff00);
+            //if (netDevDebug>0) {
+            //    printf("%d %d 0x%08x 0x%08x\n", i, from[i], from[i], from[i]&0xff00);
+            //}
 #if 1
             if ((from[i] & 0xff00) /*&&
                 (from[i] & 0xff00) != 0xff00 */) { // need check
@@ -851,7 +881,9 @@ static long fromShortVal(void *to,
     }
 
     //DEBUG
-    dump(from, sizeof(*from), to, width, ndata, __FILE__, __func__);
+    if (netDevDebug>0) {
+        dump(from, sizeof(*from), to, width, ndata, __FILE__, __func__);
+    }
 
     return OK;
 }
@@ -867,10 +899,10 @@ static long fromLongVal(void *to,
                         int swap
                         )
 {
-    LOGMSG("devNetDev: %s(%8p,%d,%8p,%d,%d)\n", __func__, to, noff, from, width, ndata);
-
     //DEBUG
-    //printf("%s: %-13s (to=%8p noff=%d from=%8p width=%d ndata=%d swap=%d)\n", __FILE__, __func__, to, noff, from, width, ndata, swap);
+    if (netDevDebug>0) {
+        printf("%s: %-13s (to=%8p noff=%d from=%8p width=%d ndata=%d swap=%d)\n", __FILE__, __func__, to, noff, from, width, ndata, swap);
+    }
 
     from += noff;
 
@@ -890,7 +922,9 @@ static long fromLongVal(void *to,
         int16_t *p = to;
         for (int i = 0; i < ndata; i++) {
             //DEBUG
-            //printf("%d %d 0x%08x 0x%08x\n", i, from[i], from[i], from[i]&0xffff0000);
+            //if (netDevDebug>0) {
+            //    printf("%d %d 0x%08x 0x%08x\n", i, from[i], from[i], from[i]&0xffff0000);
+            //}
 #if 1
             if ((from[i] & 0xffff0000) /* &&
                 (from[i] & 0xffff0000) != 0xffff0000 */) { // need check
@@ -908,7 +942,9 @@ static long fromLongVal(void *to,
         int8_t *p = to;
         for (int i = 0; i < ndata; i++) {
             //DEBUG
-            //printf("%d %d 0x%08x 0x%08x\n", i, from[i], from[i], from[i]&0xffffff00);
+            //if (netDevDebug>0) {
+            //    printf("%d %d 0x%08x 0x%08x\n", i, from[i], from[i], from[i]&0xffffff00);
+            //}
 #if 1
             if ((from[i] & 0xffffff00) /* &&
                 (from[i] & 0xffffff00) != 0xffffff00 */) { // need check
@@ -924,7 +960,9 @@ static long fromLongVal(void *to,
     }
 
     //DEBUG
-    dump(from, sizeof(*from), to, width, ndata, __FILE__, __func__);
+    if (netDevDebug>0) {
+        dump(from, sizeof(*from), to, width, ndata, __FILE__, __func__);
+    }
 
     return OK;
 }
@@ -940,10 +978,10 @@ static long fromUcharVal(void *to,
                          int swap
                          )
 {
-    LOGMSG("devNetDev: %s(%8p,%d,%8p,%d,%d)\n", __func__, to, noff, from, width, ndata);
-
     //DEBUG
-    //printf("%s: %-13s (to=%8p noff=%d from=%8p width=%d ndata=%d swap=%d)\n", __FILE__, __func__, to, noff, from, width, ndata, swap);
+    if (netDevDebug>0) {
+        printf("%s: %-13s (to=%8p noff=%d from=%8p width=%d ndata=%d swap=%d)\n", __FILE__, __func__, to, noff, from, width, ndata, swap);
+    }
 
     from += noff;
 
@@ -969,7 +1007,9 @@ static long fromUcharVal(void *to,
     }
 
     //DEBUG
-    dump(from, sizeof(*from), to, width, ndata, __FILE__, __func__);
+    if (netDevDebug>0) {
+        dump(from, sizeof(*from), to, width, ndata, __FILE__, __func__);
+    }
 
     return OK;
 }
@@ -985,10 +1025,10 @@ static long fromUshortVal(void *to,
                           int swap
                           )
 {
-    LOGMSG("devNetDev: %s(%8p,%d,%8p,%d,%d)\n", __func__, to, noff, from, width, ndata);
-
     //DEBUG
-    //printf("%s: %-13s (to=%8p noff=%d from=%8p width=%d ndata=%d swap=%d)\n", __FILE__, __func__, to, noff, from, width, ndata, swap);
+    if (netDevDebug>0) {
+        printf("%s: %-13s (to=%8p noff=%d from=%8p width=%d ndata=%d swap=%d)\n", __FILE__, __func__, to, noff, from, width, ndata, swap);
+    }
 
     from += noff;
 
@@ -1007,7 +1047,9 @@ static long fromUshortVal(void *to,
         uint8_t *p = to;
         for (int i = 0; i < ndata; i++) {
             //DEBUG
-            //printf("%d %d 0x%08x 0x%08x\n", i, from[i], from[i], from[i]&0xff00);
+            //if (netDevDebug>0) {
+            //    printf("%d %d 0x%08x 0x%08x\n", i, from[i], from[i], from[i]&0xff00);
+            //}
 #if 1
             if ((from[i] & 0xff00) /*&&
                 (from[i] & 0xff00) != 0xff00 */) { // need check
@@ -1023,7 +1065,9 @@ static long fromUshortVal(void *to,
     }
 
     //DEBUG
-    dump(from, sizeof(*from), to, width, ndata, __FILE__, __func__);
+    if (netDevDebug>0) {
+        dump(from, sizeof(*from), to, width, ndata, __FILE__, __func__);
+    }
 
     return OK;
 }
@@ -1039,10 +1083,10 @@ static long fromUlongVal(void *to,
                          int swap
                          )
 {
-    LOGMSG("devNetDev: %s(%8p,%d,%8p,%d,%d)\n", __func__, to, noff, from, width, ndata);
-
     //DEBUG
-    //printf("%s: %-13s (to=%8p noff=%d from=%8p width=%d ndata=%d swap=%d)\n", __FILE__, __func__, to, noff, from, width, ndata, swap);
+    if (netDevDebug>0) {
+        printf("%s: %-13s (to=%8p noff=%d from=%8p width=%d ndata=%d swap=%d)\n", __FILE__, __func__, to, noff, from, width, ndata, swap);
+    }
 
     from += noff;
 
@@ -1062,7 +1106,9 @@ static long fromUlongVal(void *to,
         uint16_t *p = to;
         for (int i = 0; i < ndata; i++) {
             //DEBUG
-            //printf("%d %d 0x%08x 0x%08x\n", i, from[i], from[i], from[i]&0xffff0000);
+            //if (netDevDebug>0) {
+            //    printf("%d %d 0x%08x 0x%08x\n", i, from[i], from[i], from[i]&0xffff0000);
+            //}
 #if 1
             if ((from[i] & 0xffff0000) /* &&
                 (from[i] & 0xffff0000) != 0xffff0000 */) { // need check
@@ -1080,7 +1126,9 @@ static long fromUlongVal(void *to,
         uint8_t *p = to;
         for (int i = 0; i < ndata; i++) {
             //DEBUG
-            //printf("%d %d 0x%08x 0x%08x\n", i, from[i], from[i], from[i]&0xffffff00);
+            //if (netDevDebug>0) {
+            //    printf("%d %d 0x%08x 0x%08x\n", i, from[i], from[i], from[i]&0xffffff00);
+            //}
 #if 1
             if ((from[i] & 0xffffff00) /* &&
                 (from[i] & 0xffffff00) != 0xffffff00 */) { // need check
@@ -1096,7 +1144,9 @@ static long fromUlongVal(void *to,
     }
 
     //DEBUG
-    dump(from, sizeof(*from), to, width, ndata, __FILE__, __func__);
+    if (netDevDebug>0) {
+        dump(from, sizeof(*from), to, width, ndata, __FILE__, __func__);
+    }
 
     return OK;
 }
@@ -1112,10 +1162,10 @@ static long fromFloatVal(void *to,
                          int swap
                          )
 {
-    LOGMSG("devNetDev: %s(%8p,%d,%8p,%d,%d)\n", __func__, to, noff, from, width, ndata);
-
     //DEBUG
-    //printf("%s: %-13s (to=%8p noff=%d from=%8p width=%d ndata=%d swap=%d)\n", __FILE__, __func__, to, noff, from, width, ndata, swap);
+    if (netDevDebug>0) {
+        printf("%s: %-13s (to=%8p noff=%d from=%8p width=%d ndata=%d swap=%d)\n", __FILE__, __func__, to, noff, from, width, ndata, swap);
+    }
 
     from += noff;
 
@@ -1139,7 +1189,9 @@ static long fromFloatVal(void *to,
     }
 
     //DEBUG
-    dump(from, sizeof(*from), to, width, ndata, __FILE__, __func__);
+    if (netDevDebug>0) {
+        dump(from, sizeof(*from), to, width, ndata, __FILE__, __func__);
+    }
 
     return OK;
 }
@@ -1155,10 +1207,10 @@ static long fromDoubleVal(void *to,
                           int swap
                           )
 {
-    LOGMSG("devNetDev: %s(%8p,%d,%8p,%d,%d)\n", __func__, to, noff, from, width, ndata);
-
     //DEBUG
-    //printf("%s: %-13s (to=%8p noff=%d from=%8p width=%d ndata=%d swap=%d)\n", __FILE__, __func__, to, noff, from, width, ndata, swap);
+    if (netDevDebug>0) {
+        printf("%s: %-13s (to=%8p noff=%d from=%8p width=%d ndata=%d swap=%d)\n", __FILE__, __func__, to, noff, from, width, ndata, swap);
+    }
 
     from += noff;
 
@@ -1184,7 +1236,9 @@ static long fromDoubleVal(void *to,
     }
 
     //DEBUG
-    dump(from, sizeof(*from), to, width, ndata, __FILE__, __func__);
+    if (netDevDebug>0) {
+        dump(from, sizeof(*from), to, width, ndata, __FILE__, __func__);
+    }
 
     return OK;
 }
@@ -1242,3 +1296,10 @@ uint16_t netDevInt2Bcd(int32_t dec, void *precord)
 
     return bcd;
 }
+
+//
+// Register symbols to be used by IOC core
+//
+epicsExportAddress(int, netDevDebug);
+
+// end

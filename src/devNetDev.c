@@ -127,8 +127,10 @@ long netDevReadWriteXx(dbCommon *pxx)
     LOGMSG("devNetDev: netDevReadWriteXx(\"%s\",pact=%d, ret=%d)\n", pxx->name, pxx->pact, t->ret);
 
     //DEBUG
-    //if (pxx->pact == 0) {
-    //    printf("\n%s : %s pact=%d\n", __func__, pxx->name, pxx->pact);
+    //if (netDevDebug>0) {
+    //    if (pxx->pact == 0) {
+    //        printf("\n%s : %s pact=%d\n", __func__, pxx->name, pxx->pact);
+    //    }
     //}
 
     if (isEvent(t->option)) {

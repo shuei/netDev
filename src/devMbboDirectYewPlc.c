@@ -71,7 +71,9 @@ static long config_mbboDirect_command(dbCommon *pxx,
                                       )
 {
     //DEBUG
-    printf("\n%s: %s %s\n", __FILE__, __func__, pxx->name);
+    if (netDevDebug>0) {
+        printf("\n%s: %s %s\n", __FILE__, __func__, pxx->name);
+    }
 
     mbboDirectRecord *pmbboDirect = (mbboDirectRecord *)pxx;
 

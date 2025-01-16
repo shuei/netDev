@@ -92,7 +92,9 @@ static long parse_pattern_response(dbCommon *pxx,
                                    )
 {
     //DEBUG
-    printf("\n%s: %s %s\n", __FILE__, __func__, pxx->name);
+    if (netDevDebug>0) {
+        printf("\n%s: %s %s\n", __FILE__, __func__, pxx->name);
+    }
 
     patternRecord *pptn = (patternRecord *)pxx;
     YEW_PLC *d = device;

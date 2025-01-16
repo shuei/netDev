@@ -29,6 +29,10 @@
 #include "drvNetMpf.h"
 #include "devNetDev.h"
 
+//
+extern int netDevDebug;
+
+//
 #define YEW_CMND_LENGTH(x)       ((x) ? 10 : 12)
 #define YEW_DATA_OFFSET          4
 #define YEW_DEFAULT_CPU          1
@@ -341,13 +345,14 @@ static long yew_config_command(uint8_t *buf,    // driver buf addr
                                YEW_PLC *d
                                )
 {
-    LOGMSG("devYewPlc: yew_config_command(%8p,%d,%8p,%d,%d,%d,%8p)\n", buf, *len, bptr, ftvl, ndata, *option, d);
     const int nbytes = (d->width)*ndata;
 
     //DEBUG
+    if (netDevDebug>0) {
     //if (bptr) { // don't show debug message for read request
         printf("%s: %s (buf=%8p len=%4d bptr=%8p ftvl=%d ndata=%4d width=%d nbytes=%d nleft=%d noff=%d isWrite=%d)\n", __FILE__, __func__, buf, *len, bptr, ftvl, ndata, d->width, nbytes, d->nleft, d->noff, isWrite(*option));
     //}
+    }
 
     int nread = nbytes;
 
@@ -418,7 +423,9 @@ static long yew_config_command(uint8_t *buf,    // driver buf addr
     }
 
     //DEBUG
-    printf("                     [req] => nbytes=%4d (npoint=%4d) @ addr=%4d [nleft=%4d noff=%4d]\n", nread, npoint, d->addr+offset, d->nleft, d->noff);
+    if (netDevDebug>0) {
+        printf("                     [req] => nbytes=%4d (npoint=%4d) @ addr=%4d [nleft=%4d noff=%4d]\n", nread, npoint, d->addr+offset, d->nleft, d->noff);
+    }
 
     if (isWrite(*option)) {
         const int offset = d->noff / d->width;
@@ -460,9 +467,11 @@ static long yew_parse_response(uint8_t *buf,    // driver buf addr
     const int nbytes = (d->width)*ndata;
 
     //DEBUG
-    //if (bptr) { // don't show debug message for write request
+    if (netDevDebug>0) {
+        //if (bptr) { // don't show debug message for write request
         printf("%s: %s (buf=%8p len=%4d bptr=%8p ftvl=%d ndata=%4d width=%d nbytes=%d nleft=%d noff=%d isWrite=%d)\n", __FILE__, __func__, buf, *len, bptr, ftvl, ndata, d->width, nbytes, d->nleft, d->noff, isWrite(*option));
-    //}
+        //}
+    }
 
     int nread = nbytes;
     int ret = 0;
@@ -523,7 +532,9 @@ static long yew_parse_response(uint8_t *buf,    // driver buf addr
         const int offset = d->noff / d->width;
 
         //DEBUG
-        printf("                     [fil] => nbytes=%4d (npoint=%4d) @ addr=%4d [nleft=%4d noff=%4d]\n", nread, npoint, d->addr+offset, d->nleft, d->noff);
+        if (netDevDebug>0) {
+            printf("                     [fil] => nbytes=%4d (npoint=%4d) @ addr=%4d [nleft=%4d noff=%4d]\n", nread, npoint, d->addr+offset, d->nleft, d->noff);
+        }
 
         if (toRecordVal(bptr,
                         offset,
@@ -549,7 +560,9 @@ static long yew_parse_response(uint8_t *buf,    // driver buf addr
     }
 
     //DEBUG
-    printf("                     [ret] => ret=%4d                              [nleft=%4d noff=%4d]\n", ret, d->nleft, d->noff);
+    if (netDevDebug>0) {
+        printf("                     [ret] => ret=%4d                              [nleft=%4d noff=%4d]\n", ret, d->nleft, d->noff);
+    }
 
     return ret;
 }

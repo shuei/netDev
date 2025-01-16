@@ -63,7 +63,9 @@ static long config_longout_command(dbCommon *pxx,
                                    )
 {
     //DEBUG
-    printf("\n%s: %s %s\n", __FILE__, __func__, pxx->name);
+    if (netDevDebug>0) {
+        printf("\n%s: %s %s\n", __FILE__, __func__, pxx->name);
+    }
 
     longoutRecord *plongout = (longoutRecord *)pxx;
     YEW_PLC *d = device;

@@ -1,9 +1,12 @@
+#
 include arrayoutRecord.dbd
 include patternRecord.dbd
 include miwfRecord.dbd
 include statusRecord.dbd
 include channelsRecord.dbd
 include chansRecord.dbd
+
+#
 device(pattern,CONSTANT,devPtnSoft,"Soft Channel")
 device(miwf,CONSTANT,devMiwfSoft,"Soft Channel")
 device(ai,INST_IO,devAiYewPlc,"Yew Plc")
@@ -34,4 +37,9 @@ device(mbboDirect,INST_IO,devMbboDirectKeyPlc,"Key Plc")
 device(waveform,INST_IO,devWfKeyPlc,"Key Plc")
 device(arrayout,INST_IO,devAroKeyPlc,"Key Plc")
 device(waveform,INST_IO,devWfChinoLogL,"ChinoLogL")
+
+#
 driver(drvNetMpf)
+
+#
+variable(netDevDebug)

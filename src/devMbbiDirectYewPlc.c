@@ -85,7 +85,9 @@ static long parse_mbbiDirect_response(dbCommon *pxx,
                                       )
 {
     //DEBUG
-    printf("\n%s: %s %s\n", __FILE__, __func__, pxx->name);
+    if (netDevDebug>0) {
+        printf("\n%s: %s %s\n", __FILE__, __func__, pxx->name);
+    }
 
     mbbiDirectRecord *pmbbiDirect = (mbbiDirectRecord *)pxx;
 

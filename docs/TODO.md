@@ -1,7 +1,8 @@
 ToDo list for netDev
 ====
 
-- [ ] Allow debug print to be controlled at runtime instead of compile time
+- [x] Allow (some of) debug print to be controlled at runtime instead of compile time
+  - [ ] Allow adjustments based on record type, FTVL, etc.
 - [x] Add Cache register support for SP76/SP71 CPU.
 - [x] BCD support for YewPlc.
 - [x] Clean up treatment of options in devYewPlc.c: lopt/dword/fdpat.
