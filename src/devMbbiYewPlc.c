@@ -39,18 +39,27 @@ epicsExportAddress(dset, devMbbiYewPlc);
 
 static long init_mbbi_record(mbbiRecord *prec)
 {
+    YEW_PLC *d = yew_calloc(0, 0, 0, kWord);
     long status = netDevInitXxRecord((dbCommon *)prec,
                                      &prec->inp,
                                      MPF_READ | YEW_GET_PROTO | DEFAULT_TIMEOUT,
-                                     yew_calloc(0, 0, 0, kWord),
+                                     d,
                                      yew_parse_link,
                                      config_mbbi_command,
                                      parse_mbbi_response
                                      );
 
-    prec->nobt = 32;
-    prec->mask = 0xFFFFFFFF;
-    prec->shft = 0;
+    if (0) {
+        //
+    } else if (d->flag == 'L') {
+        prec->nobt = 32;
+        prec->mask = 0xffffffff;
+        prec->shft = 0;
+    } else {
+        prec->nobt = 16;
+        prec->mask = 0xffff;
+        prec->shft = 0;
+    }
 
     return status;
 }

@@ -24,7 +24,7 @@ ToDo list for netDev
 - [x] Add support for mbbi/mbbo records for YewPlc
   - [x] Add &U option support
   - [x] Add &L option support
-    -- [ ] set NOBT to 32 with &L option, 16 without &L option
+    -- [x] set NOBT to 32 with &L option, 16 without &L option
   - [ ] Add &B option support
   - [ ] Add &F option support
   - [ ] Add &D option support

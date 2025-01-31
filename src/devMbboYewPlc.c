@@ -39,18 +39,27 @@ epicsExportAddress(dset, devMbboYewPlc);
 
 static long init_mbbo_record(mbboRecord *prec)
 {
+    YEW_PLC *d = yew_calloc(0, 0, 0, kWord);
     long status = netDevInitXxRecord((dbCommon *)prec,
                                      &prec->out,
                                      MPF_WRITE | YEW_GET_PROTO | DEFAULT_TIMEOUT,
-                                     yew_calloc(0, 0, 0, kWord),
+                                     d,
                                      yew_parse_link,
                                      config_mbbo_command,
                                      parse_mbbo_response
                                      );
 
-    prec->nobt = 32;
-    prec->mask = 0xFFFFFFFF;
-    prec->shft = 0;
+    if (0) {
+        //
+    } else if (d->flag == 'L') {
+        prec->nobt = 32;
+        prec->mask = 0xffffffff;
+        prec->shft = 0;
+    } else {
+        prec->nobt = 16;
+        prec->mask = 0xffff;
+        prec->shft = 0;
+    }
 
     if (status != 0) {
         return status;
