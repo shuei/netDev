@@ -37,25 +37,36 @@ INTEGERDSET devMbbiDirectYewPlc = {
 
 epicsExportAddress(dset, devMbbiDirectYewPlc);
 
-static long init_mbbiDirect_record(mbbiDirectRecord *pMbbiDirect)
+static long init_mbbiDirect_record(mbbiDirectRecord *prec)
 {
-    pMbbiDirect->nobt = 16;
-    pMbbiDirect->mask = 0xFFFF;
-    pMbbiDirect->shft = 0;
+    YEW_PLC *d = yew_calloc(0, 0, 0, kWord);
+    long status = netDevInitXxRecord((dbCommon *)prec,
+                                     &prec->inp,
+                                     MPF_READ | YEW_GET_PROTO | DEFAULT_TIMEOUT,
+                                     d,
+                                     yew_parse_link,
+                                     config_mbbiDirect_command,
+                                     parse_mbbiDirect_response
+                                     );
 
-    return netDevInitXxRecord((dbCommon *)pMbbiDirect,
-                              &pMbbiDirect->inp,
-                              MPF_READ | YEW_GET_PROTO | DEFAULT_TIMEOUT,
-                              yew_calloc(0, 0, 0, kWord),
-                              yew_parse_link,
-                              config_mbbiDirect_command,
-                              parse_mbbiDirect_response
-                              );
+    if (0) {
+        //
+    } else if (d->flag == 'L') {
+        prec->nobt = 32;
+        prec->mask = 0xffffffff;
+        prec->shft = 0;
+    } else {
+        prec->nobt = 16;
+        prec->mask = 0xffff;
+        prec->shft = 0;
+    }
+
+    return status;
 }
 
-static long read_mbbiDirect(mbbiDirectRecord *pMbbiDirect)
+static long read_mbbiDirect(mbbiDirectRecord *prec)
 {
-    return netDevReadWriteXx((dbCommon *)pMbbiDirect);
+    return netDevReadWriteXx((dbCommon *)prec);
 }
 
 static long config_mbbiDirect_command(dbCommon *pxx,
@@ -89,14 +100,34 @@ static long parse_mbbiDirect_response(dbCommon *pxx,
         printf("\n%s: %s %s\n", __FILE__, __func__, pxx->name);
     }
 
-    mbbiDirectRecord *pmbbiDirect = (mbbiDirectRecord *)pxx;
+    mbbiDirectRecord *prec = (mbbiDirectRecord *)pxx;
+    YEW_PLC *d = device;
 
-    return yew_parse_response(buf,
-                              len,
-                              &pmbbiDirect->rval,
-                              DBF_ULONG,
-                              1,
-                              option,
-                              device
-                              );
+    if (0) {
+        //
+    } else if (d->flag == 'L') {
+        int32_t val;
+        long ret = yew_parse_response(buf,
+                                      len,
+                                      &val,
+                                      DBF_ULONG,
+                                      1,
+                                      option,
+                                      device
+                                      );
+        prec->rval = val;
+        return ret;
+    } else {
+        int16_t val;
+        long ret = yew_parse_response(buf,
+                                      len,
+                                      &val,
+                                      DBF_SHORT,
+                                      1,
+                                      option,
+                                      d
+                                      );
+        prec->rval = val;
+        return ret;
+    }
 }

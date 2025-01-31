@@ -28,8 +28,8 @@ ToDo list for netDev
   - [ ] Add &B option support
   - [ ] Add &F option support
   - [ ] Add &D option support
-- [ ] Add &L option support in mbbiDirect/mbboDirect records for YewPlc
-    -- [ ] set NOBT to 32 with &L option
+- [x] Add &L option support in mbbiDirect/mbboDirect records for YewPlc
+    -- [x] set NOBT to 32 with &L option
 - [ ] Mark patternRecord as obsolete.
 - [ ] Drop vxWorks support.
 - [x] Add Chino KE3000 series data logger.

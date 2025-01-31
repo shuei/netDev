@@ -37,29 +37,39 @@ INTEGERDSET devMbboDirectYewPlc = {
 
 epicsExportAddress(dset, devMbboDirectYewPlc);
 
-static long init_mbboDirect_record(mbboDirectRecord *pMbboDirect)
+static long init_mbboDirect_record(mbboDirectRecord *prec)
 {
-    pMbboDirect->nobt = 16;
-    pMbboDirect->mask = 0xFFFF;
-    pMbboDirect->shft = 0;
-
-    long status = netDevInitXxRecord((dbCommon *)pMbboDirect,
-                                     &pMbboDirect->out,
+    YEW_PLC *d = yew_calloc(0, 0, 0, kWord);
+    long status = netDevInitXxRecord((dbCommon *)prec,
+                                     &prec->out,
                                      MPF_WRITE | YEW_GET_PROTO | DEFAULT_TIMEOUT,
-                                     yew_calloc(0, 0, 0, kWord),
+                                     d,
                                      yew_parse_link,
                                      config_mbboDirect_command,
                                      parse_mbboDirect_response
                                      );
+
+    if (0) {
+        //
+    } else if (d->flag == 'L') {
+        prec->nobt = 32;
+        prec->mask = 0xffffffff;
+        prec->shft = 0;
+    } else {
+        prec->nobt = 16;
+        prec->mask = 0xffff;
+        prec->shft = 0;
+    }
+
     if (status != 0) {
         return status;
     }
     return 2; // no conversion
 }
 
-static long write_mbboDirect(mbboDirectRecord *pMbboDirect)
+static long write_mbboDirect(mbboDirectRecord *prec)
 {
-    return netDevReadWriteXx((dbCommon *)pMbboDirect);
+    return netDevReadWriteXx((dbCommon *)prec);
 }
 
 static long config_mbboDirect_command(dbCommon *pxx,
@@ -75,16 +85,32 @@ static long config_mbboDirect_command(dbCommon *pxx,
         printf("\n%s: %s %s\n", __FILE__, __func__, pxx->name);
     }
 
-    mbboDirectRecord *pmbboDirect = (mbboDirectRecord *)pxx;
+    mbboDirectRecord *prec = (mbboDirectRecord *)pxx;
+    YEW_PLC *d = device;
 
-    return yew_config_command(buf,
-                              len,
-                              &pmbboDirect->rval,
-                              DBF_ULONG,
-                              1,
-                              option,
-                              device
-                              );
+    if (0) {
+        //
+    } else if (d->flag == 'L') {
+        int32_t val = prec->rval;
+        return yew_config_command(buf,
+                                  len,
+                                  &val,
+                                  DBF_ULONG,
+                                  1,
+                                  option,
+                                  device
+                                  );
+    } else {
+        int16_t val = prec->rval;
+        return yew_config_command(buf,
+                                  len,
+                                  &val,
+                                  DBF_SHORT,
+                                  1,
+                                  option,
+                                  d
+                                  );
+    }
 }
 
 static long parse_mbboDirect_response(dbCommon *pxx,
