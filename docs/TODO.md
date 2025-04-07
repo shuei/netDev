@@ -34,6 +34,8 @@ ToDo list for netDev
 - [ ] Drop vxWorks support.
 - [x] Add Chino KE3000 series data logger.
 - [ ] Introduce pseudo device 'A' to access Yokogawa FA-M3 special modules.
+- [ ] Implement Information command ($62) to query module information
+- [ ] Implement Data and Time Read command ($63), and Write command ($64)
 - [ ] Assign alphabetical device type for timer values and counter values on F3-M3 CPU.
 - [ ] Add support for timer preset value on FA-M3 CPU modules.
 - [ ] Support TCP mode for YewPlc.
