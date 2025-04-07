@@ -110,7 +110,7 @@ static long parse_mbbiDirect_response(dbCommon *pxx,
         long ret = yew_parse_response(buf,
                                       len,
                                       &val,
-                                      DBF_ULONG,
+                                      DBF_LONG,
                                       1,
                                       option,
                                       device
