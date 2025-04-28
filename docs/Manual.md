@@ -115,8 +115,8 @@ access specific PLC devices.
 | mbbo        | Yew Plc  |    Y,    E,    L, D, B, F, R, Z, W | **Supported options**: U, L                         |
 | ai          | Yew Plc  | X, Y,    R,       D, B, F,    Z, W | **Supported options**: U, L,    F, D                |
 | ao          | Yew Plc  |    Y,    R,       D, B, F,    Z, W | **Supported options**: U, L,    F, D                |
-| waveform    | Yew Plc  |          R,       D, B, F,       W | **Supported options**: U, L,    F, D <br> **FTVL field**: DBF\_SHORT, DBF\_USHORT, DBF\_LONG, DBF\_ULONG, DBF\_FLOAT, DBF\_DOUBLE |
-| arrayout    | Yew Plc  |          R,       D, B, F,       W | **Supported options**: U, L,    F, D <br> **FTVL field**: DBF\_SHORT, DBF\_USHORT, DBF\_LONG, DBF\_ULONG, DBF\_FLOAT, DBF\_DOUBLE |
+| waveform    | Yew Plc  |          R,       D, B, F,       W | **Supported options**: U, L,    F, D <br> **Supported FTVL fields**: DBF\_SHORT, DBF\_USHORT, DBF\_LONG, DBF\_ULONG, DBF\_FLOAT, DBF\_DOUBLE |
+| arrayout    | Yew Plc  |          R,       D, B, F,       W | **Supported options**: U, L,    F, D <br> **Supported FTVL fields**: DBF\_SHORT, DBF\_USHORT, DBF\_LONG, DBF\_ULONG, DBF\_FLOAT, DBF\_DOUBLE |
 
 ## Accessing Relays and Registers
 
