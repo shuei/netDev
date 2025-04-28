@@ -53,7 +53,7 @@ In order to use netDev, device type (DTYP) field must be set to "**Yew Plc**" in
 
 General format for input (INP) and output (OUT) link fields are as following:
 
-`field(INP, "@hostname[(port)][:cpu]#type:number[&option]")`
+`field(INP, "@hostname[(port)][:cpu]#type[:]number[&option]")`
 
 e.g.
 
@@ -109,14 +109,14 @@ access specific PLC devices.
 | bo          | Yew Plc  |    Y, I, E, M, L                   |                                                     |
 | longin      | Yew Plc  | X, Y, I, E,    L, D, B, F, R, Z, W | **Supported options**: U, L, B                      |
 | longout     | Yew Plc  |    Y, I, E,    L, D, B, F, R, Z, W | **Supported options**: U, L, B                      |
-| mbbiDirect  | Yew Plc  | X, Y,    E,    L, D, B, F, R, Z, W |                                                     |
-| mbboDirect  | Yew Plc  |    Y,    E,    L, D, B, F, R, Z, W |                                                     |
+| mbbiDirect  | Yew Plc  | X, Y,    E,    L, D, B, F, R, Z, W | **Supported options**:    L                         |
+| mbboDirect  | Yew Plc  |    Y,    E,    L, D, B, F, R, Z, W | **Supported options**:    L                         |
 | mbbi        | Yew Plc  | X, Y,    E,    L, D, B, F, R, Z, W | **Supported options**: U, L                         |
 | mbbo        | Yew Plc  |    Y,    E,    L, D, B, F, R, Z, W | **Supported options**: U, L                         |
-| ai          | Yew Plc  | X, Y,    R,       D, B, F,    Z, W | **Supported options**: U, L, F, D                   |
-| ao          | Yew Plc  |    Y,    R,       D, B, F,    Z, W | **Supported options**: U, L, F, D                   |
-| waveform    | Yew Plc  |          R,       D, B, F,       W | **FTVL field**: DBF\_ULONG, DBF\_USHORT, DBF\_SHORT |
-| arrayout    | Yew Plc  |          R,       D, B, F,       W | **FTVL field**: DBF\_ULONG, DBF\_USHORT, DBF\_SHORT |
+| ai          | Yew Plc  | X, Y,    R,       D, B, F,    Z, W | **Supported options**: U, L,    F, D                |
+| ao          | Yew Plc  |    Y,    R,       D, B, F,    Z, W | **Supported options**: U, L,    F, D                |
+| waveform    | Yew Plc  |          R,       D, B, F,       W | **Supported options**: U, L,    F, D <br> **FTVL field**: DBF\_SHORT, DBF\_USHORT, DBF\_LONG, DBF\_ULONG, DBF\_FLOAT, DBF\_DOUBLE |
+| arrayout    | Yew Plc  |          R,       D, B, F,       W | **Supported options**: U, L,    F, D <br> **FTVL field**: DBF\_SHORT, DBF\_USHORT, DBF\_LONG, DBF\_ULONG, DBF\_FLOAT, DBF\_DOUBLE |
 
 ## Accessing Relays and Registers
 
