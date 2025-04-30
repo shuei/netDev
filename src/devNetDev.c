@@ -70,7 +70,7 @@ long netDevInitXxRecord(dbCommon *pxx,
         (isEvent(option) && !parse_response)) {
         pxx->pact = TRUE;
         errPrintf(ERROR, __FILE__, __LINE__,
-                  "Illeagal augument(\"%s\")\n", pxx->name);
+                  ": Illeagal augument(\"%s\")\n", pxx->name);
         recGblSetSevr(pxx, INVALID_ALARM, INVALID_ALARM);
         return ERROR;
     }
@@ -84,7 +84,7 @@ long netDevInitXxRecord(dbCommon *pxx,
     if (!t) {
         pxx->pact = TRUE;
         errPrintf(ERROR, __FILE__, __LINE__,
-                  "Can't initialize device private(\"%s\")\n", pxx->name);
+                  ": Can't initialize device private(\"%s\")\n", pxx->name);
         recGblSetSevr(pxx, INVALID_ALARM, INVALID_ALARM);
         return ERROR;
     }
@@ -98,7 +98,7 @@ long netDevInitXxRecord(dbCommon *pxx,
     if (isEvent(option)) {
         if (drvNetMpfRegisterEvent(t)) {
             errPrintf(ERROR, __FILE__, __LINE__,
-                      "Can't register event record (\"%s\")\n", pxx->name);
+                      ": Can't register event record (\"%s\")\n", pxx->name);
             recGblSetSevr(pxx, INVALID_ALARM, INVALID_ALARM);
             return ERROR;
         }
@@ -163,7 +163,7 @@ long netDevReadWriteXx(dbCommon *pxx)
 
     if (drvNetMpfSendRequest(t)) {
         errPrintf(ERROR, __FILE__, __LINE__,
-                  "Record processing disabled(\"%s\")\n", pxx->name);
+                  ": Record processing disabled(\"%s\")\n", pxx->name);
         recGblSetSevr(pxx, INVALID_ALARM, INVALID_ALARM);
         pxx->pact = TRUE;
         return ERROR;
@@ -505,7 +505,7 @@ long netDevSetEvMsgLeng(dbCommon *pxx, int len)
     if (!t) {
         pxx->pact = TRUE;
         errPrintf(ERROR, __FILE__, __LINE__,
-                  "Record processing disabled(\"%s\")\n", pxx->name);
+                  ": Record processing disabled(\"%s\")\n", pxx->name);
         recGblSetSevr(pxx, INVALID_ALARM, INVALID_ALARM);
         return ERROR;
     }
