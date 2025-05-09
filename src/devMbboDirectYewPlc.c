@@ -95,10 +95,20 @@ static long config_mbboDirect_command(dbCommon *pxx,
         return yew_config_command(buf,
                                   len,
                                   &val,
-                                  DBF_ULONG,
+                                  DBF_LONG,
                                   1,
                                   option,
-                                  device
+                                  d
+                                  );
+    } else if (d->flag == 'U') {
+        uint16_t val = prec->rval;
+        return yew_config_command(buf,
+                                  len,
+                                  &val,
+                                  DBF_USHORT,
+                                  1,
+                                  option,
+                                  d
                                   );
     } else {
         int16_t val = prec->rval;

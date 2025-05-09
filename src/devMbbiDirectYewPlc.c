@@ -113,7 +113,19 @@ static long parse_mbbiDirect_response(dbCommon *pxx,
                                       DBF_LONG,
                                       1,
                                       option,
-                                      device
+                                      d
+                                      );
+        prec->rval = val;
+        return ret;
+    } else if (d->flag == 'U') {
+        uint16_t val;
+        long ret = yew_parse_response(buf,
+                                      len,
+                                      &val,
+                                      DBF_USHORT,
+                                      1,
+                                      option,
+                                      d
                                       );
         prec->rval = val;
         return ret;
