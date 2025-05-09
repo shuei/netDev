@@ -103,7 +103,7 @@ etc.
 The table below shows supported record types with DTYP fields used to
 access specific PLC devices.
 
-| Record type | DTYP          | Supported PLC device               |                                                 |
+| Record&nbsp;type | DTYP          | Supported&nbsp;PLC&nbsp;device     |                                                 |
 |-------------|---------------|------------------------------------|-------------------------------------------------|
 | bi          | Yew&nbsp;Plc  | X, Y, I, E, M, L                   |                                                 |
 | bo          | Yew&nbsp;Plc  |    Y, I, E, M, L                   |                                                 |
@@ -111,12 +111,12 @@ access specific PLC devices.
 | longout     | Yew&nbsp;Plc  |    Y, I, E,    L, D, B, F, R, Z, W | Supported options: U, L, B                      |
 | mbbiDirect  | Yew&nbsp;Plc  | X, Y, I, E,    L, D, B, F, R, Z, W | Supported options: U, L                         |
 | mbboDirect  | Yew&nbsp;Plc  |    Y, I, E,    L, D, B, F, R, Z, W | Supported options: U, L                         |
-| mbbi        | Yew&nbsp;Plc  | X, Y, I  E,    L, D, B, F, R, Z, W | Supported options: U, L                         |
-| mbbo        | Yew&nbsp;Plc  |    Y, I  E,    L, D, B, F, R, Z, W | Supported options: U, L                         |
-| ai          | Yew&nbsp;Plc  | X, Y, I  R,       D, B, F,    Z, W | Supported options: U, L,    F, D                |
-| ao          | Yew&nbsp;Plc  |    Y, I  R,       D, B, F,    Z, W | Supported options: U, L,    F, D                |
-| waveform    | Yew&nbsp;Plc  | X, Y  I, R,       D, B, F,       W | Supported options: U, L,    F, D <br> Supported FTVL fields: DBF\_SHORT, DBF\_USHORT, DBF\_LONG, DBF\_ULONG, DBF\_FLOAT, DBF\_DOUBLE |
-| arrayout    | Yew&nbsp;Plc  |    Y  I, R,       D, B, F,       W | Supported options: U, L,    F, D <br> Supported FTVL fields: DBF\_SHORT, DBF\_USHORT, DBF\_LONG, DBF\_ULONG, DBF\_FLOAT, DBF\_DOUBLE |
+| mbbi        | Yew&nbsp;Plc  | X, Y, I, E,    L, D, B, F, R, Z, W | Supported options: U, L                         |
+| mbbo        | Yew&nbsp;Plc  |    Y, I, E,    L, D, B, F, R, Z, W | Supported options: U, L                         |
+| ai          | Yew&nbsp;Plc  | X, Y, I, R,       D, B, F,    Z, W | Supported options: U, L,    F, D                |
+| ao          | Yew&nbsp;Plc  |    Y, I, R,       D, B, F,    Z, W | Supported options: U, L,    F, D                |
+| waveform    | Yew&nbsp;Plc  | X, Y, I, R,       D, B, F,       W | Supported options: U, L,    F, D <br> Supported FTVL fields: DBF\_SHORT, DBF\_USHORT, DBF\_LONG, DBF\_ULONG, DBF\_FLOAT, DBF\_DOUBLE |
+| arrayout    | Yew&nbsp;Plc  |    Y, I, R,       D, B, F,       W | Supported options: U, L,    F, D <br> Supported FTVL fields: DBF\_SHORT, DBF\_USHORT, DBF\_LONG, DBF\_ULONG, DBF\_FLOAT, DBF\_DOUBLE |
 
 ## Accessing Relays and Registers
 
