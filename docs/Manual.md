@@ -103,7 +103,7 @@ etc.
 The table below shows supported record types with DTYP fields used to
 access specific PLC devices.
 
-| Record&nbsp;type | DTYP          | ;&nbsp;&nbsp;Supported&nbsp;PLC&nbsp;device&nbsp;&nbsp; |                                                 |
+| Record&nbsp;type | DTYP          | &nbsp;&nbsp;Supported&nbsp;PLC&nbsp;device&nbsp;&nbsp; |                                                 |
 |------------------|---------------|------------------------------------|-------------------------------------------------|
 | bi               | Yew&nbsp;Plc  | X, Y, I, E, M, L                   |                                                 |
 | bo               | Yew&nbsp;Plc  |    Y, I, E, M, L                   |                                                 |
