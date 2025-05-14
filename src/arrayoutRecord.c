@@ -101,18 +101,18 @@ static long init_record(arrayoutRecord *pao, int pass)
         if (pao->nelm <= 0) {
             pao->nelm = 1;
         }
-        if (pao->ftvl == 0) {
-            pao->bptr = calloc(pao->nelm, MAX_STRING_SIZE);
-        } else {
-            if (pao->ftvl > DBF_ENUM) {
-                pao->ftvl = DBF_UCHAR;
-            }
-            pao->bptr = calloc(pao->nelm, dbValueSize(pao->ftvl));
+        if (pao->ftvl > DBF_ENUM) {
+            pao->ftvl = DBF_UCHAR;
         }
         if (pao->nelm == 1) {
             pao->nowt = 1;
         } else {
             pao->nowt = 0;
+        }
+
+        if (!pao->bptr) {
+            // Device support did not allocate memory so we must do it
+            pao->bptr = callocMustSucceed(pao->nelm, dbValueSize(pao->ftvl), "arrayout: buffer calloc failed");
         }
         return 0;
     }
