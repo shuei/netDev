@@ -105,7 +105,7 @@ static long init_record(arrayoutRecord *pao, int pass)
             pao->bptr = calloc(pao->nelm, MAX_STRING_SIZE);
         } else {
             if (pao->ftvl > DBF_ENUM) {
-                pao->ftvl = 2;
+                pao->ftvl = DBF_UCHAR;
             }
             pao->bptr = calloc(pao->nelm, dbValueSize(pao->ftvl));
         }
