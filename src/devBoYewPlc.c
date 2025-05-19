@@ -89,6 +89,11 @@ static long parse_bo_response(dbCommon *pxx,
                               int transaction_id
                               )
 {
+    //DEBUG
+    if (netDevDebug>0) {
+        printf("\n%s: %s %s\n", __FILE__, __func__, pxx->name);
+    }
+
     return yew_parse_response(buf,
                               len,
                               0, // not used in yew_parse_response

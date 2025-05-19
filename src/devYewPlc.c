@@ -463,7 +463,7 @@ static long yew_parse_response(uint8_t *buf,    // driver buf addr
                                YEW_PLC *d
                                )
 {
-    LOGMSG("devYewPlc: yew_parse_response(%8p,%d,%8p,%d,%d,%d,%8p)\n", buf, *len, bptr, ftvl, ndata, *option, d);
+//    LOGMSG("devYewPlc: yew_parse_response(%8p,%d,%8p,%d,%d,%d,%8p)\n", buf, *len, bptr, ftvl, ndata, *option, d);
     const int nbytes = (d->width)*ndata;
 
     //DEBUG

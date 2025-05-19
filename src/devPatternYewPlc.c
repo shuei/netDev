@@ -71,6 +71,11 @@ static long config_pattern_command(dbCommon *pxx,
                                    int transaction_id
                                    )
 {
+    //DEBUG
+    if (netDevDebug>0) {
+        printf("\n%s: %s %s\n", __FILE__, __func__, pxx->name);
+    }
+
     patternRecord *pptn = (patternRecord *)pxx;
 
     return yew_config_command(buf,

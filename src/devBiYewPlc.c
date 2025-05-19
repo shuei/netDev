@@ -64,6 +64,11 @@ static long config_bi_command(dbCommon *pxx,
                               int transaction_id
                               )
 {
+    //DEBUG
+    if (netDevDebug>0) {
+        printf("\n%s: %s %s\n", __FILE__, __func__, pxx->name);
+    }
+
     return yew_config_command(buf,
                               len,
                               0, // not used in yew_config_command

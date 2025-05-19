@@ -71,6 +71,11 @@ static long config_status_command(dbCommon *pxx,
                                   int transaction_id
                                   )
 {
+    //DEBUG
+    if (netDevDebug>0) {
+        printf("\n%s: %s %s\n", __FILE__, __func__, pxx->name);
+    }
+
     statusRecord *pst = (statusRecord *)pxx;
 
     return yew_config_command(buf,

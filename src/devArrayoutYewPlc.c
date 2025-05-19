@@ -96,6 +96,11 @@ static long parse_arrayout_response(dbCommon *pxx,
                                     int transaction_id
                                     )
 {
+    //DEBUG
+    if (netDevDebug>0) {
+        printf("\n%s: %s %s\n", __FILE__, __func__, pxx->name);
+    }
+
     arrayoutRecord *paro = (arrayoutRecord *)pxx;
     YEW_PLC *d = device;
 
