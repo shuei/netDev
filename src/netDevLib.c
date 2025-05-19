@@ -469,7 +469,7 @@ static long toLongVal(int32_t *to,
         }
 
         if (swap) {
-            swap_bytes(to, ndata);
+            swap_bytes(to, 2*ndata); // record's buffer size is 2*ndata
         }
     } else if (width == 1) {
         int8_t *p = from;
