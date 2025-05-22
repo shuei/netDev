@@ -37,10 +37,10 @@ INTEGERDSET devWfYewPlc = {
 
 epicsExportAddress(dset, devWfYewPlc);
 
-static long init_waveform_record(waveformRecord *pwf)
+static long init_waveform_record(waveformRecord *prec)
 {
-    return netDevInitXxRecord((dbCommon *)pwf,
-                              &pwf->inp,
+    return netDevInitXxRecord((dbCommon *)prec,
+                              &prec->inp,
                               MPF_READ | YEW_GET_PROTO | DEFAULT_TIMEOUT,
                               yew_calloc(0, 0, 0, kWord),
                               yew_parse_link,
@@ -49,9 +49,9 @@ static long init_waveform_record(waveformRecord *pwf)
                               );
 }
 
-static long read_waveform(waveformRecord *pwf)
+static long read_waveform(waveformRecord *prec)
 {
-    TRANSACTION *t = pwf->dpvt;
+    TRANSACTION *t = prec->dpvt;
     YEW_PLC *d = t->device;
 
     // make sure that those below are cleared in the event that
@@ -60,7 +60,7 @@ static long read_waveform(waveformRecord *pwf)
     d->nleft = 0;
     d->noff = 0;
 
-    return netDevReadWriteXx((dbCommon *)pwf);
+    return netDevReadWriteXx((dbCommon *)prec);
 }
 
 static long config_waveform_command(dbCommon *pxx,
@@ -76,13 +76,13 @@ static long config_waveform_command(dbCommon *pxx,
         printf("\n%s: %s %s\n", __FILE__, __func__, pxx->name);
     }
 
-    waveformRecord *pwf = (waveformRecord *)pxx;
+    waveformRecord *prec = (waveformRecord *)pxx;
 
     return yew_config_command(buf,
                               len,
                               0, // not used in yew_config_command
                               0, // not used in yew_config_command
-                              pwf->nelm,
+                              prec->nelm,
                               option,
                               device
                               );
@@ -101,24 +101,29 @@ static long parse_waveform_response(dbCommon *pxx,
         printf("\n%s: %s %s\n", __FILE__, __func__, pxx->name);
     }
 
-    waveformRecord *pwf = (waveformRecord *)pxx;
+    waveformRecord *prec = (waveformRecord *)pxx;
     YEW_PLC *d = device;
 
     long ret = yew_parse_response(buf,
                                   len,
-                                  pwf->bptr,
-                                  pwf->ftvl, // This has nothing to do with options such as \&F or \&L
-                                  pwf->nelm,
+                                  prec->bptr,
+                                  prec->ftvl, // This has nothing to do with options such as \&F or \&L
+                                  prec->nelm,
                                   option,
                                   d
                                   );
 
+    //DEBUG
+    if (netDevDebug>0) {
+        printf("%s: %s %s : ret=%ld ndata=%d nleft=%d noff=%d\n", __FILE__, __func__, pxx->name, ret, prec->nelm, d->nleft, d->noff);
+    }
+
     switch (ret) {
     case NOT_DONE:
-        pwf->nord = d->noff;
+        prec->nord = d->noff;
         // why we don't have break here?
     case 0:
-        pwf->nord = pwf->nelm;
+        prec->nord = prec->nelm;
     default:
         ;
     }
