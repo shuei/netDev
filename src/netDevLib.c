@@ -172,6 +172,7 @@ long parseLinkPlcCommon(DBLINK *plink,
     if (pc0) {
         *pc0++ = '\0';
         *lopt = pc0;
+        LOGMSG("devNetDev: lopt: %s\n", *lopt);
     }
     //pc0 = NULL;
 
