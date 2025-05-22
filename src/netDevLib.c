@@ -617,7 +617,7 @@ static long toUlongVal(uint32_t *to,
     if (0) {
         //
     } else if (width == 4) {
-        int16_t *p = from;
+        uint16_t *p = from;
         for (int i = 0; i < ndata; i++) {
             to[i] = (p[i*2+1]<<16) | p[i*2];
         }
