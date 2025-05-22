@@ -39,14 +39,58 @@ epicsExportAddress(dset, devWfYewPlc);
 
 static long init_waveform_record(waveformRecord *prec)
 {
-    return netDevInitXxRecord((dbCommon *)prec,
-                              &prec->inp,
-                              MPF_READ | YEW_GET_PROTO | DEFAULT_TIMEOUT,
-                              yew_calloc(0, 0, 0, kWord),
-                              yew_parse_link,
-                              config_waveform_command,
-                              parse_waveform_response
-                              );
+    //DEBUG
+    //if (netDevDebug>0) {
+    //    printf("%s: %s %s\n", __FILE__, __func__, prec->name);
+    //}
+
+    YEW_PLC *d = yew_calloc(0, 0, 0, kWord);
+    long ret = netDevInitXxRecord((dbCommon *)prec,
+                                  &prec->inp,
+                                  MPF_READ | YEW_GET_PROTO | DEFAULT_TIMEOUT,
+                                  d,
+                                  yew_parse_link,
+                                  config_waveform_command,
+                                  parse_waveform_response
+                                  );
+
+    char *ftvlstr = pamapdbfType[prec->ftvl].strvalue;
+    ftvlstr += 4;
+
+    //DEBUG
+    if (netDevDebug>0) {
+        printf("%s: %s %s, ftvl=%s(%d) flag=%c\n", __FILE__, __func__, prec->name, ftvlstr, prec->ftvl, d->flag);
+    }
+
+#if 0
+    if (0) {
+        //
+    } else if (prec->ftvl==DBF_DOUBLE) {
+        if (d->flag!='D') {
+            errlogPrintf("%s: &D option is required when FTVL is %s\n", prec->name, ftvlstr);
+            recGblSetSevr(prec, INVALID_ALARM, INVALID_ALARM);
+            return ERROR;
+        }
+    } else if (prec->ftvl==DBF_FLOAT) {
+        if (d->flag!='F') {
+            errlogPrintf("%s: &F option is required when FTVL is %s\n", prec->name, ftvlstr);
+            recGblSetSevr(prec, INVALID_ALARM, INVALID_ALARM);
+            return ERROR;
+        }
+    } else if (prec->ftvl==DBF_SHORT || prec->ftvl==DBF_USHORT || prec->ftvl==DBF_LONG || prec->ftvl==DBF_ULONG) {
+        if (d->flag=='F' || d->flag=='D') {
+            errlogPrintf("%s: unsupported conbination of FTVL (%s) and option(&%c)\n", prec->name, ftvlstr, d->flag);
+            recGblSetSevr(prec, INVALID_ALARM, INVALID_ALARM);
+            return ERROR;
+        }
+    } else {
+        errlogPrintf("%s: unsupported of FTVL (%s)\n", prec->name, ftvlstr);
+        recGblSetSevr(prec, INVALID_ALARM, INVALID_ALARM);
+        return ERROR;
+    }
+#endif
+
+    return ret;
 }
 
 static long read_waveform(waveformRecord *prec)
