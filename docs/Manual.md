@@ -113,10 +113,10 @@ access specific PLC devices.
 | mbboDirect       | Yew&nbsp;Plc  |    Y, I, E,    L, D, B, F, R, Z, W | Supported options: U, L                         |
 | mbbi             | Yew&nbsp;Plc  | X, Y, I, E,    L, D, B, F, R, Z, W | Supported options: U, L                         |
 | mbbo             | Yew&nbsp;Plc  |    Y, I, E,    L, D, B, F, R, Z, W | Supported options: U, L                         |
-| ai               | Yew&nbsp;Plc  | X, Y, I, R,       D, B, F,    Z, W | Supported options: U, L,    F, D                |
-| ao               | Yew&nbsp;Plc  |    Y, I, R,       D, B, F,    Z, W | Supported options: U, L,    F, D                |
-| waveform         | Yew&nbsp;Plc  | X, Y, I, R,       D, B, F,       W | Supported options: U, L,    F, D <br> Supported FTVL fields: DBF\_SHORT, DBF\_USHORT, DBF\_LONG, DBF\_ULONG, DBF\_FLOAT, DBF\_DOUBLE |
-| arrayout         | Yew&nbsp;Plc  |    Y, I, R,       D, B, F,       W | Supported options: U, L,    F, D <br> Supported FTVL fields: DBF\_SHORT, DBF\_USHORT, DBF\_LONG, DBF\_ULONG, DBF\_FLOAT, DBF\_DOUBLE |
+| ai               | Yew&nbsp;Plc  | X, Y, I, E,       D, B, F, R, Z, W | Supported options: U, L,    F, D                |
+| ao               | Yew&nbsp;Plc  |    Y, I, E,       D, B, F, R, Z, W | Supported options: U, L,    F, D                |
+| waveform         | Yew&nbsp;Plc  | X, Y, I, E,       D, B, F, R,    W | Supported options: U, L,    F, D <br> Supported FTVL fields: DBF\_SHORT, DBF\_USHORT, DBF\_LONG, DBF\_ULONG, DBF\_FLOAT, DBF\_DOUBLE |
+| arrayout         | Yew&nbsp;Plc  |    Y, I, E,       D, B, F, R,    W | Supported options: U, L,    F, D <br> Supported FTVL fields: DBF\_SHORT, DBF\_USHORT, DBF\_LONG, DBF\_ULONG, DBF\_FLOAT, DBF\_DOUBLE |
 
 ## Accessing Relays and Registers
 
