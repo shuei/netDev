@@ -37,12 +37,12 @@ INTEGERDSET devBiYewPlc = {
 
 epicsExportAddress(dset, devBiYewPlc);
 
-static long init_bi_record(biRecord *pbi)
+static long init_bi_record(biRecord *prec)
 {
-    pbi->mask = 1;
+    prec->mask = 1;
 
-    return netDevInitXxRecord((dbCommon *)pbi,
-                              &pbi->inp,
+    return netDevInitXxRecord((dbCommon *)prec,
+                              &prec->inp,
                               MPF_READ | YEW_GET_PROTO | DEFAULT_TIMEOUT,
                               yew_calloc(0, 0, 0, kBit),
                               yew_parse_link,
@@ -51,9 +51,18 @@ static long init_bi_record(biRecord *pbi)
                               );
 }
 
-static long read_bi(biRecord *pbi)
+static long read_bi(biRecord *prec)
 {
-    return netDevReadWriteXx((dbCommon *)pbi);
+    TRANSACTION *t = prec->dpvt;
+    YEW_PLC *d = t->device;
+
+    // make sure that those below are cleared in the event that
+    // a multi-step transfer is terminated by an error in the
+    // middle of transacton
+    d->nleft = 0;
+    d->noff = 0;
+
+    return netDevReadWriteXx((dbCommon *)prec);
 }
 
 static long config_bi_command(dbCommon *pxx,
@@ -92,11 +101,11 @@ static long parse_bi_response(dbCommon *pxx,
         printf("\n%s: %s %s\n", __FILE__, __func__, pxx->name);
     }
 
-    biRecord *pbi = (biRecord *)pxx;
+    biRecord *prec = (biRecord *)pxx;
 
     return yew_parse_response(buf,
                               len,
-                              &pbi->rval,
+                              &prec->rval,
                               DBF_ULONG,
                               1,
                               option,

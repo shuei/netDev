@@ -43,15 +43,15 @@ FLOATDSET devAiYewPlc = {
 
 epicsExportAddress(dset, devAiYewPlc);
 
-static long init_ai_record(aiRecord *pai)
+static long init_ai_record(aiRecord *prec)
 {
-    if (pai->linr == menuConvertLINEAR) {
-        pai->eslo = (pai->eguf - pai->egul) / 0xFFFF;
-        pai->roff = 0;
+    if (prec->linr == menuConvertLINEAR) {
+        prec->eslo = (prec->eguf - prec->egul) / 0xFFFF;
+        prec->roff = 0;
     }
 
-    return netDevInitXxRecord((dbCommon *)pai,
-                              &pai->inp,
+    return netDevInitXxRecord((dbCommon *)prec,
+                              &prec->inp,
                               MPF_READ | YEW_GET_PROTO | DEFAULT_TIMEOUT,
                               yew_calloc(0, 0, 0, kWord),
                               yew_parse_link,
@@ -60,20 +60,29 @@ static long init_ai_record(aiRecord *pai)
                               );
 }
 
-static long read_ai(aiRecord *pai)
+static long read_ai(aiRecord *prec)
 {
-    return netDevReadWriteXx((dbCommon *)pai);
+    TRANSACTION *t = prec->dpvt;
+    YEW_PLC *d = t->device;
+
+    // make sure that those below are cleared in the event that
+    // a multi-step transfer is terminated by an error in the
+    // middle of transacton
+    d->nleft = 0;
+    d->noff = 0;
+
+    return netDevReadWriteXx((dbCommon *)prec);
 }
 
-static long ai_linear_convert(aiRecord *pai, int after)
+static long ai_linear_convert(aiRecord *prec, int after)
 {
     if (!after) {
         return OK;
     }
 
-    if (pai->linr == menuConvertLINEAR) {
-        pai->eslo = (pai->eguf - pai->egul) / 0xFFFF;
-        pai->roff = 0;
+    if (prec->linr == menuConvertLINEAR) {
+        prec->eslo = (prec->eguf - prec->egul) / 0xFFFF;
+        prec->roff = 0;
     }
 
     return OK;
@@ -115,7 +124,7 @@ static long parse_ai_response(dbCommon *pxx,
         printf("\n%s: %s %s\n", __FILE__, __func__, pxx->name);
     }
 
-    aiRecord *pai = (aiRecord *)pxx;
+    aiRecord *prec = (aiRecord *)pxx;
     YEW_PLC *d = device;
 
     if (0) {
@@ -134,8 +143,8 @@ static long parse_ai_response(dbCommon *pxx,
         if (ret == OK) {
             // todo : consider ASLO and AOFF field
             // todo : consider SMOO field
-            pai->val = val;
-            pai->udf = isnan(val);
+            prec->val = val;
+            prec->udf = isnan(val);
             ret = 2; // Don't convert
         }
         return ret;
@@ -153,8 +162,8 @@ static long parse_ai_response(dbCommon *pxx,
         if (ret == OK) {
             // todo : consider ASLO and AOFF field
             // todo : consider SMOO field
-            pai->val = val;
-            pai->udf = isnan(val);
+            prec->val = val;
+            prec->udf = isnan(val);
             ret = 2; // Don't convert
         }
         return ret;
@@ -168,7 +177,7 @@ static long parse_ai_response(dbCommon *pxx,
                                       option,
                                       d
                                       );
-        pai->rval = val;
+        prec->rval = val;
         return ret;
     } else if (d->flag == 'U') {
         uint16_t val;
@@ -180,7 +189,7 @@ static long parse_ai_response(dbCommon *pxx,
                                       option,
                                       d
                                       );
-        pai->rval = val;
+        prec->rval = val;
         return ret;
     } else {
         int16_t val;
@@ -192,7 +201,7 @@ static long parse_ai_response(dbCommon *pxx,
                                       option,
                                       d
                                       );
-        pai->rval = val;
+        prec->rval = val;
         return ret;
     }
 }

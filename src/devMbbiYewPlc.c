@@ -66,6 +66,15 @@ static long init_mbbi_record(mbbiRecord *prec)
 
 static long read_mbbi(mbbiRecord *prec)
 {
+    TRANSACTION *t = prec->dpvt;
+    YEW_PLC *d = t->device;
+
+    // make sure that those below are cleared in the event that
+    // a multi-step transfer is terminated by an error in the
+    // middle of transacton
+    d->nleft = 0;
+    d->noff = 0;
+
     return netDevReadWriteXx((dbCommon *)prec);
 }
 

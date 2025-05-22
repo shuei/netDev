@@ -37,12 +37,12 @@ INTEGERDSET devBoYewPlc = {
 
 epicsExportAddress(dset, devBoYewPlc);
 
-static long init_bo_record(boRecord *pbo)
+static long init_bo_record(boRecord *prec)
 {
-    pbo->mask = 1;
+    prec->mask = 1;
 
-    return netDevInitXxRecord((dbCommon *)pbo,
-                              &pbo->out,
+    return netDevInitXxRecord((dbCommon *)prec,
+                              &prec->out,
                               MPF_WRITE | YEW_GET_PROTO | DEFAULT_TIMEOUT,
                               yew_calloc(0, 0, 0, kBit),
                               yew_parse_link,
@@ -51,9 +51,18 @@ static long init_bo_record(boRecord *pbo)
                               );
 }
 
-static long write_bo(boRecord *pbo)
+static long write_bo(boRecord *prec)
 {
-    return netDevReadWriteXx((dbCommon *)pbo);
+    TRANSACTION *t = prec->dpvt;
+    YEW_PLC *d = t->device;
+
+    // make sure that those below are cleared in the event that
+    // a multi-step transfer is terminated by an error in the
+    // middle of transacton
+    d->nleft = 0;
+    d->noff = 0;
+
+    return netDevReadWriteXx((dbCommon *)prec);
 }
 
 static long config_bo_command(dbCommon *pxx,
@@ -69,11 +78,11 @@ static long config_bo_command(dbCommon *pxx,
         printf("\n%s: %s %s\n", __FILE__, __func__, pxx->name);
     }
 
-    boRecord *pbo = (boRecord *)pxx;
+    boRecord *prec = (boRecord *)pxx;
 
     return yew_config_command(buf,
                               len,
-                              &pbo->rval,
+                              &prec->rval,
                               DBF_ULONG,
                               1,
                               option,

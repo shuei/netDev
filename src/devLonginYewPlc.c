@@ -37,10 +37,10 @@ INTEGERDSET devLiYewPlc = {
 
 epicsExportAddress(dset, devLiYewPlc);
 
-static long init_longin_record(longinRecord *plongin)
+static long init_longin_record(longinRecord *prec)
 {
-    return netDevInitXxRecord((dbCommon *)plongin,
-                              &plongin->inp,
+    return netDevInitXxRecord((dbCommon *)prec,
+                              &prec->inp,
                               MPF_READ | YEW_GET_PROTO | DEFAULT_TIMEOUT,
                               yew_calloc(0, 0, 0, kWord),
                               yew_parse_link,
@@ -49,9 +49,18 @@ static long init_longin_record(longinRecord *plongin)
                               );
 }
 
-static long read_longin(longinRecord *plongin)
+static long read_longin(longinRecord *prec)
 {
-    return netDevReadWriteXx((dbCommon *)plongin);
+    TRANSACTION *t = prec->dpvt;
+    YEW_PLC *d = t->device;
+
+    // make sure that those below are cleared in the event that
+    // a multi-step transfer is terminated by an error in the
+    // middle of transacton
+    d->nleft = 0;
+    d->noff = 0;
+
+    return netDevReadWriteXx((dbCommon *)prec);
 }
 
 static long config_longin_command(dbCommon *pxx,
@@ -90,7 +99,7 @@ static long parse_longin_response(dbCommon *pxx,
         printf("\n%s: %s %s\n", __FILE__, __func__, pxx->name);
     }
 
-    longinRecord *plongin = (longinRecord *)pxx;
+    longinRecord *prec = (longinRecord *)pxx;
     YEW_PLC *d = device;
 
     if (0) {
@@ -105,7 +114,7 @@ static long parse_longin_response(dbCommon *pxx,
                                       option,
                                       d
                                       );
-        plongin->val = val;
+        prec->val = val;
         return ret;
     } else if (d->flag == 'U') {
         uint16_t val;
@@ -117,7 +126,7 @@ static long parse_longin_response(dbCommon *pxx,
                                       option,
                                       d
                                       );
-        plongin->val = val;
+        prec->val = val;
         return ret;
     } else if (d->flag == 'B') {
         int16_t val;
@@ -129,7 +138,7 @@ static long parse_longin_response(dbCommon *pxx,
                                       option,
                                       d
                                       );
-        plongin->val = netDevBcd2Int(val, plongin);
+        prec->val = netDevBcd2Int(val, prec);
         return ret;
     } else {
         int16_t val;
@@ -141,7 +150,7 @@ static long parse_longin_response(dbCommon *pxx,
                                       option,
                                       d
                                       );
-        plongin->val = val;
+        prec->val = val;
         return ret;
     }
 }

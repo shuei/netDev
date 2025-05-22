@@ -40,15 +40,15 @@ FLOATDSET devAoYewPlc = {
 
 epicsExportAddress(dset, devAoYewPlc);
 
-static long init_ao_record(aoRecord *pao)
+static long init_ao_record(aoRecord *prec)
 {
-    if (pao->linr == menuConvertLINEAR) {
-        pao->eslo = (pao->eguf - pao->egul) / 0xFFFF;
-        pao->roff = 0;
+    if (prec->linr == menuConvertLINEAR) {
+        prec->eslo = (prec->eguf - prec->egul) / 0xFFFF;
+        prec->roff = 0;
     }
 
-    return netDevInitXxRecord((dbCommon *)pao,
-                              &pao->out,
+    return netDevInitXxRecord((dbCommon *)prec,
+                              &prec->out,
                               MPF_WRITE | YEW_GET_PROTO | DEFAULT_TIMEOUT,
                               yew_calloc(0, 0, 0, kWord),
                               yew_parse_link,
@@ -57,20 +57,29 @@ static long init_ao_record(aoRecord *pao)
                               );
 }
 
-static long write_ao(aoRecord *pao)
+static long write_ao(aoRecord *prec)
 {
-    return netDevReadWriteXx((dbCommon *)pao);
+    TRANSACTION *t = prec->dpvt;
+    YEW_PLC *d = t->device;
+
+    // make sure that those below are cleared in the event that
+    // a multi-step transfer is terminated by an error in the
+    // middle of transacton
+    d->nleft = 0;
+    d->noff = 0;
+
+    return netDevReadWriteXx((dbCommon *)prec);
 }
 
-static long ao_linear_convert(aoRecord *pao, int after)
+static long ao_linear_convert(aoRecord *prec, int after)
 {
     if (!after) {
         return OK;
     }
 
-    if (pao->linr == menuConvertLINEAR) {
-        pao->eslo = (pao->eguf - pao->egul) / 0xFFFF;
-        pao->roff = 0;
+    if (prec->linr == menuConvertLINEAR) {
+        prec->eslo = (prec->eguf - prec->egul) / 0xFFFF;
+        prec->roff = 0;
     }
 
     return OK;
@@ -89,16 +98,16 @@ static long config_ao_command(dbCommon *pxx,
         printf("\n%s: %s %s\n", __FILE__, __func__, pxx->name);
     }
 
-    aoRecord *pao = (aoRecord *)pxx;
+    aoRecord *prec = (aoRecord *)pxx;
     YEW_PLC *d = device;
 
     if (0) {
         //
     } else if (d->flag == 'D') {
-        double val = pao->val;
+        double val = prec->val;
         // todo : consider ASLO and AOFF field
 
-        //pao->udf = isnan(val);
+        //prec->udf = isnan(val);
         return yew_config_command(buf,
                                   len,
                                   &val,
@@ -108,10 +117,10 @@ static long config_ao_command(dbCommon *pxx,
                                   d
                                   );
     } else if (d->flag == 'F') {
-        float val = pao->val;
+        float val = prec->val;
         // todo : consider ASLO and AOFF field
 
-        //pao->udf = isnan(val);
+        //prec->udf = isnan(val);
         return yew_config_command(buf,
                                   len,
                                   &val,
@@ -121,7 +130,7 @@ static long config_ao_command(dbCommon *pxx,
                                   d
                                   );
     } else if (d->flag == 'L') {
-        int32_t val = pao->rval;
+        int32_t val = prec->rval;
         return yew_config_command(buf,
                                   len,
                                   &val,
@@ -131,7 +140,7 @@ static long config_ao_command(dbCommon *pxx,
                                   d
                                   );
     } else {
-        int16_t val = pao->rval;
+        int16_t val = prec->rval;
         return yew_config_command(buf,
                                   len,
                                   &val,

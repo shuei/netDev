@@ -37,10 +37,10 @@ INTEGERDSET devLoYewPlc = {
 
 epicsExportAddress(dset, devLoYewPlc);
 
-static long init_longout_record(longoutRecord *plongout)
+static long init_longout_record(longoutRecord *prec)
 {
-    return netDevInitXxRecord((dbCommon *)plongout,
-                              &plongout->out,
+    return netDevInitXxRecord((dbCommon *)prec,
+                              &prec->out,
                               MPF_WRITE | YEW_GET_PROTO | DEFAULT_TIMEOUT,
                               yew_calloc(0, 0, 0, kWord),
                               yew_parse_link,
@@ -49,9 +49,18 @@ static long init_longout_record(longoutRecord *plongout)
                               );
 }
 
-static long write_longout(longoutRecord *plongout)
+static long write_longout(longoutRecord *prec)
 {
-    return netDevReadWriteXx((dbCommon *)plongout);
+    TRANSACTION *t = prec->dpvt;
+    YEW_PLC *d = t->device;
+
+    // make sure that those below are cleared in the event that
+    // a multi-step transfer is terminated by an error in the
+    // middle of transacton
+    d->nleft = 0;
+    d->noff = 0;
+
+    return netDevReadWriteXx((dbCommon *)prec);
 }
 
 static long config_longout_command(dbCommon *pxx,
@@ -67,13 +76,13 @@ static long config_longout_command(dbCommon *pxx,
         printf("\n%s: %s %s\n", __FILE__, __func__, pxx->name);
     }
 
-    longoutRecord *plongout = (longoutRecord *)pxx;
+    longoutRecord *prec = (longoutRecord *)pxx;
     YEW_PLC *d = device;
 
     if (0) {
         //
     } else if (d->flag == 'L') {
-        int32_t val = plongout->val;
+        int32_t val = prec->val;
         return yew_config_command(buf,
                                   len,
                                   &val,
@@ -83,7 +92,7 @@ static long config_longout_command(dbCommon *pxx,
                                   d
                                   );
     } else if (d->flag == 'B') {
-        int16_t val = netDevInt2Bcd(plongout->val, plongout);
+        int16_t val = netDevInt2Bcd(prec->val, prec);
         return yew_config_command(buf,
                                   len,
                                   &val,
@@ -93,7 +102,7 @@ static long config_longout_command(dbCommon *pxx,
                                   d
                                   );
     } else {
-        int16_t val = plongout->val;
+        int16_t val = prec->val;
         return yew_config_command(buf,
                                   len,
                                   &val,

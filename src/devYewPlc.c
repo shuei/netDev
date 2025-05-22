@@ -556,7 +556,7 @@ static long yew_parse_response(uint8_t *buf,    // driver buf addr
     if (d->nleft <= 0) {
         // No remaining data
         d->nleft = 0; // do we need this?
-        d->noff = 0;
+        //d->noff = 0; // noff will be cleared in read/write record functions
     }
 
     //DEBUG
