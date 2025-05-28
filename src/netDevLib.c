@@ -88,9 +88,12 @@ static void swap_dword(void *ptr, int num)
 
 static void dump(void *from, int fsiz, void *to, int tsiz, int ndata, char *file, const char *func)
 {
-    const int skip = 4;
+    const int nskip = 8;
     for (int i = 0; i < ndata; i++) {
-        if (skip<=i && i+skip<ndata) {
+        if (nskip==i) {
+            printf("%s: %-13s ...\n", file, func);
+        }
+        if (nskip<=i && i+nskip<ndata) {
             continue;
         }
 
