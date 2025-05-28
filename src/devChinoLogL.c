@@ -132,7 +132,7 @@ static long chino_parse_link(DBLINK *plink,
             errlogPrintf("devChinoLogL :cannot get command\n");
             return ERROR;
         }
-        LOGMSG("devChinoLogL: command\n", d->cmd);
+        LOGMSG("devChinoLogL: command %d\n", d->cmd);
     } else {
         errlogPrintf("devChinoLogL: no command specified\n");
         return ERROR;
@@ -216,8 +216,8 @@ static long chino_config_command(uint8_t *buf,    // driver buf addr
                                  int      sid
                                  )
 {
-    LOGMSG("devChinoLogL: chino_config_command(0x%08x,%d,0x%08x,%d,%d,%d,0x%08x)\n",
-           buf,*len,bptr,ftvl,ndata,*option,d,0,0);
+    LOGMSG("devChinoLogL: chino_config_command(%8p,%d,%8p,%d,%d,%d,%8p)\n",
+           buf,*len,bptr,ftvl,ndata,*option,d);
 
     int n = ndata;
     int nwrite = isWrite(*option) ? (d->width)*n : 0;
@@ -317,8 +317,8 @@ static long chino_parse_response(uint8_t *buf,    // driver buf addr
                                  int      sid
                                  )
 {
-    LOGMSG("devChinoLogL: chino_parse_response(0x%08x,%d,0x%08x,%d,%d,%d,0x%08x)\n",
-           buf,len,bptr,ftvl,ndata,*option,d,0,0);
+    LOGMSG("devChinoLogL: chino_parse_response(%8p,%d,%8p,%d,%d,%d,%8p)\n",
+           buf,*len,bptr,ftvl,ndata,*option,d);
 
 #if 0
     for (int i = 0; i < 12; i++) {
