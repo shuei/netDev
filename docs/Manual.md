@@ -3,7 +3,6 @@ Device Support for General Network Devices (netDev)
 
 Table of Contents
 =================
-
 * [Overview](#overview)
 * [Yokogawa FA-M3 series PLCs ("<strong>Yew Plc</strong>")](#yokogawa-fa-m3-series-plcs-yew-plc)
    * [Configure CPU Properties](#configure-cpu-properties)
@@ -12,6 +11,7 @@ Table of Contents
    * [Supported Record Types](#supported-record-types)
    * [Accessing Relays and Registers](#accessing-relays-and-registers)
    * [Accessing Special Modules](#accessing-special-modules)
+   * [Conversion Specifier](#conversion-specifier)
 
 # Overview
 
@@ -21,7 +21,6 @@ Device support for general network devices, netDev, is a device support for netw
 - Yokogawa DARWIN series Data Acquisition Unit ("**Darwin**")
 - Keyence KV-1000/3000/... series Programmable Logic Controllers ("**Key Plc**")
 - Chino KE3000 series Data Loggers ("**ChinoLogL**")
-
 
 # Yokogawa FA-M3 series PLCs ("**Yew Plc**")
 
@@ -53,18 +52,19 @@ In order to use netDev, device type (DTYP) field must be set to "**Yew Plc**" in
 
 General format for input (INP) and output (OUT) link fields are as following:
 
-`field(INP, "@hostname[(port)][:cpu]#type[:]number[&option]")`
+`field(INP, "@hostname[(port)][:cpu]#type[:]number[&conversion]")`
 
 e.g.
 
-`field(INP, "@192.168.1.1#I:00100&L")`
+`field(INP, "@192.168.1.1#I00100&L")`
 
-- hostname : hostname or IP address of the FA-M3 CPU (or Personal Computer Link Modules).
-- port     : Optional port number (defaults to 0x3001).
-- cpu      : Optional CPU number for multi-CPU configuration (defaults to 1).
-- type     : PLC device such as Input relays and Data registers.
-- number   : Device number.
-- option   : Option to interpret registers as:
+- hostname   : hostname or IP address of the FA-M3 CPU (or Personal Computer Link Modules).
+- port       : Optional port number (defaults to 0x3001).
+- cpu        : Optional CPU number for multi-CPU configuration (defaults to 1).
+- type       : PLC device such as Input relays and Data registers.
+- number     : Device number.
+- conversion : Conversion specifier to interpret the byte sequence in the registers (or relays):
+  * <no specifier> - Treat 16-bit data as signed 16-bit integer
   * &U - unsigned integer (16-bit)
   * &L - long-word (32-bit) access
   * &B - treat as binary-coded-decimal (BCD)
@@ -103,20 +103,20 @@ etc.
 The table below shows supported record types with DTYP fields used to
 access specific PLC devices.
 
-| Record&nbsp;type | DTYP          | &nbsp;&nbsp;Supported&nbsp;PLC&nbsp;device&nbsp;&nbsp; |                                                 |
-|------------------|---------------|------------------------------------|-------------------------------------------------|
-| bi               | Yew&nbsp;Plc  | X, Y, I, E, M, L                   |                                                 |
-| bo               | Yew&nbsp;Plc  |    Y, I, E, M, L                   |                                                 |
-| longin           | Yew&nbsp;Plc  | X, Y, I, E,    L, D, B, F, R, Z, W | Supported options: U, L, B                      |
-| longout          | Yew&nbsp;Plc  |    Y, I, E,    L, D, B, F, R, Z, W | Supported options: U, L, B                      |
-| mbbiDirect       | Yew&nbsp;Plc  | X, Y, I, E,    L, D, B, F, R, Z, W | Supported options: U, L                         |
-| mbboDirect       | Yew&nbsp;Plc  |    Y, I, E,    L, D, B, F, R, Z, W | Supported options: U, L                         |
-| mbbi             | Yew&nbsp;Plc  | X, Y, I, E,    L, D, B, F, R, Z, W | Supported options: U, L                         |
-| mbbo             | Yew&nbsp;Plc  |    Y, I, E,    L, D, B, F, R, Z, W | Supported options: U, L                         |
-| ai               | Yew&nbsp;Plc  | X, Y, I, E,       D, B, F, R, Z, W | Supported options: U, L,    F, D                |
-| ao               | Yew&nbsp;Plc  |    Y, I, E,       D, B, F, R, Z, W | Supported options: U, L,    F, D                |
-| waveform         | Yew&nbsp;Plc  | X, Y, I, E,       D, B, F, R,    W | Supported options: U, L,    F, D <br> Supported FTVL fields: DBF\_SHORT, DBF\_USHORT, DBF\_LONG, DBF\_ULONG, DBF\_FLOAT, DBF\_DOUBLE |
-| arrayout         | Yew&nbsp;Plc  |    Y, I, E,       D, B, F, R,    W | Supported options: U, L,    F, D <br> Supported FTVL fields: DBF\_SHORT, DBF\_USHORT, DBF\_LONG, DBF\_ULONG, DBF\_FLOAT, DBF\_DOUBLE |
+| Record&nbsp;type | DTYP          | &nbsp;&nbsp;Supported&nbsp;PLC&nbsp;device&nbsp;&nbsp; |                            |
+|------------------|---------------|------------------------------------|------------------------------------------------|
+| bi               | Yew&nbsp;Plc  | X, Y, I, E, M, L                   |                                                |
+| bo               | Yew&nbsp;Plc  |    Y, I, E, M, L                   |                                                |
+| longin           | Yew&nbsp;Plc  | X, Y, I, E,    L, D, B, F, R, Z, W | Supported conversion specifiers: U, L, B       |
+| longout          | Yew&nbsp;Plc  |    Y, I, E,    L, D, B, F, R, Z, W | Supported conversion specifiers: U, L, B       |
+| mbbiDirect       | Yew&nbsp;Plc  | X, Y, I, E,    L, D, B, F, R, Z, W | Supported conversion specifiers: U, L          |
+| mbboDirect       | Yew&nbsp;Plc  |    Y, I, E,    L, D, B, F, R, Z, W | Supported conversion specifiers: U, L          |
+| mbbi             | Yew&nbsp;Plc  | X, Y, I, E,    L, D, B, F, R, Z, W | Supported conversion specifiers: U, L          |
+| mbbo             | Yew&nbsp;Plc  |    Y, I, E,    L, D, B, F, R, Z, W | Supported conversion specifiers: U, L          |
+| ai               | Yew&nbsp;Plc  | X, Y, I, E,       D, B, F, R, Z, W | Supported conversion specifiers: U, L,    F, D |
+| ao               | Yew&nbsp;Plc  |    Y, I, E,       D, B, F, R, Z, W | Supported conversion specifiers: U, L,    F, D |
+| waveform         | Yew&nbsp;Plc  | X, Y, I, E,       D, B, F, R,    W | Supported conversion specifiers: U, L,    F, D <br> Supported FTVL fields: DBF\_SHORT, DBF\_USHORT, DBF\_LONG, DBF\_ULONG, DBF\_FLOAT, DBF\_DOUBLE |
+| arrayout         | Yew&nbsp;Plc  |    Y, I, E,       D, B, F, R,    W | Supported conversion specifiers: U, L,    F, D <br> Supported FTVL fields: DBF\_SHORT, DBF\_USHORT, DBF\_LONG, DBF\_ULONG, DBF\_FLOAT, DBF\_DOUBLE |
 
 ## Accessing Relays and Registers
 
@@ -168,3 +168,74 @@ record(longin, "YEW:SLOT5:CH1")
     field(SCAN, "1 second")
 }
 ```
+
+## Conversion Specifier
+
+The conversion option in the INP/OUT field modifies interpretation of the byte sequence in the register (or relays) as follows:
+ * <no option> - Treat 16-bit data as signed 16-bit integer
+ * &U - Treat 16-bit data as an unsigned 16-bit integer
+ * &L - Access the device with 32-bit width and treat as 32-bit signed integer
+ * &B - Treat 16-bit data as binary-coded-decimal (BCD)
+ * &F - Access the device with 32-bit width and treat the data as single precision floating point
+ * &D - Access the device with 64-bit width and treat the data as double precision floating point
+
+The conversion behaves like integer promotions in C language.
+Examples of conversion specifiers in input records are given in the table below:
+
+| record type                 | INP                  | D0002  | D0001  | get value    |
+|-----------------------------|----------------------|--------|--------|--------------|
+| longin                      | @192.168.1.1#D0001   | -      | 0xffff | -1           |
+| longin                      | @192.168.1.1#D0001&U | -      | 0xffff |  65535       |
+| longin                      | @192.168.1.1#D0001&L | 0x0000 | 0xffff |  65535       |
+| longin                      | @192.168.1.1#D0001&B | -      | 0x1234 |  1234        |
+| waveform(FTVL = DBF_SHORT)  | @192.168.1.1#D0001   | -      | 0xffff | -1           |
+| waveform(FTVL = DBF_SHORT)  | @192.168.1.1#D0001&U | -      | 0xffff | -1           |
+| waveform(FTVL = DBF_USHORT) | @192.168.1.1#D0001   | -      | 0xffff |  65535       |
+| waveform(FTVL = DBF_USHORT) | @192.168.1.1#D0001&U | -      | 0xffff |  65535       |
+| waveform(FTVL = DBF_LONG)   | @192.168.1.1#D0001   | -      | 0xffff | -1           |
+| waveform(FTVL = DBF_LONG)   | @192.168.1.1#D0001&U | -      | 0xffff |  65535       |
+| waveform(FTVL = DBF_LONG)   | @192.168.1.1#D0001&L | 0x0000 | 0xffff |  65535       |
+| waveform(FTVL = DBF_LONG)   | @192.168.1.1#D0001&L | 0xffff | 0xffff | -1           |
+| waveform(FTVL = DBF_ULONG)  | @192.168.1.1#D0001   | -      | 0xffff |  4294967295  |
+| waveform(FTVL = DBF_ULONG)  | @192.168.1.1#D0001&U | -      | 0xffff |  65535       |
+| waveform(FTVL = DBF_ULONG)  | @192.168.1.1#D0001&L | 0x0000 | 0xffff |  65535       |
+| waveform(FTVL = DBF_ULONG)  | @192.168.1.1#D0001&L | 0xffff | 0xffff |  4294967295  |
+
+If a value that cannot be expressed as a signed or unsigned 16-bit integer is set to a 32-bit integer output record (i.e. a longout or an arrayout with FTVL=LONG/ULONG), the uppser 16-bit are silently ignored and the lower 16-bits only are written to the hardware.
+Examples of conversion specifiers in output records are given in the table below:
+
+| record type                 | OUT                  | put value    | D0002  | D0001  |
+| longout                     | @192.168.1.1#D0001   | -1           | -      | 0xffff |
+| longout                     | @192.168.1.1#D0001   |  65535       | -      | 0xffff |
+| longout                     | @192.168.1.1#D0001   |  65537       | -      | 0x0001 |
+| longout                     | @192.168.1.1#D0001&U | -1           | -      | 0xffff |
+| longout                     | @192.168.1.1#D0001&U |  65535       | -      | 0xffff |
+| longout                     | @192.168.1.1#D0001&U |  65537       | -      | 0x0001 |
+| longout                     | @192.168.1.1#D0001&L | -1           | 0xffff | 0xffff |
+| longout                     | @192.168.1.1#D0001&L |  65535       | 0x0000 | 0xffff |
+| longout                     | @192.168.1.1#D0001&L |  65537       | 0x0001 | 0x0001 |
+| longout                     | @192.168.1.1#D0001&B |  1234        | -      | 0x1234 |
+| waveform(FTVL = DBF_SHORT)  | @192.168.1.1#D0001   | -1           | -      | 0xffff |
+| waveform(FTVL = DBF_SHORT)  | @192.168.1.1#D0001&U | -1           | -      | 0xffff |
+| waveform(FTVL = DBF_USHORT) | @192.168.1.1#D0001   | -1           | -      | 0xffff |
+| waveform(FTVL = DBF_USHORT) | @192.168.1.1#D0001   |  65535       | -      | 0xffff |
+| waveform(FTVL = DBF_USHORT) | @192.168.1.1#D0001&U | -1           | -      | 0xffff |
+| waveform(FTVL = DBF_USHORT) | @192.168.1.1#D0001&U |  65535       | -      | 0xffff |
+| waveform(FTVL = DBF_LONG)   | @192.168.1.1#D0001   | -1           | -      | 0xffff |
+| waveform(FTVL = DBF_LONG)   | @192.168.1.1#D0001   |  65535       | -      | 0xffff |
+| waveform(FTVL = DBF_LONG)   | @192.168.1.1#D0001   |  65537       | -      | 0x0001 |
+| waveform(FTVL = DBF_LONG)   | @192.168.1.1#D0001&U | -1           | -      | 0xffff |
+| waveform(FTVL = DBF_LONG)   | @192.168.1.1#D0001&U |  65535       | -      | 0xffff |
+| waveform(FTVL = DBF_LONG)   | @192.168.1.1#D0001&U |  65537       | -      | 0x0001 |
+| waveform(FTVL = DBF_LONG)   | @192.168.1.1#D0001&L | -1           | 0xffff | 0xffff |
+| waveform(FTVL = DBF_LONG)   | @192.168.1.1#D0001&L |  65535       | 0x0000 | 0xffff |
+| waveform(FTVL = DBF_ULONG)  | @192.168.1.1#D0001   | -1           | -      | 0xffff |
+| waveform(FTVL = DBF_ULONG)  | @192.168.1.1#D0001   |  65535       | -      | 0xffff |
+| waveform(FTVL = DBF_ULONG)  | @192.168.1.1#D0001   |  65537       | -      | 0x0001 |
+| waveform(FTVL = DBF_ULONG)  | @192.168.1.1#D0001&U | -1           | -      | 0xffff |
+| waveform(FTVL = DBF_ULONG)  | @192.168.1.1#D0001&U |  65535       | -      | 0xffff |
+| waveform(FTVL = DBF_ULONG)  | @192.168.1.1#D0001&U |  65537       | -      | 0x0001 |
+| waveform(FTVL = DBF_ULONG)  | @192.168.1.1#D0001&L | -1           | 0xffff | 0xffff |
+| waveform(FTVL = DBF_ULONG)  | @192.168.1.1#D0001&L |  65535       | 0x0000 | 0xffff |
+| waveform(FTVL = DBF_ULONG)  | @192.168.1.1#D0001&L |  65537       | 0x0001 | 0x0001 |
+| waveform(FTVL = DBF_ULONG)  | @192.168.1.1#D0001&L |  4294967295  | 0xffff | 0xffff |
