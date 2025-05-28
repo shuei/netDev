@@ -153,7 +153,7 @@ long netDevReadWriteXx(dbCommon *pxx)
             return ERROR;
         }
 
-        if (t->ret && t->ret != 2) {
+        if (t->ret && t->ret != 2) { // 2: don't convert
             recGblSetSevr(pxx, isRead(t->option) ?
                           READ_ALARM : WRITE_ALARM, INVALID_ALARM);
         }
