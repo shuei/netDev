@@ -13,7 +13,7 @@
 #include <epicsExport.h>
 #include <chansRecord.h>
 
-#define DEBUG
+//#define DEBUG
 
 //
 // Chans (command/response I/O)
