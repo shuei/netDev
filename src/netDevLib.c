@@ -86,7 +86,7 @@ static void swap_dword(void *ptr, int num)
 }
 #endif
 
-static void dump(void *from, int fsiz, void *to, int tsiz, int ndata, char *file, const char *func)
+static void dump(void *from, int fsiz, void *to, int tsiz, int ndata, int noff, char *file, const char *func)
 {
     const int nskip = 8;
     for (int i = 0; i < ndata; i++) {
@@ -97,7 +97,7 @@ static void dump(void *from, int fsiz, void *to, int tsiz, int ndata, char *file
             continue;
         }
 
-        printf("%s: %-13s [%4d", file, func, i+1);
+        printf("%s: %-13s [%4d", file, func, i+noff+1);
         if (fsiz == 1) {
             uint8_t *p = from;
             printf(" 0x%02x", p[i]);
@@ -384,7 +384,7 @@ static long toCharVal(int8_t *to,
 
     //DEBUG
     if (netDevDebug>0) {
-        dump(from, width, to, sizeof(*to), ndata, __FILE__, __func__);
+        dump(from, width, to, sizeof(*to), ndata, noff, __FILE__, __func__);
     }
 
     return OK;
@@ -431,7 +431,7 @@ static long toShortVal(int16_t *to,
 
     //DEBUG
     if (netDevDebug>0) {
-        dump(from, width, to, sizeof(*to), ndata, __FILE__, __func__);
+        dump(from, width, to, sizeof(*to), ndata, noff, __FILE__, __func__);
     }
 
     return OK;
@@ -487,7 +487,7 @@ static long toLongVal(int32_t *to,
 
     //DEBUG
     if (netDevDebug>0) {
-        dump(from, width, to, sizeof(*to), ndata, __FILE__, __func__);
+        dump(from, width, to, sizeof(*to), ndata, noff, __FILE__, __func__);
     }
 
     return OK;
@@ -546,7 +546,7 @@ static long toUcharVal(uint8_t *to,
 
     //DEBUG
     if (netDevDebug>0) {
-        dump(from, width, to, sizeof(*to), ndata, __FILE__, __func__);
+        dump(from, width, to, sizeof(*to), ndata, noff, __FILE__, __func__);
     }
 
     return OK;
@@ -593,7 +593,7 @@ static long toUshortVal(uint16_t *to,
 
     //DEBUG
     if (netDevDebug>0) {
-        dump(from, width, to, sizeof(*to), ndata, __FILE__, __func__);
+        dump(from, width, to, sizeof(*to), ndata, noff, __FILE__, __func__);
     }
 
     return OK;
@@ -649,7 +649,7 @@ static long toUlongVal(uint32_t *to,
 
     //DEBUG
     if (netDevDebug>0) {
-        dump(from, width, to, sizeof(*to), ndata, __FILE__, __func__);
+        dump(from, width, to, sizeof(*to), ndata, noff, __FILE__, __func__);
     }
 
     return OK;
@@ -692,7 +692,7 @@ static long toFloatVal(float *to,
 
     //DEBUG
     if (netDevDebug>0) {
-        dump(from, width, to, sizeof(*to), ndata, __FILE__, __func__);
+        dump(from, width, to, sizeof(*to), ndata, noff, __FILE__, __func__);
     }
 
     return OK;
@@ -739,7 +739,7 @@ static long toDoubleVal(double *to,
 
     //DEBUG
     if (netDevDebug>0) {
-        dump(from, width, to, sizeof(*to), ndata, __FILE__, __func__);
+        dump(from, width, to, sizeof(*to), ndata, noff, __FILE__, __func__);
     }
 
     return OK;
@@ -828,7 +828,7 @@ static long fromCharVal(void *to,
 
     //DEBUG
     if (netDevDebug>0) {
-        dump(from, sizeof(*from), to, width, ndata, __FILE__, __func__);
+        dump(from, sizeof(*from), to, width, ndata, noff, __FILE__, __func__);
     }
 
     return OK;
@@ -886,7 +886,7 @@ static long fromShortVal(void *to,
 
     //DEBUG
     if (netDevDebug>0) {
-        dump(from, sizeof(*from), to, width, ndata, __FILE__, __func__);
+        dump(from, sizeof(*from), to, width, ndata, noff, __FILE__, __func__);
     }
 
     return OK;
@@ -929,7 +929,8 @@ static long fromLongVal(void *to,
             //if (netDevDebug>0) {
             //    printf("%d %d 0x%08x 0x%08x\n", i, from[i], from[i], from[i]&0xffff0000);
             //}
-#if 1
+#if 0
+            // Make it error rather than silently ignore the upper 16bits.
             if ((from[i] & 0xffff0000) /* &&
                 (from[i] & 0xffff0000) != 0xffff0000 */) { // need check
                 errlogPrintf("%s [%s:%d] illegal data conversion: width=%d ndata=%d i=%d from=%d\n", __func__, __FILE__, __LINE__, width, ndata, i, from[i]);
@@ -965,7 +966,7 @@ static long fromLongVal(void *to,
 
     //DEBUG
     if (netDevDebug>0) {
-        dump(from, sizeof(*from), to, width, ndata, __FILE__, __func__);
+        dump(from, sizeof(*from), to, width, ndata, noff, __FILE__, __func__);
     }
 
     return OK;
@@ -1012,7 +1013,7 @@ static long fromUcharVal(void *to,
 
     //DEBUG
     if (netDevDebug>0) {
-        dump(from, sizeof(*from), to, width, ndata, __FILE__, __func__);
+        dump(from, sizeof(*from), to, width, ndata, noff, __FILE__, __func__);
     }
 
     return OK;
@@ -1070,7 +1071,7 @@ static long fromUshortVal(void *to,
 
     //DEBUG
     if (netDevDebug>0) {
-        dump(from, sizeof(*from), to, width, ndata, __FILE__, __func__);
+        dump(from, sizeof(*from), to, width, ndata, noff, __FILE__, __func__);
     }
 
     return OK;
@@ -1113,7 +1114,8 @@ static long fromUlongVal(void *to,
             //if (netDevDebug>0) {
             //    printf("%d %d 0x%08x 0x%08x\n", i, from[i], from[i], from[i]&0xffff0000);
             //}
-#if 1
+#if 0
+            // Make it error rather than silently ignore the upper 16bits.
             if ((from[i] & 0xffff0000) /* &&
                 (from[i] & 0xffff0000) != 0xffff0000 */) { // need check
                 errlogPrintf("%s [%s:%d] illegal data conversion: width=%d ndata=%d i=%d from=%d\n", __func__, __FILE__, __LINE__, width, ndata, i, from[i]);
@@ -1149,7 +1151,7 @@ static long fromUlongVal(void *to,
 
     //DEBUG
     if (netDevDebug>0) {
-        dump(from, sizeof(*from), to, width, ndata, __FILE__, __func__);
+        dump(from, sizeof(*from), to, width, ndata, noff, __FILE__, __func__);
     }
 
     return OK;
@@ -1194,7 +1196,7 @@ static long fromFloatVal(void *to,
 
     //DEBUG
     if (netDevDebug>0) {
-        dump(from, sizeof(*from), to, width, ndata, __FILE__, __func__);
+        dump(from, sizeof(*from), to, width, ndata, noff, __FILE__, __func__);
     }
 
     return OK;
@@ -1241,7 +1243,7 @@ static long fromDoubleVal(void *to,
 
     //DEBUG
     if (netDevDebug>0) {
-        dump(from, sizeof(*from), to, width, ndata, __FILE__, __func__);
+        dump(from, sizeof(*from), to, width, ndata, noff,  __FILE__, __func__);
     }
 
     return OK;
