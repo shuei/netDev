@@ -54,47 +54,95 @@ static long init_arrayout_record(arrayoutRecord *prec)
                                   parse_arrayout_response
                                   );
 
-    char *ftvlstr = pamapdbfType[prec->ftvl].strvalue;
-    ftvlstr += 4;
+    d->val = calloc(prec->nelm, convsize[d->conv]);
+    if (! d->val) {
+        errlogPrintf("%s: %s : calloc failed\n", __func__, prec->name);
+        prec->pact = 1;
+        return -1;
+    }
+
+    //
+    const char *ftvlstr = (pamapdbfType[prec->ftvl].strvalue) + 4;
 
     //DEBUG
     if (netDevDebug>0) {
-        printf("%s: %s %s, ftvl=%s(%d) flag=%c\n", __FILE__, __func__, prec->name, ftvlstr, prec->ftvl, d->flag);
+        printf("%s: %s %s, ftvl=%s(%d) conv=%s\n", __FILE__, __func__, prec->name, ftvlstr, prec->ftvl, convstr[d->conv]);
     }
 
-#if 0
     if (0) {
-        //
     } else if (prec->ftvl==DBF_DOUBLE) {
-        if (d->flag!='D') {
-            errlogPrintf("%s: &D option is required when FTVL is %s\n", prec->name, ftvlstr);
-            recGblSetSevr(prec, INVALID_ALARM, INVALID_ALARM);
-            return ERROR;
+        if (0) {
+        } else if (d->conv == kSHORT) {
+        } else if (d->conv == kUSHORT) {
+        } else if (d->conv == kLONG) {
+        //} else if (d->conv == kULONG) {
+        } else if (d->conv == kFLOAT) {
+        } else if (d->conv == kDOUBLE) {
+        //} else if (d->conv == kBCD) {
+        } else {
+            errlogPrintf("%s: %s : unsupported conversion \"&%s\" with FTVL = %s\n", __func__, ftvlstr, convstr[d->conv], prec->name);
+            prec->pact = 1;
+            return -1;
         }
     } else if (prec->ftvl==DBF_FLOAT) {
-        if (d->flag!='F') {
-            errlogPrintf("%s: &F option is required when FTVL is %s\n", prec->name, ftvlstr);
-            recGblSetSevr(prec, INVALID_ALARM, INVALID_ALARM);
-            return ERROR;
+        if (0) {
+        } else if (d->conv == kSHORT) {
+        } else if (d->conv == kUSHORT) {
+        } else if (d->conv == kLONG) {
+        //} else if (d->conv == kULONG) {
+        } else if (d->conv == kFLOAT) {
+        //} else if (d->conv == kDOUBLE) {
+        //} else if (d->conv == kBCD) {
+        } else {
+            errlogPrintf("%s: %s : unsupported conversion \"&%s\" with FTVL = %s\n", __func__, ftvlstr, convstr[d->conv], prec->name);
+            prec->pact = 1;
+            return -1;
         }
-    } else if (prec->ftvl==DBF_SHORT || prec->ftvl==DBF_USHORT || prec->ftvl==DBF_LONG || prec->ftvl==DBF_ULONG) {
-        if (d->flag=='F' || d->flag=='D') {
-            errlogPrintf("%s: unsupported conbination of FTVL (%s) and option(&%c)\n", prec->name, ftvlstr, d->flag);
-            recGblSetSevr(prec, INVALID_ALARM, INVALID_ALARM);
-            return ERROR;
+    } else if (prec->ftvl==DBF_LONG || prec->ftvl==DBF_ULONG) {
+        if (0) {
+        } else if (d->conv == kSHORT) {
+        } else if (d->conv == kUSHORT) {
+        } else if (d->conv == kLONG) {
+        //} else if (d->conv == kULONG) {
+        //} else if (d->conv == kFLOAT) {
+        //} else if (d->conv == kDOUBLE) {
+        //} else if (d->conv == kBCD) {
+        } else {
+            errlogPrintf("%s: %s : unsupported conversion \"&%s\" with FTVL = %s\n", __func__, ftvlstr, convstr[d->conv], prec->name);
+            prec->pact = 1;
+            return -1;
         }
+    } else if (prec->ftvl==DBF_SHORT || prec->ftvl==DBF_USHORT) {
+        if (0) {
+        } else if (d->conv == kSHORT) {
+        } else if (d->conv == kUSHORT) {
+        //} else if (d->conv == kLONG) {
+        //} else if (d->conv == kULONG) {
+        //} else if (d->conv == kFLOAT) {
+        //} else if (d->conv == kDOUBLE) {
+        //} else if (d->conv == kBCD) {
+        } else {
+            errlogPrintf("%s: %s : unsupported conversion \"&%s\" with FTVL = %s\n", __func__, ftvlstr, convstr[d->conv], prec->name);
+            prec->pact = 1;
+            return -1;
+        }
+
     } else {
-        errlogPrintf("%s: unsupported of FTVL (%s)\n", prec->name, ftvlstr);
-        recGblSetSevr(prec, INVALID_ALARM, INVALID_ALARM);
-        return ERROR;
+        errlogPrintf("%s: %s : unsupported FTVL %s\n", __func__, prec->name, ftvlstr);
+        prec->pact = 1;
+        return -1;
     }
-#endif
 
     return ret;
 }
 
 static long write_arrayout(arrayoutRecord *prec)
 {
+    //DEBUG
+    if (netDevDebug>0) {
+        printf("\n%s: %s %s pact=%d\n", __FILE__, __func__, prec->name, prec->pact);
+    }
+
     TRANSACTION *t = prec->dpvt;
     YEW_PLC *d = t->device;
 
@@ -115,21 +163,155 @@ static long config_arrayout_command(dbCommon *pxx,
                                     int transaction_id
                                     )
 {
+    arrayoutRecord *prec = (arrayoutRecord *)pxx;
+    YEW_PLC *d = device;
+    const char *ftvlstr = (pamapdbfType[prec->ftvl].strvalue) + 4;
+
     //DEBUG
     if (netDevDebug>0) {
-        printf("\n%s: %s %s\n", __FILE__, __func__, pxx->name);
+        printf("\n%s: %s %s pact=%d ftvl=%s conv=%s nleft=%d\n", __FILE__, __func__, prec->name, prec->pact, ftvlstr, convstr[d->conv], d->nleft);
     }
 
-    arrayoutRecord *prec = (arrayoutRecord *)pxx;
+    if (0) {
+        //
+    } else if (prec->ftvl == DBF_DOUBLE && (d->conv == kSHORT || d->conv == kUSHORT)) {
+        int16_t *val = d->val;
+        if (d->nleft == 0 /* && d->noff == 0 */) {
+            double *bptr = prec->bptr;
+            for (int i=0; i<prec->nelm; i++) {
+                val[i] = bptr[i];
+                //printf("%d %d %f\n", i, val[i], bptr[i]);
+            }
+        }
 
-    return yew_config_command(buf,
-                              len,
-                              prec->bptr,
-                              prec->ftvl, // This has nothing to do with options such as \&F or \&L
-                              prec->nelm,
-                              option,
-                              device
-                              );
+        return yew_config_command(buf,
+                                  len,
+                                  val,
+                                  DBF_SHORT,
+                                  prec->nelm,
+                                  option,
+                                  device
+                                  );
+    } else if (prec->ftvl == DBF_DOUBLE && d->conv == kLONG) {
+        int32_t *val = d->val;
+        if (d->nleft == 0 /* && d->noff == 0 */) {
+            double *bptr = prec->bptr;
+            for (int i=0; i<prec->nelm; i++) {
+                val[i] = bptr[i];
+                //printf("%d %d %f\n", i, val[i], bptr[i]);
+            }
+        }
+
+        return yew_config_command(buf,
+                                  len,
+                                  val,
+                                  DBF_LONG,
+                                  prec->nelm,
+                                  option,
+                                  device
+                                  );
+    } else if (prec->ftvl == DBF_DOUBLE && d->conv == kFLOAT) {
+        float *val = d->val;
+        if (d->nleft == 0 /* && d->noff == 0 */) {
+            double *bptr = prec->bptr;
+            for (int i=0; i<prec->nelm; i++) {
+                val[i] = bptr[i];
+                //printf("%d %d %f\n", i, val[i], bptr[i]);
+            }
+        }
+
+        return yew_config_command(buf,
+                                  len,
+                                  val,
+                                  DBF_FLOAT,
+                                  prec->nelm,
+                                  option,
+                                  device
+                                  );
+    } else if (prec->ftvl == DBF_FLOAT && (d->conv == kSHORT || d->conv == kUSHORT)) {
+        int16_t *val = d->val;
+        if (d->nleft == 0 /* && d->noff == 0 */) {
+            float *bptr = prec->bptr;
+            for (int i=0; i<prec->nelm; i++) {
+                val[i] = bptr[i];
+                //printf("%d %d %f\n", i, val[i], bptr[i]);
+            }
+        }
+
+        return yew_config_command(buf,
+                                  len,
+                                  val,
+                                  DBF_SHORT,
+                                  prec->nelm,
+                                  option,
+                                  device
+                                  );
+    } else if (prec->ftvl == DBF_FLOAT && d->conv == kLONG) {
+        int32_t *val = d->val;
+        if (d->nleft == 0 /* && d->noff == 0 */) {
+            float *bptr = prec->bptr;
+            for (int i=0; i<prec->nelm; i++) {
+                val[i] = bptr[i];
+                //printf("%d %d %f\n", i, val[i], bptr[i]);
+            }
+        }
+
+        return yew_config_command(buf,
+                                  len,
+                                  val,
+                                  DBF_LONG,
+                                  prec->nelm,
+                                  option,
+                                  device
+                                  );
+#if 0
+    } else if ((prec->ftvl == DBF_LONG||prec->ftvl == DBF_ULONG) && d->conv == kUSHORT) {
+        uint16_t *val = d->val;
+        if (d->nleft == 0 /* && d->noff == 0 */) {
+            uint32_t *bptr = prec->bptr;
+            for (int i=0; i<prec->nelm; i++) {
+                val[i] = bptr[i];
+                //printf("%d %d %f\n", i, val[i], bptr[i]);
+            }
+        }
+
+        return yew_config_command(buf,
+                                  len,
+                                  prec->bptr,
+                                  DBF_USHORT,
+                                  prec->nelm,
+                                  option,
+                                  device
+                                  );
+    } else if ((prec->ftvl == DBF_LONG||prec->ftvl == DBF_ULONG) && d->conv == kSHORT) {
+        int16_t *val = d->val;
+        if (d->nleft == 0 /* && d->noff == 0 */) {
+            uint32_t *bptr = prec->bptr;
+            for (int i=0; i<prec->nelm; i++) {
+                val[i] = bptr[i];
+                //printf("%d %d %f\n", i, val[i], bptr[i]);
+            }
+        }
+
+        return yew_config_command(buf,
+                                  len,
+                                  prec->bptr,
+                                  DBF_SHORT,
+                                  prec->nelm,
+                                  option,
+                                  device
+                                  );
+#endif
+    } else {
+        return yew_config_command(buf,
+                                  len,
+                                  prec->bptr,
+                                  prec->ftvl,
+                                  prec->nelm,
+                                  option,
+                                  d
+                                  );
+    }
 }
 
 static long parse_arrayout_response(dbCommon *pxx,
@@ -142,7 +324,7 @@ static long parse_arrayout_response(dbCommon *pxx,
 {
     //DEBUG
     if (netDevDebug>0) {
-        printf("\n%s: %s %s\n", __FILE__, __func__, pxx->name);
+        printf("\n%s: %s %s pact=%d\n", __FILE__, __func__, pxx->name, pxx->pact);
     }
 
     arrayoutRecord *prec = (arrayoutRecord *)pxx;

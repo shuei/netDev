@@ -39,14 +39,31 @@ epicsExportAddress(dset, devLoYewPlc);
 
 static long init_longout_record(longoutRecord *prec)
 {
-    return netDevInitXxRecord((dbCommon *)prec,
-                              &prec->out,
-                              MPF_WRITE | YEW_GET_PROTO | DEFAULT_TIMEOUT,
-                              yew_calloc(0, 0, 0, kWord),
-                              yew_parse_link,
-                              config_longout_command,
-                              parse_longout_response
-                              );
+    YEW_PLC *d = yew_calloc(0, 0, 0, kWord);
+    long ret = netDevInitXxRecord((dbCommon *)prec,
+                                  &prec->out,
+                                  MPF_WRITE | YEW_GET_PROTO | DEFAULT_TIMEOUT,
+                                  d,
+                                  yew_parse_link,
+                                  config_longout_command,
+                                  parse_longout_response
+                                  );
+
+    if (0) {
+    } else if (d->conv == kSHORT) {
+    } else if (d->conv == kUSHORT) {
+    } else if (d->conv == kLONG) {
+    //} else if (d->conv == kULONG) {
+    //} else if (d->conv == kFLOAT) {
+    //} else if (d->conv == kDOUBLE) {
+    } else if (d->conv == kBCD) {
+    } else {
+        errlogPrintf("%s: unsupported conversion \"&%s\" for %s\n", __func__, convstr[d->conv], prec->name);
+        prec->pact = 1;
+        return -1;
+    }
+
+    return ret;
 }
 
 static long write_longout(longoutRecord *prec)
@@ -81,7 +98,7 @@ static long config_longout_command(dbCommon *pxx,
 
     if (0) {
         //
-    } else if (d->flag == 'L') {
+    } else if (d->conv == kLONG) {
         int32_t val = prec->val;
         return yew_config_command(buf,
                                   len,
@@ -91,7 +108,8 @@ static long config_longout_command(dbCommon *pxx,
                                   option,
                                   d
                                   );
-    } else if (d->flag == 'B') {
+    //} else if (d->conv == kUSHORT) { // do we need this?
+    } else if (d->conv == kBCD) {
         int16_t val = netDevInt2Bcd(prec->val, prec);
         return yew_config_command(buf,
                                   len,
@@ -101,7 +119,7 @@ static long config_longout_command(dbCommon *pxx,
                                   option,
                                   d
                                   );
-    } else {
+    } else {//(d->conv == kSHORT || d->conv == kUSHORT)
         int16_t val = prec->val;
         return yew_config_command(buf,
                                   len,

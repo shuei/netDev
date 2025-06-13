@@ -148,8 +148,7 @@ long netDevReadWriteXx(dbCommon *pxx)
 
     if (pxx->pact) {
         if (t->io.async.timeout_flag) {
-            recGblSetSevr(pxx, isRead(t->option) ?
-                          READ_ALARM : WRITE_ALARM, INVALID_ALARM);
+            recGblSetSevr(pxx, TIMEOUT_ALARM, INVALID_ALARM);
             return ERROR;
         }
 

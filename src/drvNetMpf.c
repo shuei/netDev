@@ -316,12 +316,12 @@ static long spawn_io_tasks(PEER *p)
 
     sprintf(task_name, "%s_%d", send_t_name, p->mpf.id);
 
-    if ((p->send_tid= epicsThreadCreate(task_name,
-                                        SEND_PRIORITY,
-                                        SEND_STACK,
-                                        (EPICSTHREADFUNC)send_task,
-                                        p
-                                        )) == 0) {
+    if ((p->send_tid = epicsThreadCreate(task_name,
+                                         SEND_PRIORITY,
+                                         SEND_STACK,
+                                         (EPICSTHREADFUNC)send_task,
+                                         p
+                                         )) == 0) {
         p->send_tid = 0;
         errlogPrintf("drvNetMpf: epicsThreadCreate failed\n");
         return ERROR;
@@ -329,12 +329,12 @@ static long spawn_io_tasks(PEER *p)
 
     sprintf(task_name, "%s_%d", recv_t_name, p->mpf.id);
 
-    if ((p->recv_tid=epicsThreadCreate(task_name,
-                                       RECV_PRIORITY,
-                                       RECV_STACK,
-                                       (EPICSTHREADFUNC)receive_task,
-                                       p
-                                       )) == 0) {
+    if ((p->recv_tid = epicsThreadCreate(task_name,
+                                         RECV_PRIORITY,
+                                         RECV_STACK,
+                                         (EPICSTHREADFUNC)receive_task,
+                                         p
+                                         )) == 0) {
         p->recv_tid = 0;
         errlogPrintf("drvNetMpf: epicsThreadCreate failed\n");
         return ERROR;
@@ -858,7 +858,7 @@ static void receive_task(PEER *p)
                     drvNetMpfSendRequest(t);
                 } else {
 
-                    if (t->ret <0) {
+                    if (t->ret < 0) {
                         // This is unlikely to happen but a bug in the device support
                         errlogPrintf("%s : drvNetMpf: %s() : \"parse_response()\" callback returned error code %d\n", t->record->name, __func__, t->ret);
                     }

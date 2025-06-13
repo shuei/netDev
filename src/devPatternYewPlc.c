@@ -37,21 +37,38 @@ INTEGERDSET devPtnYewPlc = {
 
 epicsExportAddress(dset, devPtnYewPlc);
 
-static long init_pattern_record(patternRecord *pptn)
+static long init_pattern_record(patternRecord *prec)
 {
-    return netDevInitXxRecord((dbCommon *)pptn,
-                              &pptn->inp,
-                              MPF_READ | YEW_GET_PROTO | DEFAULT_TIMEOUT,
-                              yew_calloc(0, 0, 0, kWord),
-                              yew_parse_link,
-                              config_pattern_command,
-                              parse_pattern_response
-                              );
+    YEW_PLC *d = yew_calloc(0, 0, 0, kWord);
+    long ret = netDevInitXxRecord((dbCommon *)prec,
+                                  &prec->inp,
+                                  MPF_READ | YEW_GET_PROTO | DEFAULT_TIMEOUT,
+                                  d,
+                                  yew_parse_link,
+                                  config_pattern_command,
+                                  parse_pattern_response
+                                  );
+
+    if (0) {
+    } else if (d->conv == kSHORT) {
+    //} else if (d->conv == kUSHORT) {
+    //} else if (d->conv == kLONG) {
+    //} else if (d->conv == kULONG) {
+    //} else if (d->conv == kFLOAT) {
+    //} else if (d->conv == kDOUBLE) {
+    //} else if (d->conv == kBCD) {
+    } else {
+        errlogPrintf("%s: unsupported conversion \"&%s\" for %s\n", __func__, convstr[d->conv], prec->name);
+        prec->pact = 1;
+        return -1;
+    }
+
+    return ret;
 }
 
-static long read_pattern(patternRecord *pptn)
+static long read_pattern(patternRecord *prec)
 {
-    TRANSACTION *t = pptn->dpvt;
+    TRANSACTION *t = prec->dpvt;
     YEW_PLC *d = t->device;
 
     // make sure that those below are cleared in the event that
@@ -60,7 +77,7 @@ static long read_pattern(patternRecord *pptn)
     d->nleft = 0;
     d->noff = 0;
 
-    return netDevReadWriteXx((dbCommon *)pptn);
+    return netDevReadWriteXx((dbCommon *)prec);
 }
 
 static long config_pattern_command(dbCommon *pxx,
@@ -76,13 +93,13 @@ static long config_pattern_command(dbCommon *pxx,
         printf("\n%s: %s %s\n", __FILE__, __func__, pxx->name);
     }
 
-    patternRecord *pptn = (patternRecord *)pxx;
+    patternRecord *prec = (patternRecord *)pxx;
 
     return yew_config_command(buf,
                               len,
                               0, // not used in yew_config_command
                               0, // not used in yew_config_command
-                              pptn->nelm,
+                              prec->nelm,
                               option,
                               device
                               );
@@ -101,24 +118,24 @@ static long parse_pattern_response(dbCommon *pxx,
         printf("\n%s: %s %s\n", __FILE__, __func__, pxx->name);
     }
 
-    patternRecord *pptn = (patternRecord *)pxx;
+    patternRecord *prec = (patternRecord *)pxx;
     YEW_PLC *d = device;
 
     long ret = yew_parse_response(buf,
                                   len,
-                                  pptn->rptr,
-                                  pptn->ftvl,
-                                  pptn->nelm,
+                                  prec->rptr,
+                                  prec->ftvl,
+                                  prec->nelm,
                                   option,
                                   d
                                   );
 
     switch (ret) {
     case NOT_DONE:
-        pptn->nord = d->noff;
+        prec->nord = d->noff;
         // why we don't have break here?
     case 0:
-        pptn->nord = pptn->nelm;
+        prec->nord = prec->nelm;
     default:
         ;
     }

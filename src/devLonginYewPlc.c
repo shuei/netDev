@@ -39,14 +39,36 @@ epicsExportAddress(dset, devLiYewPlc);
 
 static long init_longin_record(longinRecord *prec)
 {
-    return netDevInitXxRecord((dbCommon *)prec,
-                              &prec->inp,
-                              MPF_READ | YEW_GET_PROTO | DEFAULT_TIMEOUT,
-                              yew_calloc(0, 0, 0, kWord),
-                              yew_parse_link,
-                              config_longin_command,
-                              parse_longin_response
-                              );
+    //DEBUG
+    if (netDevDebug>0) {
+        printf("\n%s: %s %s\n", __FILE__, __func__, prec->name);
+    }
+
+    YEW_PLC *d = yew_calloc(0, 0, 0, kWord);
+    long ret = netDevInitXxRecord((dbCommon *)prec,
+                                  &prec->inp,
+                                  MPF_READ | YEW_GET_PROTO | DEFAULT_TIMEOUT,
+                                  d,
+                                  yew_parse_link,
+                                  config_longin_command,
+                                  parse_longin_response
+                                  );
+
+    if (0) {
+    } else if (d->conv == kSHORT) {
+    } else if (d->conv == kUSHORT) {
+    } else if (d->conv == kLONG) {
+    //} else if (d->conv == kULONG) {
+    //} else if (d->conv == kFLOAT) {
+    //} else if (d->conv == kDOUBLE) {
+    } else if (d->conv == kBCD) {
+    } else {
+        errlogPrintf("%s: unsupported conversion \"&%s\" for %s\n", __func__, convstr[d->conv], prec->name);
+        prec->pact = 1;
+        return -1;
+    }
+
+    return ret;
 }
 
 static long read_longin(longinRecord *prec)
@@ -104,7 +126,7 @@ static long parse_longin_response(dbCommon *pxx,
 
     if (0) {
         //
-    } else if (d->flag == 'L') {
+    } else if (d->conv == kLONG) {
         int32_t val;
         long ret = yew_parse_response(buf,
                                       len,
@@ -116,7 +138,7 @@ static long parse_longin_response(dbCommon *pxx,
                                       );
         prec->val = val;
         return ret;
-    } else if (d->flag == 'U') {
+    } else if (d->conv == kUSHORT) {
         uint16_t val;
         long ret = yew_parse_response(buf,
                                       len,
@@ -128,7 +150,7 @@ static long parse_longin_response(dbCommon *pxx,
                                       );
         prec->val = val;
         return ret;
-    } else if (d->flag == 'B') {
+    } else if (d->conv == kBCD) {
         int16_t val;
         long ret = yew_parse_response(buf,
                                       len,
@@ -140,7 +162,7 @@ static long parse_longin_response(dbCommon *pxx,
                                       );
         prec->val = netDevBcd2Int(val, prec);
         return ret;
-    } else {
+    } else {//(d->conv == kSHORT)
         int16_t val;
         long ret = yew_parse_response(buf,
                                       len,

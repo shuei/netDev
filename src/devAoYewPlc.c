@@ -47,7 +47,8 @@ static long init_ao_record(aoRecord *prec)
         prec->roff = 0;
     }
 
-    return netDevInitXxRecord((dbCommon *)prec,
+    YEW_PLC *d = yew_calloc(0, 0, 0, kWord);
+    long ret = netDevInitXxRecord((dbCommon *)prec,
                               &prec->out,
                               MPF_WRITE | YEW_GET_PROTO | DEFAULT_TIMEOUT,
                               yew_calloc(0, 0, 0, kWord),
@@ -55,6 +56,22 @@ static long init_ao_record(aoRecord *prec)
                               config_ao_command,
                               parse_ao_response
                               );
+
+    if (0) {
+    } else if (d->conv == kSHORT) {
+    } else if (d->conv == kUSHORT) {
+    } else if (d->conv == kLONG) {
+    //} else if (d->conv == kULONG) {
+    } else if (d->conv == kFLOAT) {
+    } else if (d->conv == kDOUBLE) {
+    //} else if (d->conv == kBCD) {
+    } else {
+        errlogPrintf("%s: unsupported conversion \"&%s\" for %s\n", __func__, convstr[d->conv], prec->name);
+        prec->pact = 1;
+        return -1;
+    }
+
+    return ret;
 }
 
 static long write_ao(aoRecord *prec)
@@ -103,7 +120,7 @@ static long config_ao_command(dbCommon *pxx,
 
     if (0) {
         //
-    } else if (d->flag == 'D') {
+    } else if (d->conv == kDOUBLE) {
         double val = prec->val;
         // todo : consider ASLO and AOFF field
 
@@ -116,7 +133,7 @@ static long config_ao_command(dbCommon *pxx,
                                   option,
                                   d
                                   );
-    } else if (d->flag == 'F') {
+    } else if (d->conv == kFLOAT) {
         float val = prec->val;
         // todo : consider ASLO and AOFF field
 
@@ -129,7 +146,7 @@ static long config_ao_command(dbCommon *pxx,
                                   option,
                                   d
                                   );
-    } else if (d->flag == 'L') {
+    } else if (d->conv == kLONG) {
         int32_t val = prec->rval;
         return yew_config_command(buf,
                                   len,
@@ -139,7 +156,7 @@ static long config_ao_command(dbCommon *pxx,
                                   option,
                                   d
                                   );
-    } else {
+    } else {//(d->conv == kSHORT)
         int16_t val = prec->rval;
         return yew_config_command(buf,
                                   len,

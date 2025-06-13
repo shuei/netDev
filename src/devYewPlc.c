@@ -56,6 +56,37 @@ typedef enum {
 } width_t;
 
 //
+typedef enum {
+    kSHORT  = 0,  //
+    kUSHORT = 1,  //
+    kLONG   = 2,  //
+    kULONG  = 3,  //
+    kFLOAT  = 4,  //
+    kDOUBLE = 5,  //
+    kBCD    = 6,  //
+} conv_t;
+
+static char *convstr[] = {
+    "<none>",
+    "U",
+    "L",
+    "UL",
+    "F",
+    "D",
+    "B",
+};
+
+static size_t convsize[] = {
+    sizeof(int16_t),
+    sizeof(uint16_t),
+    sizeof(int32_t),
+    sizeof(uint32_t),
+    sizeof(float),
+    sizeof(double),
+    sizeof(int16_t),
+};
+
+//
 typedef struct {
     int      cpu;
     uint8_t  type;
@@ -66,7 +97,8 @@ typedef struct {
     int      spmod;
     int      m_unit;
     int      m_slot;
-    char     flag;
+    conv_t   conv;
+    void    *val;    //
 } YEW_PLC;
 
 //
@@ -89,9 +121,9 @@ static void *yew_calloc(int cpu, uint8_t type, uint32_t addr, width_t width)
     d->cpu   = cpu;
     d->type  = type;
     d->addr  = addr;
-    d->width = width; // d->width might be modified in yew_parse_link()
-    d->flag  = 'W';
-
+    d->width = width;  // d->width might be modified in yew_parse_link()
+    d->conv  = kSHORT; // d->conv migh be modified in yew_parse_link()
+    d->val   = 0;      // d->val will be set in devWaveformYewPlc/devArrayoutYewPlc
     return d;
 }
 
@@ -230,28 +262,32 @@ static long yew_parse_link(DBLINK *plink,
     }
 
     if (lopt) {
+        //printf("devYewPlc: lopt: \"%s\"\n", lopt);
+
         if (0) {
             //
         } else if (lopt[0] == 'D') {
-            d->flag = 'D';
+            d->conv =  kDOUBLE;
             d->width = kQWord;
             LOGMSG("devYewPlc: found option to handle the data as double precision floating point data\n");
         } else if (lopt[0] == 'F') {
-            d->flag = 'F';
+            d->conv  = kFLOAT;
             d->width = kDWord;
             LOGMSG("devYewPlc: found option to handle the data as single precision floating point data\n");
         } else if (lopt[0] == 'L') {
-            d->flag = 'L';
+            d->conv  = kLONG;
             d->width = kDWord;
             LOGMSG("devYewPlc: found option to handle the data as long word data\n");
         } else if (lopt[0] == 'U') {
-            d->flag = 'U';
+            d->conv  = kUSHORT;
+            d->width = kWord;
             LOGMSG("devYewPlc: found option to handle the data as unsigned data\n");
         } else if (lopt[0] == 'B') {
-            d->flag = 'B';
+            d->conv  = kBCD;
+            d->width = kWord;
             LOGMSG("devYewPlc: found option to handle the data as BCD data\n");
         } else {
-            errlogPrintf("devYewPlc: unsupported flag : %c\n", lopt[0]);
+            errlogPrintf("devYewPlc: unsupported conversion : %s\n", lopt);
             return ERROR;
         }
     }

@@ -40,29 +40,40 @@ epicsExportAddress(dset, devMbboYewPlc);
 static long init_mbbo_record(mbboRecord *prec)
 {
     YEW_PLC *d = yew_calloc(0, 0, 0, kWord);
-    long status = netDevInitXxRecord((dbCommon *)prec,
-                                     &prec->out,
-                                     MPF_WRITE | YEW_GET_PROTO | DEFAULT_TIMEOUT,
-                                     d,
-                                     yew_parse_link,
-                                     config_mbbo_command,
-                                     parse_mbbo_response
-                                     );
+    long ret = netDevInitXxRecord((dbCommon *)prec,
+                                  &prec->out,
+                                  MPF_WRITE | YEW_GET_PROTO | DEFAULT_TIMEOUT,
+                                  d,
+                                  yew_parse_link,
+                                  config_mbbo_command,
+                                  parse_mbbo_response
+                                  );
 
     if (0) {
-        //
-    } else if (d->flag == 'L') {
-        prec->nobt = 32;
-        prec->mask = 0xffffffff;
-        prec->shft = 0;
-    } else {
+    } else if (d->conv == kSHORT) {
         prec->nobt = 16;
         prec->mask = 0xffff;
         prec->shft = 0;
+    } else if (d->conv == kUSHORT) {
+        prec->nobt = 16;
+        prec->mask = 0xffff;
+        prec->shft = 0;
+    } else if (d->conv == kLONG) {
+        prec->nobt = 32;
+        prec->mask = 0xffffffff;
+        prec->shft = 0;
+    //} else if (d->conv == kULONG) {
+    //} else if (d->conv == kFLOAT) {
+    //} else if (d->conv == kDOUBLE) {
+    //} else if (d->conv == kBCD) {
+    } else{
+        errlogPrintf("%s: unsupported conversion \"&%s\" for %s\n", __func__, convstr[d->conv], prec->name);
+        prec->pact = 1;
+        return -1;
     }
 
-    if (status != 0) {
-        return status;
+    if (ret != 0) {
+        return ret;
     }
     return 2; // no conversion
 }
@@ -99,7 +110,7 @@ static long config_mbbo_command(dbCommon *pxx,
 
     if (0) {
         //
-    } else if (d->flag == 'L') {
+    } else if (d->conv == kLONG) {
         int32_t val = prec->rval;
         return yew_config_command(buf,
                                   len,
@@ -109,7 +120,7 @@ static long config_mbbo_command(dbCommon *pxx,
                                   option,
                                   d
                                   );
-    } else if (d->flag == 'U') {
+    } else if (d->conv == kUSHORT) {
         uint16_t val = prec->rval;
         return yew_config_command(buf,
                                   len,
@@ -119,7 +130,7 @@ static long config_mbbo_command(dbCommon *pxx,
                                   option,
                                   d
                                   );
-    } else {
+    } else {//(d->conv == kSHORT)
         int16_t val = prec->rval;
         return yew_config_command(buf,
                                   len,

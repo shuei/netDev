@@ -37,21 +37,38 @@ INTEGERDSET devStatusYewPlc = {
 
 epicsExportAddress(dset, devStatusYewPlc);
 
-static long init_status_record(statusRecord *pst)
+static long init_status_record(statusRecord *prec)
 {
-    return netDevInitXxRecord((dbCommon *)pst,
-                              &pst->inp,
-                              MPF_READ | YEW_GET_PROTO | DEFAULT_TIMEOUT,
-                              yew_calloc(0, 0, 0, kWord),
-                              yew_parse_link,
-                              config_status_command,
-                              parse_status_response
-                              );
+    YEW_PLC *d = yew_calloc(0, 0, 0, kWord);
+    long ret = netDevInitXxRecord((dbCommon *)prec,
+                                  &prec->inp,
+                                  MPF_READ | YEW_GET_PROTO | DEFAULT_TIMEOUT,
+                                  d,
+                                  yew_parse_link,
+                                  config_status_command,
+                                  parse_status_response
+                                  );
+
+    if (0) {
+    } else if (d->conv == kSHORT) {
+    } else if (d->conv == kUSHORT) {
+    } else if (d->conv == kLONG) {
+    //} else if (d->conv == kULONG) {
+    //} else if (d->conv == kFLOAT) {
+    //} else if (d->conv == kDOUBLE) {
+    } else if (d->conv == kBCD) {
+    } else {
+        errlogPrintf("%s: unsupported conversion \"&%s\" for %s\n", __func__, convstr[d->conv], prec->name);
+        prec->pact = 1;
+        return -1;
+    }
+
+    return ret;
 }
 
-static long read_status(statusRecord *pst)
+static long read_status(statusRecord *prec)
 {
-    TRANSACTION *t = pst->dpvt;
+    TRANSACTION *t = prec->dpvt;
     YEW_PLC *d = t->device;
 
     // make sure that those below are cleared in the event that
@@ -60,7 +77,7 @@ static long read_status(statusRecord *pst)
     d->nleft = 0;
     d->noff = 0;
 
-    return netDevReadWriteXx((dbCommon *)pst);
+    return netDevReadWriteXx((dbCommon *)prec);
 }
 
 static long config_status_command(dbCommon *pxx,
@@ -76,13 +93,13 @@ static long config_status_command(dbCommon *pxx,
         printf("\n%s: %s %s\n", __FILE__, __func__, pxx->name);
     }
 
-    statusRecord *pst = (statusRecord *)pxx;
+    statusRecord *prec = (statusRecord *)pxx;
 
     return yew_config_command(buf,
                               len,
                               0, // not used in yew_config_command
                               0, // not used in yew_config_command
-                              pst->nelm,
+                              prec->nelm,
                               option,
                               device
                               );
@@ -101,24 +118,24 @@ static long parse_status_response(dbCommon *pxx,
         printf("\n%s: %s %s\n", __FILE__, __func__, pxx->name);
     }
 
-    statusRecord *pst = (statusRecord *)pxx;
+    statusRecord *prec = (statusRecord *)pxx;
     YEW_PLC *d = device;
 
     long ret = yew_parse_response(buf,
                                   len,
-                                  &pst->ch01,
+                                  &prec->ch01,
                                   DBF_USHORT,
-                                  pst->nelm,
+                                  prec->nelm,
                                   option,
                                   d
                                   );
 
     switch (ret) {
     case NOT_DONE:
-        pst->nord = d->noff;
+        prec->nord = d->noff;
         // why we don't have break here?
     case 0:
-        pst->nord = pst->nelm;
+        prec->nord = prec->nelm;
     default:
         ;
     }

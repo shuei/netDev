@@ -40,28 +40,39 @@ epicsExportAddress(dset, devMbbiDirectYewPlc);
 static long init_mbbiDirect_record(mbbiDirectRecord *prec)
 {
     YEW_PLC *d = yew_calloc(0, 0, 0, kWord);
-    long status = netDevInitXxRecord((dbCommon *)prec,
-                                     &prec->inp,
-                                     MPF_READ | YEW_GET_PROTO | DEFAULT_TIMEOUT,
-                                     d,
-                                     yew_parse_link,
-                                     config_mbbiDirect_command,
-                                     parse_mbbiDirect_response
-                                     );
+    long ret = netDevInitXxRecord((dbCommon *)prec,
+                                  &prec->inp,
+                                  MPF_READ | YEW_GET_PROTO | DEFAULT_TIMEOUT,
+                                  d,
+                                  yew_parse_link,
+                                  config_mbbiDirect_command,
+                                  parse_mbbiDirect_response
+                                  );
 
     if (0) {
-        //
-    } else if (d->flag == 'L') {
-        prec->nobt = 32;
-        prec->mask = 0xffffffff;
-        prec->shft = 0;
-    } else {
+    } else if (d->conv == kSHORT) {
         prec->nobt = 16;
         prec->mask = 0xffff;
         prec->shft = 0;
+    } else if (d->conv == kUSHORT) {
+        prec->nobt = 16;
+        prec->mask = 0xffff;
+        prec->shft = 0;
+    } else if (d->conv == kLONG) {
+        prec->nobt = 32;
+        prec->mask = 0xffffffff;
+        prec->shft = 0;
+    //} else if (d->conv == kULONG) {
+    //} else if (d->conv == kFLOAT) {
+    //} else if (d->conv == kDOUBLE) {
+    //} else if (d->conv == kBCD) {
+    } else{
+        errlogPrintf("%s: unsupported conversion \"&%s\" for %s\n", __func__, convstr[d->conv], prec->name);
+        prec->pact = 1;
+        return -1;
     }
 
-    return status;
+    return ret;
 }
 
 static long read_mbbiDirect(mbbiDirectRecord *prec)
@@ -119,7 +130,7 @@ static long parse_mbbiDirect_response(dbCommon *pxx,
 
     if (0) {
         //
-    } else if (d->flag == 'L') {
+    } else if (d->conv == kLONG) {
         int32_t val;
         long ret = yew_parse_response(buf,
                                       len,
@@ -131,7 +142,7 @@ static long parse_mbbiDirect_response(dbCommon *pxx,
                                       );
         prec->rval = val;
         return ret;
-    } else if (d->flag == 'U') {
+    } else if (d->conv == kUSHORT) {
         uint16_t val;
         long ret = yew_parse_response(buf,
                                       len,
@@ -143,7 +154,7 @@ static long parse_mbbiDirect_response(dbCommon *pxx,
                                       );
         prec->rval = val;
         return ret;
-    } else {
+    } else {//(d->conv == kSHORT)
         int16_t val;
         long ret = yew_parse_response(buf,
                                       len,

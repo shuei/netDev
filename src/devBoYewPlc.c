@@ -41,14 +41,31 @@ static long init_bo_record(boRecord *prec)
 {
     prec->mask = 1;
 
-    return netDevInitXxRecord((dbCommon *)prec,
-                              &prec->out,
-                              MPF_WRITE | YEW_GET_PROTO | DEFAULT_TIMEOUT,
-                              yew_calloc(0, 0, 0, kBit),
-                              yew_parse_link,
-                              config_bo_command,
-                              parse_bo_response
-                              );
+    YEW_PLC *d = yew_calloc(0, 0, 0, kBit);
+    long ret = netDevInitXxRecord((dbCommon *)prec,
+                                  &prec->out,
+                                  MPF_WRITE | YEW_GET_PROTO | DEFAULT_TIMEOUT,
+                                  d,
+                                  yew_parse_link,
+                                  config_bo_command,
+                                  parse_bo_response
+                                  );
+
+    if (0) {
+    } else if (d->conv == kSHORT) {
+    //} else if (d->conv == kUSHORT) {
+    //} else if (d->conv == kLONG) {
+    //} else if (d->conv == kULONG) {
+    //} else if (d->conv == kFLOAT) {
+    //} else if (d->conv == kDOUBLE) {
+    //} else if (d->conv == kBCD) {
+    } else {
+        errlogPrintf("%s: unsupported conversion \"&%s\" for %s\n", __func__, convstr[d->conv], prec->name);
+        prec->pact = 1;
+        return -1;
+    }
+
+    return ret;
 }
 
 static long write_bo(boRecord *prec)

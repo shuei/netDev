@@ -54,47 +54,94 @@ static long init_waveform_record(waveformRecord *prec)
                                   parse_waveform_response
                                   );
 
-    char *ftvlstr = pamapdbfType[prec->ftvl].strvalue;
-    ftvlstr += 4;
+    d->val = calloc(prec->nelm, convsize[d->conv]);
+    if (! d->val) {
+        errlogPrintf("%s: %s : calloc failed\n", __func__, prec->name);
+        prec->pact = 1;
+        return -1;
+    }
+
+    //
+    const char *ftvlstr = (pamapdbfType[prec->ftvl].strvalue) + 4;
 
     //DEBUG
     if (netDevDebug>0) {
-        printf("%s: %s %s, ftvl=%s(%d) flag=%c\n", __FILE__, __func__, prec->name, ftvlstr, prec->ftvl, d->flag);
+        printf("%s: %s %s, ftvl=%s(%d) conv=%s\n", __FILE__, __func__, prec->name, ftvlstr, prec->ftvl, convstr[d->conv]);
     }
 
-#if 0
+    // check conversion option
     if (0) {
-        //
     } else if (prec->ftvl==DBF_DOUBLE) {
-        if (d->flag!='D') {
-            errlogPrintf("%s: &D option is required when FTVL is %s\n", prec->name, ftvlstr);
-            recGblSetSevr(prec, INVALID_ALARM, INVALID_ALARM);
-            return ERROR;
+        if (0) {
+        } else if (d->conv == kSHORT) {
+        } else if (d->conv == kUSHORT) {
+        } else if (d->conv == kLONG) {
+        //} else if (d->conv == kULONG) {
+        } else if (d->conv == kFLOAT) {
+        } else if (d->conv == kDOUBLE) {
+        //} else if (d->conv == kBCD) {
+        } else {
+            errlogPrintf("%s: %s : unsupported conversion \"&%s\" with FTVL = %s\n", __func__, ftvlstr, convstr[d->conv], prec->name);
+            prec->pact = 1;
+            return -1;
         }
     } else if (prec->ftvl==DBF_FLOAT) {
-        if (d->flag!='F') {
-            errlogPrintf("%s: &F option is required when FTVL is %s\n", prec->name, ftvlstr);
-            recGblSetSevr(prec, INVALID_ALARM, INVALID_ALARM);
-            return ERROR;
+        if (0) {
+        } else if (d->conv == kSHORT) {
+        } else if (d->conv == kUSHORT) {
+        } else if (d->conv == kLONG) {
+        //} else if (d->conv == kULONG) {
+        } else if (d->conv == kFLOAT) {
+        //} else if (d->conv == kDOUBLE) {
+        //} else if (d->conv == kBCD) {
+        } else {
+            errlogPrintf("%s: %s : unsupported conversion \"&%s\" with FTVL = %s\n", __func__, ftvlstr, convstr[d->conv], prec->name);
+            prec->pact = 1;
+            return -1;
         }
-    } else if (prec->ftvl==DBF_SHORT || prec->ftvl==DBF_USHORT || prec->ftvl==DBF_LONG || prec->ftvl==DBF_ULONG) {
-        if (d->flag=='F' || d->flag=='D') {
-            errlogPrintf("%s: unsupported conbination of FTVL (%s) and option(&%c)\n", prec->name, ftvlstr, d->flag);
-            recGblSetSevr(prec, INVALID_ALARM, INVALID_ALARM);
-            return ERROR;
+    } else if (prec->ftvl==DBF_LONG || prec->ftvl==DBF_ULONG) {
+        if (0) {
+        } else if (d->conv == kSHORT) {
+        } else if (d->conv == kUSHORT) {
+        } else if (d->conv == kLONG) {
+        //} else if (d->conv == kULONG) {
+        //} else if (d->conv == kFLOAT) {
+        //} else if (d->conv == kDOUBLE) {
+        //} else if (d->conv == kBCD) {
+        } else {
+            errlogPrintf("%s: %s : unsupported conversion \"&%s\" with FTVL = %s\n", __func__, ftvlstr, convstr[d->conv], prec->name);
+            prec->pact = 1;
+            return -1;
+        }
+    } else if (prec->ftvl==DBF_SHORT || prec->ftvl==DBF_USHORT) {
+        if (0) {
+        } else if (d->conv == kSHORT) {
+        } else if (d->conv == kUSHORT) {
+        //} else if (d->conv == kLONG) {
+        //} else if (d->conv == kULONG) {
+        //} else if (d->conv == kFLOAT) {
+        //} else if (d->conv == kDOUBLE) {
+        //} else if (d->conv == kBCD) {
+        } else {
+            prec->pact = 1;
+            return -1;
         }
     } else {
-        errlogPrintf("%s: unsupported of FTVL (%s)\n", prec->name, ftvlstr);
-        recGblSetSevr(prec, INVALID_ALARM, INVALID_ALARM);
-        return ERROR;
+        errlogPrintf("%s: %s : unsupported FTVL = %s\n", __func__, prec->name, ftvlstr);
+        prec->pact = 1;
+        return -1;
     }
-#endif
 
     return ret;
 }
 
 static long read_waveform(waveformRecord *prec)
 {
+    //DEBUG
+    if (netDevDebug>0) {
+        printf("\n%s: %s %s pact=%d\n", __FILE__, __func__, prec->name, prec->pact);
+    }
+
     TRANSACTION *t = prec->dpvt;
     YEW_PLC *d = t->device;
 
@@ -104,7 +151,10 @@ static long read_waveform(waveformRecord *prec)
     d->nleft = 0;
     d->noff = 0;
 
-    return netDevReadWriteXx((dbCommon *)prec);
+    //
+    long ret = netDevReadWriteXx((dbCommon *)prec);
+
+    return ret;
 }
 
 static long config_waveform_command(dbCommon *pxx,
@@ -117,7 +167,7 @@ static long config_waveform_command(dbCommon *pxx,
 {
     //DEBUG
     if (netDevDebug>0) {
-        printf("\n%s: %s %s\n", __FILE__, __func__, pxx->name);
+        printf("\n%s: %s %s pact=%d\n", __FILE__, __func__, pxx->name, pxx->pact);
     }
 
     waveformRecord *prec = (waveformRecord *)pxx;
@@ -140,22 +190,181 @@ static long parse_waveform_response(dbCommon *pxx,
                                     int transaction_id
                                     )
 {
-    //DEBUG
-    if (netDevDebug>0) {
-        printf("\n%s: %s %s\n", __FILE__, __func__, pxx->name);
-    }
-
     waveformRecord *prec = (waveformRecord *)pxx;
     YEW_PLC *d = device;
+    const char *ftvlstr = (pamapdbfType[prec->ftvl].strvalue) + 4;
 
-    long ret = yew_parse_response(buf,
-                                  len,
-                                  prec->bptr,
-                                  prec->ftvl, // This has nothing to do with options such as \&F or \&L
-                                  prec->nelm,
-                                  option,
-                                  d
-                                  );
+    //DEBUG
+    if (netDevDebug>0) {
+        printf("\n%s: %s %s pact=%d ftvl=%s conv=%s nleft=%d\n", __FILE__, __func__, prec->name, prec->pact, ftvlstr, convstr[d->conv], d->nleft);
+    }
+
+    //
+    long ret = 0;
+
+    if (0) {
+        //
+    } else if (prec->ftvl == DBF_DOUBLE && d->conv == kSHORT) {
+        int16_t  *val = d->val;
+        double   *bptr = prec->bptr;
+        const int start = d->noff / d->width;
+
+        ret = yew_parse_response(buf,
+                                 len,
+                                 val,
+                                 DBF_SHORT,
+                                 prec->nelm,
+                                 option,
+                                 d
+                                 );
+
+        const int end = d->noff / d->width;
+        for (int i=start; i<end; i++) {
+            bptr[i] = val[i];
+            //printf("%d %d %f\n", i, val[i], bptr[i]);
+        }
+    } else if (prec->ftvl == DBF_DOUBLE && d->conv == kUSHORT) {
+        uint16_t *val = d->val;
+        double   *bptr = prec->bptr;
+        const int start = d->noff / d->width;
+
+        ret = yew_parse_response(buf,
+                                 len,
+                                 val,
+                                 DBF_USHORT,
+                                 prec->nelm,
+                                 option,
+                                 d
+                                 );
+
+        const int end = d->noff / d->width;
+        for (int i=start; i<end; i++) {
+            bptr[i] = val[i];
+            //printf("%d %u %f\n", i, val[i], bptr[i]);
+        }
+    } else if (prec->ftvl == DBF_DOUBLE && d->conv == kLONG) {
+        int32_t  *val = d->val;
+        double   *bptr = prec->bptr;
+        const int start = d->noff / d->width;
+
+        ret = yew_parse_response(buf,
+                                 len,
+                                 val,
+                                 DBF_LONG,
+                                 prec->nelm,
+                                 option,
+                                 d
+                                 );
+
+        const int end = d->noff / d->width;
+        for (int i=start; i<end; i++) {
+            bptr[i] = val[i];
+            //printf("%d %d %f\n", i, val[i], bptr[i]);
+        }
+    } else if (prec->ftvl == DBF_DOUBLE && d->conv == kFLOAT) {
+        float    *val = d->val;
+        double   *bptr = prec->bptr;
+        const int start = d->noff / d->width;
+
+        ret = yew_parse_response(buf,
+                                 len,
+                                 val,
+                                 DBF_FLOAT,
+                                 prec->nelm,
+                                 option,
+                                 d
+                                 );
+
+        const int end = d->noff / d->width;
+        for (int i=start; i<end; i++) {
+            bptr[i] = val[i];
+            //printf("%d %d %f\n", i, val[i], bptr[i]);
+        }
+    } else if (prec->ftvl == DBF_FLOAT && d->conv == kSHORT) {
+        int16_t  *val = d->val;
+        float    *bptr = prec->bptr;
+        const int start = d->noff / d->width;
+
+        ret = yew_parse_response(buf,
+                                 len,
+                                 val,
+                                 DBF_SHORT,
+                                 prec->nelm,
+                                 option,
+                                 d
+                                 );
+
+        const int end = d->noff / d->width;
+        for (int i=start; i<end; i++) {
+            bptr[i] = val[i];
+            //printf("%d %d %f\n", i, val[i], bptr[i]);
+        }
+    } else if (prec->ftvl == DBF_FLOAT && d->conv == kUSHORT) {
+        uint16_t *val = d->val;
+        float    *bptr = prec->bptr;
+        const int start = d->noff / d->width;
+
+        ret = yew_parse_response(buf,
+                                 len,
+                                 val,
+                                 DBF_USHORT,
+                                 prec->nelm,
+                                 option,
+                                 d
+                                 );
+
+        const int end = d->noff / d->width;
+        for (int i=start; i<end; i++) {
+            bptr[i] = val[i];
+            //printf("%d %u %f\n", i, val[i], bptr[i]);
+        }
+    } else if (prec->ftvl == DBF_FLOAT && d->conv == kLONG) {
+        int32_t  *val = d->val;
+        float    *bptr = prec->bptr;
+        const int start = d->noff / d->width;
+
+        ret = yew_parse_response(buf,
+                                 len,
+                                 val,
+                                 DBF_LONG,
+                                 prec->nelm,
+                                 option,
+                                 d
+                                 );
+
+        const int end = d->noff / d->width;
+        for (int i=start; i<end; i++) {
+            bptr[i] = val[i];
+            //printf("%d %d %f\n", i, val[i], bptr[i]);
+        }
+    } else if (prec->ftvl == DBF_LONG &&  d->conv == kUSHORT) {
+        ret = yew_parse_response(buf,
+                                 len,
+                                 prec->bptr,
+                                 DBF_ULONG,
+                                 prec->nelm,
+                                 option,
+                                 d
+                                 );
+    } else if (prec->ftvl == DBF_ULONG && d->conv == kSHORT) {
+        ret = yew_parse_response(buf,
+                                 len,
+                                 prec->bptr,
+                                 DBF_LONG,
+                                 prec->nelm,
+                                 option,
+                                 d
+                                 );
+    } else {
+        ret = yew_parse_response(buf,
+                                 len,
+                                 prec->bptr,
+                                 prec->ftvl,
+                                 prec->nelm,
+                                 option,
+                                 d
+                                 );
+    }
 
     //DEBUG
     if (netDevDebug>0) {

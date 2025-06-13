@@ -50,14 +50,31 @@ static long init_ai_record(aiRecord *prec)
         prec->roff = 0;
     }
 
-    return netDevInitXxRecord((dbCommon *)prec,
-                              &prec->inp,
-                              MPF_READ | YEW_GET_PROTO | DEFAULT_TIMEOUT,
-                              yew_calloc(0, 0, 0, kWord),
-                              yew_parse_link,
-                              config_ai_command,
-                              parse_ai_response
-                              );
+    YEW_PLC *d = yew_calloc(0, 0, 0, kWord);
+    long ret = netDevInitXxRecord((dbCommon *)prec,
+                                  &prec->inp,
+                                  MPF_READ | YEW_GET_PROTO | DEFAULT_TIMEOUT,
+                                  d,
+                                  yew_parse_link,
+                                  config_ai_command,
+                                  parse_ai_response
+                                  );
+
+    if (0) {
+    } else if (d->conv == kSHORT) {
+    } else if (d->conv == kUSHORT) {
+    } else if (d->conv == kLONG) {
+    //} else if (d->conv == kULONG) {
+    } else if (d->conv == kFLOAT) {
+    } else if (d->conv == kDOUBLE) {
+    //} else if (d->conv == kBCD) {
+    } else {
+        errlogPrintf("%s: unsupported conversion \"&%s\" for %s\n", __func__, convstr[d->conv], prec->name);
+        prec->pact = 1;
+        return -1;
+    }
+
+    return ret;
 }
 
 static long read_ai(aiRecord *prec)
@@ -129,7 +146,7 @@ static long parse_ai_response(dbCommon *pxx,
 
     if (0) {
         //
-    } else if (d->flag == 'D') {
+    } else if (d->conv == kDOUBLE) {
         double val;
         long ret = yew_parse_response(buf,
                                       len,
@@ -148,7 +165,7 @@ static long parse_ai_response(dbCommon *pxx,
             ret = 2; // Don't convert
         }
         return ret;
-    } else if (d->flag == 'F') {
+    } else if (d->conv == kFLOAT) {
         float val;
         long ret = yew_parse_response(buf,
                                       len,
@@ -167,7 +184,7 @@ static long parse_ai_response(dbCommon *pxx,
             ret = 2; // Don't convert
         }
         return ret;
-    } else if (d->flag == 'L') {
+    } else if (d->conv == kLONG) {
         int32_t val;
         long ret = yew_parse_response(buf,
                                       len,
@@ -177,9 +194,10 @@ static long parse_ai_response(dbCommon *pxx,
                                       option,
                                       d
                                       );
+
         prec->rval = val;
         return ret;
-    } else if (d->flag == 'U') {
+    } else if (d->conv == kUSHORT) {
         uint16_t val;
         long ret = yew_parse_response(buf,
                                       len,
@@ -189,9 +207,10 @@ static long parse_ai_response(dbCommon *pxx,
                                       option,
                                       d
                                       );
+
         prec->rval = val;
         return ret;
-    } else {
+    } else {//(d->conv == kSHORT)
         int16_t val;
         long ret = yew_parse_response(buf,
                                       len,
@@ -201,6 +220,7 @@ static long parse_ai_response(dbCommon *pxx,
                                       option,
                                       d
                                       );
+
         prec->rval = val;
         return ret;
     }
