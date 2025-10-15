@@ -40,10 +40,10 @@
 #define RETRY_MASK 0x02000000
 #define QUEUE_MASK 0x01000000
 #define BSIZE_MASK 0x00ff0000
-#define BSIZE_SIFT 16
+#define BSIZE_SHFT 16
 #define FINET_MASK 0x00008000
 #define TMOUT_MASK 0x00007fff
-#define TMOUT_SIFT 0
+#define TMOUT_SHFT 0
 #define MPF_OPT_MASK ( PROTO_MASK | EVENT_MASK | OMRON_MASK | BSIZE_MASK | RETRY_MASK)
 
 #define GET_PROTOCOL(x)    ((x) & PROTO_MASK)
@@ -53,9 +53,9 @@
 #define GET_RECON(x)       ((x) & RECON_MASK)
 #define GET_RETRY(x)       ((x) & RETRY_MASK)
 #define GET_SAMEPORT(x)    ((x) & OMRON_MASK)
-#define GET_BUFSIZE(x)    (((x) & BSIZE_MASK) >> BSIZE_SIFT)
+#define GET_BUFSIZE(x)    (((x) & BSIZE_MASK) >> BSIZE_SHFT)
 #define GET_FINETMO(x)     ((x) & FINET_MASK)
-#define GET_TIMEOUT(x)    (((x) & TMOUT_MASK) >> TMOUT_SIFT)
+#define GET_TIMEOUT(x)    (((x) & TMOUT_MASK) >> TMOUT_SHFT)
 #define GET_MPF_OPTION(x)  ((x) & MPF_OPT_MASK)
 
 #define MPF_UDP      0
