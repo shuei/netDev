@@ -94,11 +94,19 @@
 #define isNoLinger(x)   (GET_RETRY(x) == MPF_NOLINGER)
 #define isFineTmo(x)    (GET_FINETMO(x) == MPF_FINETMO)
 
+// TRUE and FALSE should be already defeined in dbDefs.h. Define them just for sure.
+#ifndef TRUE
 #define TRUE         1
+#endif
+#ifndef FALSE
 #define FALSE        0
+#endif
+
+//
 #define OK         ((long)  0)
 #define ERROR      ((long) -1)
 
+//
 #define NOT_MINE   (ERROR - 1)
 #define NOT_DONE   (NOT_MINE - 1)
 #define RCV_MORE   (NOT_DONE - 1)
