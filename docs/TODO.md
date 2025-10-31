@@ -33,7 +33,7 @@ ToDo list for netDev
     - [x] set NOBT to 32 with &L option
   - [x] Add &U option support
 - [ ] Mark patternRecord as obsolete.
-- [ ] Drop vxWorks support.
+- [x] Drop vxWorks support.
 - [x] Add Chino KE3000 series data logger.
 - [ ] Introduce pseudo device 'A' to access Yokogawa FA-M3 special modules.
 - [ ] Implement Information command ($62) to query module information

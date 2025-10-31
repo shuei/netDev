@@ -11,13 +11,6 @@
  ****************************************************************************/
 /* Current Author: Jun-ichi Odagiri (jun-ichi.odagiri@kek.jp, KEK) */
 
-#ifdef vxWorks
-#  include <vxWorks.h>
-#  include <types.h>
-#  include <stdioLib.h>
-#  include <lstLib.h>
-#endif
-
 #include <stdlib.h>
 #include <string.h>
 

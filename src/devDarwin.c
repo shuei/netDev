@@ -135,15 +135,10 @@ static long darwin_parse_link(DBLINK *plink,
         d->p2 = p2;
 
         LOGMSG("p1:%d, p2:%d\n", d->p1, d->p2);
-#ifdef vxWorks
-        sprintf(d->comm_EF, "EF ,%c%02d,%c%02d%s", u1, p1, u2, p2, terminator);
-        sprintf(d->comm_EL, "EL%c%02d,%c%02d%s",   u1, p1, u2, p2, terminator);
-        sprintf(d->comm_EB, "EB %s", terminator);
-#else
+
         snprintf((char *)d->comm_EF, DARWIN_MAX_CMND_LEN - 1, "EF ,%c%02d,%c%02d%s", u1, p1, u2, p2, terminator);
         snprintf((char *)d->comm_EL, DARWIN_MAX_CMND_LEN - 1, "EL%c%02d,%c%02d%s",   u1, p1, u2, p2, terminator);
         snprintf((char *)d->comm_EB, DARWIN_MAX_CMND_LEN - 1, "EB %s", terminator);
-#endif
         break;
     default:
         errlogPrintf("devDarwin: unsupported port(%d) specified\n",

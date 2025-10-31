@@ -394,42 +394,6 @@ int netDevDeleteInternalIO(TRANSACTION *t)
 //
 // Get host(self) id in cpu native byte order
 //
-#ifdef vxWorks
-#include <sysLib.h>
-// Modified from We7000_get_host_ip
-// Returns the IP address of IOC *** WITHOUT *** converting
-// it into network byte ordering.
-uint32_t netDevGetSelfId(void)
-{
-    static long host_ip = 0;
-    char temp[1024];
-    char ead[1024];
-
-    LOGMSG("devNetDev: netDevGetSelfId()\n");
-
-    if (host_ip) {
-    return host_ip;
-    }
-
-    if (bootStructToString(temp, &sysBootParams) != OK) {
-        errlogPrintf("bootStructToString() error\n");
-        return ERROR;
-    }
-
-    // ead == `xxx.xxx.xxx.xxx:netmask'
-    sscanf(sysBootParams.ead, "%[0-9.]", ead);
-
-    host_ip = inet_addr(ead);
-    if (host_ip == ERROR) {
-        errlogPrintf("%s %s\n", sysBootParams.ead, ead);
-        errlogPrintf("address lookup failure\n");
-        return ERROR;
-    }
-
-    // network byte order to host local byte order
-    return ntohl(host_ip);
-}
-#else
 #define MAX_HOST_NAME  (256)
 uint32_t netDevGetSelfId(void)
 {
@@ -451,28 +415,10 @@ uint32_t netDevGetSelfId(void)
     // network byte order to host local byte order
     return ntohl(host_ip);
 }
-#endif
 
 //
 // Get host id
 //
-#ifdef vxWorks
-long netDevGetHostId(char *hostname, int *hostid)
-{
-    LOGMSG("devNetDev: netDevGetHostId(\"%s\",%8p)\n", hostname, hostid);
-
-    *hostid = hostGetByName(hostname);
-    if (*hostid == ERROR) {
-        *hostid = inet_addr(hostname);
-        if (*hostid == ERROR) {
-            return ERROR;
-        }
-    }
-
-    // already in network byte order
-    return OK;
-}
-#else
 long netDevGetHostId(char *hostname, in_addr_t *hostid)
 {
     LOGMSG("devNetDev: netDevGetHostId(\"%s\",%8p)\n", hostname, hostid);
@@ -490,7 +436,6 @@ long netDevGetHostId(char *hostname, in_addr_t *hostid)
     // already in network byte order
     return OK;
 }
-#endif
 
 //
 // Set event message length

@@ -173,13 +173,9 @@ static long parse_chan_response(dbCommon *pxx,
         }
 
         p = buf + TIME_STAMP_OFFSET;
-#ifdef vxWorks
-        sprintf(pchan->tsmp, "%02d/%02d/%02d/%02d/%02d/%02d.%d",
-                p[0], p[1], p[2], p[3], p[4], p[5], p[6]);
-#else
         snprintf(pchan->tsmp, MAX_STRING_SIZE, "%02d/%02d/%02d/%02d/%02d/%02d.%d",
                  p[0], p[1], p[2], p[3], p[4], p[5], p[6]);
-#endif
+
         for (n = 0; n < nelm; n++) {
             p = buf + CAHNNEL_OFFSET(n, alst); // p points to Unit No.
 
@@ -200,19 +196,13 @@ static long parse_chan_response(dbCommon *pxx,
 
             if (pchan->alst) {
                 p++; // p points to Alarm Sts
-#ifdef vxWorks
-                sprintf(((uint8_t *)albp) + ALARM_MSG_SIZE*n,
-                        "L1: %d, L2: %d, L3: %d, L4: %d",
-                        (p[0]) & 0x0f, (p[0] >> 4) & 0x0f,
-                        (p[1]) & 0x0f, (p[1] >> 4) & 0x0f);
-#else
                 snprintf(albp + ALARM_MSG_SIZE*n,
                          MAX_STRING_SIZE,
                          "L1: %d, L2: %d, L3: %d, L4: %d",
                          (p[0]) & 0x0f, (p[0] >> 4) & 0x0f,
                          (p[1]) & 0x0f, (p[1] >> 4) & 0x0f);
             }
-#endif
+
             p = buf + DATA_OFFSET(n, alst); // p points to Data on CH
             if (DARWIN_NEEDS_SWAP) {
                 swap_bytes(p, 1);

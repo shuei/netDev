@@ -10,9 +10,7 @@
  ****************************************************************************/
 /* Author: Jun-ichi Odagiri (jun-ichi.odagiri@kek.jp, KEK) */
 
-#ifndef vxWorks
 #include <errno.h>
-#endif
 
 #include <dbAccess.h>
 #include <dbAddr.h>
@@ -580,12 +578,7 @@ static void reconnect(MPF_COMMON *m)
 {
     LOGMSG("drvNetMpf: reconnect(%8p)\n", m);
 
-#ifdef vxWorks
-    char inet_string[256];
-    inet_ntoa_b((struct in_addr)m->peer_addr.sin_addr, inet_string);
-#else
     char *inet_string = inet_ntoa((struct in_addr)m->peer_addr.sin_addr);
-#endif
 
     while ((m->sfd = socket(AF_INET,
                             isUdp(m->option) ?
@@ -1015,12 +1008,8 @@ static int tcp_parent(SERVER *s)
         }
         epicsMutexUnlock(s->eventQ_mutex);
 
-#ifdef vxWorks
-        char visitor[256];
-        inet_ntoa_b((struct in_addr)s->mpf.sender_addr.sin_addr, visitor);
-#else
         char *visitor = inet_ntoa((struct in_addr)s->mpf.sender_addr.sin_addr);
-#endif
+
         if (!t) {
             errlogPrintf("drvNetMpf: unexpected connection request from %s\n", visitor);
             close(new_sfd);
@@ -1476,12 +1465,7 @@ void peerShow(const iocshArgBuf *args)
     epicsMutexUnlock(peerList.mutex);
 
     if (p) {
-#ifdef vxWorks
-        char inet_string[256];
-        inet_ntoa_b((struct in_addr)p->mpf.peer_addr.sin_addr, inet_string);
-#else
         char *inet_string = inet_ntoa(p->mpf.peer_addr.sin_addr);
-#endif
         printf("  ------------------------------\n");
         printf("  id:                %d\n", p->mpf.id);
         printf("  protocol:          %s\n", isUdp(p->mpf.option) ? "UDP" : "TCP");
@@ -1519,12 +1503,7 @@ void peerShowAll(const iocshArgBuf *args)
     epicsMutexMustLock(peerList.mutex);
     {
         for (p = (PEER *)ellFirst(&peerList.list); p; p = (PEER *)ellNext(&p->mpf.node)) {
-#ifdef vxWorks
-            char inet_string[256];
-            inet_ntoa_b((struct in_addr)p->mpf.peer_addr.sin_addr, inet_string);
-#else
             char *inet_string = inet_ntoa((struct in_addr)p->mpf.peer_addr.sin_addr);
-#endif
             char *protocol = isUdp(p->mpf.option) ? "UDP" : "TCP";
             uint16_t port = ntohs(p->mpf.peer_addr.sin_port);
 
@@ -1551,12 +1530,7 @@ void serverShow(const iocshArgBuf *args)
     epicsMutexUnlock(serverList.mutex);
 
     if (s) {
-#ifdef vxWorks
-        char inet_string[256];
-        inet_ntoa_b((struct in_addr)s->mpf.sender_addr.sin_addr, inet_string);
-#else
         char *inet_string = inet_ntoa(s->mpf.sender_addr.sin_addr);
-#endif
         printf("  ------------------------------\n");
         printf("  id:                  %d\n", s->mpf.id);
         printf("  protocol:            %s\n", isUdp(s->mpf.option) ? "UDP" : "TCP");
@@ -1590,12 +1564,7 @@ void serverShowAll(const iocshArgBuf *args)
     epicsMutexMustLock(serverList.mutex);
     {
         for (s = (SERVER *)ellFirst(&serverList.list); s; s = (SERVER *)ellNext(&s->mpf.node)) {
-#ifdef vxWorks
-            char inet_string[256];
-            inet_ntoa_b((struct in_addr)s->mpf.sender_addr.sin_addr, inet_string);
-#else
             char *inet_string = inet_ntoa((struct in_addr)s->mpf.sender_addr.sin_addr);
-#endif
             char *protocol = isUdp(s->mpf.option) ? "UDP" : "TCP";
             printf("Server %d: %s %d(0x%x)/%s\n",
                    s->mpf.id, inet_string, s->port, s->port, protocol);
@@ -2050,12 +2019,7 @@ void do_showrtt(PEER *p)
              pr;
              pr = (RTT_ITEM *)ellNext(&pr->node)) {
             if (pr->peer_addr.sin_addr.s_addr == p->mpf.peer_addr.sin_addr.s_addr) {
-#ifdef vxWorks
-                char inet_string[256];
-                inet_ntoa_b((struct in_addr)p->mpf.peer_addr.sin_addr, inet_string);
-#else
                 char *inet_string = inet_ntoa((struct in_addr)p->mpf.peer_addr.sin_addr);
-#endif
                 p->recv_time.secPastEpoch--;
                 p->recv_time.nsec += 1000000000;
 

@@ -12,13 +12,6 @@
 
 #include <devSup.h>
 #include <dbCommon.h>
-#ifdef vxWorks
-#include <hostLib.h>
-#endif
-
-#ifdef vxWorks
-typedef int in_addr_t;
-#endif
 
 #define MAX_INSTIO_STRING 256
 

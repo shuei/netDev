@@ -18,9 +18,6 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <sys/socket.h>
-#ifdef vxWorks
-#include <sockLib.h>
-#endif
 
 #include <errlog.h>
 #include <epicsEvent.h>
@@ -97,12 +94,10 @@
 #define isNoLinger(x)   (GET_RETRY(x) == MPF_NOLINGER)
 #define isFineTmo(x)    (GET_FINETMO(x) == MPF_FINETMO)
 
-#ifndef vxWorks
 #define TRUE         1
 #define FALSE        0
 #define OK         ((long)  0)
 #define ERROR      ((long) -1)
-#endif
 
 #define NOT_MINE   (ERROR - 1)
 #define NOT_DONE   (NOT_MINE - 1)
