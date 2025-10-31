@@ -618,12 +618,12 @@ static void reconnect(MPF_COMMON *m)
     } else {
         // turn on KEEPALIVE so if the client system crashes
         // this task will find out and suspend
-        int true = TRUE;
+        int opt = TRUE;
         while (setsockopt(m->sfd,
                           SOL_SOCKET,
                           SO_KEEPALIVE,
-                          &true,
-                          sizeof(true)
+                          &opt,
+                          sizeof(opt)
                           ) == ERROR) {
             errlogPrintf("setsockopt(SO_KEEPALIVE) failed\n");
             epicsThreadSleep(1.0);
@@ -991,12 +991,12 @@ static int tcp_parent(SERVER *s)
 
         // turn on KEEPALIVE so if the client system crashes
         // this task will find out and suspend
-        int true = TRUE;
+        int opt = TRUE;
         if (setsockopt(new_sfd,
                        SOL_SOCKET,
                        SO_KEEPALIVE,
-                       &true,
-                       sizeof(true)
+                       &opt,
+                       sizeof(opt)
                        ) == ERROR) {
             errlogPrintf("setsockopt(SO_KEEPALIVE) failed\n");
             return ERROR;
