@@ -547,7 +547,7 @@ static long yew_parse_response(uint8_t *buf,    // driver buf addr
     }
 
     if (buf[0] != response_type) {
-        errlogPrintf("devYewPlc: non-response returned (0x%02X)\n", buf[0]);
+        errlogPrintf("devYewPlc: Unexpected response: Expected=0x%02X Received=0x%02X)\n", response_type, buf[0]);
         return NOT_MINE;
     }
 
