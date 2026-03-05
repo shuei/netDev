@@ -53,7 +53,7 @@ long         netDevInitXxRecord(dbCommon *, DBLINK *, int, void *,
                                 parse_link_fn_t, config_command_fn_t, parse_response_fn_t);
 long         netDevReadWriteXx(dbCommon *);
 long         netDevInfo();
-long         netDevInit(void);
+long         netDevInit(int);
 long         netDevGetHostId(char *, in_addr_t *);
 uint32_t     netDevGetSelfId(void);
 long         netDevSetEvMsgLeng(dbCommon *, int);

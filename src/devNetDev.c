@@ -194,7 +194,7 @@ static void net_dev_async_completion(CALLBACK *pcb)
 //
 // netDevInit()
 //
-long netDevInit(void)
+long netDevInit(int after)
 {
     if (init_flag != 0) {
         return OK;
