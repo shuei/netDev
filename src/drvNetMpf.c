@@ -40,7 +40,7 @@ static TRANSACTION *get_request_from_queue(PEER *);
 static int send_msg(MPF_COMMON *);
 static int recv_msg(MPF_COMMON *);
 static void send_task(PEER *);
-static void receive_task(PEER *);
+static void recv_task(PEER *);
 static void mpf_timeout_handler(PEER *);
 static long init(void);
 static long report(void);
@@ -330,7 +330,7 @@ static long spawn_io_tasks(PEER *p)
     if ((p->recv_tid = epicsThreadCreate(task_name,
                                          RECV_PRIORITY,
                                          RECV_STACK,
-                                         (EPICSTHREADFUNC)receive_task,
+                                         (EPICSTHREADFUNC)recv_task,
                                          p
                                          )) == 0) {
         p->recv_tid = 0;
@@ -807,7 +807,7 @@ static void send_task(PEER *p)
 //
 // Receve task
 //
-static void receive_task(PEER *p)
+static void recv_task(PEER *p)
 {
     reconnect(&p->mpf);
 
