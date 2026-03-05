@@ -11,6 +11,7 @@
 /* Author: Jun-ichi Odagiri (jun-ichi.odagiri@kek.jp, KEK) */
 
 #include <errno.h>
+#include <string.h>
 
 #include <dbAccess.h>
 #include <dbAddr.h>
@@ -212,27 +213,27 @@ static long init(void)
     init_flag = 1;
 
     if ((peerList.mutex = epicsMutexCreate()) == 0) {
-        errlogPrintf("drvNetMpf: epicsMutexCreate failed\n");
+        errlogPrintf("drvNetMpf: %s: epicsMutexCreate(peerList) failed\n", __func__);
         return ERROR;
     }
 
     if ((serverList.mutex = epicsMutexCreate()) == 0) {
-        errlogPrintf("drvNetMpf: epicsMutexCreate failed\n");
+        errlogPrintf("drvNetMpf: %s: epicsMutexCreate(serverList) failed\n", __func__);
         return ERROR;
     }
 
     if ((showmsgList.mutex = epicsMutexCreate()) == 0) {
-        errlogPrintf("drvNetMpf: epicsMutexCreate failed\n");
+        errlogPrintf("drvNetMpf: %s: epicsMutexCreate(showmsgList) failed\n", __func__);
         return ERROR;
     }
 
     if ((showioList.mutex = epicsMutexCreate()) == 0) {
-      errlogPrintf("drvNetMpf: epicsMutexCreate failed\n");
-      return ERROR;
+        errlogPrintf("drvNetMpf: %s: epicsMutexCreate(showioList) failed\n", __func__);
+        return ERROR;
     }
 
     if ((showrttList.mutex = epicsMutexCreate()) == 0) {
-        errlogPrintf("drvNetMpf: epicsMutexCreate failed\n");
+        errlogPrintf("drvNetMpf: %s: epicsMutexCreate(showrttList) failed\n", __func__);
         return ERROR;
     }
 
@@ -243,7 +244,7 @@ static long init(void)
     ellInit(&showrttList.list);
 
     if (!(timerQueue = epicsTimerQueueAllocate(1, epicsThreadPriorityScanHigh))) {
-        errlogPrintf("drvNetMpf: epicsTimerQueueAllocate failed\n");
+        errlogPrintf("drvNetMpf: %s: epicsTimerQueueAllocate failed\n", __func__);
         return ERROR;
     }
 
@@ -279,22 +280,22 @@ static long create_semaphores(PEER *p)
     LOGMSG("drvNetMpf: create_semaphores(%8p)\n", p);
 
     if ((p->in_t_mutex=epicsMutexCreate()) == 0) {
-        errlogPrintf("drvNetMpf: epicsMutexCreate failed\n");
+        errlogPrintf("drvNetMpf: %s: epicsMutexCreate(in_t) failed\n", __func__);
         return ERROR;
     }
 
     if ((p->reqQ_mutex=epicsMutexCreate()) == 0) {
-        errlogPrintf("drvNetMpf: epicsMutexCreate failed\n");
+        errlogPrintf("drvNetMpf: %s: epicsMutexCreate(reqQ) failed\n", __func__);
         return ERROR;
     }
 
     if ((p->req_queued=epicsEventCreate(epicsEventEmpty)) == 0) {
-        errlogPrintf("drvNetMpf: epicsEventCreate failed\n");
+        errlogPrintf("drvNetMpf: %s: epicsEventCreate(req_queued) failed\n", __func__);
         return ERROR;
     }
 
     if ((p->next_cycle=epicsEventCreate(epicsEventEmpty)) == 0) {
-        errlogPrintf("drvNetMpf: epicsEventCreate failed\n");
+        errlogPrintf("drvNetMpf: %s: epicsEventCreate(next_cycle) failed\n", __func__);
         return ERROR;
     }
 
@@ -321,7 +322,7 @@ static long spawn_io_tasks(PEER *p)
                                          p
                                          )) == 0) {
         p->send_tid = 0;
-        errlogPrintf("drvNetMpf: epicsThreadCreate failed\n");
+        errlogPrintf("drvNetMpf: %s: epicsThreadCreate(send_task) failed\n", __func__);
         return ERROR;
     }
 
@@ -334,7 +335,7 @@ static long spawn_io_tasks(PEER *p)
                                          p
                                          )) == 0) {
         p->recv_tid = 0;
-        errlogPrintf("drvNetMpf: epicsThreadCreate failed\n");
+        errlogPrintf("drvNetMpf: %s: epicsThreadCreate(recv_task) failed\n", __func__);
         return ERROR;
     }
 
@@ -381,7 +382,7 @@ static void delete_peer(PEER *p)
 PEER *drvNetMpfInitPeer(struct sockaddr_in peer_addr, int option)
 {
     if (!init_flag) {
-        errlogPrintf("drvNetMpf: not initialized, check xxxAppInclude.dbd\n");
+        errlogPrintf("drvNetMpf: %s: not initialized, check xxxAppInclude.dbd\n", __func__);
         return NULL;
     }
 
@@ -398,7 +399,7 @@ PEER *drvNetMpfInitPeer(struct sockaddr_in peer_addr, int option)
 
         if (p) {
             if (GET_MPF_OPTION(p->mpf.option) != GET_MPF_OPTION(option)) {
-                errlogPrintf("drvNetMpf: peer option does not match\n");
+                errlogPrintf("drvNetMpf: %s: peer option does not match\n", __func__);
                 epicsMutexUnlock(peerList.mutex);
                 return NULL;
             }
@@ -410,7 +411,7 @@ PEER *drvNetMpfInitPeer(struct sockaddr_in peer_addr, int option)
         p = calloc(1, sizeof(PEER));
 
         if (!p) {
-            errlogPrintf("drvNetMpf: calloc failed\n");
+            errlogPrintf("drvNetMpf: %s: calloc failed\n", __func__);
             epicsMutexUnlock(peerList.mutex);
             return NULL;
         }
@@ -428,7 +429,7 @@ PEER *drvNetMpfInitPeer(struct sockaddr_in peer_addr, int option)
         ellInit(&p->reqQueue);
 
         if (create_semaphores(p) == ERROR) {
-            errlogPrintf("drvNetMpf: create_semaphores failed\n");
+            errlogPrintf("drvNetMpf: %s: create_semaphores failed\n", __func__);
             delete_peer(p);
             epicsMutexUnlock(peerList.mutex);
             return NULL;
@@ -438,7 +439,7 @@ PEER *drvNetMpfInitPeer(struct sockaddr_in peer_addr, int option)
                                                     (epicsTimerCallback)mpf_timeout_handler,
                                                     p
                                                     ))) {
-            errlogPrintf("drvNetMpf: epicsTimerQueueCreateTimer failed\n");
+            errlogPrintf("drvNetMpf: %s: epicsTimerQueueCreateTimer failed\n", __func__);
             delete_peer(p);
             epicsMutexUnlock(peerList.mutex);
             return NULL;
@@ -449,7 +450,7 @@ PEER *drvNetMpfInitPeer(struct sockaddr_in peer_addr, int option)
 
         p->mpf.send_buf = calloc(1, SEND_BUF_SIZE(p->mpf.option));
         if (!p->mpf.send_buf) {
-            errlogPrintf("drvNetMpf: calloc failed (send_buf)\n");
+            errlogPrintf("drvNetMpf: %s: calloc failed (send_buf)\n", __func__);
             delete_peer(p);
             epicsMutexUnlock(serverList.mutex);
             return NULL;
@@ -457,14 +458,14 @@ PEER *drvNetMpfInitPeer(struct sockaddr_in peer_addr, int option)
 
         p->mpf.recv_buf = calloc(1, RECV_BUF_SIZE(p->mpf.option));
         if (!p->mpf.recv_buf) {
-            errlogPrintf("drvNetMpf: calloc failed (recv_buf)\n");
+            errlogPrintf("drvNetMpf: %s: calloc failed (recv_buf)\n", __func__);
             delete_peer(p);
             epicsMutexUnlock(serverList.mutex);
             return NULL;
         }
 
         if (spawn_io_tasks(p) == ERROR) {
-            errlogPrintf("drvNetMpf: spawn_io_tasks failed\n");
+            errlogPrintf("drvNetMpf: %s: spawn_io_tasks failed\n", __func__);
             delete_peer(p);
             epicsMutexUnlock(peerList.mutex);
             return NULL;
@@ -485,13 +486,13 @@ long drvNetMpfSendRequest(TRANSACTION *t)
     LOGMSG("drvNetMpf: drvNetMpfSendRequest(%8p)\n", t);
 
     if (!t) {
-        errlogPrintf("drvNetMpf: null request\n");
+        errlogPrintf("drvNetMpf: %s: null request\n", __func__);
         return ERROR;
     }
 
     PEER *p;
     if (!(p = (PEER *)t->facility)) {
-        errlogPrintf("drvNetMpf: null peer\n");
+        errlogPrintf("drvNetMpf: %s: null peer\n", __func__);
         return ERROR;
     }
 
@@ -530,6 +531,7 @@ static TRANSACTION *get_request_from_queue(PEER *p)
 //
 static int send_msg(MPF_COMMON *m)
 {
+    char  errstr[512];
     void *cur = m->send_buf;
 
     if (isUdp(m->option)) {
@@ -541,7 +543,7 @@ static int send_msg(MPF_COMMON *m)
                              sizeof(m->peer_addr)
                              );
         if (len != m->send_len) {
-            errlogPrintf("drvNetMpf: sendto() failed [%d]", errno);
+            errlogPrintf("drvNetMpf: %s: sendto() failed: %s[%d]\n", __func__, strerror_r(errno, errstr, sizeof(errstr)), errno);
             return ERROR;
         }
 
@@ -554,8 +556,8 @@ static int send_msg(MPF_COMMON *m)
                                0
                                );
             if (len == ERROR) {
-                errlogPrintf("drvNetMpf: send error [%d]\n", errno);
-                return RECONNECT;
+                errlogPrintf("drvNetMpf: %s: send() failed: %s[%d]\n", __func__, strerror_r(errno, errstr, sizeof(errstr)), errno);
+                return RECONNECT; // RECONNECT is not handled in send_task() ...
             }
 
             m->send_len -= len;
@@ -576,6 +578,7 @@ static int send_msg(MPF_COMMON *m)
 //
 static void reconnect(MPF_COMMON *m)
 {
+    char errstr[512];
     LOGMSG("drvNetMpf: reconnect(%8p)\n", m);
 
     char *inet_string = inet_ntoa((struct in_addr)m->peer_addr.sin_addr);
@@ -585,7 +588,7 @@ static void reconnect(MPF_COMMON *m)
                             SOCK_DGRAM : SOCK_STREAM,
                             0
                             )) == ERROR) {
-        errlogPrintf("drvNetMpf: socket failed[%d]\n", errno);
+        errlogPrintf("drvNetMpf: %s: socket() failed: %s[%d]\n", __func__, strerror_r(errno, errstr, sizeof(errstr)), errno);
         epicsThreadSleep(1.0);
     }
 
@@ -600,12 +603,11 @@ static void reconnect(MPF_COMMON *m)
         my_addr.sin_port = isOmron(m->option)? m->peer_addr.sin_port:htons(0);
 
         if (isOmron(m->option)) {
-            errlogPrintf("drvNetMpf: Omron was detected [port: %d]\n",
-                         ntohs(my_addr.sin_port));
+            errlogPrintf("drvNetMpf: %s: Omron was detected [port: %d]\n", __func__, ntohs(my_addr.sin_port));
         }
 
         while (bind(m->sfd, (struct sockaddr *)&my_addr, sizeof(my_addr)) == ERROR) {
-            errlogPrintf("drvNetMpf: bind failed[%d]\n", errno);
+            errlogPrintf("drvNetMpf: %s: bind() failed: %s[%d]\n", __func__, strerror_r(errno, errstr, sizeof(errstr)), errno);
             epicsThreadSleep(1.0);
         }
     } else {
@@ -618,16 +620,16 @@ static void reconnect(MPF_COMMON *m)
                           &opt,
                           sizeof(opt)
                           ) == ERROR) {
-            errlogPrintf("setsockopt(SO_KEEPALIVE) failed\n");
+            errlogPrintf("drvNetMpf: %s: setsockopt(SO_KEEPALIVE) failed: %s[%d]\n", __func__, strerror_r(errno, errstr, sizeof(errstr)), errno);
             epicsThreadSleep(1.0);
         }
 
         do {
-            errlogPrintf("drvNetMpf: tcp client trying to connect to \"%s\"...\n", inet_string);
+            errlogPrintf("drvNetMpf: %s: tcp client trying to connect to \"%s\"...\n", __func__, inet_string);
             epicsThreadSleep(1.0);
         } while (connect(m->sfd, (struct sockaddr *)&m->peer_addr, (socklen_t)sizeof(m->peer_addr)) == ERROR);
 
-        errlogPrintf("drvNetMpf: connected to \"%s\"\n", inet_string);
+        errlogPrintf("drvNetMpf: %s: connected to \"%s\"\n", __func__, inet_string);
 
         setReconn(m->option);
     }
@@ -638,6 +640,7 @@ static void reconnect(MPF_COMMON *m)
 //
 static int recv_msg(MPF_COMMON *m)
 {
+    char errstr[512];
     void *cur = m->recv_buf;
     void *end = m->recv_buf + RECV_BUF_SIZE(m->option);
 
@@ -648,8 +651,7 @@ static int recv_msg(MPF_COMMON *m)
         memset(&m->sender_addr, 0, sender_addr_len);
 
         if (m->recv_len > RECV_BUF_SIZE(m->option)) {
-            errlogPrintf("drvNetMpf: receive buffer running short (requested:%zd, max:%d)\n",
-                         m->recv_len, RECV_BUF_SIZE(m->option));
+            errlogPrintf("drvNetMpf: %s: receive buffer running short (requested:%zd, max:%d)\n", __func__, m->recv_len, RECV_BUF_SIZE(m->option));
             return ERROR;
         }
 
@@ -661,7 +663,7 @@ static int recv_msg(MPF_COMMON *m)
                                &sender_addr_len
                                );
         if (len == ERROR) {
-            errlogPrintf("drvNetMpf: recvfrom() error [%d]\n", errno);
+            errlogPrintf("drvNetMpf: %s: recvfrom() failed: %s[%d]\n", __func__, strerror_r(errno, errstr, sizeof(errstr)), errno);
             return ERROR;
         }
 
@@ -669,8 +671,7 @@ static int recv_msg(MPF_COMMON *m)
     } else {
         do {
             if (m->recv_len > end - cur) {
-                errlogPrintf("drvNetMpf: receive buffer running short (requested:%zd, max:%zd)\n",
-                             m->recv_len, end - cur);
+                errlogPrintf("drvNetMpf: %s: receive buffer running short (requested:%zd, max:%zd)\n", __func__, m->recv_len, end - cur);
                 return ERROR;
             }
 
@@ -680,10 +681,10 @@ static int recv_msg(MPF_COMMON *m)
                                0
                                );
             if (len == ERROR) {
-                errlogPrintf("drvNetMpf: recv() error [%d]\n", errno);
+                errlogPrintf("drvNetMpf: %s: recv() failed: %s[%d]\n", __func__, strerror_r(errno, errstr, sizeof(errstr)), errno);
                 return RECONNECT;
             } else if (len == 0) {
-                errlogPrintf("drvNetMpf: EOF found while receiving\n");
+                errlogPrintf("drvNetMpf: %s: received EOF\n", __func__);
                 return RECONNECT;
             }
 
@@ -758,7 +759,7 @@ static void send_task(PEER *p)
                         t->io.async.timeout_counter - t->io.async.send_counter;
 
                 if (delta) {
-                    errlogPrintf("drvNetMpf: doubled callback detected (delta:%d)\n", delta);
+                    errlogPrintf("drvNetMpf: %s: doubled callback detected (delta:%d)\n", __func__, delta);
                 }
 #ifdef SANITY_PRINT
                 else if (!(t->io.async.send_counter % 10000)) {
@@ -866,11 +867,11 @@ static void recv_task(PEER *p)
                 epicsEventSignal(p->next_cycle);
             } else {
                 p->in_transaction = t;
-                errlogPrintf("drvNetMpf: discarding unexpected response for \"%s\"\n", t->record->name);
+                errlogPrintf("drvNetMpf: %s: discarding unexpected response for \"%s\"\n", __func__, t->record->name);
                 epicsTimerStartDelay(p->wd_id, t->io.async.timeout);
             }
         } else {
-            errlogPrintf("drvNetMpf: discarding stray response...\n");
+            errlogPrintf("drvNetMpf: %s: discarding stray response...\n", __func__);
         }
 
         p->mpf.recv_len = 0;
@@ -920,13 +921,13 @@ long drvNetMpfRegisterEvent(TRANSACTION *t)
     LOGMSG("drvNetMpf: drvNetMpfRegisterEvent(%8p)\n", t);
 
     if (!t) {
-        errlogPrintf("drvNetMpf: null event\n");
+        errlogPrintf("drvNetMpf: %s: null event\n", __func__);
         return ERROR;
     }
 
     SERVER *s;
     if (!(s = (SERVER *)t->facility)) {
-        errlogPrintf("drvNetMpf: null server\n");
+        errlogPrintf("drvNetMpf: %s: null server\n", __func__);
         return ERROR;
     }
 
@@ -941,11 +942,12 @@ long drvNetMpfRegisterEvent(TRANSACTION *t)
 
 static int tcp_parent(SERVER *s)
 {
+    char errstr[512];
     if ((s->mpf.sfd = socket(AF_INET,
                              SOCK_STREAM,
                              0
                              )) == ERROR) {
-        errlogPrintf("socket creation error\n");
+        errlogPrintf("drvNetMpf: %s: socket() failed: %s[%d]\n", __func__, strerror_r(errno, errstr, sizeof(errstr)), errno);
         return ERROR;
     }
 
@@ -956,7 +958,7 @@ static int tcp_parent(SERVER *s)
     my_addr.sin_port        = htons(s->port);
 
     for (;;) {
-        errlogPrintf("drvNetMpf: tcp parent: trying to bind...\n");
+        errlogPrintf("drvNetMpf: %s: tcp parent: trying to bind...\n", __func__);
 
         if (bind(s->mpf.sfd, (struct sockaddr *)&my_addr, sizeof(my_addr)) == OK) {
             break;
@@ -966,7 +968,7 @@ static int tcp_parent(SERVER *s)
     }
 
     if (listen(s->mpf.sfd, 10) == ERROR) {
-        errlogPrintf("listen error\n");
+        errlogPrintf("drvNetMpf: %s: listen() failed: %s[%d]\n", __func__, strerror_r(errno, errstr, sizeof(errstr)), errno);
         close(s->mpf.sfd);
         return ERROR;
     }
@@ -977,7 +979,7 @@ static int tcp_parent(SERVER *s)
 
         int new_sfd = accept(s->mpf.sfd, (struct sockaddr *)&s->mpf.sender_addr, &sender_addr_len);
         if (new_sfd == ERROR) {
-            errlogPrintf("client accept error [%d]\n", errno);
+            errlogPrintf("drvNetMpf: %s: accept() failed: %s[%d]\n", __func__, strerror_r(errno, errstr, sizeof(errstr)), errno);
             epicsThreadSleep(15.0);
             continue;
         }
@@ -991,7 +993,7 @@ static int tcp_parent(SERVER *s)
                        &opt,
                        sizeof(opt)
                        ) == ERROR) {
-            errlogPrintf("setsockopt(SO_KEEPALIVE) failed\n");
+            errlogPrintf("drvNetMpf: %s: setsockopt(SO_KEEPALIVE) failed: %s[%d]\n", __func__, strerror_r(errno, errstr, sizeof(errstr)), errno);
             return ERROR;
         }
 
@@ -1011,16 +1013,16 @@ static int tcp_parent(SERVER *s)
         char *visitor = inet_ntoa((struct in_addr)s->mpf.sender_addr.sin_addr);
 
         if (!t) {
-            errlogPrintf("drvNetMpf: unexpected connection request from %s\n", visitor);
+            errlogPrintf("drvNetMpf: %s: unexpected connection request from %s\n", __func__, visitor);
             close(new_sfd);
             continue; // while (TRUE)
         }
 
-        errlogPrintf("drvNetMpf: connection request from %s\n", visitor);
+        errlogPrintf("drvNetMpf: %s: connection request from %s\n", __func__, visitor);
 
         SERVER *c = calloc(1, sizeof(SERVER));
         if (!c) {
-            errlogPrintf("drvNetMpf: calloc failed\n");
+            errlogPrintf("drvNetMpf: %s: calloc failed\n", __func__);
             close(new_sfd);
             continue; // while (TRUE)
         }
@@ -1032,7 +1034,7 @@ static int tcp_parent(SERVER *s)
         ellInit(&c->eventQueue);
 
         if ((c->eventQ_mutex = epicsMutexCreate()) == 0) {
-            errlogPrintf("drvNetMpf: epicsMutexCreate failed\n");
+            errlogPrintf("drvNetMpf: %s: epicsMutexCreate failed\n", __func__);
             delete_server(c);
             continue; // while (TRUE)
         }
@@ -1045,20 +1047,20 @@ static int tcp_parent(SERVER *s)
 
         c->mpf.send_buf = calloc(1, SEND_BUF_SIZE(c->mpf.option));
         if (!c->mpf.send_buf) {
-            errlogPrintf("drvNetMpf: calloc failed (send_buf)\n");
+            errlogPrintf("drvNetMpf: %s: calloc failed (send_buf)\n", __func__);
             delete_server(c);
             continue; // while (TRUE)
         }
 
         c->mpf.recv_buf = calloc(1, RECV_BUF_SIZE(c->mpf.option));
         if (!c->mpf.recv_buf) {
-            errlogPrintf("drvNetMpf: calloc failed (recv_buf)\n");
+            errlogPrintf("drvNetMpf: %s: calloc failed (recv_buf)\n", __func__);
             delete_server(c);
             continue; // while (TRUE)
         }
 
         if (spawn_server_task(c) == ERROR) {
-            errlogPrintf("drvNetMpf: spawn_sever_tasks failed\n");
+            errlogPrintf("drvNetMpf: %s: spawn_sever_tasks failed\n", __func__);
             delete_server(c);
             continue; // while (TRUE)
         }
@@ -1088,7 +1090,7 @@ static long spawn_tcp_parent(SERVER *s)
                           (EPICSTHREADFUNC)tcp_parent,
                           s
                           ) == NULL) {
-        errlogPrintf("drvNetMpf: epicsThreadCreate failed\n");
+        errlogPrintf("drvNetMpf: %s: epicsThreadCreate failed\n", __func__);
         return ERROR;
     }
 
@@ -1100,13 +1102,14 @@ static long spawn_tcp_parent(SERVER *s)
 //
 static long prepare_udp_server_socket(SERVER *s)
 {
+    char errstr[512];
     LOGMSG("drvNetMpf: prepare_udp_server_socket(%8p)\n", s);
 
     if ((s->mpf.sfd = socket(AF_INET,
                              SOCK_DGRAM,
                              0
                              )) == ERROR) {
-        errlogPrintf("drvNetMpf: socket failed[%d]\n", errno);
+        errlogPrintf("drvNetMpf: %s: socket() failed %s[%d]\n", __func__, strerror_r(errno, errstr, sizeof(errstr)), errno);
         return ERROR;
     }
 
@@ -1122,7 +1125,7 @@ static long prepare_udp_server_socket(SERVER *s)
              (struct sockaddr *)&my_addr,
              (int)sizeof(my_addr)
              ) == ERROR) {
-        errlogPrintf("drvNetMpf: bind failed[%d]\n", errno);
+        errlogPrintf("drvNetMpf: %s: bind() failed %s[%d]\n", __func__, strerror_r(errno, errstr, sizeof(errstr)), errno);
         return ERROR;
     }
 
@@ -1147,7 +1150,7 @@ static long spawn_server_task(SERVER *s)
                                            s
                                            )) == 0) {
         s->server_tid = 0;
-        errlogPrintf("drvNetMpf: epicsThreadCreate failed\n");
+        errlogPrintf("drvNetMpf: %s: epicsThreadCreate failed\n", __func__);
         return ERROR;
     }
 
@@ -1213,7 +1216,7 @@ SERVER *drvNetMpfInitServer(unsigned short port, int option)
 
         if (s) {
             if (GET_MPF_OPTION(s->mpf.option) != GET_MPF_OPTION(option)) {
-                errlogPrintf("drvNetMpf: server option dose not match\n");
+                errlogPrintf("drvNetMpf: %s: server option dose not match\n", __func__);
                 epicsMutexUnlock(serverList.mutex);
                 return NULL;
             }
@@ -1225,7 +1228,7 @@ SERVER *drvNetMpfInitServer(unsigned short port, int option)
 
         s = calloc(1, sizeof(SERVER));
         if (!s) {
-            errlogPrintf("drvNetMpf: calloc failed\n");
+            errlogPrintf("drvNetMpf: %s: calloc failed\n", __func__);
             epicsMutexUnlock(serverList.mutex);
             return NULL;
         }
@@ -1236,7 +1239,7 @@ SERVER *drvNetMpfInitServer(unsigned short port, int option)
         ellInit(&s->eventQueue);
 
         if ((s->eventQ_mutex=epicsMutexCreate()) == 0) {
-            errlogPrintf("drvNetMpf: epicsMutexCreate failed\n");
+            errlogPrintf("drvNetMpf: %s: epicsMutexCreate failed\n", __func__);
             delete_server(s);
             epicsMutexUnlock(serverList.mutex);
             return NULL;
@@ -1244,14 +1247,14 @@ SERVER *drvNetMpfInitServer(unsigned short port, int option)
 
         if (isTcp(option)) {
             if (spawn_tcp_parent(s)) {
-                errlogPrintf("drvNetMpf: spawn_tcp_parent failed\n");
+                errlogPrintf("drvNetMpf: %s: spawn_tcp_parent failed\n", __func__);
                 delete_server(s);
                 epicsMutexUnlock(serverList.mutex);
                 return NULL;
             }
         } else {
             if (prepare_udp_server_socket(s) == ERROR) {
-                errlogPrintf("drvNetMpf: prepare_udp_server_socket failed\n");
+                errlogPrintf("drvNetMpf: %s: prepare_udp_server_socket failed\n", __func__);
                 delete_server(s);
                 epicsMutexUnlock(serverList.mutex);
                 return NULL;
@@ -1259,7 +1262,7 @@ SERVER *drvNetMpfInitServer(unsigned short port, int option)
 
             s->mpf.send_buf = calloc(1, SEND_BUF_SIZE(s->mpf.option));
             if (!s->mpf.send_buf) {
-                errlogPrintf("drvNetMpf: calloc failed (send_buf)\n");
+                errlogPrintf("drvNetMpf: %s: calloc failed (send_buf)\n", __func__);
                 delete_server(s);
                 epicsMutexUnlock(serverList.mutex);
                 return NULL;
@@ -1267,14 +1270,14 @@ SERVER *drvNetMpfInitServer(unsigned short port, int option)
 
             s->mpf.recv_buf = calloc(1, RECV_BUF_SIZE(s->mpf.option));
             if (!s->mpf.recv_buf) {
-                errlogPrintf("drvNetMpf: calloc failed (recv_buf)\n");
+                errlogPrintf("drvNetMpf: %s: calloc failed (recv_buf)\n", __func__);
                 delete_server(s);
                 epicsMutexUnlock(serverList.mutex);
                 return NULL;
             }
 
             if (spawn_server_task(s) == ERROR) {
-                errlogPrintf("drvNetMpf: spawn_server_task failed\n");
+                errlogPrintf("drvNetMpf: %s: spawn_server_task failed\n", __func__);
                 delete_server(s);
                 epicsMutexUnlock(serverList.mutex);
                 return NULL;
@@ -1295,7 +1298,7 @@ static int event_server(SERVER *s)
 {
     for (;;) {
         if (!event_server_start_flag) {
-            errlogPrintf("drvNetMpf: event server %d waiting for getting started...\n", s->mpf.id);
+            errlogPrintf("drvNetMpf: %s: event server %d waiting for getting started...\n", __func__, s->mpf.id);
             epicsThreadSleep(1.0);
             continue;
         }
@@ -1312,7 +1315,7 @@ static int event_server(SERVER *s)
         if (recv_msg(&s->mpf) == RECONNECT) {
             shutdown(s->mpf.sfd, 2);
             close(s->mpf.sfd);
-            errlogPrintf("drvNetMpf: event server %d exitting...\n", s->mpf.id);
+            errlogPrintf("drvNetMpf: %s: event server %d exitting...\n", __func__, s->mpf.id);
             break;
         }
 
@@ -1381,7 +1384,7 @@ static void remove_server(SERVER *target)
         for (s = (SERVER *)ellFirst(&serverList.list); s; s = (SERVER *)ellNext(&s->mpf.node)) {
             if (s == target) {
                 ellDelete(&serverList.list, &s->mpf.node);
-                errlogPrintf("server: %d removed\n", s->mpf.id);
+                errlogPrintf("server: %s: %d removed\n", __func__, s->mpf.id);
                 break;
             }
         }
@@ -1680,7 +1683,7 @@ void setTmoEventNum(const iocshArgBuf *args)
     struct sockaddr_in peer_addr;
 
     if (netDevGetHostId(hostname, &peer_addr.sin_addr.s_addr)) {
-        errlogPrintf("drvNetMpf: can't get hostid\n");
+        errlogPrintf("drvNetMpf: %s: can't get hostid\n", __func__);
         return;
     }
 
@@ -1719,7 +1722,7 @@ void enableTmoEvent(const iocshArgBuf *args)
     struct sockaddr_in peer_addr;
 
     if (netDevGetHostId(hostname, &peer_addr.sin_addr.s_addr)) {
-        errlogPrintf("drvNetMpf: can't get hostid\n");
+        errlogPrintf("drvNetMpf: %s: can't get hostid\n", __func__);
         return;
     }
 
@@ -1758,7 +1761,7 @@ void disableTmoEvent(const iocshArgBuf *args)
     struct sockaddr_in peer_addr;
 
     if (netDevGetHostId(hostname, &peer_addr.sin_addr.s_addr)) {
-        errlogPrintf("drvNetMpf: can't get hostid\n");
+        errlogPrintf("drvNetMpf: %s: can't get hostid\n", __func__);
         return;
     }
 
@@ -1805,18 +1808,18 @@ void showmsg(const iocshArgBuf *args)
 
     MSG_BY_IP *pm = calloc(1, sizeof(MSG_BY_IP));
     if (!pm) {
-        errlogPrintf("drvNetMpf: calloc failed\n");
+        errlogPrintf("drvNetMpf: %s: calloc failed\n", __func__);
         return;
     }
 
     if (netDevGetHostId(hostname, &pm->peer_addr.sin_addr.s_addr)) {
-        errlogPrintf("drvNetMpf: can't get hostid\n");
+        errlogPrintf("drvNetMpf: %s: can't get hostid\n", __func__);
         return;
     }
 
     int option = args[1].ival;
     if (option < 0 || option > 3) {
-        errlogPrintf("drvNetMpf: option out of range\n");
+        errlogPrintf("drvNetMpf: %s: option out of range\n", __func__);
         return;
     }
     if (option & 2) {
@@ -1889,14 +1892,14 @@ void showio(const iocshArgBuf *args)
 
     MSG_BY_PV *pm = calloc(1, sizeof(MSG_BY_PV));
     if (!pm) {
-        errlogPrintf("drvNetMpf: calloc failed\n");
+        errlogPrintf("drvNetMpf: %s: calloc failed\n", __func__);
         return;
     }
 
     DBADDR addr;
     long status = dbNameToAddr(pv_name, &addr);
     if (status) {
-        errlogPrintf("drvNetMpf: dbNameToAddr failed\n");
+        errlogPrintf("drvNetMpf: %s: dbNameToAddr failed\n", __func__);
         return;
     }
     pm->precord = addr.precord;
@@ -1972,12 +1975,12 @@ void showrtt(const iocshArgBuf *args)
 
     RTT_ITEM *pr = calloc(1, sizeof(RTT_ITEM));
     if (!pr) {
-        errlogPrintf("drvNetMpf: calloc failed\n");
+        errlogPrintf("drvNetMpf: %s: calloc failed\n", __func__);
         return;
     }
 
     if (netDevGetHostId(hostname, &pr->peer_addr.sin_addr.s_addr)) {
-        errlogPrintf("drvNetMpf: can't get hostid\n");
+        errlogPrintf("drvNetMpf: %s: can't get hostid\n", __func__);
         return;
     }
 
