@@ -47,7 +47,7 @@ static long init(void);
 static long report(void);
 static long spawn_tcp_parent(SERVER *);
 static int tcp_parent(SERVER *);
-static void reconnect(MPF_COMMON *);
+static void do_connect(MPF_COMMON *);
 static int event_server(SERVER *);
 void dump_msg(uint8_t *, ssize_t, int, int);
 void startEventServer(const iocshArgBuf *);
@@ -574,12 +574,12 @@ static int send_msg(MPF_COMMON *m)
 }
 
 //
-// Reconnect
+// Open a socket (and establish the connection, if TCP)
 //
-static void reconnect(MPF_COMMON *m)
+static void do_connect(MPF_COMMON *m)
 {
     char errstr[512];
-    LOGMSG("drvNetMpf: reconnect(%8p)\n", m);
+    LOGMSG("drvNetMpf: %s(%8p)\n", m, __func__);
 
     char *inet_string = inet_ntoa((struct in_addr)m->peer_addr.sin_addr);
 
@@ -810,14 +810,19 @@ static void send_task(PEER *p)
 //
 static void recv_task(PEER *p)
 {
-    reconnect(&p->mpf);
+    // Open a socket
+    do_connect(&p->mpf);
 
     for (;;) {
         if (recv_msg(&p->mpf) == RECONNECT) {
-            shutdown(p->mpf.sfd, 2);
+            // close the socket ...
+            shutdown(p->mpf.sfd, SHUT_RDWR);
             close(p->mpf.sfd);
             epicsThreadSleep(1.0);
-            reconnect(&p->mpf);
+            p->mpf.sfd = 0; // just in case
+
+            // ... and open it again
+            do_connect(&p->mpf);
             continue;
         }
 
