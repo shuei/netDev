@@ -55,6 +55,8 @@
 #define GET_TIMEOUT(x)    (((x) & TMOUT_MASK) >> TMOUT_SHFT)
 #define GET_MPF_OPTION(x)  ((x) & MPF_OPT_MASK)
 
+#define getProtocolName(x) (isUdp(x)?"UDP":"TCP")
+
 #define MPF_UDP      0
 #define MPF_TCP      PROTO_MASK
 #define MPF_NORMAL   0

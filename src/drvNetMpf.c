@@ -307,14 +307,17 @@ static long create_semaphores(PEER *p)
 //
 static long spawn_io_tasks(PEER *p)
 {
-    char *send_t_name = "tSndTsk";
-    char *recv_t_name = "tRcvTsk";
+    char *send_t_name = "netDevSendTask";
+    char *recv_t_name = "netDevRecvTask";
     char  task_name[32];
 
     LOGMSG("drvNetMpf: spawn_io_tasks(%8p)\n", p);
 
-    sprintf(task_name, "%s_%d", send_t_name, p->mpf.id);
+    // Open a socket
+    do_connect(&p->mpf);
 
+    //
+    sprintf(task_name, "%s_%d", send_t_name, p->mpf.id);
     if ((p->send_tid = epicsThreadCreate(task_name,
                                          SEND_PRIORITY,
                                          SEND_STACK,
@@ -326,8 +329,8 @@ static long spawn_io_tasks(PEER *p)
         return ERROR;
     }
 
+    //
     sprintf(task_name, "%s_%d", recv_t_name, p->mpf.id);
-
     if ((p->recv_tid = epicsThreadCreate(task_name,
                                          RECV_PRIORITY,
                                          RECV_STACK,
@@ -610,6 +613,9 @@ static void do_connect(MPF_COMMON *m)
             errlogPrintf("drvNetMpf: %s: bind() failed: %s[%d]\n", __func__, strerror_r(errno, errstr, sizeof(errstr)), errno);
             epicsThreadSleep(1.0);
         }
+
+        const int port = ntohs(m->peer_addr.sin_port);
+        errlogPrintf("drvNetMpf: %s: socket opened for %s:0x%4x(%d)/%s\n", __func__, inet_string, port, port, getProtocolName(m->option));
     } else {
         // turn on KEEPALIVE so if the client system crashes
         // this task will find out and suspend
@@ -625,11 +631,12 @@ static void do_connect(MPF_COMMON *m)
         }
 
         do {
-            errlogPrintf("drvNetMpf: %s: tcp client trying to connect to \"%s\"...\n", __func__, inet_string);
+            errlogPrintf("drvNetMpf: %s: tcp client trying to connect to %s...\n", __func__, inet_string);
             epicsThreadSleep(1.0);
         } while (connect(m->sfd, (struct sockaddr *)&m->peer_addr, (socklen_t)sizeof(m->peer_addr)) == ERROR);
 
-        errlogPrintf("drvNetMpf: %s: connected to \"%s\"\n", __func__, inet_string);
+        const int port = ntohs(m->peer_addr.sin_port);
+        errlogPrintf("drvNetMpf: %s: connected to %s:0x%4x(%d)/%s\n", __func__, inet_string, port, port, getProtocolName(m->option)); // in the case of UDP, this message is not quite accurate...
 
         setReconn(m->option);
     }
@@ -810,18 +817,15 @@ static void send_task(PEER *p)
 //
 static void recv_task(PEER *p)
 {
-    // Open a socket
-    do_connect(&p->mpf);
-
     for (;;) {
         if (recv_msg(&p->mpf) == RECONNECT) {
             // close the socket ...
             shutdown(p->mpf.sfd, SHUT_RDWR);
             close(p->mpf.sfd);
-            epicsThreadSleep(1.0);
             p->mpf.sfd = 0; // just in case
 
             // ... and open it again
+            epicsThreadSleep(1.0);
             do_connect(&p->mpf);
             continue;
         }
@@ -872,7 +876,7 @@ static void recv_task(PEER *p)
                 epicsEventSignal(p->next_cycle);
             } else {
                 p->in_transaction = t;
-                errlogPrintf("drvNetMpf: %s: discarding unexpected response for \"%s\"\n", __func__, t->record->name);
+                errlogPrintf("drvNetMpf: %s: discarding unexpected response for %s\n", __func__, t->record->name);
                 epicsTimerStartDelay(p->wd_id, t->io.async.timeout);
             }
         } else {
@@ -1476,7 +1480,7 @@ void peerShow(const iocshArgBuf *args)
         char *inet_string = inet_ntoa(p->mpf.peer_addr.sin_addr);
         printf("  ------------------------------\n");
         printf("  id:                %d\n", p->mpf.id);
-        printf("  protocol:          %s\n", isUdp(p->mpf.option) ? "UDP" : "TCP");
+        printf("  protocol:          %s\n", getProtocolName(p->mpf.option));
         printf("  socket_fd:         %d\n", p->mpf.sfd);
         printf("  addrss_family:     0x%04x\n", p->mpf.peer_addr.sin_family);
         printf("  intenet_addr:      %s\n", inet_string);
@@ -1512,7 +1516,7 @@ void peerShowAll(const iocshArgBuf *args)
     {
         for (p = (PEER *)ellFirst(&peerList.list); p; p = (PEER *)ellNext(&p->mpf.node)) {
             char *inet_string = inet_ntoa((struct in_addr)p->mpf.peer_addr.sin_addr);
-            char *protocol = isUdp(p->mpf.option) ? "UDP" : "TCP";
+            char *protocol = getProtocolName(p->mpf.option);
             uint16_t port = ntohs(p->mpf.peer_addr.sin_port);
 
             printf("Peer %d: %s %d(0x%x)/%s\n", p->mpf.id, inet_string, port, port, protocol);
@@ -1541,7 +1545,7 @@ void serverShow(const iocshArgBuf *args)
         char *inet_string = inet_ntoa(s->mpf.sender_addr.sin_addr);
         printf("  ------------------------------\n");
         printf("  id:                  %d\n", s->mpf.id);
-        printf("  protocol:            %s\n", isUdp(s->mpf.option) ? "UDP" : "TCP");
+        printf("  protocol:            %s\n", getProtocolName(s->mpf.option));
         printf("  socket_fd:           %d\n", s->mpf.sfd);
         printf("  port:                0x%04x\n", s->port);
         printf("  last_client(family): 0x%04x\n", s->mpf.sender_addr.sin_family);
@@ -1573,7 +1577,7 @@ void serverShowAll(const iocshArgBuf *args)
     {
         for (s = (SERVER *)ellFirst(&serverList.list); s; s = (SERVER *)ellNext(&s->mpf.node)) {
             char *inet_string = inet_ntoa((struct in_addr)s->mpf.sender_addr.sin_addr);
-            char *protocol = isUdp(s->mpf.option) ? "UDP" : "TCP";
+            char *protocol = getProtocolName(s->mpf.option);
             printf("Server %d: %s %d(0x%x)/%s\n",
                    s->mpf.id, inet_string, s->port, s->port, protocol);
         }
@@ -1942,7 +1946,6 @@ void do_showio(TRANSACTION *t, int dir)
 {
     static char *act[2] = {"Got", "Sending"};
     static char *row[2] = {"read", "write"};
-    static char *pro[2] = {"UDP", "TCP"};
     static char *iot[2] = {"COM/RES", "EVENT"};
 
     epicsMutexMustLock(showioList.mutex);
@@ -1956,7 +1959,7 @@ void do_showio(TRANSACTION *t, int dir)
                              act[dir],
                              pm->precord->name,
                              row[isWrite(t->option)],
-                             pro[isTcp(t->option)],
+                             getProtocolName(t->option),
                              iot[isEvent(t->option)]);
                 break;
             }
