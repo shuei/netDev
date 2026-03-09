@@ -25,6 +25,7 @@ DBDINC += chansRecord
 
 # install netDev.dbd into <top>/dbd
 DBD += netDev.dbd
+DBD += devYewPlc.dbd
 
 #
 INC += drvNetMpf.h

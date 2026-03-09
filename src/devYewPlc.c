@@ -38,13 +38,13 @@ extern int netDevDebug;
 #define YEW_DEFAULT_CPU          1
 #define YEW_DEFAULT_MODULE_UNIT  0
 #define YEW_DEFAULT_PORT         0x3001
-#define YEW_GET_PROTO            ((yewPlcUseTcp) ? MPF_TCP : MPF_UDP)
+#define YEW_GET_PROTO            (yewProtocol)
 #define YEW_MAX_BYTES            (yewMaxBytes)
 #define YEW_NEEDS_SWAP           (__BYTE_ORDER==__LITTLE_ENDIAN)
 #define YEW_SPECIAL_MODULE
 
-static int yewPlcUseTcp = 0;     // 0:UDP, 1:TCP
-static int yewMaxBytes  = 64*2;  // Maximum transfer bytes allowed
+static int yewProtocol  = MPF_UDP; // MPF_TCP
+static int yewMaxBytes  = 64*2;    // Maximum transfer bytes allowed
 
 //
 typedef enum {
@@ -602,3 +602,58 @@ static long yew_parse_response(uint8_t *buf,    // driver buf addr
 
     return ret;
 }
+
+//
+// IOC shell command registration
+//
+#include <iocsh.h>
+
+//
+int yewPlcProtocol(char *str);
+static const iocshArg yewPlcProtocolArg0 = { "protocol", iocshArgString };
+static const iocshArg *yewPlcProtocolArgs[] = { &yewPlcProtocolArg0 };
+static const iocshFuncDef yewPlcProtocolFuncDef = {"yewPlcProtocol", 1, yewPlcProtocolArgs,
+    "Change default protocol for Yew Plc to be TCP or UDP.\n"
+    "Calling  yewPlcProtocol after iocInit has no effect.\n"
+    "Default protocol: UDP\n"
+};
+static void yewPlcProtocolCallFunc(const iocshArgBuf *args) {
+    if (! yewPlcProtocol(args[0].sval)) {
+        iocshSetError(-1);
+    }
+}
+
+int yewPlcProtocol(char *protocol)
+{
+    if (!protocol) {
+        printf("Yew Plc Protocol : %s\n", (yewProtocol==MPF_TCP) ? "TCP" : "UDP" );
+        return 0;
+    } else if (strncasecmp(protocol, "TCP", 3) == 0) {
+        yewProtocol = MPF_TCP;
+        return 1;
+    } else if (strncasecmp(protocol, "UDP", 3) == 0) {
+        yewProtocol = MPF_UDP;
+        return 1;
+    } else {
+        printf("Error : Unrecognized protocol: %s\n", protocol);
+        return 0;
+    }
+}
+
+//
+static void devYewPlcRegisterCommands(void);
+static void devYewPlcRegisterCommands(void)
+{
+    //errlogPrintf("devYewPlc: %s\n", __func__);
+
+    static int init_flag = 0;
+    if (!init_flag) {
+        init_flag = 1;
+        iocshRegister(&yewPlcProtocolFuncDef, yewPlcProtocolCallFunc);
+    }
+}
+
+//
+epicsExportRegistrar(devYewPlcRegisterCommands);
+
+// end
