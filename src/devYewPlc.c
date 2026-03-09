@@ -37,13 +37,13 @@ extern int netDevDebug;
 #define YEW_DATA_OFFSET          4
 #define YEW_DEFAULT_CPU          1
 #define YEW_DEFAULT_MODULE_UNIT  0
-#define YEW_DEFAULT_PORT         0x3001
 #define YEW_GET_PROTO            (yewProtocol)
 #define YEW_MAX_BYTES            (yewMaxBytes)
 #define YEW_NEEDS_SWAP           (__BYTE_ORDER==__LITTLE_ENDIAN)
 #define YEW_SPECIAL_MODULE
 
 static int yewProtocol  = MPF_UDP; // MPF_TCP
+static int yewPort      = 0x3001;  // 0x3001(12289):port-A, 0x3003(12291):port-B
 static int yewMaxBytes  = 64*2;    // Maximum transfer bytes allowed
 
 //
@@ -173,7 +173,7 @@ static long yew_parse_link(DBLINK *plink,
     }
 
     if (!peer_addr->sin_port) {
-        peer_addr->sin_port = htons(YEW_DEFAULT_PORT);
+        peer_addr->sin_port = htons(yewPort);
         LOGMSG("devYewPlc: port: 0x%04x\n", ntohs(peer_addr->sin_port));
     }
 
@@ -613,7 +613,8 @@ int yewPlcProtocol(char *str);
 static const iocshArg yewPlcProtocolArg0 = { "protocol", iocshArgString };
 static const iocshArg *yewPlcProtocolArgs[] = { &yewPlcProtocolArg0 };
 static const iocshFuncDef yewPlcProtocolFuncDef = {"yewPlcProtocol", 1, yewPlcProtocolArgs,
-    "Change default protocol for Yew Plc to be TCP or UDP.\n"
+    "Switches the Yew Plc protocol default to TCP or UDP.\n"
+    "The protocol specified in INP/OUT field takes precedece.\n"
     "Calling  yewPlcProtocol after iocInit has no effect.\n"
     "Default protocol: UDP\n"
 };
@@ -641,6 +642,39 @@ int yewPlcProtocol(char *protocol)
 }
 
 //
+int yewPlcPort(unsigned port);
+static const iocshArg yewPlcPortArg0 = { "port#", iocshArgInt };
+static const iocshArg *yewPlcPortArgs[] = { &yewPlcPortArg0 };
+static const iocshFuncDef yewPlcPortFuncDef = {"yewPlcPort", 1, yewPlcPortArgs,
+    "Switches the Yew Plc port number default to 12889(0x3001) or 12291(0x3003).\n"
+    "The port numberh specified in INP/OUT field takes precedece.\n"
+    "Calling  yewPlcPort after iocInit has no effect.\n"
+    "Default port number: 0x3001\n"
+};
+static void yewPlcPortCallFunc(const iocshArgBuf *args) {
+    if (! yewPlcPort(args[0].ival)) {
+        iocshSetError(-1);
+    }
+}
+
+int yewPlcPort(unsigned port)
+{
+    if (port == 0) {
+        printf("Yew Plc Port : %u(0x%04x)\n", yewPort, yewPort);
+        return 0;
+    } else if (port == 0x3001) {
+        yewPort = port;
+        return 1;
+    } else if (port == 0x3003) {
+        yewPort = port;
+        return 1;
+    } else {
+        printf("Error : Unrecognized port#: %u(%04x)\n\n", port, port);
+        return 0;
+    }
+}
+
+//
 static void devYewPlcRegisterCommands(void);
 static void devYewPlcRegisterCommands(void)
 {
@@ -650,6 +684,7 @@ static void devYewPlcRegisterCommands(void)
     if (!init_flag) {
         init_flag = 1;
         iocshRegister(&yewPlcProtocolFuncDef, yewPlcProtocolCallFunc);
+        iocshRegister(&yewPlcPortFuncDef, yewPlcPortCallFunc);
     }
 }
 
