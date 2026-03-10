@@ -493,8 +493,8 @@ long drvNetMpfSendRequest(TRANSACTION *t)
         return ERROR;
     }
 
-    PEER *p;
-    if (!(p = (PEER *)t->facility)) {
+    PEER *p = (PEER *)t->facility;
+    if (!p) {
         errlogPrintf("drvNetMpf: %s: null peer\n", __func__);
         return ERROR;
     }
@@ -509,6 +509,7 @@ long drvNetMpfSendRequest(TRANSACTION *t)
     }
     epicsMutexUnlock(p->reqQ_mutex);
 
+    // send signal to sent_task()
     epicsEventSignal(p->req_queued);
 
     return OK;
@@ -631,7 +632,7 @@ static void do_connect(MPF_COMMON *m)
         }
 
         do {
-            errlogPrintf("drvNetMpf: %s: tcp client trying to connect to %s...\n", __func__, inet_string);
+            errlogPrintf("drvNetMpf: %s: tcp client trying to connect to %s ...\n", __func__, inet_string);
             epicsThreadSleep(1.0);
         } while (connect(m->sfd, (struct sockaddr *)&m->peer_addr, (socklen_t)sizeof(m->peer_addr)) == ERROR);
 
@@ -714,8 +715,10 @@ static int recv_msg(MPF_COMMON *m)
 static void send_task(PEER *p)
 {
     for (;;) {
+        // wait for signal from drvNetMpfSendRequest()
         epicsEventMustWait(p->req_queued);
 
+        //
         TRANSACTION *t;
         while ((t = get_request_from_queue(p))) {
             LOGMSG("drvNetMpf: got request from \"%s\"\n", t->record->name);
@@ -749,6 +752,8 @@ static void send_task(PEER *p)
             if (!t->parse_response || ret == NO_RESP) {
                 do_showio(t, 1);
                 t->ret = send_msg(&p->mpf);
+
+                //
                 if (!t->ret && ret == NOT_DONE) {
                     drvNetMpfSendRequest(t);
                 } else {
@@ -787,8 +792,13 @@ static void send_task(PEER *p)
             p->in_transaction = t;
             t->io.async.send_counter++;
             epicsTimerStartDelay(p->wd_id, t->io.async.timeout);
+
+            //
             do_showio(t, 1);
-            if ((t->ret = send_msg(&p->mpf))) {
+            t->ret = send_msg(&p->mpf);
+
+            //
+            if (t->ret) {
                 epicsTimerCancel(p->wd_id);
                 epicsMutexMustLock(p->in_t_mutex);
                 {
@@ -818,7 +828,11 @@ static void send_task(PEER *p)
 static void recv_task(PEER *p)
 {
     for (;;) {
-        if (recv_msg(&p->mpf) == RECONNECT) {
+        const int ret = recv_msg(&p->mpf);
+        epicsTimerCancel(p->wd_id);
+        epicsTimeGetCurrent(&p->recv_time);
+
+        if (ret == RECONNECT) {
             // close the socket ...
             shutdown(p->mpf.sfd, SHUT_RDWR);
             close(p->mpf.sfd);
@@ -831,7 +845,6 @@ static void recv_task(PEER *p)
         }
 
         TRANSACTION *t;
-        epicsTimerCancel(p->wd_id);
         epicsMutexMustLock(p->in_t_mutex);
         {
             t = p->in_transaction;
@@ -847,6 +860,7 @@ static void recv_task(PEER *p)
                                        t->device,
                                        t->transaction_id
                                        );
+
             if (t->ret != NOT_MINE) {
                 do_showio(t, 0);
                 if (t->ret == RCV_MORE) {
@@ -871,7 +885,6 @@ static void recv_task(PEER *p)
                     setLast(t->option);
                     callbackRequest(&t->io.async.callback);
                 }
-                epicsTimeGetCurrent(&p->recv_time);
                 do_showrtt(p);
                 epicsEventSignal(p->next_cycle);
             } else {
@@ -880,7 +893,9 @@ static void recv_task(PEER *p)
                 epicsTimerStartDelay(p->wd_id, t->io.async.timeout);
             }
         } else {
-            errlogPrintf("drvNetMpf: %s: discarding stray response...\n", __func__);
+            const double rtt = (p->recv_time.secPastEpoch - p->send_time.secPastEpoch) * 1e3
+                               + (p->recv_time.nsec - p->send_time.nsec) * 1e-6;
+            errlogPrintf("drvNetMpf: %s: discarding stray response : rtt=%.3f ms\n", __func__, rtt);
         }
 
         p->mpf.recv_len = 0;
