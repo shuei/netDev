@@ -817,6 +817,8 @@ static void send_task(PEER *p)
             }
 
             epicsTimeGetCurrent(&p->send_time);
+
+            // wait for signal from recv_task()
             epicsEventMustWait(p->next_cycle);
         }
     }
@@ -852,52 +854,60 @@ static void recv_task(PEER *p)
         }
         epicsMutexUnlock(p->in_t_mutex);
 
-        if (t) {
-            t->ret = t->parse_response(t->record,
-                                       &t->option,
-                                       p->mpf.recv_buf,
-                                       &p->mpf.recv_len,
-                                       t->device,
-                                       t->transaction_id
-                                       );
-
-            if (t->ret != NOT_MINE) {
-                do_showio(t, 0);
-                if (t->ret == RCV_MORE) {
-                    p->in_transaction = t;
-                    epicsTimerStartDelay(p->wd_id, t->io.async.timeout);
-                    continue;
-                }
-
-                t->io.async.receive_counter++;
-
-                if (t->ret == NOT_DONE) {
-                    drvNetMpfSendRequest(t);
-                } else {
-
-                    if (t->ret < 0) {
-                        // This is unlikely to happen but a bug in the device support
-                        errlogPrintf("%s : drvNetMpf: %s() : \"parse_response()\" callback returned error code %d\n", t->record->name, __func__, t->ret);
-                    }
-
-                    LOGMSG("drvNetMpf: requesting callback for \"%s\"\n", t->record->name);
-
-                    setLast(t->option);
-                    callbackRequest(&t->io.async.callback);
-                }
-                do_showrtt(p);
-                epicsEventSignal(p->next_cycle);
-            } else {
-                p->in_transaction = t;
-                errlogPrintf("drvNetMpf: %s: discarding unexpected response for %s\n", __func__, t->record->name);
-                epicsTimerStartDelay(p->wd_id, t->io.async.timeout);
-            }
-        } else {
+        if (!t) {
             const double rtt = (p->recv_time.secPastEpoch - p->send_time.secPastEpoch) * 1e3
                                + (p->recv_time.nsec - p->send_time.nsec) * 1e-6;
             errlogPrintf("drvNetMpf: %s: discarding stray response : rtt=%.3f ms\n", __func__, rtt);
+            goto next_msg;
         }
 
+        t->ret = t->parse_response(t->record,
+                                   &t->option,
+                                   p->mpf.recv_buf,
+                                   &p->mpf.recv_len,
+                                   t->device,
+                                   t->transaction_id
+                                   );
+
+        if (t->ret == NOT_MINE) {
+            p->in_transaction = t;
+            errlogPrintf("drvNetMpf: %s: discarding unexpected response for %s\n", __func__, t->record->name);
+            epicsTimerStartDelay(p->wd_id, t->io.async.timeout);
+            goto next_msg;
+        }
+
+        do_showio(t, 0);
+
+        if (t->ret == RECV_MORE) {
+            p->in_transaction = t;
+            epicsTimerStartDelay(p->wd_id, t->io.async.timeout);
+            continue;
+        }
+
+        t->io.async.receive_counter++;
+
+        if (t->ret == NOT_DONE) {
+            drvNetMpfSendRequest(t);
+            goto next_cycle;
+        }
+
+        if (t->ret < 0) {
+            // This is unlikely to happen but a bug in the device support
+            errlogPrintf("%s : drvNetMpf: %s: \"parse_response()\" callback returned unknown error code %d\n", t->record->name, __func__, t->ret);
+        }
+
+        // Successfully received all data.
+        LOGMSG("drvNetMpf: requesting callback for \"%s\"\n", t->record->name);
+        setLast(t->option);
+        callbackRequest(&t->io.async.callback);
+
+    next_cycle:
+        do_showrtt(p);
+
+        // send signal to send_task()
+        epicsEventSignal(p->next_cycle);
+
+    next_msg:
         p->mpf.recv_len = 0;
     }
 }
