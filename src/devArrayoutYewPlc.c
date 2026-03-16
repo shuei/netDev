@@ -56,7 +56,7 @@ static long init_arrayout_record(arrayoutRecord *prec)
 
     d->val = calloc(prec->nelm, convsize[d->conv]);
     if (! d->val) {
-        errlogPrintf("%s: %s : calloc failed\n", __func__, prec->name);
+        errlogPrintf("devYewPlc: %s: %s : calloc failed\n", __func__, prec->name);
         prec->pact = 1;
         return -1;
     }
@@ -80,7 +80,7 @@ static long init_arrayout_record(arrayoutRecord *prec)
         } else if (d->conv == kDOUBLE) {
         //} else if (d->conv == kBCD) {
         } else {
-            errlogPrintf("%s: %s : unsupported conversion \"&%s\" with FTVL = %s\n", __func__, prec->name, convstr[d->conv], ftvlstr);
+            errlogPrintf("devYewPlc: %s: %s : unsupported conversion \"&%s\" with FTVL = %s\n", __func__, prec->name, convstr[d->conv], ftvlstr);
             prec->pact = 1;
             return -1;
         }
@@ -94,7 +94,7 @@ static long init_arrayout_record(arrayoutRecord *prec)
         //} else if (d->conv == kDOUBLE) {
         //} else if (d->conv == kBCD) {
         } else {
-            errlogPrintf("%s: %s : unsupported conversion \"&%s\" with FTVL = %s\n", __func__, prec->name, convstr[d->conv], ftvlstr);
+            errlogPrintf("devYewPlc: %s: %s : unsupported conversion \"&%s\" with FTVL = %s\n", __func__, prec->name, convstr[d->conv], ftvlstr);
             prec->pact = 1;
             return -1;
         }
@@ -108,7 +108,7 @@ static long init_arrayout_record(arrayoutRecord *prec)
         //} else if (d->conv == kDOUBLE) {
         //} else if (d->conv == kBCD) {
         } else {
-            errlogPrintf("%s: %s : unsupported conversion \"&%s\" with FTVL = %s\n", __func__, prec->name, convstr[d->conv], ftvlstr);
+            errlogPrintf("devYewPlc: %s: %s : unsupported conversion \"&%s\" with FTVL = %s\n", __func__, prec->name, convstr[d->conv], ftvlstr);
             prec->pact = 1;
             return -1;
         }
@@ -122,13 +122,13 @@ static long init_arrayout_record(arrayoutRecord *prec)
         //} else if (d->conv == kDOUBLE) {
         //} else if (d->conv == kBCD) {
         } else {
-            errlogPrintf("%s: %s : unsupported conversion \"&%s\" with FTVL = %s\n", __func__, prec->name, convstr[d->conv], ftvlstr);
+            errlogPrintf("devYewPlc: %s: %s : unsupported conversion \"&%s\" with FTVL = %s\n", __func__, prec->name, convstr[d->conv], ftvlstr);
             prec->pact = 1;
             return -1;
         }
 
     } else {
-        errlogPrintf("%s: %s : unsupported FTVL %s\n", __func__, prec->name, ftvlstr);
+        errlogPrintf("devYewPlc: %s: %s : unsupported FTVL %s\n", __func__, prec->name, ftvlstr);
         prec->pact = 1;
         return -1;
     }

@@ -67,7 +67,7 @@ static long init_mbbo_record(mbboRecord *prec)
     //} else if (d->conv == kDOUBLE) {
     //} else if (d->conv == kBCD) {
     } else{
-        errlogPrintf("%s: unsupported conversion \"&%s\" for %s\n", __func__, convstr[d->conv], prec->name);
+        errlogPrintf("devYewPlc: %s: unsupported conversion \"&%s\" for %s\n", __func__, convstr[d->conv], prec->name);
         prec->pact = 1;
         return -1;
     }
