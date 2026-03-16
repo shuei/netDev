@@ -81,7 +81,7 @@ static long init_waveform_record(waveformRecord *prec)
         } else if (d->conv == kDOUBLE) {
         //} else if (d->conv == kBCD) {
         } else {
-            errlogPrintf("%s: %s : unsupported conversion \"&%s\" with FTVL = %s\n", __func__, ftvlstr, convstr[d->conv], prec->name);
+            errlogPrintf("%s: %s : unsupported conversion \"&%s\" with FTVL = %s\n", __func__, prec->name, convstr[d->conv], ftvlstr);
             prec->pact = 1;
             return -1;
         }
@@ -95,7 +95,7 @@ static long init_waveform_record(waveformRecord *prec)
         //} else if (d->conv == kDOUBLE) {
         //} else if (d->conv == kBCD) {
         } else {
-            errlogPrintf("%s: %s : unsupported conversion \"&%s\" with FTVL = %s\n", __func__, ftvlstr, convstr[d->conv], prec->name);
+            errlogPrintf("%s: %s : unsupported conversion \"&%s\" with FTVL = %s\n", __func__, prec->name, convstr[d->conv], ftvlstr);
             prec->pact = 1;
             return -1;
         }
@@ -109,7 +109,7 @@ static long init_waveform_record(waveformRecord *prec)
         //} else if (d->conv == kDOUBLE) {
         //} else if (d->conv == kBCD) {
         } else {
-            errlogPrintf("%s: %s : unsupported conversion \"&%s\" with FTVL = %s\n", __func__, ftvlstr, convstr[d->conv], prec->name);
+            errlogPrintf("%s: %s : unsupported conversion \"&%s\" with FTVL = %s\n", __func__, prec->name, convstr[d->conv], ftvlstr);
             prec->pact = 1;
             return -1;
         }
