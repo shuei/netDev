@@ -613,9 +613,9 @@ int yewPlcProtocol(char *str);
 static const iocshArg yewPlcProtocolArg0 = { "protocol", iocshArgString };
 static const iocshArg *yewPlcProtocolArgs[] = { &yewPlcProtocolArg0 };
 static const iocshFuncDef yewPlcProtocolFuncDef = {"yewPlcProtocol", 1, yewPlcProtocolArgs,
-    "Switches the Yew Plc protocol default to TCP or UDP.\n"
+    "Switches the Yew Plc protocol default to TCP or UDP (case insesitive).\n"
     "The protocol specified in INP/OUT field takes precedece.\n"
-    "Calling  yewPlcProtocol after iocInit has no effect.\n"
+    "Calling yewPlcProtocol after iocInit has no effect.\n"
     "Default protocol: UDP\n"
 };
 static void yewPlcProtocolCallFunc(const iocshArgBuf *args) {
@@ -646,9 +646,9 @@ int yewPlcPort(unsigned port);
 static const iocshArg yewPlcPortArg0 = { "port#", iocshArgInt };
 static const iocshArg *yewPlcPortArgs[] = { &yewPlcPortArg0 };
 static const iocshFuncDef yewPlcPortFuncDef = {"yewPlcPort", 1, yewPlcPortArgs,
-    "Switches the Yew Plc port number default to 12889(0x3001) or 12291(0x3003).\n"
+    "Switches the Yew Plc port number default to 0x3001(12889; for Port-A) or 0x3003(12291; for Port-B).\n"
     "The port numberh specified in INP/OUT field takes precedece.\n"
-    "Calling  yewPlcPort after iocInit has no effect.\n"
+    "Calling yewPlcPort after iocInit has no effect.\n"
     "Default port number: 0x3001\n"
 };
 static void yewPlcPortCallFunc(const iocshArgBuf *args) {
