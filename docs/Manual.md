@@ -47,19 +47,19 @@ In order to use netDev, device type (DTYP) field must be set to "**Yew Plc**" in
 
 `field(DTYP, "Yew Plc")`
 
-
 ## Input / Output Link (INP/OUT) Fields
 
 General format for input (INP) and output (OUT) link fields are as following:
 
-`field(INP, "@hostname[(port)][:cpu]#type[:]number[&conversion]")`
+`field(INP, "@hostname[([port][:protocol])][:cpu]#type[:]number[&conversion]")`
 
 e.g.
 
 `field(INP, "@192.168.1.1#I00100&L")`
 
 - hostname   : hostname or IP address of the FA-M3 CPU (or Personal Computer Link Modules).
-- port       : Optional port number (defaults to 0x3001).
+- port       : Optional port number (defaults to 0x3001);  0x3001(12889; for port-A) or 0x3003(12291; for port-B).
+- protocol   : Optional protocl (defaults to UDP); UDP or TCP, case insensitive.
 - cpu        : Optional CPU number for multi-CPU configuration (defaults to 1).
 - type       : PLC device such as Input relays and Data registers.
 - number     : Device number.
