@@ -80,7 +80,7 @@ e.g.
 - type       : PLC device such as Input relays and Data registers.
 - number     : Device number.
 - conversion : Conversion specifier to interpret the byte sequence in the registers (or relays):
-  * <no specifier> - Treat 16-bit data as signed 16-bit integer
+  * (no specifier) - Treat 16-bit data as signed 16-bit integer
   * &U - unsigned integer (16-bit)
   * &L - long-word (32-bit) access
   * &B - treat as binary-coded-decimal (BCD)
