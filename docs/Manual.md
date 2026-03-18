@@ -31,8 +31,8 @@ but also undocumented features.
 ## Configure CPU Properties
 
 Make sure that FA-M3 CPU is properly configured using WideField, in CPU Properties edit window.
-- Ethernet Configurations in "ETHERNET" pane.
-- Higher-level link commands in "HIGHER-LEVEL_LINK_SERVICE" pane. This device support employs UDP / binary data format to communicate with the CPU. Note that ASCII mode is **not** supported.
+- Configure ethernet in the "ETHERNET" pane.
+- Configure higher-level link commands in the "HIGHER-LEVEL_LINK_SERVICE" pane. This device support has been developped using UDP. It should also work with TCP as well (though this has not been extensively tested). Furthermore, it supports binary data format only to communicate with the CPU. ASCII mode is **not** supported at all.
   - HLINK_PROTOCOL_A    : 1 (=UDP)
   - HLINK_DATA_FORMAT_A : 1 (=binary)
   - HLINK_PROTOCOL_B    : 1 (=UDP)
@@ -40,6 +40,22 @@ Make sure that FA-M3 CPU is properly configured using WideField, in CPU Properti
   - HLINK_PROTEC        : 0 (=write permitted)
 
 For details, refer to **IM 34M06Q16-03** "FA-M3 Programming Tool WideField3 (Online)", H5 "CPU Properties".
+
+## Changing default protocol or port number in the startup script (st.cmd)
+
+You can change the default protocol and port number in the startup script (st.cmd) using yewPlcProtocol and yewPlcPort commands respectively.
+
+- yewPlcProtocol command switches the default protocol to TCP or UDP. The protocol specified in INP/OUT field takes precedece. The command must be called befor iocInit. Otherwise it has no effect.
+
+e.g.
+
+`yewPlcProtocol tcp`
+
+- yewPlcPort command switches the Yew Plc port number default to 0x3001(12889; for port-A) or 0x3003(12291; for port-B), in hexadecial or decimal format. The command must be called befor iocInit. Otherwise it has no effect.
+
+e.g.
+
+`yewPlcPort 0x3003`
 
 ## Device Type (DTYP) Field
 
