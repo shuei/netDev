@@ -202,9 +202,11 @@ Examples of conversion specifiers in input records are given in the table below:
 | waveform(FTVL = DBF_ULONG)  | @192.168.1.1#D0001&L | 0xffff | 0xffff |  4294967295  |
 
 If a value that cannot be expressed as a signed or unsigned 16-bit integer is set to a 32-bit integer output record (i.e. a longout or an arrayout with FTVL=LONG/ULONG), the uppser 16-bit are silently ignored and the lower 16-bits only are written to the hardware.
+
 Examples of conversion specifiers in output records are given in the table below:
 
 | record type                 | OUT                  | put value    | D0002  | D0001  |
+|-----------------------------|----------------------|--------------|--------|--------|
 | longout                     | @192.168.1.1#D0001   | -1           | -      | 0xffff |
 | longout                     | @192.168.1.1#D0001   |  65535       | -      | 0xffff |
 | longout                     | @192.168.1.1#D0001   |  65537       | -      | 0x0001 |
