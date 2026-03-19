@@ -1726,9 +1726,9 @@ void setTmoEventNum(const iocshArgBuf *args)
         return;
     }
 
-    int option = 0;
+    bool is_tcp = false;
     if (strncmp(protocol, "TCP", 3) == 0 || strncmp(protocol, "tcp", 3) == 0) {
-        option |= MPF_TCP;
+        is_tcp = true;
     }
 
     PEER *p;
@@ -1737,7 +1737,7 @@ void setTmoEventNum(const iocshArgBuf *args)
         for (p = (PEER *)ellFirst(&peerList.list); p; p = (PEER *)ellNext(&p->mpf.node)) {
             if ((p->mpf.peer_addr.sin_addr.s_addr == peer_addr.sin_addr.s_addr || isOmron(p->mpf.option)) &&
                 p->mpf.peer_addr.sin_port == htons(port) &&
-                GET_PROTOCOL(p->mpf.option) == GET_PROTOCOL(option)) {
+                isTcp(p->mpf.option) == is_tcp) {
                 p->event_num = num;
                 break;
             }
@@ -1765,9 +1765,9 @@ void enableTmoEvent(const iocshArgBuf *args)
         return;
     }
 
-    int option = 0;
+    bool is_tcp = false;
     if (strncmp(protocol, "TCP", 3) == 0 || strncmp(protocol, "tcp", 3) == 0) {
-        option |= MPF_TCP;
+        is_tcp = true;
     }
 
     PEER *p;
@@ -1776,7 +1776,7 @@ void enableTmoEvent(const iocshArgBuf *args)
         for (p = (PEER *)ellFirst(&peerList.list); p; p = (PEER *)ellNext(&p->mpf.node)) {
             if ((p->mpf.peer_addr.sin_addr.s_addr == peer_addr.sin_addr.s_addr || isOmron(p->mpf.option)) &&
                 p->mpf.peer_addr.sin_port == htons(port) &&
-                GET_PROTOCOL(p->mpf.option) == GET_PROTOCOL(option)) {
+                isTcp(p->mpf.option) == is_tcp) {
                 p->tmo_event = 1;
                 break;
             }
@@ -1804,9 +1804,9 @@ void disableTmoEvent(const iocshArgBuf *args)
         return;
     }
 
-    int option = 0;
+    bool is_tcp = false;
     if (strncmp(protocol, "TCP", 3) == 0 || strncmp(protocol, "tcp", 3) == 0) {
-        option |= MPF_TCP;
+        is_tcp = true;
     }
 
     PEER *p;
@@ -1815,7 +1815,7 @@ void disableTmoEvent(const iocshArgBuf *args)
         for (p = (PEER *)ellFirst(&peerList.list); p; p = (PEER *)ellNext(&p->mpf.node)) {
             if ((p->mpf.peer_addr.sin_addr.s_addr == peer_addr.sin_addr.s_addr || isOmron(p->mpf.option)) &&
                 p->mpf.peer_addr.sin_port == htons(port) &&
-                GET_PROTOCOL(p->mpf.option) == GET_PROTOCOL(option)) {
+                isTcp(p->mpf.option) == is_tcp) {
                 p->tmo_event = 0;
                 break;
             }
