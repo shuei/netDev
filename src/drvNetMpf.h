@@ -10,10 +10,11 @@
  ****************************************************************************/
 /* Author: Jun-ichi Odagiri (jun-ichi.odagiri@kek.jp, KEK) */
 
+#include <stdbool.h>
 #include <stdio.h>
-#include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #include <netinet/in.h>
 #include <arpa/inet.h>
@@ -203,8 +204,8 @@ typedef struct {
 typedef struct {
     ELLNODE            node;
     struct sockaddr_in peer_addr;
-    int                option;
-    int                is_bin;
+    bool               is_event;
+    bool               is_binary;
 } MSG_BY_IP;
 
 typedef struct {

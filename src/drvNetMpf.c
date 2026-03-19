@@ -24,6 +24,11 @@
 
 #include "drvNetMpf.h"
 
+typedef enum {
+    RECV = 0,
+    SEND = 1,
+} DIRECTION;
+
 static int init_flag;
 static int globalPeerCount;
 static int globalServerCount;
@@ -49,7 +54,7 @@ static long spawn_tcp_parent(SERVER *);
 static int tcp_parent(SERVER *);
 static void do_connect(MPF_COMMON *);
 static int event_server(SERVER *);
-void dump_msg(uint8_t *, ssize_t, int, int);
+void dump_msg(uint8_t *, ssize_t, DIRECTION, bool);
 void startEventServer(const iocshArgBuf *);
 void mpfHelp(const iocshArgBuf *);
 void peerShow(const iocshArgBuf *);
@@ -65,7 +70,7 @@ void enableTmoEvent(const iocshArgBuf *);
 void disableTmoEvent(const iocshArgBuf *);
 void showmsg(const iocshArgBuf *);
 void stopmsg(const iocshArgBuf *);
-void do_showmsg(MPF_COMMON *, uint8_t *, int, int);
+void do_showmsg(MPF_COMMON *, uint8_t *, int, DIRECTION);
 void showio(const iocshArgBuf *);
 void stopio(const iocshArgBuf *);
 void do_showio(TRANSACTION *, int);
@@ -75,9 +80,13 @@ void do_showrtt(PEER *);
 
 long netDevGetHostId(char *hostname, in_addr_t *hostid);
 
+// error code that send_msg()/recv_msg() may return
 #define RECONNECT (ERROR - 1)
-#define MAX_CONNECT_RETRY  1
 
+// Not yet in use
+//#define MAX_CONNECT_RETRY  1
+
+//
 struct {
     long      number;
     DRVSUPFUN report;
@@ -90,6 +99,7 @@ struct {
 
 epicsExportAddress(drvet, drvNetMpf);
 
+//
 static struct {
     epicsMutexId  mutex;
     ELLLIST list;
@@ -571,8 +581,8 @@ static int send_msg(MPF_COMMON *m)
 
     m->send_len = cur - m->send_buf;
 
-    DUMP_MSG(m, m->send_buf, cur - m->send_buf, 1);
-    do_showmsg(m, m->send_buf, cur - m->send_buf, 1);
+    DUMP_MSG(m, m->send_buf, cur - m->send_buf, SEND);
+    do_showmsg(m, m->send_buf, cur - m->send_buf, SEND);
 
     return OK;
 }
@@ -621,12 +631,7 @@ static void do_connect(MPF_COMMON *m)
         // turn on KEEPALIVE so if the client system crashes
         // this task will find out and suspend
         int opt = TRUE;
-        while (setsockopt(m->sfd,
-                          SOL_SOCKET,
-                          SO_KEEPALIVE,
-                          &opt,
-                          sizeof(opt)
-                          ) == ERROR) {
+        while (setsockopt(m->sfd, SOL_SOCKET, SO_KEEPALIVE, &opt, sizeof(opt)) == ERROR) {
             errlogPrintf("drvNetMpf: %s: setsockopt(SO_KEEPALIVE) failed: %s[%d]\n", __func__, strerror_r(errno, errstr, sizeof(errstr)), errno);
             epicsThreadSleep(1.0);
         }
@@ -703,8 +708,8 @@ static int recv_msg(MPF_COMMON *m)
 
     m->recv_len = cur - m->recv_buf;
 
-    DUMP_MSG(m, m->recv_buf, cur - m->recv_buf, 0);
-    do_showmsg(m, m->recv_buf, cur - m->recv_buf, 0);
+    DUMP_MSG(m, m->recv_buf, cur - m->recv_buf, RECV);
+    do_showmsg(m, m->recv_buf, cur - m->recv_buf, RECV);
 
     return OK;
 }
@@ -1687,16 +1692,16 @@ void stopEventMsg(const iocshArgBuf *args)
 //
 // Dump message
 //
-void dump_msg(uint8_t *pbuf, ssize_t count, int dir, int flag)
+void dump_msg(uint8_t *pbuf, ssize_t count, DIRECTION direction, bool is_binary)
 {
-    if (dir) {
+    if (direction==SEND) {
         printf("=>");
     } else {
         printf("<=");
     }
 
     while (count--) {
-        if (flag == 1 || ((int)*pbuf < 0x20 || (int)*pbuf > 0x7E)) {
+        if (is_binary || ((int)*pbuf < 0x20 || (int)*pbuf > 0x7E)) {
             printf("[%02X]", *pbuf++);
         } else {
             printf("%c", *pbuf++);
@@ -1857,10 +1862,10 @@ void showmsg(const iocshArgBuf *args)
         return;
     }
     if (option & 2) {
-        pm->option |= MPF_EVENT;
+        pm->is_event = true;
     }
     if (!(option & 1)) {
-        pm->is_bin = 1;
+        pm->is_binary = true;
     }
 
     MSG_BY_IP *p;
@@ -1870,7 +1875,7 @@ void showmsg(const iocshArgBuf *args)
              p;
              p = (MSG_BY_IP *)ellNext(&p->node)) {
             if (p->peer_addr.sin_addr.s_addr == pm->peer_addr.sin_addr.s_addr) {
-                if (p->option == (pm->option & EVENT_MASK)) {
+                if (p->is_event == pm->is_event) {
                     break;
                 }
             }
@@ -1894,7 +1899,7 @@ void stopmsg(const iocshArgBuf *args)
 //
 //
 //
-void do_showmsg(MPF_COMMON *m, uint8_t *buf, int count, int dir)
+void do_showmsg(MPF_COMMON *m, uint8_t *buf, int count, DIRECTION direction)
 {
     epicsMutexMustLock(showmsgList.mutex);
     {
@@ -1903,8 +1908,8 @@ void do_showmsg(MPF_COMMON *m, uint8_t *buf, int count, int dir)
              pm;
              pm = (MSG_BY_IP *)ellNext(&pm->node)) {
             if (pm->peer_addr.sin_addr.s_addr == m->peer_addr.sin_addr.s_addr) {
-                if (pm->option == (m->option & EVENT_MASK)) {
-                    dump_msg(buf, count, dir, pm->is_bin);
+                if (pm->is_event == isEvent(m->option)) {
+                    dump_msg(buf, count, direction, pm->is_binary);
                 }
             }
         }
