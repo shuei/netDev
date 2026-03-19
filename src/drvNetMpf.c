@@ -1735,7 +1735,7 @@ void setTmoEventNum(const iocshArgBuf *args)
     epicsMutexMustLock(peerList.mutex);
     {
         for (p = (PEER *)ellFirst(&peerList.list); p; p = (PEER *)ellNext(&p->mpf.node)) {
-            if ((p->mpf.peer_addr.sin_addr.s_addr == peer_addr.sin_addr.s_addr || isOmron(option)) &&
+            if ((p->mpf.peer_addr.sin_addr.s_addr == peer_addr.sin_addr.s_addr || isOmron(p->mpf.option)) &&
                 p->mpf.peer_addr.sin_port == htons(port) &&
                 GET_PROTOCOL(p->mpf.option) == GET_PROTOCOL(option)) {
                 p->event_num = num;
@@ -1774,7 +1774,7 @@ void enableTmoEvent(const iocshArgBuf *args)
     epicsMutexMustLock(peerList.mutex);
     {
         for (p = (PEER *)ellFirst(&peerList.list); p; p = (PEER *)ellNext(&p->mpf.node)) {
-            if ((p->mpf.peer_addr.sin_addr.s_addr == peer_addr.sin_addr.s_addr || isOmron(option)) &&
+            if ((p->mpf.peer_addr.sin_addr.s_addr == peer_addr.sin_addr.s_addr || isOmron(p->mpf.option)) &&
                 p->mpf.peer_addr.sin_port == htons(port) &&
                 GET_PROTOCOL(p->mpf.option) == GET_PROTOCOL(option)) {
                 p->tmo_event = 1;
@@ -1813,7 +1813,7 @@ void disableTmoEvent(const iocshArgBuf *args)
     epicsMutexMustLock(peerList.mutex);
     {
         for (p = (PEER *)ellFirst(&peerList.list); p; p = (PEER *)ellNext(&p->mpf.node)) {
-            if ((p->mpf.peer_addr.sin_addr.s_addr == peer_addr.sin_addr.s_addr || isOmron(option)) &&
+            if ((p->mpf.peer_addr.sin_addr.s_addr == peer_addr.sin_addr.s_addr || isOmron(p->mpf.option)) &&
                 p->mpf.peer_addr.sin_port == htons(port) &&
                 GET_PROTOCOL(p->mpf.option) == GET_PROTOCOL(option)) {
                 p->tmo_event = 0;
