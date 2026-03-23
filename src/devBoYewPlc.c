@@ -23,8 +23,8 @@
 //
 static long init_bo_record(boRecord *);
 static long write_bo(boRecord *);
-static long config_bo_command(dbCommon *, int *, uint8_t *, int *, void *, int);
-static long parse_bo_response(dbCommon *, int *, uint8_t *, int *, void *, int);
+static long config_bo_command(dbCommon *, uint32_t *, uint8_t *, int *, void *, int);
+static long parse_bo_response(dbCommon *, uint32_t *, uint8_t *, int *, void *, int);
 
 INTEGERDSET devBoYewPlc = {
     5,
@@ -44,7 +44,8 @@ static long init_bo_record(boRecord *prec)
     YEW_PLC *d = yew_calloc(0, 0, 0, kBit);
     long ret = netDevInitXxRecord((dbCommon *)prec,
                                   &prec->out,
-                                  MPF_WRITE | YEW_GET_PROTO | DEFAULT_TIMEOUT,
+                                  MPF_WRITE | YEW_PROTOCOL | MPF_ATFRONT,
+                                  yewSendTimeout, yewRecvTimeout, yewEpicsTimerTimeout,
                                   d,
                                   yew_parse_link,
                                   config_bo_command,
@@ -60,7 +61,7 @@ static long init_bo_record(boRecord *prec)
     //} else if (d->conv == kDOUBLE) {
     //} else if (d->conv == kBCD) {
     } else {
-        errlogPrintf("devYewPlc: %s: unsupported conversion \"&%s\" for %s\n", __func__, convstr[d->conv], prec->name);
+        errlogPrintf("devYewPlc: %s: %s : unsupported conversion \"&%s\"\n", __func__, prec->name, convstr[d->conv]);
         prec->pact = 1;
         return -1;
     }
@@ -83,7 +84,7 @@ static long write_bo(boRecord *prec)
 }
 
 static long config_bo_command(dbCommon *pxx,
-                              int *option,
+                              uint32_t *option,
                               uint8_t *buf,
                               int *len,
                               void *device,
@@ -108,7 +109,7 @@ static long config_bo_command(dbCommon *pxx,
 }
 
 static long parse_bo_response(dbCommon *pxx,
-                              int *option,
+                              uint32_t *option,
                               uint8_t *buf,
                               int *len,
                               void *device,

@@ -17,8 +17,8 @@
 //
 static long init_arrayout_record(arrayoutRecord *);
 static long write_arrayout(arrayoutRecord *);
-static long config_arrayout_command(dbCommon *, int *, uint8_t *, int *, void *, int);
-static long parse_arrayout_response(dbCommon *, int *, uint8_t *, int *, void *, int);
+static long config_arrayout_command(dbCommon *, uint32_t *, uint8_t *, int *, void *, int);
+static long parse_arrayout_response(dbCommon *, uint32_t *, uint8_t *, int *, void *, int);
 
 INTEGERDSET devAroKeyPlc = {
     5,
@@ -35,7 +35,8 @@ static long init_arrayout_record(arrayoutRecord *pao)
 {
     return netDevInitXxRecord((dbCommon *)pao,
                               &pao->out,
-                              MPF_WRITE | KEY_GET_PROTO | DEFAULT_TIMEOUT,
+                              MPF_WRITE | KEY_GET_PROTO,
+                              0, 0, DEFAULT_TIMEOUT,
                               key_calloc(0, KEY_CMND_WRE),
                               key_parse_link,
                               config_arrayout_command,
@@ -58,7 +59,7 @@ static long write_arrayout(arrayoutRecord *pao)
 }
 
 static long config_arrayout_command(dbCommon *pxx,
-                                    int *option,
+                                    uint32_t *option,
                                     uint8_t *buf,
                                     int *len,
                                     void *device,
@@ -78,7 +79,7 @@ static long config_arrayout_command(dbCommon *pxx,
 }
 
 static long parse_arrayout_response(dbCommon *pxx,
-                                    int *option,
+                                    uint32_t *option,
                                     uint8_t *buf,
                                     int *len,
                                     void *device,

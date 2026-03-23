@@ -18,8 +18,8 @@
 //
 static long init_so_record(stringoutRecord *);
 static long write_so(stringoutRecord *);
-static long config_so_command(dbCommon *, int *, uint8_t *, int *, void *, int);
-static long parse_so_response(dbCommon *, int *, uint8_t *, int *, void *, int);
+static long config_so_command(dbCommon *, uint32_t *, uint8_t *, int *, void *, int);
+static long parse_so_response(dbCommon *, uint32_t *, uint8_t *, int *, void *, int);
 
 INTEGERDSET devSoDarwin = {
     5,
@@ -38,7 +38,8 @@ static long init_so_record(stringoutRecord *pso)
 
     return netDevInitXxRecord((dbCommon *)pso,
                               &pso->out,
-                              MPF_WRITE | MPF_TCP | DARWIN_TIMEOUT,
+                              MPF_WRITE | MPF_TCP,
+                              0, 0, DARWIN_TIMEOUT,
                               darwin_calloc(),
                               darwin_parse_link,
                               config_so_command,
@@ -54,7 +55,7 @@ static long write_so(stringoutRecord *pso)
 }
 
 static long config_so_command(dbCommon *pxx,
-                              int *option,
+                              uint32_t *option,
                               uint8_t *buf,
                               int *len,
                               void *device,
@@ -80,7 +81,7 @@ static long config_so_command(dbCommon *pxx,
 }
 
 static long parse_so_response(dbCommon *pxx,
-                              int *option,
+                              uint32_t *option,
                               uint8_t *buf,
                               int *len,
                               void *device,

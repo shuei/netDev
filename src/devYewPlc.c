@@ -37,14 +37,18 @@ extern int netDevDebug;
 #define YEW_DATA_OFFSET          4
 #define YEW_DEFAULT_CPU          1
 #define YEW_DEFAULT_MODULE_UNIT  0
-#define YEW_GET_PROTO            (yewProtocol)
+#define YEW_PROTOCOL             (yewProtocol)
 #define YEW_MAX_BYTES            (yewMaxBytes)
 #define YEW_NEEDS_SWAP           (__BYTE_ORDER==__LITTLE_ENDIAN)
 #define YEW_SPECIAL_MODULE
 
-static int yewProtocol  = MPF_UDP; // MPF_TCP
-static int yewPort      = 0x3001;  // 0x3001(12289):port-A, 0x3003(12291):port-B
-static int yewMaxBytes  = 64*2;    // Maximum transfer bytes allowed
+static int    yewProtocol     = MPF_UDP; // MPF_TCP
+static int    yewPort         = 0x3001;  // 0x3001(12289):port-A, 0x3003(12291):port-B
+static int    yewMaxBytes     = 64*2;    // Maximum transfer bytes allowed
+
+static double yewSendTimeout  = 0;
+static double yewRecvTimeout  = 0;
+static double yewEpicsTimerTimeout = DEFAULT_TIMEOUT;
 
 //
 typedef enum {
@@ -103,9 +107,9 @@ typedef struct {
 
 //
 static void *yew_calloc(int, uint8_t, uint32_t, width_t);
-static long yew_parse_link(DBLINK *, struct sockaddr_in *, int *, void *);
-static long yew_config_command(uint8_t *, int *, void *, int, int, int *, YEW_PLC *);
-static long yew_parse_response(uint8_t *, int *, void *, int, int, int *, YEW_PLC *);
+static long yew_parse_link(DBLINK *, struct sockaddr_in *, uint32_t *, void *);
+static long yew_config_command(uint8_t *, int *, void *, int, int, uint32_t *, dbCommon *);
+static long yew_parse_response(uint8_t *, int *, void *, int, int, uint32_t *, dbCommon *);
 
 //
 //
@@ -145,10 +149,10 @@ static void *yew_calloc(int cpu, uint8_t type, uint32_t addr, width_t width)
 //
 // Link field parser for both command/response I/O and event driven I/O
 //
-static long yew_parse_link(DBLINK *plink,
+static long yew_parse_link(DBLINK             *plink,
                            struct sockaddr_in *peer_addr,
-                           int *option,
-                           void *device
+                           uint32_t           *option,
+                           void               *device
                            )
 {
     char *protocol = NULL;
@@ -287,7 +291,7 @@ static long yew_parse_link(DBLINK *plink,
             d->width = kWord;
             LOGMSG("devYewPlc: found option to handle the data as BCD data\n");
         } else {
-            errlogPrintf("devYewPlc: unsupported conversion : %s\n", lopt);
+            errlogPrintf("devYewPlc: unsupported conversion: %s\n", lopt);
             return ERROR;
         }
     }
@@ -372,15 +376,35 @@ static long yew_parse_link(DBLINK *plink,
 //
 // Command constructor for command/response I/O
 //
-static long yew_config_command(uint8_t *buf,    // driver buf addr
-                               int     *len,    // driver buf size
-                               void    *bptr,   // record buf addr
-                               int      ftvl,   // record field type
-                               int      ndata,  // number of elements to be transferred
-                               int     *option, // direction etc.
-                               YEW_PLC *d
+static long yew_config_command(uint8_t  *buf,    // driver buf addr
+                               int      *len,    // driver buf size
+                               void     *bptr,   // record buf addr
+                               int       ftvl,   // record field type
+                               int       ndata,  // number of elements to be transferred
+                               uint32_t *option, // direction etc.
+                               dbCommon *prec
                                )
 {
+    TRANSACTION *t = prec->dpvt;
+    PEER        *p = t->facility;
+    YEW_PLC     *d = t->device;
+
+    //errlogPrintf("%s: %s PEER=%p %d\n", __func__, prec->name, p, p->timeout_state);
+
+    // Send a test command to ensure proper recovery from timeout
+    if (p && p->timeout_state) {
+        *((uint8_t  *)&buf[ 0]) = 0x51;                     // Test Command
+        *((uint8_t  *)&buf[ 1]) = d->cpu;                   // CPU No.
+        *((uint16_t *)&buf[ 2]) = htons(sizeof(uint32_t));  // number of data below
+        *((uint32_t *)&buf[ 4]) = htonl(p->timeout_count);  // sequence numnber
+        *len = 4 + sizeof(uint32_t);
+
+        //DEBUG
+        //errlogPrintf("devYewPlc: %s sending test command to recover from timeout: id=0x%04x cmd=0x%02x\n", prec->name, p->timeout_count, buf[0]);
+        return 0;
+    }
+
+    //
     const int nbytes = (d->width)*ndata;
 
     //DEBUG
@@ -432,7 +456,7 @@ static long yew_config_command(uint8_t *buf,    // driver buf addr
             npoint       = nread / 2;
             break;
         default:
-            errlogPrintf("devYewPlc: unsupported data width : addr:%d width:%d\n", d->addr, d->width);
+            errlogPrintf("devYewPlc: unsupported data width: addr:%d width:%d\n", d->addr, d->width);
             return ERROR;
         }
 
@@ -442,6 +466,9 @@ static long yew_config_command(uint8_t *buf,    // driver buf addr
         *((uint16_t *)&buf[ 4]) = htons(d->type);           // device type
         *((uint32_t *)&buf[ 6]) = htonl(d->addr + offset);  // device addr
         *((uint16_t *)&buf[10]) = htons(npoint);            // number of data
+
+        //Debug
+        //errlogPrintf("devYewPlc: %s: %s [%c] %c%04d\n", __func__, prec->name, isWrite(*option)?'W':'R', d->type+'@', d->addr+offset);
     } else {
         // Special Module, "type" holds module unit/slot number
         command_type = isRead(*option)? 0x31:0x32;
@@ -466,6 +493,7 @@ static long yew_config_command(uint8_t *buf,    // driver buf addr
     if (isWrite(*option)) {
         const int offset = d->noff / d->width;
         const int npoint = nread / d->width;
+
         if (fromRecordVal(&buf[YEW_CMND_LENGTH(d->spmod)],
                           d->width,
                           bptr,
@@ -490,15 +518,58 @@ static long yew_config_command(uint8_t *buf,    // driver buf addr
 //
 // Response parser for command/response I/O
 //
-static long yew_parse_response(uint8_t *buf,    // driver buf addr
-                               int     *len,    // driver buf size
-                               void    *bptr,   // record buf addr
-                               int      ftvl,   // record field type
-                               int      ndata,  // number of elements to be transferred
-                               int     *option, // direction etc.
-                               YEW_PLC *d
+static long yew_parse_response(uint8_t  *buf,    // driver buf addr
+                               int      *len,    // driver buf size
+                               void     *bptr,   // record buf addr
+                               int       ftvl,   // record field type
+                               int       ndata,  // number of elements to be transferred
+                               uint32_t *option, // direction etc.
+                               dbCommon *prec
                                )
 {
+    TRANSACTION *t = prec->dpvt;
+    PEER        *p = t->facility;
+    YEW_PLC     *d = t->device;
+
+    // Special treatment for timeout
+    if (p && p->timeout_state) {
+        if (buf[0] != 0xd1) {
+            // A normal response was received during recovery from a timeout.
+            // It seems that the response was simply delayed.
+            // We return immediately without interpreting the received data, otherwise d->noff may increase, causing a displacement in the waveform data.
+
+            //DEBUG
+            //errlogPrintf("devYewPlc: Received a response that was NOT from test command: Expected=0x%02x Received=0x%02x len=%d)\n", 0xd1, buf[0], *len);
+            return NOT_MINE;
+        }
+
+        uint16_t num = ntohs(*((uint16_t *)&buf[2]));
+        if (num != sizeof(uint32_t)) {
+            // A response from test command was received, but number of data does not match.
+            // This may not happen.
+            errlogPrintf("devYewPlc: Number of data does not match: Expected=%Zu Received=%u\n",
+                         sizeof(uint32_t), num);
+            return NOT_MINE;
+        }
+
+        uint32_t received = ntohl(*((uint32_t *)&buf[4]));
+        if (p->timeout_count != received) {
+            // A response from the test command was recived, but the sequence number does not match.
+            // This may not happen.
+            errlogPrintf("devYewPlc: Sequence number mismatch: Expected=0x%04x Received=0x%04x\n", p->timeout_count, received);
+            return NOT_MINE; // ERROR?
+        } else {
+            // Received a response from the test command, i.e. successfully recovered from the timeout
+
+            //DEBUG
+            //errlogPrintf("devYewPlc: Received a response to test command; Successfully recovered from timeout: Expected=0x%04x Received=0x%04x\n", p->timeout_count, received);
+            return RECOVERED;
+        }
+
+        //DEBUG
+        //errlogPrintf("devYewPlc: %s: %s [0x%02x] len=%d\n", __func__, prec->name, buf[0], *len);
+    }
+
 //    LOGMSG("devYewPlc: yew_parse_response(%8p,%d,%8p,%d,%d,%d,%8p)\n", buf, *len, bptr, ftvl, ndata, *option, d);
     const int nbytes = (d->width)*ndata;
 
@@ -517,8 +588,6 @@ static long yew_parse_response(uint8_t *buf,    // driver buf addr
         nread = (d->nleft > YEW_MAX_BYTES) ? YEW_MAX_BYTES : d->nleft;
         ret   = (d->nleft > YEW_MAX_BYTES) ? NOT_DONE : 0;
     }
-
-    // int nread  = isRead(*option)? (d->width)*n:0;
 
     uint8_t  response_type;
     uint16_t number_of_data;
@@ -547,13 +616,12 @@ static long yew_parse_response(uint8_t *buf,    // driver buf addr
     }
 
     if (buf[0] != response_type) {
-        errlogPrintf("devYewPlc: Unexpected response: Expected=0x%02X Received=0x%02X)\n", response_type, buf[0]);
+        errlogPrintf("devYewPlc: Unexpected response: Expected=0x%02x Received=0x%02x len=%d)\n", response_type, buf[0], *len);
         return NOT_MINE;
     }
 
     if (buf[1] != 0x00) {
-        errlogPrintf("devYewPlc: error termination code returned (0x%02X)\n",
-                     buf[1]);
+        errlogPrintf("devYewPlc: error termination code returned (0x%02x)\n", buf[1]);
         return ERROR;
     }
 
@@ -608,16 +676,17 @@ static long yew_parse_response(uint8_t *buf,    // driver buf addr
 //
 #include <iocsh.h>
 
-//
+// Switch the Yew Plc default protocol (UDP or TCP)
 int yewPlcProtocol(char *str);
 static const iocshArg yewPlcProtocolArg0 = { "protocol", iocshArgString };
 static const iocshArg *yewPlcProtocolArgs[] = { &yewPlcProtocolArg0 };
 static const iocshFuncDef yewPlcProtocolFuncDef = {"yewPlcProtocol", 1, yewPlcProtocolArgs,
-    "Switches the Yew Plc protocol default to TCP or UDP (case insesitive).\n"
+    "Switches the Yew Plc protocol default to UDP or TCP (case insensitive).\n"
     "The protocol specified in INP/OUT field takes precedece.\n"
     "Calling yewPlcProtocol after iocInit has no effect.\n"
     "Default protocol: UDP\n"
 };
+
 static void yewPlcProtocolCallFunc(const iocshArgBuf *args) {
     if (! yewPlcProtocol(args[0].sval)) {
         iocshSetError(-1);
@@ -641,16 +710,17 @@ int yewPlcProtocol(char *protocol)
     }
 }
 
-//
+// Swhtch the Yew Plc default port number (0x3001 or 0x3003)
 int yewPlcPort(unsigned port);
 static const iocshArg yewPlcPortArg0 = { "port#", iocshArgInt };
 static const iocshArg *yewPlcPortArgs[] = { &yewPlcPortArg0 };
 static const iocshFuncDef yewPlcPortFuncDef = {"yewPlcPort", 1, yewPlcPortArgs,
     "Switches the Yew Plc port number default to 0x3001(12889; for Port-A) or 0x3003(12291; for Port-B).\n"
-    "The port numberh specified in INP/OUT field takes precedece.\n"
+    "The port number specified in INP/OUT field takes precedece.\n"
     "Calling yewPlcPort after iocInit has no effect.\n"
     "Default port number: 0x3001\n"
 };
+
 static void yewPlcPortCallFunc(const iocshArgBuf *args) {
     if (! yewPlcPort(args[0].ival)) {
         iocshSetError(-1);
@@ -674,10 +744,102 @@ int yewPlcPort(unsigned port)
     }
 }
 
+// Change Yew Plc timeout for send()/sendto()
+int yewPlcSendTimeout(char *str);
+static const iocshArg yewPlcSendTimeoutArg0 = { "sendTimeout", iocshArgString };
+static const iocshArg *yewPlcSendTimeoutArgs[] = { &yewPlcSendTimeoutArg0 };
+static const iocshFuncDef yewPlcSendTimeoutFuncDef = {"yewPlcSendTimeout", 1, yewPlcSendTimeoutArgs,
+    "Changes send timeout in seconds for the Yew Plc.\n"
+    "Calling yewPlcSendTimeout after iocInit has no effect.\n"
+    "Default send timeout: 0.0\n"
+};
+
+static void yewPlcSendTimeoutCallFunc(const iocshArgBuf *args) {
+    if (! yewPlcSendTimeout(args[0].sval)) {
+        iocshSetError(-1);
+    }
+}
+
+int yewPlcSendTimeout(char *str)
+{
+    if (!str) {
+        printf("Yew Plc SendTimeout : %.6f\n", yewSendTimeout );
+        return 0;
+    } else if (sscanf(str, " %lf ", &yewSendTimeout) == 1) {
+        // OK
+        return 1;
+    } else {
+        printf("Error : %s is not valid value\n", str);
+        return 0;
+    }
+}
+
+// Change Yew Plc timeout for recv()/recvfrom()
+int yewPlcRecvTimeout(char *str);
+static const iocshArg yewPlcRecvTimeoutArg0 = { "recvTimeout", iocshArgString };
+static const iocshArg *yewPlcRecvTimeoutArgs[] = { &yewPlcRecvTimeoutArg0 };
+static const iocshFuncDef yewPlcRecvTimeoutFuncDef = {"yewPlcRecvTimeout", 1, yewPlcRecvTimeoutArgs,
+    "Changes recv timeout in seconds for the Yew Plc.\n"
+    "Calling yewPlcRecvTimeout after iocInit has no effect.\n"
+    "Default recv timeout: 1.0\n"
+};
+
+static void yewPlcRecvTimeoutCallFunc(const iocshArgBuf *args) {
+    if (! yewPlcRecvTimeout(args[0].sval)) {
+        iocshSetError(-1);
+    }
+}
+
+int yewPlcRecvTimeout(char *str)
+{
+    if (!str) {
+        printf("Yew Plc RecvTimeout : %.6f\n", yewRecvTimeout );
+        return 0;
+    } else if (sscanf(str, " %lf ", &yewRecvTimeout) == 1) {
+        // OK
+        return 1;
+    } else {
+        printf("Error : %s is not valid value\n", str);
+        return 0;
+    }
+}
+
+// Change Yew Plc timeout using EpicsTimer (deprecated)
+int yewPlcEpicsTimerTimeout(char *str);
+static const iocshArg yewPlcEpicsTimerTimeoutArg0 = { "epicsTimerTimeout", iocshArgString };
+static const iocshArg *yewPlcEpicsTimerTimeoutArgs[] = { &yewPlcEpicsTimerTimeoutArg0 };
+static const iocshFuncDef yewPlcEpicsTimerTimeoutFuncDef = {"yewPlcEpicsTimerTimeout", 1, yewPlcEpicsTimerTimeoutArgs,
+    "Changes epicsTimer timeout in seconds for the Yew Plc..\n"
+    "EpicsTimer timeout is kept for backward compatibility and timeouts specified by yewPlcSendTimeout/yewPlcRecvTimeout take precedece.\n"
+    "Calling yewPlcEpicsTimerTimeout after iocInit has no effect.\n"
+    "Default EpicsTimer timeout: 0.0\n"
+};
+
+static void yewPlcEpicsTimerTimeoutCallFunc(const iocshArgBuf *args) {
+    if (! yewPlcEpicsTimerTimeout(args[0].sval)) {
+        iocshSetError(-1);
+    }
+}
+
+int yewPlcEpicsTimerTimeout(char *str)
+{
+    if (!str) {
+        printf("Yew Plc EpicsTimeout : %.6f\n", yewEpicsTimerTimeout );
+        return 0;
+    } else if (sscanf(str, " %lf ", &yewEpicsTimerTimeout) == 1) {
+        // OK
+        return 1;
+    } else {
+        printf("Error : %s is not valid value\n", str);
+        return 0;
+    }
+}
+
 //
 static void devYewPlcRegisterCommands(void);
 static void devYewPlcRegisterCommands(void)
 {
+    //DEBUG
     //errlogPrintf("devYewPlc: %s\n", __func__);
 
     static int init_flag = 0;
@@ -685,6 +847,9 @@ static void devYewPlcRegisterCommands(void)
         init_flag = 1;
         iocshRegister(&yewPlcProtocolFuncDef, yewPlcProtocolCallFunc);
         iocshRegister(&yewPlcPortFuncDef, yewPlcPortCallFunc);
+        iocshRegister(&yewPlcRecvTimeoutFuncDef, yewPlcRecvTimeoutCallFunc);
+        iocshRegister(&yewPlcSendTimeoutFuncDef, yewPlcSendTimeoutCallFunc);
+        iocshRegister(&yewPlcEpicsTimerTimeoutFuncDef, yewPlcEpicsTimerTimeoutCallFunc);
     }
 }
 

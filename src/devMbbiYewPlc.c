@@ -23,8 +23,8 @@
 //
 static long init_mbbi_record(mbbiRecord *);
 static long read_mbbi(mbbiRecord *);
-static long config_mbbi_command(dbCommon *, int *, uint8_t *, int *, void *, int);
-static long parse_mbbi_response(dbCommon *, int *, uint8_t *, int *, void *, int);
+static long config_mbbi_command(dbCommon *, uint32_t *, uint8_t *, int *, void *, int);
+static long parse_mbbi_response(dbCommon *, uint32_t *, uint8_t *, int *, void *, int);
 
 INTEGERDSET devMbbiYewPlc = {
     5,
@@ -42,7 +42,8 @@ static long init_mbbi_record(mbbiRecord *prec)
     YEW_PLC *d = yew_calloc(0, 0, 0, kWord);
     long ret = netDevInitXxRecord((dbCommon *)prec,
                                   &prec->inp,
-                                  MPF_READ | YEW_GET_PROTO | DEFAULT_TIMEOUT,
+                                  MPF_READ | YEW_PROTOCOL | MPF_ATFRONT,
+                                  yewSendTimeout, yewRecvTimeout, yewEpicsTimerTimeout,
                                   d,
                                   yew_parse_link,
                                   config_mbbi_command,
@@ -67,7 +68,7 @@ static long init_mbbi_record(mbbiRecord *prec)
     //} else if (d->conv == kDOUBLE) {
     //} else if (d->conv == kBCD) {
     } else{
-        errlogPrintf("devYewPlc: %s: unsupported conversion \"&%s\" for %s\n", __func__, convstr[d->conv], prec->name);
+        errlogPrintf("devYewPlc: %s: %s : unsupported conversion \"&%s\"\n", __func__, prec->name, convstr[d->conv]);
         prec->pact = 1;
         return -1;
     }
@@ -90,7 +91,7 @@ static long read_mbbi(mbbiRecord *prec)
 }
 
 static long config_mbbi_command(dbCommon *pxx,
-                                int *option,
+                                uint32_t *option,
                                 uint8_t *buf,
                                 int *len,
                                 void *device,
@@ -113,7 +114,7 @@ static long config_mbbi_command(dbCommon *pxx,
 }
 
 static long parse_mbbi_response(dbCommon *pxx,
-                                int *option,
+                                uint32_t *option,
                                 uint8_t *buf,
                                 int *len,
                                 void *device,
@@ -138,7 +139,7 @@ static long parse_mbbi_response(dbCommon *pxx,
                                       DBF_LONG,
                                       1,
                                       option,
-                                      d
+                                      pxx
                                       );
         prec->rval = val;
         return ret;
@@ -150,7 +151,7 @@ static long parse_mbbi_response(dbCommon *pxx,
                                       DBF_USHORT,
                                       1,
                                       option,
-                                      d
+                                      pxx
                                       );
         prec->rval = val;
         return ret;
@@ -162,7 +163,7 @@ static long parse_mbbi_response(dbCommon *pxx,
                                       DBF_SHORT,
                                       1,
                                       option,
-                                      d
+                                      pxx
                                       );
         prec->rval = val;
         return ret;

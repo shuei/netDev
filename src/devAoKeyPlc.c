@@ -19,8 +19,8 @@
 static long init_ao_record(aoRecord *);
 static long write_ao(aoRecord *);
 static long ao_linear_convert(aoRecord *, int);
-static long config_ao_command(dbCommon *, int *, uint8_t *, int *, void *, int);
-static long parse_ao_response(dbCommon *, int *, uint8_t *, int *, void *, int);
+static long config_ao_command(dbCommon *, uint32_t *, uint8_t *, int *, void *, int);
+static long parse_ao_response(dbCommon *, uint32_t *, uint8_t *, int *, void *, int);
 
 FLOATDSET devAoKeyPlc = {
     6,
@@ -43,7 +43,8 @@ static long init_ao_record(aoRecord *pao)
 
     return netDevInitXxRecord((dbCommon *)pao,
                               &pao->out,
-                              MPF_WRITE | KEY_GET_PROTO | DEFAULT_TIMEOUT,
+                              MPF_WRITE | KEY_GET_PROTO,
+                              0, 0, DEFAULT_TIMEOUT,
                               key_calloc(0, KEY_CMND_WRE),
                               key_parse_link,
                               config_ao_command,
@@ -71,7 +72,7 @@ static long ao_linear_convert(aoRecord *pao, int after)
 }
 
 static long config_ao_command(dbCommon *pxx,
-                              int *option,
+                              uint32_t *option,
                               uint8_t *buf,
                               int *len,
                               void *device,
@@ -93,7 +94,7 @@ static long config_ao_command(dbCommon *pxx,
 }
 
 static long parse_ao_response(dbCommon *pxx,
-                              int *option,
+                              uint32_t *option,
                               uint8_t *buf,
                               int *len,
                               void *device,

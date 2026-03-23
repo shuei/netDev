@@ -25,8 +25,8 @@
 static long init_ao_record(aoRecord *);
 static long write_ao(aoRecord *);
 static long ao_linear_convert(aoRecord *, int);
-static long config_ao_command(dbCommon *, int *, uint8_t *, int *, void *, int);
-static long parse_ao_response(dbCommon *, int *, uint8_t *, int *, void *, int);
+static long config_ao_command(dbCommon *, uint32_t *, uint8_t *, int *, void *, int);
+static long parse_ao_response(dbCommon *, uint32_t *, uint8_t *, int *, void *, int);
 
 FLOATDSET devAoYewPlc = {
     6,
@@ -42,6 +42,11 @@ epicsExportAddress(dset, devAoYewPlc);
 
 static long init_ao_record(aoRecord *prec)
 {
+    //DEBUG
+    if (netDevDebug>0) {
+        printf("\n%s: %s %s\n", __FILE__, __func__, prec->name);
+    }
+
     if (prec->linr == menuConvertLINEAR) {
         prec->eslo = (prec->eguf - prec->egul) / 0xFFFF;
         prec->roff = 0;
@@ -49,13 +54,14 @@ static long init_ao_record(aoRecord *prec)
 
     YEW_PLC *d = yew_calloc(0, 0, 0, kWord);
     long ret = netDevInitXxRecord((dbCommon *)prec,
-                              &prec->out,
-                              MPF_WRITE | YEW_GET_PROTO | DEFAULT_TIMEOUT,
-                              yew_calloc(0, 0, 0, kWord),
-                              yew_parse_link,
-                              config_ao_command,
-                              parse_ao_response
-                              );
+                                  &prec->out,
+                                  MPF_WRITE | YEW_PROTOCOL | MPF_ATFRONT,
+                                  yewSendTimeout, yewRecvTimeout, yewEpicsTimerTimeout,
+                                  yew_calloc(0, 0, 0, kWord),
+                                  yew_parse_link,
+                                  config_ao_command,
+                                  parse_ao_response
+                                  );
 
     if (0) {
     } else if (d->conv == kSHORT) {
@@ -66,7 +72,7 @@ static long init_ao_record(aoRecord *prec)
     } else if (d->conv == kDOUBLE) {
     //} else if (d->conv == kBCD) {
     } else {
-        errlogPrintf("devYewPlc: %s: unsupported conversion \"&%s\" for %s\n", __func__, convstr[d->conv], prec->name);
+        errlogPrintf("devYewPlc: %s: %s : unsupported conversion \"&%s\"\n", __func__, prec->name, convstr[d->conv]);
         prec->pact = 1;
         return -1;
     }
@@ -103,7 +109,7 @@ static long ao_linear_convert(aoRecord *prec, int after)
 }
 
 static long config_ao_command(dbCommon *pxx,
-                              int *option,
+                              uint32_t *option,
                               uint8_t *buf,
                               int *len,
                               void *device,
@@ -131,7 +137,7 @@ static long config_ao_command(dbCommon *pxx,
                                   DBF_DOUBLE,
                                   1,
                                   option,
-                                  d
+                                  pxx
                                   );
     } else if (d->conv == kFLOAT) {
         float val = prec->val;
@@ -144,7 +150,7 @@ static long config_ao_command(dbCommon *pxx,
                                   DBF_FLOAT,
                                   1,
                                   option,
-                                  d
+                                  pxx
                                   );
     } else if (d->conv == kLONG) {
         int32_t val = prec->rval;
@@ -154,7 +160,7 @@ static long config_ao_command(dbCommon *pxx,
                                   DBF_LONG,
                                   1,
                                   option,
-                                  d
+                                  pxx
                                   );
     } else {//(d->conv == kSHORT)
         int16_t val = prec->rval;
@@ -164,13 +170,13 @@ static long config_ao_command(dbCommon *pxx,
                                   DBF_SHORT,
                                   1,
                                   option,
-                                  d
+                                  pxx
                                   );
     }
 }
 
 static long parse_ao_response(dbCommon *pxx,
-                              int *option,
+                              uint32_t *option,
                               uint8_t *buf,
                               int *len,
                               void *device,
@@ -188,6 +194,6 @@ static long parse_ao_response(dbCommon *pxx,
                               0, // not used in yew_parse_response
                               1,
                               option,
-                              device
+                              pxx
                               );
 }

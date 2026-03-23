@@ -45,6 +45,7 @@ static void remove_server(SERVER *);
 static TRANSACTION *get_request_from_queue(PEER *);
 static int send_msg(MPF_COMMON *);
 static int recv_msg(MPF_COMMON *);
+static void do_connect(PEER *);
 static void send_task(PEER *);
 static void recv_task(PEER *);
 static void mpf_timeout_handler(PEER *);
@@ -52,7 +53,6 @@ static long init(void);
 static long report(void);
 static long spawn_tcp_parent(SERVER *);
 static int tcp_parent(SERVER *);
-static void do_connect(MPF_COMMON *);
 static int event_server(SERVER *);
 void dump_msg(uint8_t *, ssize_t, DIRECTION, bool);
 void startEventServer(const iocshArgBuf *);
@@ -99,7 +99,6 @@ struct {
 
 epicsExportAddress(drvet, drvNetMpf);
 
-//
 static struct {
     epicsMutexId  mutex;
     ELLLIST list;
@@ -304,8 +303,13 @@ static long create_semaphores(PEER *p)
         return ERROR;
     }
 
-    if ((p->next_cycle=epicsEventCreate(epicsEventEmpty)) == 0) {
-        errlogPrintf("drvNetMpf: %s: epicsEventCreate(next_cycle) failed\n", __func__);
+    if ((p->next_cmd=epicsEventCreate(epicsEventEmpty)) == 0) {
+        errlogPrintf("drvNetMpf: %s: epicsEventCreate(next_cmd) failed\n", __func__);
+        return ERROR;
+    }
+
+    if ((p->next_rsp=epicsEventCreate(epicsEventEmpty)) == 0) {
+        errlogPrintf("drvNetMpf: %s: epicsEventCreate(next_rsp) failed\n", __func__);
         return ERROR;
     }
 
@@ -324,7 +328,7 @@ static long spawn_io_tasks(PEER *p)
     LOGMSG("drvNetMpf: spawn_io_tasks(%8p)\n", p);
 
     // Open a socket
-    do_connect(&p->mpf);
+    do_connect(p);
 
     //
     sprintf(task_name, "%s_%d", send_t_name, p->mpf.id);
@@ -370,8 +374,11 @@ static void delete_peer(PEER *p)
 
     //if (p->wd_id) epicsTimerDestroy(p->wd_id);
 
-    if (p->next_cycle) {
-        epicsEventDestroy(p->next_cycle);
+    if (p->next_rsp) {
+        epicsEventDestroy(p->next_rsp);
+    }
+    if (p->next_cmd) {
+        epicsEventDestroy(p->next_cmd);
     }
     if (p->req_queued) {
         epicsEventDestroy(p->req_queued);
@@ -392,7 +399,12 @@ static void delete_peer(PEER *p)
 //
 // Create and initialize peer structure
 //
-PEER *drvNetMpfInitPeer(struct sockaddr_in peer_addr, int option)
+PEER *drvNetMpfInitPeer(struct sockaddr_in peer_addr,
+                        uint32_t option,
+                        double send_timeout,
+                        double recv_timeout,
+                        double epicsTimer_timeout // for backward compatibility
+                        )
 {
     if (!init_flag) {
         errlogPrintf("drvNetMpf: %s: not initialized, check xxxAppInclude.dbd\n", __func__);
@@ -458,6 +470,9 @@ PEER *drvNetMpfInitPeer(struct sockaddr_in peer_addr, int option)
             return NULL;
         }
 
+        //Debug
+        errlogPrintf("%s: %s getbufsiz=%d bufsiz=%d\n", __FILE__, __func__, GET_BUFSIZE(option), SEND_BUF_SIZE(option));
+
         LOGMSG("drvNetMpf: send buf size %d\n", SEND_BUF_SIZE(p->mpf.option));
         LOGMSG("drvNetMpf: recv buf size %d\n", RECV_BUF_SIZE(p->mpf.option));
 
@@ -477,6 +492,24 @@ PEER *drvNetMpfInitPeer(struct sockaddr_in peer_addr, int option)
             return NULL;
         }
 
+
+        //
+        if ((send_timeout>0 || recv_timeout>0) && epicsTimer_timeout>0) {
+            errlogPrintf("drvNetMpf: send/recv timeout takes precedence over epicsTimer timeout\n");
+            epicsTimer_timeout = 0;
+        }
+        p->send_timeout = send_timeout;
+        p->recv_timeout = recv_timeout;
+        p->epicsTimer_timeout = epicsTimer_timeout;
+
+        if (p->send_timeout>0 || p->recv_timeout>0) {
+            errlogPrintf("drvNetMpf: %s: setting send timeout to %.6f\n",  __func__, p->send_timeout);
+            errlogPrintf("drvNetMpf: %s: setting recv timeout to %.6lf\n", __func__, p->recv_timeout);
+        } else {
+            errlogPrintf("drvNetMpf: %s: setting epicsTimer timeout to %.6lf\n", __func__, p->epicsTimer_timeout);
+        }
+
+        //
         if (spawn_io_tasks(p) == ERROR) {
             errlogPrintf("drvNetMpf: %s: spawn_io_tasks failed\n", __func__);
             delete_peer(p);
@@ -494,7 +527,7 @@ PEER *drvNetMpfInitPeer(struct sockaddr_in peer_addr, int option)
 //
 // Send request
 //
-long drvNetMpfSendRequest(TRANSACTION *t)
+long drvNetMpfSendRequest(TRANSACTION *t, bool atfront)
 {
     LOGMSG("drvNetMpf: drvNetMpfSendRequest(%8p)\n", t);
 
@@ -511,9 +544,11 @@ long drvNetMpfSendRequest(TRANSACTION *t)
 
     epicsMutexMustLock(p->reqQ_mutex);
     {
-        if (isLast(t->option)) {
+        if (! atfront) {
+            //errlogPrintf("drvNetMpf: %s: ellAdd    :count=%d node=0x%p node.previous=0x%p\n", __func__, (p->reqQueue).count, &(p->reqQueue).node, (p->reqQueue).node.previous);
             ellAdd(&p->reqQueue, &t->node);
         } else {
+            //errlogPrintf("drvNetMpf: %s: ellInsert :count=%d node=0x%p node.previous=0x%p\n", __func__, (p->reqQueue).count, &(p->reqQueue).node, (p->reqQueue).node.previous);
             ellInsert(&p->reqQueue, NULL, &t->node);
         }
     }
@@ -541,62 +576,17 @@ static TRANSACTION *get_request_from_queue(PEER *p)
 }
 
 //
-// Send message
-//
-static int send_msg(MPF_COMMON *m)
-{
-    char  errstr[512];
-    void *cur = m->send_buf;
-
-    if (isUdp(m->option)) {
-        ssize_t len = sendto(m->sfd,
-                             cur,
-                             m->send_len,
-                             0,
-                             &m->peer_addr,
-                             sizeof(m->peer_addr)
-                             );
-        if (len != m->send_len) {
-            errlogPrintf("drvNetMpf: %s: sendto() failed: %s[%d]\n", __func__, strerror_r(errno, errstr, sizeof(errstr)), errno);
-            return ERROR;
-        }
-
-        cur += len;
-    } else {
-        while (m->send_len > 0) {
-            ssize_t len = send(m->sfd,
-                               cur,
-                               m->send_len,
-                               0
-                               );
-            if (len == ERROR) {
-                errlogPrintf("drvNetMpf: %s: send() failed: %s[%d]\n", __func__, strerror_r(errno, errstr, sizeof(errstr)), errno);
-                return RECONNECT; // RECONNECT is not handled in send_task() ...
-            }
-
-            m->send_len -= len;
-            cur += len;
-        }
-    }
-
-    m->send_len = cur - m->send_buf;
-
-    DUMP_MSG(m, m->send_buf, cur - m->send_buf, SEND);
-    do_showmsg(m, m->send_buf, cur - m->send_buf, SEND);
-
-    return OK;
-}
-
-//
 // Open a socket (and establish the connection, if TCP)
 //
-static void do_connect(MPF_COMMON *m)
+static void do_connect(PEER *p)
 {
+    MPF_COMMON *m = &(p->mpf);
     char errstr[512];
     LOGMSG("drvNetMpf: %s(%8p)\n", m, __func__);
 
     char *inet_string = inet_ntoa((struct in_addr)m->peer_addr.sin_addr);
 
+    errno = 0;
     while ((m->sfd = socket(AF_INET,
                             isUdp(m->option) ?
                             SOCK_DGRAM : SOCK_STREAM,
@@ -644,8 +634,92 @@ static void do_connect(MPF_COMMON *m)
         const int port = ntohs(m->peer_addr.sin_port);
         errlogPrintf("drvNetMpf: %s: connected to %s:0x%4x(%d)/%s\n", __func__, inet_string, port, port, getProtocolName(m->option)); // in the case of UDP, this message is not quite accurate...
 
-        setReconn(m->option);
+        //setReconn(m->option);
     }
+
+    // set send timeout...
+    if (p->send_timeout>0) {
+        struct timeval timeout;
+        timeout.tv_sec = p->send_timeout;
+        timeout.tv_usec = (p->send_timeout - timeout.tv_sec) * 1e6;
+        //DEBUG
+        //errlogPrintf("drvNetMpf: send timeout : %ld.%06ld\n", timeout.tv_sec, timeout.tv_usec);
+
+        while (setsockopt(m->sfd, SOL_SOCKET, SO_SNDTIMEO, &timeout, sizeof(timeout)) < 0) {
+            errlogPrintf("drvNetMpf: setsockopt(SO_SNDTIMEO) failed: %s\n", strerror_r(errno, errstr, sizeof(errstr)));
+            epicsThreadSleep(1.0);
+        }
+    }
+
+    // and recv timeout
+    if (p->recv_timeout>0) {
+        struct timeval timeout;
+        timeout.tv_sec = p->recv_timeout;
+        timeout.tv_usec = (p->recv_timeout - timeout.tv_sec) * 1e6;
+        //DEBUG
+        //errlogPrintf("drvNetMpf: recv timeout : %ld.%06ld\n", timeout.tv_sec, timeout.tv_usec);
+
+        while (setsockopt(m->sfd, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout)) < 0) {
+            errlogPrintf("drvNetMpf: setsockopt(SO_RCVTIMEO) failed: %s\n", strerror_r(errno, errstr, sizeof(errstr)));
+            epicsThreadSleep(1.0);
+        }
+    }
+}
+
+//
+// Send message
+//
+static int send_msg(MPF_COMMON *m)
+{
+    char  errstr[512];
+    void *cur = m->send_buf;
+    errno = 0;
+
+    if (isUdp(m->option)) {
+        ssize_t len = sendto(m->sfd,
+                             cur,
+                             m->send_len,
+                             0,
+                             &m->peer_addr,
+                             sizeof(m->peer_addr)
+                             );
+        if (len != m->send_len) {
+            //if (errno == EAGAIN || errno == EWOULDBLOCK) { // timeout occured
+            //    //... do we need a special treatment for timeout?
+            //    return TIMEOUT;
+            //}
+            errlogPrintf("drvNetMpf: %s: sendto() failed: %s[%d]\n", __func__, strerror_r(errno, errstr, sizeof(errstr)), errno);
+            return ERROR;
+        }
+
+        cur += len;
+    } else {
+        while (m->send_len > 0) {
+            ssize_t len = send(m->sfd,
+                               cur,
+                               m->send_len,
+                               0
+                               );
+            if (len == ERROR) {
+                //if (errno == EAGAIN || errno == EWOULDBLOCK) { // timeout occured
+                //    //... do we need a special treatment for timeout?
+                //    return TIMEOUT;
+                //}
+                errlogPrintf("drvNetMpf: %s: send() failed: %s[%d]\n", __func__, strerror_r(errno, errstr, sizeof(errstr)), errno);
+                return RECONNECT; // RECONNECT is not handled in send_task() ...
+            }
+
+            m->send_len -= len;
+            cur += len;
+        }
+    }
+
+    m->send_len = cur - m->send_buf;
+
+    DUMP_MSG(m, m->send_buf, cur - m->send_buf, SEND);
+    do_showmsg(m, m->send_buf, cur - m->send_buf, SEND);
+
+    return OK;
 }
 
 //
@@ -656,6 +730,7 @@ static int recv_msg(MPF_COMMON *m)
     char errstr[512];
     void *cur = m->recv_buf;
     void *end = m->recv_buf + RECV_BUF_SIZE(m->option);
+    errno = 0;
 
     memset(cur, 0, RECV_BUF_SIZE(m->option));
 
@@ -675,7 +750,14 @@ static int recv_msg(MPF_COMMON *m)
                                (struct sockaddr *)&m->sender_addr,
                                &sender_addr_len
                                );
+
         if (len == ERROR) {
+            if (errno == EAGAIN || errno == EWOULDBLOCK) { // timeout occured
+                //DEBUG
+                //errlogPrintf("drvNetMpf: %s: recv() timed out\n", __func__);
+                return TIMEOUT;
+            }
+
             errlogPrintf("drvNetMpf: %s: recvfrom() failed: %s[%d]\n", __func__, strerror_r(errno, errstr, sizeof(errstr)), errno);
             return ERROR;
         }
@@ -693,7 +775,12 @@ static int recv_msg(MPF_COMMON *m)
                                m->recv_len ? m->recv_len : RECV_BUF_SIZE(m->option),
                                0
                                );
+
             if (len == ERROR) {
+                if (errno == EAGAIN || errno == EWOULDBLOCK) { // timeout occured
+                    errlogPrintf("drvNetMpf: %s: recv() timed out\n", __func__);
+                    return TIMEOUT;
+                }
                 errlogPrintf("drvNetMpf: %s: recv() failed: %s[%d]\n", __func__, strerror_r(errno, errstr, sizeof(errstr)), errno);
                 return RECONNECT;
             } else if (len == 0) {
@@ -719,6 +806,9 @@ static int recv_msg(MPF_COMMON *m)
 //
 static void send_task(PEER *p)
 {
+    //DEBUG
+    //errlogPrintf("%s\n", __func__);
+
     for (;;) {
         // wait for signal from drvNetMpfSendRequest()
         epicsEventMustWait(p->req_queued);
@@ -726,6 +816,8 @@ static void send_task(PEER *p)
         //
         TRANSACTION *t;
         while ((t = get_request_from_queue(p))) {
+            //DEBUG
+            //errlogPrintf("drvNetMpf: got request from %s\n", t->record->name);
             LOGMSG("drvNetMpf: got request from \"%s\"\n", t->record->name);
 
             if (isOmron(p->mpf.option)) {
@@ -745,7 +837,6 @@ static void send_task(PEER *p)
                                         );
             if (ret == ERROR) {
                 t->ret = ret;
-                setLast(t->option);
                 callbackRequest(&t->io.async.callback);
                 continue;
             }
@@ -760,9 +851,8 @@ static void send_task(PEER *p)
 
                 //
                 if (!t->ret && ret == NOT_DONE) {
-                    drvNetMpfSendRequest(t);
+                    drvNetMpfSendRequest(t, isAtFront(t->option));
                 } else {
-                    setLast(t->option);
                     callbackRequest(&t->io.async.callback);
                 }
 
@@ -771,23 +861,28 @@ static void send_task(PEER *p)
 #ifdef SANITY_CHECK
             {
                 // sanity check
-                uint32_t delta =
-                        t->io.async.cancel_counter + t->io.async.receive_counter +
-                        t->io.async.timeout_counter - t->io.async.send_counter;
+                uint32_t delta = - t->io.async.send_counter
+                                 + t->io.async.senderr_counter
+                                 + t->io.async.receive_counter
+                                 + t->io.async.timeout_counter
+                                 + t->io.async.recverr_counter
+                                 ;
 
                 if (delta) {
-                    errlogPrintf("drvNetMpf: %s: doubled callback detected (delta:%d)\n", __func__, delta);
+                    errlogPrintf("drvNetMpf: %s: doubled callback detected (delta:%d) s=%d s_err=%d r=%d t=%d r_err=%d\n", __func__, delta,
+                                 t->io.async.send_counter, t->io.async.senderr_counter, t->io.async.receive_counter, t->io.async.timeout_counter, t->io.async.recverr_counter);
                 }
 #ifdef SANITY_PRINT
                 else if (!(t->io.async.send_counter % 10000)) {
                     static int i = 0;
 
                     errlogPrintf("drvNetMpf: sanity check OK (%d times)\n", i++);
-                    errlogPrintf("cancel : %d times\n", t->io.async.cancel_counter);
-                    errlogPrintf("receive: %d times\n", t->io.async.receive_counter);
-                    errlogPrintf("timeout: %d times\n", t->io.async.timeout_counter);
-                    errlogPrintf("send   : %d times\n", t->io.async.send_counter);
-                    errlogPrintf("delta  : %d times\n", delta);
+                    errlogPrintf("send    : %d times\n", t->io.async.send_counter);
+                    errlogPrintf("senderr : %d times\n", t->io.async.senderr_counter);
+                    errlogPrintf("receive : %d times\n", t->io.async.receive_counter);
+                    errlogPrintf("timeout : %d times\n", t->io.async.timeout_counter);
+                    errlogPrintf("recverr : %d times\n", t->io.async.recverr_counter);
+                    errlogPrintf("delta   : %d times\n", delta);
                 }
 #endif // SANITY_PRINT
             }
@@ -796,7 +891,10 @@ static void send_task(PEER *p)
             t->io.async.timeout_flag = 0;
             p->in_transaction = t;
             t->io.async.send_counter++;
-            epicsTimerStartDelay(p->wd_id, t->io.async.timeout);
+            if (p->epicsTimer_timeout>0) {
+                // We're using epicsTimer
+                epicsTimerStartDelay(p->wd_id, p->epicsTimer_timeout);
+            }
 
             //
             do_showio(t, 1);
@@ -813,9 +911,8 @@ static void send_task(PEER *p)
                 epicsMutexUnlock(p->in_t_mutex);
 
                 if (t) {
-                    setLast(t->option);
                     callbackRequest(&t->io.async.callback);
-                    t->io.async.cancel_counter++;
+                    t->io.async.senderr_counter++;
                 }
 
                 continue;
@@ -823,8 +920,16 @@ static void send_task(PEER *p)
 
             epicsTimeGetCurrent(&p->send_time);
 
+            //DEBUG
+            //errlogPrintf("drvNetMpf: %s: %s                                     (%9d.%09u)\n", __func__, t->record->name, p->send_time.secPastEpoch, p->send_time.nsec);
+
+            if (p->send_timeout>0 || p->recv_timeout>0) {
+                // send signal to recv_task()
+                epicsEventSignal(p->next_rsp);
+            }
+
             // wait for signal from recv_task()
-            epicsEventMustWait(p->next_cycle);
+            epicsEventMustWait(p->next_cmd);
         }
     }
 }
@@ -834,7 +939,15 @@ static void send_task(PEER *p)
 //
 static void recv_task(PEER *p)
 {
+    //DEBUG
+    //errlogPrintf("%s\n", __func__);
+
     for (;;) {
+        if (p->send_timeout>0 || p->recv_timeout>0) {
+            // wait signal from send_task()
+            epicsEventMustWait(p->next_rsp);
+        }
+
         const int ret = recv_msg(&p->mpf);
         epicsTimerCancel(p->wd_id);
         epicsTimeGetCurrent(&p->recv_time);
@@ -847,8 +960,9 @@ static void recv_task(PEER *p)
 
             // ... and open it again
             epicsThreadSleep(1.0);
-            do_connect(&p->mpf);
-            continue;
+            do_connect(p);
+
+            continue; // is this OK? don't we have to goto finish_process, for example?
         }
 
         TRANSACTION *t;
@@ -859,13 +973,57 @@ static void recv_task(PEER *p)
         }
         epicsMutexUnlock(p->in_t_mutex);
 
+        const double rtt = (p->recv_time.secPastEpoch - p->send_time.secPastEpoch) * 1e3
+                           + (p->recv_time.nsec - p->send_time.nsec) * 1e-6;
+
         if (!t) {
-            const double rtt = (p->recv_time.secPastEpoch - p->send_time.secPastEpoch) * 1e3
-                               + (p->recv_time.nsec - p->send_time.nsec) * 1e-6;
-            errlogPrintf("drvNetMpf: %s: discarding stray response : rtt=%.3f ms\n", __func__, rtt);
-            goto next_msg;
+            errlogPrintf("drvNetMpf: %s: discarding stray response: rtt=%.3f ms\n", __func__, rtt);
+            //errlogPrintf("drvNetMpf: %s: discarding stray response: rtt=%.3f ms (%9d.%09u - %9d.%09u)\n", __func__, rtt, p->recv_time.secPastEpoch, p->recv_time.nsec, p->send_time.secPastEpoch, p->send_time.nsec);
+            goto recv_next_rsp;
         }
 
+        //
+        t->ret = 0;
+
+        if (ret == TIMEOUT) { // Timeout occurred in recv_msg()
+            // save send_time, which will be used for RTT of timedout response
+            p->send_time_timeout.secPastEpoch = p->send_time.secPastEpoch;
+            p->send_time_timeout.nsec         = p->send_time.nsec;
+
+            //
+            if (0 && p->timeout_state) {
+                errlogPrintf("drvNetMpf: %s: %s timed out during recovery: rtt=%.3f ms\n", __func__, t->record->name, rtt);
+                //errlogPrintf("drvNetMpf: %s: %s timed out during recovery: rtt=%.3f ms (%9d.%09u - %9d.%09u)\n", __func__, t->record->name, rtt, p->recv_time.secPastEpoch, p->recv_time.nsec, p->send_time.secPastEpoch, p->send_time.nsec);
+
+                // timed out during recovery process from previous timeout.
+                p->timeout_state = false;
+                goto send_next_cmd;
+            }
+
+            errlogPrintf("drvNetMpf: %s: %s timed out: rtt=%.3f ms)\n", __func__, t->record->name, rtt);
+            //errlogPrintf("drvNetMpf: %s: %s timed out: rtt=%.3f ms (%9d.%09u - %9d.%09u)\n", __func__, t->record->name, rtt, p->recv_time.secPastEpoch, p->recv_time.nsec, p->send_time.secPastEpoch, p->send_time.nsec);
+
+            t->io.async.timeout_counter++;
+            p->timeout_state = true;
+            p->timeout_count++;
+
+            // t->ret must be set as it is used by netDevReadWriteXx()
+            t->ret = TIMEOUT;
+            goto finish_process;
+        }
+
+        if (ret != OK) { // Some other error occurred in recv_msg()
+            errlogPrintf("drvNetMpf: %s: %s receive error: rtt=%.3f ms\n", __func__, t->record->name, rtt);
+            //errlogPrintf("drvNetMpf: %s: %s receive error: rtt=%.3f ms (%9d.%09u - %9d.%09u)\n", __func__, t->record->name, rtt, p->recv_time.secPastEpoch, p->recv_time.nsec, p->send_time.secPastEpoch, p->send_time.nsec);
+
+            t->io.async.recverr_counter++;
+
+            // t->ret must be set as it is used by netDevReadWriteXx()
+            t->ret = ERROR;
+            goto finish_process;
+        }
+
+        // Successfully received data via recv_msg(), now parse it.
         t->ret = t->parse_response(t->record,
                                    &t->option,
                                    p->mpf.recv_buf,
@@ -876,24 +1034,72 @@ static void recv_task(PEER *p)
 
         if (t->ret == NOT_MINE) {
             p->in_transaction = t;
-            errlogPrintf("drvNetMpf: %s: discarding unexpected response for %s\n", __func__, t->record->name);
-            epicsTimerStartDelay(p->wd_id, t->io.async.timeout);
-            goto next_msg;
+
+            if (p->timeout_state) {
+                const double rtt2 = (p->recv_time.secPastEpoch - p->send_time_timeout.secPastEpoch) * 1e3
+                                   + (p->recv_time.nsec - p->send_time_timeout.nsec) * 1e-6;
+                errlogPrintf("drvNetMpf: %s: %s Discarding timedout response: rtt=%.3f ms\n", __func__, t->record->name, rtt2);
+                //errlogPrintf("drvNetMpf: %s: %s Discarding timedout response: rtt=%.3f ms (%9d.%09u - %9d.%09u)\n", __func__, t->record->name, rtt2, p->recv_time.secPastEpoch, p->recv_time.nsec, p->send_time_timeout.secPastEpoch, p->send_time_timeout.nsec);
+            } else {
+                errlogPrintf("drvNetMpf: %s: %s Discarding unexpected response: rtt=%.3f ms\n", __func__, t->record->name, rtt);
+                //errlogPrintf("drvNetMpf: %s: %s Discarding unexpected response: rtt=%.3f ms (%9d.%09u - %9d.%09u)\n", __func__, t->record->name, rtt, p->recv_time.secPastEpoch, p->recv_time.nsec, p->send_time.secPastEpoch, p->send_time.nsec);
+            }
+
+            if (p->epicsTimer_timeout>0) {
+                // use epics timer
+                epicsTimerStartDelay(p->wd_id, p->epicsTimer_timeout);
+            }
+
+            if (p->send_timeout>0 || p->recv_timeout>0) {
+                // send signal to myself
+                epicsEventSignal(p->next_rsp);
+            }
+
+            goto recv_next_rsp;
         }
+
+        // The received data was the expected one
+        t->io.async.receive_counter++;
+
+        if (t->ret == RECOVERED) {
+            //DEBUG
+            //errlogPrintf("drvNetMpf: %s: %s recovered from timeout: rtt=%.3f ms (%9d.%09u - %9d.%09u)\n", __func__, t->record->name, rtt, p->recv_time.secPastEpoch, p->recv_time.nsec, p->send_time.secPastEpoch, p->send_time.nsec);
+
+            p->timeout_state = false;
+            p->send_time_timeout.secPastEpoch = 0;
+            p->send_time_timeout.nsec         = 0;
+            p->in_transaction = t;
+
+            drvNetMpfSendRequest(t, true); // insert at front
+
+            goto send_next_cmd;
+        }
+
+        //DEBUG
+        //errlogPrintf("drvNetMpf: %s: %s rtt=%.3f ms (%9d.%09u - %9d.%09u)\n", __func__, t->record->name, rtt, p->recv_time.secPastEpoch, p->recv_time.nsec, p->send_time.secPastEpoch, p->send_time.nsec);
 
         do_showio(t, 0);
 
         if (t->ret == RECV_MORE) {
+            // RECV_MORE is no used at all
             p->in_transaction = t;
-            epicsTimerStartDelay(p->wd_id, t->io.async.timeout);
+
+            if (p->epicsTimer_timeout>0) {
+                // use epicsTimer
+                epicsTimerStartDelay(p->wd_id, p->epicsTimer_timeout);
+            }
+
+            if (p->send_timeout>0 || p->recv_timeout>0) {
+                // send signal to myself
+                epicsEventSignal(p->next_rsp);
+            }
+
             continue;
         }
 
-        t->io.async.receive_counter++;
-
         if (t->ret == NOT_DONE) {
-            drvNetMpfSendRequest(t);
-            goto next_cycle;
+            drvNetMpfSendRequest(t, isAtFront(t->option));
+            goto send_next_cmd;
         }
 
         if (t->ret < 0) {
@@ -901,19 +1107,20 @@ static void recv_task(PEER *p)
             errlogPrintf("%s : drvNetMpf: %s: \"parse_response()\" callback returned unknown error code %d\n", t->record->name, __func__, t->ret);
         }
 
-        // Successfully received all data.
+    finish_process:
+        // Successfully received all data (or read error or timeout ...)
         LOGMSG("drvNetMpf: requesting callback for \"%s\"\n", t->record->name);
-        setLast(t->option);
         callbackRequest(&t->io.async.callback);
 
-    next_cycle:
+    send_next_cmd:
         do_showrtt(p);
 
         // send signal to send_task()
-        epicsEventSignal(p->next_cycle);
+        epicsEventSignal(p->next_cmd);
 
-    next_msg:
+    recv_next_rsp:
         p->mpf.recv_len = 0;
+
     }
 }
 
@@ -931,9 +1138,8 @@ static void mpf_timeout_handler(PEER *p)
     epicsMutexUnlock(p->in_t_mutex);
 
     if (t) {
-        epicsTimeStamp current;
-        char time[256];
-
+        //epicsTimeStamp current;
+        //char time[256];
         //epicsTimeGetCurrent(&current);
         //epicsTimeToStrftime(time, sizeof(time), "%Y-%m-%d %H:%M:%S.%06f", &current);
         //errlogPrintf("drvNetMpf: *** mpf_timeout_handler(\"%s\"):%s ***\n", t->record->name, time);
@@ -941,9 +1147,8 @@ static void mpf_timeout_handler(PEER *p)
 
         t->io.async.timeout_flag = 1;
         t->io.async.timeout_counter++;
-        setLast(t->option);
         callbackRequest(&t->io.async.callback);
-        epicsEventSignal(p->next_cycle);
+        epicsEventSignal(p->next_cmd);
 
         if (p->tmo_event) {
             post_event(p->event_num);
@@ -1027,11 +1232,7 @@ static int tcp_parent(SERVER *s)
         // turn on KEEPALIVE so if the client system crashes
         // this task will find out and suspend
         int opt = TRUE;
-        if (setsockopt(new_sfd,
-                       SOL_SOCKET,
-                       SO_KEEPALIVE,
-                       &opt,
-                       sizeof(opt)
+        if (setsockopt(new_sfd, SOL_SOCKET, SO_KEEPALIVE, &opt, sizeof(opt)
                        ) == ERROR) {
             errlogPrintf("drvNetMpf: %s: setsockopt(SO_KEEPALIVE) failed: %s[%d]\n", __func__, strerror_r(errno, errstr, sizeof(errstr)), errno);
             return ERROR;
@@ -1241,7 +1442,7 @@ static void delete_server(SERVER *s)
 //
 // Create and initialize server structure
 //
-SERVER *drvNetMpfInitServer(unsigned short port, int option)
+SERVER *drvNetMpfInitServer(unsigned short port, uint32_t option)
 {
     LOGMSG("drvNetMpf: drvNetMpfInitServer(0x%04x,0x%08x)\n", port, option);
 
@@ -1353,7 +1554,7 @@ static int event_server(SERVER *s)
         }
 
         if (recv_msg(&s->mpf) == RECONNECT) {
-            shutdown(s->mpf.sfd, 2);
+            shutdown(s->mpf.sfd, SHUT_RDWR);
             close(s->mpf.sfd);
             errlogPrintf("drvNetMpf: %s: event server %d exitting...\n", __func__, s->mpf.id);
             break;
@@ -1521,7 +1722,8 @@ void peerShow(const iocshArgBuf *args)
         printf("  num_requests:      %d\n", ellCount(&p->reqQueue));
         printf("  reqQ_mutex_sem_id: %8p\n", p->reqQ_mutex);
         printf("  req_queued_sem_id: %8p\n", p->req_queued);
-        printf("  next_cycle_sem_id: %8p\n", p->next_cycle);
+        printf("  next_cmd_sem_id: %8p\n", p->next_cmd);
+        printf("  next_rsp_sem_id: %8p\n", p->next_rsp);
         printf("  watchdog_id:       %8p\n", p->wd_id);
         printf("  send_task_id:      %8p\n", p->send_tid);
         printf("  recv_task_id:      %8p\n", p->recv_tid);
@@ -1857,24 +2059,22 @@ void showmsg(const iocshArgBuf *args)
         return;
     }
 
-    int option = args[1].ival;
-    if (option < 0 || option > 3) {
+    int32_t flags = args[1].ival;
+    if (flags < 0 || flags > 3) {
         errlogPrintf("drvNetMpf: %s: option out of range\n", __func__);
         return;
     }
-    if (option & 2) {
+    if (flags & 2) {
         pm->is_event = true;
     }
-    if (!(option & 1)) {
+    if (!(flags & 1)) {
         pm->is_binary = true;
     }
 
     MSG_BY_IP *p;
     epicsMutexMustLock(showmsgList.mutex);
     {
-        for (p = (MSG_BY_IP *)ellFirst(&showmsgList.list);
-             p;
-             p = (MSG_BY_IP *)ellNext(&p->node)) {
+        for (p = (MSG_BY_IP *)ellFirst(&showmsgList.list); p; p = (MSG_BY_IP *)ellNext(&p->node)) {
             if (p->peer_addr.sin_addr.s_addr == pm->peer_addr.sin_addr.s_addr) {
                 if (p->is_event == pm->is_event) {
                     break;

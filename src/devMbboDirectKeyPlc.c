@@ -17,8 +17,8 @@
 //
 static long init_mbboDirect_record(mbboDirectRecord *);
 static long write_mbboDirect(mbboDirectRecord *);
-static long config_mbboDirect_command(dbCommon *, int *, uint8_t *, int *, void *, int);
-static long parse_mbboDirect_response(dbCommon *, int *, uint8_t *, int *, void *, int);
+static long config_mbboDirect_command(dbCommon *, uint32_t *, uint8_t *, int *, void *, int);
+static long parse_mbboDirect_response(dbCommon *, uint32_t *, uint8_t *, int *, void *, int);
 
 INTEGERDSET devMbboDirectKeyPlc = {
     5,
@@ -39,7 +39,8 @@ static long init_mbboDirect_record(mbboDirectRecord *pMbboDirect)
 
     long status = netDevInitXxRecord((dbCommon *)pMbboDirect,
                                      &pMbboDirect->out,
-                                     MPF_WRITE | KEY_GET_PROTO | DEFAULT_TIMEOUT,
+                                     MPF_WRITE | KEY_GET_PROTO,
+                                     0, 0, DEFAULT_TIMEOUT,
                                      key_calloc(0, KEY_CMND_WRE),
                                      key_parse_link,
                                      config_mbboDirect_command,
@@ -57,7 +58,7 @@ static long write_mbboDirect(mbboDirectRecord *pMbboDirect)
 }
 
 static long config_mbboDirect_command(dbCommon *pxx,
-                                      int *option,
+                                      uint32_t *option,
                                       uint8_t *buf,
                                       int *len,
                                       void *device,
@@ -77,7 +78,7 @@ static long config_mbboDirect_command(dbCommon *pxx,
 }
 
 static long parse_mbboDirect_response(dbCommon *pxx,
-                                      int *option,
+                                      uint32_t *option,
                                       uint8_t *buf,
                                       int *len,
                                       void *device,

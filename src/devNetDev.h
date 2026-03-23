@@ -44,12 +44,12 @@ typedef struct {
     DEVSUPFUN     setup_attention;
 } ATTENTIONDSET;
 
-typedef long (* parse_link_fn_t)(DBLINK *, struct sockaddr_in *, int *, void *);
-typedef long (* config_command_fn_t)(dbCommon *, int *, uint8_t *, int *, void *, int);
-typedef long (* parse_response_fn_t)(dbCommon *, int *, uint8_t *, int *, void *, int);
+typedef long (* parse_link_fn_t)(DBLINK *, struct sockaddr_in *, uint32_t *, void *);
+typedef long (* config_command_fn_t)(dbCommon *, uint32_t *, uint8_t *, int *, void *, int);
+typedef long (* parse_response_fn_t)(dbCommon *, uint32_t *, uint8_t *, int *, void *, int);
 typedef void (* CALLBACK_fn_t)(CALLBACK *);
 
-long         netDevInitXxRecord(dbCommon *, DBLINK *, int, void *,
+long         netDevInitXxRecord(dbCommon *, DBLINK *, uint32_t, double, double, double, void *,
                                 parse_link_fn_t, config_command_fn_t, parse_response_fn_t);
 long         netDevReadWriteXx(dbCommon *);
 long         netDevInfo();
@@ -69,10 +69,9 @@ long         toRecordVal(void *, int, int, void *, int, int, int);
 
 //
 TRANSACTION *netDevInitInternalIO(dbCommon *, struct sockaddr_in,
-                                  config_command_fn_t, parse_response_fn_t, CALLBACK_fn_t, void *, int);
-
-int          netDevInternalIO(int, TRANSACTION *, void *, int);
+                                  config_command_fn_t, parse_response_fn_t, CALLBACK_fn_t, void *, int, double, double, double);
+int          netDevInternalIO(int, TRANSACTION *, void *);
 int          netDevDeleteInternalIO(TRANSACTION *);
 
-#define netDevInternalRead(x,y,z)  netDevInternalIO(MPF_READ, (x),(y),(z))
-#define netDevInternalWrite(x,y,z) netDevInternalIO(MPF_WRITE,(x),(y),(z))
+#define netDevInternalRead(t,d,s,r,e)  netDevInternalIO(MPF_READ, (t),(d))
+#define netDevInternalWrite(t,d,s,r,e) netDevInternalIO(MPF_WRITE,(t),(d))

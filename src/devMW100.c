@@ -18,7 +18,7 @@
 
 #define MW100_FDCMD_BUFSIZE  256
 #define MW100_SERVER_PORT    34318
-#define MW100_TIMEOUT ((TICK_PER_SECOND * 2)| MPF_FINETMO)
+#define MW100_TIMEOUT 2.0
 #define MW100_FIRST_CHANNEL  1
 #define MW100_LAST_CHANNEL   60
 
@@ -31,10 +31,10 @@ typedef struct {
 } MW100;
 
 static long MW100_parse_link(DBLINK *,
-                            struct sockaddr_in *,
-                            int *,
-                            void *
-                            );
+                             struct sockaddr_in *,
+                             uint32_t *,
+                             void *
+                             );
 
 static void *MW100_calloc(void);
 
@@ -57,7 +57,7 @@ static void *MW100_calloc(void)
 //
 static long MW100_parse_link(DBLINK *plink,
                              struct sockaddr_in *peer_addr,
-                             int *option,
+                             uint32_t *option,
                              void *device
                              )
 {

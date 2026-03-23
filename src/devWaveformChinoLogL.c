@@ -8,8 +8,8 @@
 //
 static long init_waveform_record(waveformRecord *);
 static long read_waveform(waveformRecord *);
-static long config_waveform_command(dbCommon *, int *, uint8_t *, int *, void *, int);
-static long parse_waveform_response(dbCommon *, int *, uint8_t *, int *, void *, int);
+static long config_waveform_command(dbCommon *, uint32_t *, uint8_t *, int *, void *, int);
+static long parse_waveform_response(dbCommon *, uint32_t *, uint8_t *, int *, void *, int);
 
 INTEGERDSET devWfChinoLogL = {
     5,
@@ -28,7 +28,8 @@ static long init_waveform_record(waveformRecord *pwf)
 
     return netDevInitXxRecord((dbCommon *)pwf,
                               &pwf->inp,
-                              MPF_READ | CHINOL_GET_PROTO | DEFAULT_TIMEOUT,
+                              MPF_READ | CHINOL_GET_PROTO,
+                              0, 0, DEFAULT_TIMEOUT,
                               d,
                               chino_parse_link,
                               config_waveform_command,
@@ -49,7 +50,7 @@ static long read_waveform(waveformRecord *pwf)
 }
 
 static long config_waveform_command(dbCommon *pxx,
-                                    int *option,
+                                    uint32_t *option,
                                     uint8_t *buf,
                                     int *len,
                                     void *device,
@@ -71,7 +72,7 @@ static long config_waveform_command(dbCommon *pxx,
 }
 
 static long parse_waveform_response(dbCommon *pxx,
-                                    int *option,
+                                    uint32_t *option,
                                     uint8_t *buf,
                                     int *len,
                                     void *device,

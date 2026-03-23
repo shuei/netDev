@@ -22,7 +22,7 @@
 #define DARWIN_TCP_PORT_SET 34150
 #define DARWIN_TCP_PORT_MES 34151
 #define DARWIN_NEEDS_SWAP (0x00ff != htons(0x00ff))
-#define DARWIN_TIMEOUT ((TICK_PER_SECOND * 2)| MPF_FINETMO)
+#define DARWIN_TIMEOUT 2.0
 
 typedef struct {
     uint16_t port;
@@ -38,7 +38,7 @@ typedef struct {
 
 static long darwin_parse_link(DBLINK *,
                               struct sockaddr_in *,
-                              int *,
+                              uint32_t *,
                               void *
                               );
 static void *darwin_calloc(void);
@@ -61,7 +61,7 @@ static void *darwin_calloc(void)
 //
 static long darwin_parse_link(DBLINK *plink,
                               struct sockaddr_in *peer_addr,
-                              int *option,
+                              uint32_t *option,
                               void *device
                               )
 {

@@ -23,8 +23,8 @@
 //
 static long init_waveform_record(waveformRecord *);
 static long read_waveform(waveformRecord *);
-static long config_waveform_command(dbCommon *, int *, uint8_t *, int *, void *, int);
-static long parse_waveform_response(dbCommon *, int *, uint8_t *, int *, void *, int);
+static long config_waveform_command(dbCommon *, uint32_t *, uint8_t *, int *, void *, int);
+static long parse_waveform_response(dbCommon *, uint32_t *, uint8_t *, int *, void *, int);
 
 INTEGERDSET devWfYewPlc = {
     5,
@@ -47,7 +47,8 @@ static long init_waveform_record(waveformRecord *prec)
     YEW_PLC *d = yew_calloc(0, 0, 0, kWord);
     long ret = netDevInitXxRecord((dbCommon *)prec,
                                   &prec->inp,
-                                  MPF_READ | YEW_GET_PROTO | DEFAULT_TIMEOUT,
+                                  MPF_READ | YEW_PROTOCOL | MPF_ATFRONT,
+                                  yewSendTimeout, yewRecvTimeout, yewEpicsTimerTimeout,
                                   d,
                                   yew_parse_link,
                                   config_waveform_command,
@@ -127,7 +128,7 @@ static long init_waveform_record(waveformRecord *prec)
             return -1;
         }
     } else {
-        errlogPrintf("devYewPlc: %s: %s : unsupported FTVL = %s\n", __func__, prec->name, ftvlstr);
+        errlogPrintf("devYewPlc: %s: %s : unsupported FTVL: %s\n", __func__, prec->name, ftvlstr);
         prec->pact = 1;
         return -1;
     }
@@ -158,7 +159,7 @@ static long read_waveform(waveformRecord *prec)
 }
 
 static long config_waveform_command(dbCommon *pxx,
-                                    int *option,
+                                    uint32_t *option,
                                     uint8_t *buf,
                                     int *len,
                                     void *device,
@@ -172,18 +173,26 @@ static long config_waveform_command(dbCommon *pxx,
 
     waveformRecord *prec = (waveformRecord *)pxx;
 
+    //
+    //YEW_PLC *d = device;
+    //printf("%s: %s %s : ndata=%d nleft=%d noff=%d\n", __FILE__, __func__, pxx->name, prec->nelm, d->nleft, d->noff);
+
+    // If we do not set NORD to zero here, the most recent data will be retained when nothing could be read (e.g. due to a timeout)
+    //prec->nord = 0;
+
+    //
     return yew_config_command(buf,
                               len,
                               0, // not used in yew_config_command
                               0, // not used in yew_config_command
                               prec->nelm,
                               option,
-                              device
+                              pxx
                               );
 }
 
 static long parse_waveform_response(dbCommon *pxx,
-                                    int *option,
+                                    uint32_t *option,
                                     uint8_t *buf,
                                     int *len,
                                     void *device,
@@ -215,7 +224,7 @@ static long parse_waveform_response(dbCommon *pxx,
                                  DBF_SHORT,
                                  prec->nelm,
                                  option,
-                                 d
+                                 pxx
                                  );
 
         const int end = d->noff / d->width;
@@ -234,7 +243,7 @@ static long parse_waveform_response(dbCommon *pxx,
                                  DBF_USHORT,
                                  prec->nelm,
                                  option,
-                                 d
+                                 pxx
                                  );
 
         const int end = d->noff / d->width;
@@ -253,7 +262,7 @@ static long parse_waveform_response(dbCommon *pxx,
                                  DBF_LONG,
                                  prec->nelm,
                                  option,
-                                 d
+                                 pxx
                                  );
 
         const int end = d->noff / d->width;
@@ -272,7 +281,7 @@ static long parse_waveform_response(dbCommon *pxx,
                                  DBF_FLOAT,
                                  prec->nelm,
                                  option,
-                                 d
+                                 pxx
                                  );
 
         const int end = d->noff / d->width;
@@ -291,7 +300,7 @@ static long parse_waveform_response(dbCommon *pxx,
                                  DBF_SHORT,
                                  prec->nelm,
                                  option,
-                                 d
+                                 pxx
                                  );
 
         const int end = d->noff / d->width;
@@ -310,7 +319,7 @@ static long parse_waveform_response(dbCommon *pxx,
                                  DBF_USHORT,
                                  prec->nelm,
                                  option,
-                                 d
+                                 pxx
                                  );
 
         const int end = d->noff / d->width;
@@ -329,7 +338,7 @@ static long parse_waveform_response(dbCommon *pxx,
                                  DBF_LONG,
                                  prec->nelm,
                                  option,
-                                 d
+                                 pxx
                                  );
 
         const int end = d->noff / d->width;
@@ -344,7 +353,7 @@ static long parse_waveform_response(dbCommon *pxx,
                                  DBF_ULONG,
                                  prec->nelm,
                                  option,
-                                 d
+                                 pxx
                                  );
     } else if (prec->ftvl == DBF_ULONG && d->conv == kSHORT) {
         ret = yew_parse_response(buf,
@@ -353,7 +362,7 @@ static long parse_waveform_response(dbCommon *pxx,
                                  DBF_LONG,
                                  prec->nelm,
                                  option,
-                                 d
+                                 pxx
                                  );
     } else {
         ret = yew_parse_response(buf,
@@ -362,18 +371,17 @@ static long parse_waveform_response(dbCommon *pxx,
                                  prec->ftvl,
                                  prec->nelm,
                                  option,
-                                 d
+                                 pxx
                                  );
     }
 
-    //DEBUG
-    if (netDevDebug>0) {
-        printf("%s: %s %s : ret=%ld ndata=%d nleft=%d noff=%d\n", __FILE__, __func__, pxx->name, ret, prec->nelm, d->nleft, d->noff);
-    }
-
-
     // set NORD to the number of data points we've read
     prec->nord = d->noff / d->width;
+
+    //DEBUG
+    if (netDevDebug>0) {
+        printf("%s: %s %s : ret=%ld ndata=%d nleft=%d bytes noff=%d bytes nord=%d\n", __FILE__, __func__, pxx->name, ret, prec->nelm, d->nleft, d->noff, prec->nord);
+    }
 
     // Sanity Check
     if (ret == 0) {

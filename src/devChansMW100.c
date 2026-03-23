@@ -20,8 +20,8 @@
 //
 static long init_chans_record(chansRecord *);
 static long read_chans(chansRecord *);
-static long config_chans_command(dbCommon *, int *, uint8_t *, int *, void *, int);
-static long parse_chans_response(dbCommon *, int *, uint8_t *, int *, void *, int);
+static long config_chans_command(dbCommon *, uint32_t *, uint8_t *, int *, void *, int);
+static long parse_chans_response(dbCommon *, uint32_t *, uint8_t *, int *, void *, int);
 
 INTEGERDSET devChansMW100 = {
     5,
@@ -41,7 +41,8 @@ static long init_chans_record(chansRecord *pchans)
     MW100 *d = MW100_calloc();
     if (netDevInitXxRecord((dbCommon *)pchans,
                            &pchans->inp,
-                           MPF_READ | MPF_TCP | MW100_TIMEOUT,
+                           MPF_READ | MPF_TCP,
+                           0, 0, MW100_TIMEOUT,
                            d,
                            MW100_parse_link,
                            config_chans_command,
@@ -65,7 +66,7 @@ static long read_chans(chansRecord *pchans)
 #define RESPONSE_LENGTH(x) (4 + 15 + 15 + 28*(x) + 4)
 
 static long config_chans_command(dbCommon *pxx,
-                                 int *option,
+                                 uint32_t *option,
                                  uint8_t *buf,
                                  int *len,
                                  void *device,
@@ -90,7 +91,7 @@ static long config_chans_command(dbCommon *pxx,
 }
 
 static long parse_chans_response(dbCommon *pxx,
-                                 int *option,
+                                 uint32_t *option,
                                  uint8_t *buf,
                                  int *len,
                                  void *device,

@@ -21,8 +21,8 @@
 //
 static long init_chan_record(channelsRecord *);
 static long read_chan(channelsRecord *);
-static long config_chan_command(dbCommon *, int *, uint8_t *, int *, void *, int);
-static long parse_chan_response(dbCommon *, int *, uint8_t *, int *, void *, int);
+static long config_chan_command(dbCommon *, uint32_t *, uint8_t *, int *, void *, int);
+static long parse_chan_response(dbCommon *, uint32_t *, uint8_t *, int *, void *, int);
 
 INTEGERDSET devChannelsDarwin = {
     5,
@@ -44,7 +44,8 @@ static long init_chan_record(channelsRecord *pchan)
 
     if (netDevInitXxRecord((dbCommon *)pchan,
                            &pchan->inp,
-                           MPF_READ | MPF_TCP | DARWIN_TIMEOUT,
+                           MPF_READ | MPF_TCP,
+                           0, 0, DARWIN_TIMEOUT,
                            d,
                            darwin_parse_link,
                            config_chan_command,
@@ -80,7 +81,7 @@ static long read_chan(channelsRecord *pchan)
 #define EL_RESP_LENGTH         15
 
 static long config_chan_command(dbCommon *pxx,
-                                int *option,
+                                uint32_t *option,
                                 uint8_t *buf,
                                 int *len,
                                 void *device,
@@ -133,7 +134,7 @@ static long config_chan_command(dbCommon *pxx,
 }
 
 static long parse_chan_response(dbCommon *pxx,
-                                int *option,
+                                uint32_t *option,
                                 uint8_t *buf,
                                 int *len,
                                 void *device,

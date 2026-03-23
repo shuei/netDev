@@ -28,8 +28,8 @@
 static long init_ai_record(aiRecord *);
 static long read_ai(aiRecord *);
 static long ai_linear_convert(aiRecord *, int);
-static long config_ai_command(dbCommon *, int *, uint8_t *, int *, void *, int);
-static long parse_ai_response(dbCommon *, int *, uint8_t *, int *, void *, int);
+static long config_ai_command(dbCommon *, uint32_t *, uint8_t *, int *, void *, int);
+static long parse_ai_response(dbCommon *, uint32_t *, uint8_t *, int *, void *, int);
 
 FLOATDSET devAiYewPlc = {
     6,
@@ -45,6 +45,11 @@ epicsExportAddress(dset, devAiYewPlc);
 
 static long init_ai_record(aiRecord *prec)
 {
+    //DEBUG
+    if (netDevDebug>0) {
+        printf("\n%s: %s %s\n", __FILE__, __func__, prec->name);
+    }
+
     if (prec->linr == menuConvertLINEAR) {
         prec->eslo = (prec->eguf - prec->egul) / 0xFFFF;
         prec->roff = 0;
@@ -53,7 +58,8 @@ static long init_ai_record(aiRecord *prec)
     YEW_PLC *d = yew_calloc(0, 0, 0, kWord);
     long ret = netDevInitXxRecord((dbCommon *)prec,
                                   &prec->inp,
-                                  MPF_READ | YEW_GET_PROTO | DEFAULT_TIMEOUT,
+                                  MPF_READ | YEW_PROTOCOL | MPF_ATFRONT,
+                                  yewSendTimeout, yewRecvTimeout, yewEpicsTimerTimeout,
                                   d,
                                   yew_parse_link,
                                   config_ai_command,
@@ -69,7 +75,7 @@ static long init_ai_record(aiRecord *prec)
     } else if (d->conv == kDOUBLE) {
     //} else if (d->conv == kBCD) {
     } else {
-        errlogPrintf("devYewPlc: %s: unsupported conversion \"&%s\" for %s\n", __func__, convstr[d->conv], prec->name);
+        errlogPrintf("devYewPlc: %s: %s : unsupported conversion \"&%s\"\n", __func__, prec->name, convstr[d->conv]);
         prec->pact = 1;
         return -1;
     }
@@ -106,7 +112,7 @@ static long ai_linear_convert(aiRecord *prec, int after)
 }
 
 static long config_ai_command(dbCommon *pxx,
-                              int *option,
+                              uint32_t *option,
                               uint8_t *buf,
                               int *len,
                               void *device,
@@ -124,12 +130,12 @@ static long config_ai_command(dbCommon *pxx,
                               0, // not used in yew_config_command
                               1,
                               option,
-                              device
+                              pxx
                               );
 }
 
 static long parse_ai_response(dbCommon *pxx,
-                              int *option,
+                              uint32_t *option,
                               uint8_t *buf,
                               int *len,
                               void *device,
@@ -154,7 +160,7 @@ static long parse_ai_response(dbCommon *pxx,
                                       DBF_DOUBLE,
                                       1,
                                       option,
-                                      d
+                                      pxx
                                       );
 
         if (ret == OK) {
@@ -173,7 +179,7 @@ static long parse_ai_response(dbCommon *pxx,
                                       DBF_FLOAT,
                                       1,
                                       option,
-                                      d
+                                      pxx
                                       );
 
         if (ret == OK) {
@@ -192,7 +198,7 @@ static long parse_ai_response(dbCommon *pxx,
                                       DBF_LONG,
                                       1,
                                       option,
-                                      d
+                                      pxx
                                       );
 
         prec->rval = val;
@@ -205,7 +211,7 @@ static long parse_ai_response(dbCommon *pxx,
                                       DBF_USHORT,
                                       1,
                                       option,
-                                      d
+                                      pxx
                                       );
 
         prec->rval = val;
@@ -218,7 +224,7 @@ static long parse_ai_response(dbCommon *pxx,
                                       DBF_SHORT,
                                       1,
                                       option,
-                                      d
+                                      pxx
                                       );
 
         prec->rval = val;

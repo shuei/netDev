@@ -26,14 +26,14 @@
 
 #define CHINOL_CMND_LENGTH 8  // not correct
 #define CHINOL_UDP_PORT    11111
-#define CHINOL_GET_PROTO chino_get_protocol()
-#define CHINOL_MAX_NDATA 5120
+#define CHINOL_GET_PROTO   chino_get_protocol()
+#define CHINOL_MAX_NDATA   5120
 #define CHINOL_DATA_OFFSET 3
 
 //static int finsUseSamePortNumber = MPF_SAMEPORT;
 static unsigned short calCRC(unsigned char cd[], int nmax);
 static int TwoRawToVal(unsigned char bu[],int offset, float *res);
-static long chino_parse_link(DBLINK *, struct sockaddr_in *, int *, void *);
+static long chino_parse_link(DBLINK *, struct sockaddr_in *, uint32_t *, void *);
 static int chino_get_protocol(void);
 static void *chino_calloc(int, int, int, int, int);
 
@@ -51,8 +51,8 @@ typedef struct {
     char    *lopt;
 } CHINOL_LOG;
 
-static long chino_config_command(uint8_t *, int *, void *, int, int, int *, CHINOL_LOG *, int);
-static long chino_parse_response(uint8_t *, int *, void *, int, int, int *, CHINOL_LOG *, int);
+static long chino_config_command(uint8_t *, int *, void *, int, int, uint32_t *, CHINOL_LOG *, int);
+static long chino_parse_response(uint8_t *, int *, void *, int, int, uint32_t *, CHINOL_LOG *, int);
 
 int chinoLogLUseTcp = 1; // we'd better make this static until we are able to change this via iocsh command line.
 
@@ -89,7 +89,7 @@ static void *chino_calloc(int unit, int type, int chan, int bit, int width)
 //
 static long chino_parse_link(DBLINK *plink,
                              struct sockaddr_in *peer_addr,
-                             int *option,
+                             uint32_t *option,
                              void *device
                              )
 {
@@ -206,14 +206,14 @@ static unsigned short calCRC(unsigned char cd[], int nmax)
     return iC1*256 + iC2;
 }
 
-static long chino_config_command(uint8_t *buf,    // driver buf addr
-                                 int     *len,    // driver buf size
-                                 void    *bptr,   // record buf addr
-                                 int      ftvl,   // record field type
-                                 int      ndata,  // n to be transferred
-                                 int     *option, // direction etc.
+static long chino_config_command(uint8_t    *buf,    // driver buf addr
+                                 int        *len,    // driver buf size
+                                 void       *bptr,   // record buf addr
+                                 int         ftvl,   // record field type
+                                 int         ndata,  // n to be transferred
+                                 uint32_t   *option, // direction etc.
                                  CHINOL_LOG *d,
-                                 int      sid
+                                 int         sid
                                  )
 {
     LOGMSG("devChinoLogL: chino_config_command(%8p,%d,%8p,%d,%d,%d,%8p)\n",
@@ -307,14 +307,14 @@ static int TwoRawToVal(unsigned char bu[], int offset, float *res)
     return (bu[offset+3] & 0xf0);
 }
 
-static long chino_parse_response(uint8_t *buf,    // driver buf addr
-                                 int     *len,    // driver buf size
-                                 void    *bptr,   // record buf addr
-                                 int      ftvl,   // record field type
-                                 int      ndata,  // n to be transferred
-                                 int     *option, // direction etc.
+static long chino_parse_response(uint8_t    *buf,    // driver buf addr
+                                 int        *len,    // driver buf size
+                                 void       *bptr,   // record buf addr
+                                 int         ftvl,   // record field type
+                                 int         ndata,  // n to be transferred
+                                 uint32_t   *option, // direction etc.
                                  CHINOL_LOG *d,
-                                 int      sid
+                                 int         sid
                                  )
 {
     LOGMSG("devChinoLogL: chino_parse_response(%8p,%d,%8p,%d,%d,%d,%8p)\n",

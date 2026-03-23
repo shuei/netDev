@@ -23,8 +23,8 @@
 //
 static long init_mbbo_record(mbboRecord *);
 static long write_mbbo(mbboRecord *);
-static long config_mbbo_command(dbCommon *, int *, uint8_t *, int *, void *, int);
-static long parse_mbbo_response(dbCommon *, int *, uint8_t *, int *, void *, int);
+static long config_mbbo_command(dbCommon *, uint32_t *, uint8_t *, int *, void *, int);
+static long parse_mbbo_response(dbCommon *, uint32_t *, uint8_t *, int *, void *, int);
 
 INTEGERDSET devMbboYewPlc = {
     5,
@@ -42,7 +42,8 @@ static long init_mbbo_record(mbboRecord *prec)
     YEW_PLC *d = yew_calloc(0, 0, 0, kWord);
     long ret = netDevInitXxRecord((dbCommon *)prec,
                                   &prec->out,
-                                  MPF_WRITE | YEW_GET_PROTO | DEFAULT_TIMEOUT,
+                                  MPF_WRITE | YEW_PROTOCOL | MPF_ATFRONT,
+                                  yewSendTimeout, yewRecvTimeout, yewEpicsTimerTimeout,
                                   d,
                                   yew_parse_link,
                                   config_mbbo_command,
@@ -67,7 +68,7 @@ static long init_mbbo_record(mbboRecord *prec)
     //} else if (d->conv == kDOUBLE) {
     //} else if (d->conv == kBCD) {
     } else{
-        errlogPrintf("devYewPlc: %s: unsupported conversion \"&%s\" for %s\n", __func__, convstr[d->conv], prec->name);
+        errlogPrintf("devYewPlc: %s: %s : unsupported conversion \"&%s\"\n", __func__, prec->name, convstr[d->conv]);
         prec->pact = 1;
         return -1;
     }
@@ -93,7 +94,7 @@ static long write_mbbo(mbboRecord *prec)
 }
 
 static long config_mbbo_command(dbCommon *pxx,
-                                int *option,
+                                uint32_t *option,
                                 uint8_t *buf,
                                 int *len,
                                 void *device,
@@ -118,7 +119,7 @@ static long config_mbbo_command(dbCommon *pxx,
                                   DBF_LONG,
                                   1,
                                   option,
-                                  d
+                                  pxx
                                   );
     } else if (d->conv == kUSHORT) {
         uint16_t val = prec->rval;
@@ -128,7 +129,7 @@ static long config_mbbo_command(dbCommon *pxx,
                                   DBF_USHORT,
                                   1,
                                   option,
-                                  d
+                                  pxx
                                   );
     } else {//(d->conv == kSHORT)
         int16_t val = prec->rval;
@@ -138,13 +139,13 @@ static long config_mbbo_command(dbCommon *pxx,
                                   DBF_SHORT,
                                   1,
                                   option,
-                                  d
+                                  pxx
                                   );
     }
 }
 
 static long parse_mbbo_response(dbCommon *pxx,
-                                int *option,
+                                uint32_t *option,
                                 uint8_t *buf,
                                 int *len,
                                 void *device,
@@ -162,6 +163,6 @@ static long parse_mbbo_response(dbCommon *pxx,
                               0, // not used in yew_parse_response
                               1,
                               option,
-                              device
+                              pxx
                               );
 }

@@ -24,7 +24,7 @@
 static int init_flag = 0;
 
 static void  net_dev_async_completion(CALLBACK *);
-static void *net_dev_init_private(DBLINK *, int *, parse_link_fn_t, void *);
+static void *net_dev_init_private(DBLINK *, uint32_t *, double, double, double, parse_link_fn_t, void *);
 static void  sync_io_completion(CALLBACK *);
 
 //
@@ -55,18 +55,24 @@ long netDevGetIoIntInfo(int cmd, dbCommon *pxx, IOSCANPVT *ppvt)
 //
 long netDevInitXxRecord(dbCommon *pxx,
                         DBLINK *plink,
-                        int option,
+                        uint32_t option,
+                        double send_timeout,
+                        double recv_timeout,
+                        double epicsTimer_timeout, // for backward compatibility
                         void *device,
                         parse_link_fn_t parse_link,
                         config_command_fn_t config_command,
                         parse_response_fn_t parse_response
                         )
 {
+    //DEBUG
+    //errlogPrintf("%s: %s\n", __func__, pxx->name);
+
     LOGMSG("devNetDev: netDevInitXxRecord(\"%s\",%8p,%d,%8p,%8p,%8p,%8p)\n",
            pxx->name, plink, option, device, parse_link, config_command, parse_response);
 
     if (!device || !parse_link ||
-        (isNormal(option) && !config_command) ||
+        (!isEvent(option) && !config_command) ||
         (isEvent(option) && !parse_response)) {
         pxx->pact = TRUE;
         errPrintf(ERROR, __FILE__, __LINE__,
@@ -77,6 +83,7 @@ long netDevInitXxRecord(dbCommon *pxx,
 
     TRANSACTION *t = net_dev_init_private(plink,
                                           &option,
+                                          send_timeout, recv_timeout, epicsTimer_timeout,
                                           parse_link,
                                           device
                                           );
@@ -103,10 +110,6 @@ long netDevInitXxRecord(dbCommon *pxx,
             return ERROR;
         }
     } else {
-        t->io.async.timeout = GET_TIMEOUT(option);
-        if (isFineTmo(option)) {
-            t->io.async.timeout /= TICK_PER_SECOND;
-        }
         callbackSetCallback(net_dev_async_completion, &t->io.async.callback);
         callbackSetPriority(pxx->prio, &t->io.async.callback);
         callbackSetUser(pxx, &t->io.async.callback);
@@ -147,20 +150,22 @@ long netDevReadWriteXx(dbCommon *pxx)
     }
 
     if (pxx->pact) {
-        if (t->io.async.timeout_flag) {
+        if (t->ret == TIMEOUT || t->io.async.timeout_flag) {
             recGblSetSevr(pxx, TIMEOUT_ALARM, INVALID_ALARM);
             return ERROR;
         }
 
         if (t->ret && t->ret != 2) { // 2: don't convert
-            recGblSetSevr(pxx, isRead(t->option) ?
-                          READ_ALARM : WRITE_ALARM, INVALID_ALARM);
+            recGblSetSevr(pxx, isRead(t->option) ? READ_ALARM : WRITE_ALARM, INVALID_ALARM);
         }
 
         return t->ret;
     }
 
-    if (drvNetMpfSendRequest(t)) {
+    //Debug
+    //errlogPrintf("%s: %s sending request\n", __func__, pxx->name);
+
+    if (drvNetMpfSendRequest(t, false)) {
         errPrintf(ERROR, __FILE__, __LINE__,
                   ": Record processing disabled(\"%s\")\n", pxx->name);
         recGblSetSevr(pxx, INVALID_ALARM, INVALID_ALARM);
@@ -196,6 +201,9 @@ static void net_dev_async_completion(CALLBACK *pcb)
 //
 long netDevInit(int after)
 {
+    //DEBUG
+    //errlogPrintf("devNetDev: %s: %d\n", __func__, after);
+
     if (init_flag != 0) {
         return OK;
     }
@@ -210,7 +218,10 @@ long netDevInit(int after)
 // net_dev_init_private()
 //
 static void *net_dev_init_private(DBLINK *plink,
-                                  int *option,
+                                  uint32_t *option,
+                                  double send_timeout,
+                                  double recv_timeout,
+                                  double epicsTimer_timeout, // for backward compatibility
                                   parse_link_fn_t parse_link,
                                   void *device
                                   )
@@ -251,7 +262,7 @@ static void *net_dev_init_private(DBLINK *plink,
 
         t->io.event.client_addr.sin_addr.s_addr = peer_addr.sin_addr.s_addr;
     } else {
-        t->facility = drvNetMpfInitPeer(peer_addr, *option);
+        t->facility = drvNetMpfInitPeer(peer_addr, *option, send_timeout, recv_timeout, epicsTimer_timeout);
 
         if (!t->facility) {
             errlogPrintf ("devNetDev: drvNetMpfInitPeer failed\n");
@@ -281,7 +292,10 @@ TRANSACTION *netDevInitInternalIO(dbCommon *pxx,
                                   parse_response_fn_t parse_response,
                                   void (*async_io_completion)(CALLBACK *),
                                   void *arg,
-                                  int protocol
+                                  int protocol,
+                                  double send_timeout,
+                                  double recv_timeout,
+                                  double epicsTimer_timeout // for backward compatibility
                                   )
 {
     LOGMSG("devNetDev: netDevInitInternalIO(\"%s\")\n", pxx->name);
@@ -314,7 +328,7 @@ TRANSACTION *netDevInitInternalIO(dbCommon *pxx,
 
     callbackSetPriority(priorityLow, &t->io.async.callback);
 
-    t->facility = drvNetMpfInitPeer(peer_addr, protocol);
+    t->facility = drvNetMpfInitPeer(peer_addr, protocol, send_timeout, recv_timeout, epicsTimer_timeout);
     if (!t->facility) {
         errlogPrintf ("devNetDev: drvNetMpfInitPeer failed\n");
         return NULL;
@@ -325,8 +339,7 @@ TRANSACTION *netDevInitInternalIO(dbCommon *pxx,
 
 int netDevInternalIO(int option,
                      TRANSACTION *t,
-                     void *device,
-                     int timeout
+                     void *device
                      )
 {
     LOGMSG("devNetDev: netDevInternalIO(%d,%8p,%8p,%d)\n", option, t, device, timeout);
@@ -337,16 +350,15 @@ int netDevInternalIO(int option,
     }
 
     TRANSACTION *t_org = t->record->dpvt;
-    if (isNormal(t_org->option) && t->record->pact) {
+    if (!isEvent(t_org->option) && t->record->pact) {
         errlogPrintf("devNetDev: internal IO in async process\n");
         return ERROR;
     }
 
     t->option = option;
     t->device = device;
-    t->io.async.timeout = timeout ? timeout : DEFAULT_TIMEOUT;
 
-    if (drvNetMpfSendRequest(t)) {
+    if (drvNetMpfSendRequest(t, false)) {
         errlogPrintf("devNetDev: drvNetMpfSendRequest failed\n");
         return ERROR;
     }

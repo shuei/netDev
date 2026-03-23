@@ -17,8 +17,8 @@
 //
 static long init_longout_record(longoutRecord *);
 static long write_longout(longoutRecord *);
-static long config_longout_command(dbCommon *, int *, uint8_t *, int *, void *, int);
-static long parse_longout_response(dbCommon *, int *, uint8_t *, int *, void *, int);
+static long config_longout_command(dbCommon *, uint32_t *, uint8_t *, int *, void *, int);
+static long parse_longout_response(dbCommon *, uint32_t *, uint8_t *, int *, void *, int);
 
 INTEGERDSET devLoKeyPlc = {
     5,
@@ -35,7 +35,8 @@ static long init_longout_record(longoutRecord *plongout)
 {
     return netDevInitXxRecord((dbCommon *)plongout,
                               &plongout->out,
-                              MPF_WRITE | KEY_GET_PROTO | DEFAULT_TIMEOUT,
+                              MPF_WRITE | KEY_GET_PROTO,
+                              0, 0, DEFAULT_TIMEOUT,
                               key_calloc(0, KEY_CMND_WRE),
                               key_parse_link,
                               config_longout_command,
@@ -49,7 +50,7 @@ static long write_longout(longoutRecord *plongout)
 }
 
 static long config_longout_command(dbCommon *pxx,
-                                   int *option,
+                                   uint32_t *option,
                                    uint8_t *buf,
                                    int *len,
                                    void *device,
@@ -71,7 +72,7 @@ static long config_longout_command(dbCommon *pxx,
 }
 
 static long parse_longout_response(dbCommon *pxx,
-                                   int *option,
+                                   uint32_t *option,
                                    uint8_t *buf,
                                    int *len,
                                    void *device,

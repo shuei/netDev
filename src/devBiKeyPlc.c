@@ -17,8 +17,8 @@
 //
 static long init_bi_record(biRecord *);
 static long read_bi(biRecord *);
-static long config_bi_command(dbCommon *, int *, uint8_t *, int *, void *, int);
-static long parse_bi_response(dbCommon *, int *, uint8_t *, int *, void *, int);
+static long config_bi_command(dbCommon *, uint32_t *, uint8_t *, int *, void *, int);
+static long parse_bi_response(dbCommon *, uint32_t *, uint8_t *, int *, void *, int);
 
 INTEGERDSET devBiKeyPlc = {
     5,
@@ -37,7 +37,8 @@ static long init_bi_record(biRecord *pbi)
 
     return netDevInitXxRecord((dbCommon *)pbi,
                               &pbi->inp,
-                              MPF_READ | KEY_GET_PROTO | DEFAULT_TIMEOUT,
+                              MPF_READ | KEY_GET_PROTO,
+                              0, 0, DEFAULT_TIMEOUT,
                               key_calloc(0, KEY_CMND_RD),
                               key_parse_link,
                               config_bi_command,
@@ -51,7 +52,7 @@ static long read_bi(biRecord *pbi)
 }
 
 static long config_bi_command(dbCommon *pxx,
-                              int *option,
+                              uint32_t *option,
                               uint8_t *buf,
                               int *len,
                               void *device,
@@ -71,7 +72,7 @@ static long config_bi_command(dbCommon *pxx,
 }
 
 static long parse_bi_response(dbCommon *pxx,
-                              int *option,
+                              uint32_t *option,
                               uint8_t *buf,
                               int *len,
                               void *device,

@@ -30,72 +30,92 @@
 #include <assert.h>
 #include <dbCommon.h>
 
-#define PROTO_MASK 0x80000000
-#define EVENT_MASK 0x40000000
-#define OMRON_MASK 0x20000000
-#define DIREC_MASK 0x10000000
-#define RECON_MASK 0x04000000
-#define RETRY_MASK 0x02000000
-#define QUEUE_MASK 0x01000000
-#define BSIZE_MASK 0x00ff0000
-#define BSIZE_SHFT 16
-#define FINET_MASK 0x00008000
-#define TMOUT_MASK 0x00007fff
-#define TMOUT_SHFT 0
-#define MPF_OPT_MASK ( PROTO_MASK | EVENT_MASK | OMRON_MASK | BSIZE_MASK | RETRY_MASK)
+// MPF options
+#define MPF_MASK_BUFSIZ     0x000000ff
+#define MPF_SHFT_BUFSIZ     0
+#define MPF_MASK_USETCP     0x00000100
+#define MPF_MASK_EVENT      0x00000200
+#define MPF_MASK_RETRY      0x00000400 // not used
+//#define MPF_MASK_OMRON      0x00000800 // deprecated
 
-#define GET_PROTOCOL(x)    ((x) & PROTO_MASK)
-#define GET_EVENT(x)       ((x) & EVENT_MASK)
-#define GET_DIRECTION(x)   ((x) & DIREC_MASK)
-#define GET_QUEUE(x)       ((x) & QUEUE_MASK)
-#define GET_RECON(x)       ((x) & RECON_MASK)
-#define GET_RETRY(x)       ((x) & RETRY_MASK)
-#define GET_SAMEPORT(x)    ((x) & OMRON_MASK)
-#define GET_BUFSIZE(x)    (((x) & BSIZE_MASK) >> BSIZE_SHFT)
-#define GET_FINETMO(x)     ((x) & FINET_MASK)
-#define GET_TIMEOUT(x)    (((x) & TMOUT_MASK) >> TMOUT_SHFT)
-#define GET_MPF_OPTION(x)  ((x) & MPF_OPT_MASK)
+// PEER options and flags
+#define MPF_MASK_WRITE      0x00010000
+#define MPF_MASK_ATFRONT    0x00020000 // When requests are split (e.g. waveform record), insert the 2nd and subsequent requests at the front of the queue
+#define MPF_MASK_RECONNECT  0x00040000 // not used
 
-#define getProtocolName(x) (isUdp(x)?"UDP":"TCP")
+// Aliases for netDevInitXxRecord()
+#define MPF_UDP             0
+#define MPF_TCP             MPF_MASK_USETCP
+#define MPF_READ            0
+#define MPF_WRITE           MPF_MASK_WRITE
+#define MPF_EVENT           MPF_MASK_EVENT
+#define MPF_ATFRONT         MPF_MASK_ATFRONT
 
-#define MPF_UDP      0
-#define MPF_TCP      PROTO_MASK
-#define MPF_NORMAL   0
-#define MPF_EVENT    EVENT_MASK
-#define MPF_ANYPORT  0
-#define MPF_SAMEPORT OMRON_MASK
-#define MPF_READ     0
-#define MPF_WRITE    DIREC_MASK
-#define MPF_LAST     0
-#define MPF_FIRST    QUEUE_MASK
-#define MPF_STATIC   0
-#define MPF_RECONN   RECON_MASK
-#define MPF_LINGER   0
-#define MPF_NOLINGER RETRY_MASK
-#define MPF_NORMTMO  0
-#define MPF_FINETMO  FINET_MASK
+//
+#define MPF_OPT_MASK       (MPF_MASK_BUFSIZ | MPF_MASK_USETCP | MPF_MASK_EVENT | MPF_MASK_RETRY /*| MPF_MASK_OMRON*/)
+#define GET_MPF_OPTION(x)   ((x) & MPF_OPT_MASK)
 
-#define isUdp(x)        (GET_PROTOCOL(x) == MPF_UDP)
-#define isTcp(x)        (GET_PROTOCOL(x) == MPF_TCP)
-#define setUdp(x)       ((x) &= ~PROTO_MASK)
-#define setTcp(x)       ((x) |= PROTO_MASK)
-#define isNormal(x)     (GET_EVENT(x) == MPF_NORMAL)
-#define isEvent(x)      (GET_EVENT(x) == MPF_EVENT)
-#define isOthers(x)     (GET_SAMEPORT(x) == MPF_ANYPORT)
-#define isOmron(x)      (GET_SAMEPORT(x) == MPF_SAMEPORT)
-#define isRead(x)       (GET_DIRECTION(x) == MPF_READ)
-#define isWrite(x)      (GET_DIRECTION(x) == MPF_WRITE)
-#define isLast(x)       (GET_QUEUE(x) == MPF_LAST)
-#define isFirst(x)      (GET_QUEUE(x) == MPF_FIRST)
-#define setLast(x)      ((x) &= ~QUEUE_MASK)
-#define setFirst(x)     ((x) |= QUEUE_MASK)
-#define isStatic(x)     (GET_RECON(x) == MPF_STATIC)
-#define isReconn(x)     (GET_RECON(x) == MPF_RECONN)
-#define setStatic(x)    ((x) &= ~RECON_MASK)
-#define setReconn(x)    ((x) |= RECON_MASK)
-#define isLinger(x)     (GET_RETRY(x) == MPF_LINGER)
-#define isNoLinger(x)   (GET_RETRY(x) == MPF_NOLINGER)
-#define isFineTmo(x)    (GET_FINETMO(x) == MPF_FINETMO)
+//
+#define GET_BUFSIZE(x)     (((x) & MPF_MASK_BUFSIZ) >> MPF_SHFT_BUFSIZ)
+#define SEND_BUF_SIZE(x)    (4096 * (GET_BUFSIZE(x) + 1))
+#define RECV_BUF_SIZE(x)    (4096 * (GET_BUFSIZE(x) + 1))
+
+//
+#define GET_PROTOCOL(x)     ((x) & MPF_MASK_USETCP)
+#define isUdp(x)            (GET_PROTOCOL(x) != MPF_MASK_USETCP)
+#define isTcp(x)            (GET_PROTOCOL(x) == MPF_MASK_USETCP)
+#define setUdp(x)           ((x) &= ~MPF_MASK_USETCP)
+#define setTcp(x)           ((x) |=  MPF_MASK_USETCP)
+#define getProtocolName(x)  (isUdp(x)?"UDP":"TCP")
+
+//
+#define isRead(x)          (((x) & MPF_MASK_WRITE) != MPF_MASK_WRITE)
+#define isWrite(x)         (((x) & MPF_MASK_WRITE) == MPF_MASK_WRITE)
+
+//
+#define isEvent(x)         (((x) & MPF_MASK_EVENT) == MPF_MASK_EVENT)
+
+//
+//#define isOmron(x)         (((x) & MPF_MASK_OMRON) == MPF_MASK_OMRON)
+#define isOmron(x)         (0)
+
+//
+#define isAtFront(x)       (((x) & MPF_MASK_ATFRONT) == MPF_MASK_ATFRONT)
+
+
+//#define GET_ATFRONT(x)      ((x) & ATFRONT_MASK)
+//#define setLast(x)          ((x) &= ~MPF_MASK_ATFRONT)
+//#define setFirst(x)         ((x) |=  MPF_MASK_ATFRONT)
+
+//#define GET_EVENT(x)       ((x) & EVENT_MASK)
+//#define GET_RECON(x)       ((x) & RECON_MASK)
+//#define GET_RETRY(x)       ((x) & RETRY_MASK)
+//#define GET_SAMEPORT(x)     ((x) & OMRON_MASK)
+
+//#define MPF_NORMAL   0
+//#define MPF_ANYPORT  0
+//#define MPF_SAMEPORT OMRON_MASK
+//#define MPF_LAST     0
+//#define MPF_ATFRONT  ATFRONT_MASK
+//#define MPF_STATIC   0
+//#define MPF_RECONN   RECON_MASK
+//#define MPF_LINGER   0
+//#define MPF_NOLINGER RETRY_MASK
+//#define MPF_NORMTMO  0
+//#define MPF_FINETMO  FINET_MASK
+
+//#define isNormal(x)     (GET_EVENT(x) == MPF_NORMAL)
+//#define isOthers(x)     (GET_SAMEPORT(x) == MPF_ANYPORT)
+//#define isLast(x)       (GET_QUEUE(x) == MPF_LAST)
+//#define isStatic(x)     (GET_RECON(x) == MPF_STATIC)
+//#define isReconn(x)     (GET_RECON(x) == MPF_RECONN)
+//#define setStatic(x)    ((x) &= ~RECON_MASK)
+//#define setReconn(x)    ((x) |= RECON_MASK)
+//#define isLinger(x)     (GET_RETRY(x) == MPF_LINGER)
+//#define isNoLinger(x)   (GET_RETRY(x) == MPF_NOLINGER)
+//#define isFineTmo(x)    (GET_FINETMO(x) == MPF_FINETMO)
+
+#define DEFAULT_TIMEOUT 1.0
 
 // TRUE and FALSE should be already defeined in dbDefs.h. Define them just for sure.
 #ifndef TRUE
@@ -106,16 +126,17 @@
 #endif
 
 //
-#define OK         ((long)  0)
-#define ERROR      ((long) -1)
+#define OK          ( 0) // ((long) 0)
+#define ERROR       (-1) // ((long)-1) we'd better avoid 'long'
 
 //
-#define NOT_MINE   (ERROR - 1)
-#define NOT_DONE   (NOT_MINE - 1)
-#define RECV_MORE  (NOT_DONE - 1)
-#define NO_RESP    (RECV_MORE - 1)
-#define SEND_BUF_SIZE(x) (4096 * (GET_BUFSIZE(x) + 1))
-#define RECV_BUF_SIZE(x) (4096 * (GET_BUFSIZE(x) + 1))
+#define NOT_MINE   (ERROR     - 1)
+#define NOT_DONE   (NOT_MINE  - 1)
+#define TIMEOUT    (NOT_DONE  - 1)
+#define RECOVERED  (TIMEOUT   - 1)
+#define NO_RESP    (RECOVERED - 1)
+#define RECV_MORE  (NO_RESP   - 1) // not used at all
+
 #define SEND_PRIORITY         50
 #define SEND_STACK            (epicsThreadGetStackSize(epicsThreadStackBig))
 #define RECV_PRIORITY         50
@@ -127,13 +148,13 @@
 #define NUM_MPF_VAR           256
 
 typedef struct {
-    double             timeout;
     int                timeout_flag;
     CALLBACK           callback;
     uint32_t           send_counter;
-    uint32_t           cancel_counter;
-    uint32_t           timeout_counter;
+    uint32_t           senderr_counter;
     uint32_t           receive_counter;
+    uint32_t           timeout_counter;
+    uint32_t           recverr_counter;
 } ASYNC_IO;
 
 typedef struct {
@@ -146,7 +167,7 @@ typedef struct {
     ELLNODE            node;
     dbCommon          *record;
     void              *facility;
-    int                option;
+    uint32_t           option;
     int                transaction_id;
     void              *device;
     int                ret;
@@ -162,7 +183,7 @@ typedef struct {
 typedef struct {
     ELLNODE            node;
     int                id;
-    int                option;
+    uint32_t           option;
     int                sfd;
     struct sockaddr_in peer_addr;
     struct sockaddr_in sender_addr;
@@ -182,14 +203,21 @@ typedef struct {
     ELLLIST            reqQueue;
     epicsMutexId       reqQ_mutex;
     epicsEventId       req_queued;
-    epicsEventId       next_cycle;
+    epicsEventId       next_cmd;
+    epicsEventId       next_rsp;
     epicsTimerId       wd_id;
     epicsThreadId      send_tid;
     epicsThreadId      recv_tid;
     int                tmo_event;
     int                event_num;
     epicsTimeStamp     send_time;
+    epicsTimeStamp     send_time_timeout; // save send_time in case of a timeout
     epicsTimeStamp     recv_time;
+    double             send_timeout;
+    double             recv_timeout;
+    double             epicsTimer_timeout; // for backward compatibility
+    bool               timeout_state;
+    uint32_t           timeout_count;
 } PEER;
 
 typedef struct {
@@ -219,21 +247,22 @@ typedef struct {
 } RTT_ITEM;
 
 //
-#define GET_PEER_INET_ADDR(t)    (((PEER *)((TRANSACTION *)(t))->facility)->mpf.peer_addr.sin_addr.s_addr)
-#define GET_PEER_ID(t)           (((PEER *)((TRANSACTION *)(t))->facility)->mpf.id)
-#define GET_DPVT(p)              (((dbCommon *)(p))->dpvt)
-#define MPF_OPTION(t)            ( ((PEER *)((TRANSACTION *)(t))->facility)->mpf.option)
-#define MPF_OPTION_PTR(t)        (&((PEER *)((TRANSACTION *)(t))->facility)->mpf.option)
-#define MPF_VAR_PTR(t)           (&((PEER *)((TRANSACTION *)(t))->facility)->mpf.mpf_var[0])
-#define GET_PEER_DEVICE(t)       (((TRANSACTION *)(t))->device)
-#define GET_CLIENT_INET_ADDR(t)  (((TRANSACTION *)(t))->io.event.client_addr.sin_addr.s_addr)
-#define GET_SERVER_PORT(t)       (((SERVER *)((TRANSACTION *)(t))->facility)->port)
-#define GET_SERVER_ID(t)         (((SERVER *)((TRANSACTION *)(t))->facility)->mpf.id)
+//#define GET_PEER_INET_ADDR(t)    (((PEER *)((TRANSACTION *)(t))->facility)->mpf.peer_addr.sin_addr.s_addr)
+//#define GET_PEER_ID(t)           (((PEER *)((TRANSACTION *)(t))->facility)->mpf.id)
+//#define GET_DPVT(p)              (((dbCommon *)(p))->dpvt)
+//#define MPF_OPTION(t)            ( ((PEER *)((TRANSACTION *)(t))->facility)->mpf.option)
+//#define MPF_OPTION_PTR(t)        (&((PEER *)((TRANSACTION *)(t))->facility)->mpf.option)
+//#define MPF_VAR_PTR(t)           (&((PEER *)((TRANSACTION *)(t))->facility)->mpf.mpf_var[0])
+//#define GET_PEER_DEVICE(t)       (((TRANSACTION *)(t))->device)
+//#define GET_CLIENT_INET_ADDR(t)  (((TRANSACTION *)(t))->io.event.client_addr.sin_addr.s_addr)
+//#define GET_SERVER_PORT(t)       (((SERVER *)((TRANSACTION *)(t))->facility)->port)
+//#define GET_SERVER_ID(t)         (((SERVER *)((TRANSACTION *)(t))->facility)->mpf.id)
 
 //
-long drvNetMpfSendRequest(TRANSACTION *);
-PEER *drvNetMpfInitPeer(struct sockaddr_in, int);
-SERVER *drvNetMpfInitServer(unsigned short, int);
+long drvNetMpfSendRequest(TRANSACTION *, bool atfront);
+PEER *drvNetMpfInitPeer(struct sockaddr_in, uint32_t, double, double, double);
+void  drvNetMpfSetTimeout(PEER *);
+SERVER *drvNetMpfInitServer(unsigned short, uint32_t);
 long drvNetMpfRegisterEvent(TRANSACTION *);
 
 //
@@ -246,10 +275,8 @@ long drvNetMpfRegisterEvent(TRANSACTION *);
 
 #ifdef DEBUG
 #define LOGMSG(...) errlogPrintf(__VA_ARGS__)
-#define DEFAULT_TIMEOUT  (TICK_PER_SECOND | MPF_FINETMO)
 #else
 #define LOGMSG(...)
-#define DEFAULT_TIMEOUT  (TICK_PER_SECOND | MPF_FINETMO)
 #endif
 
 #define SHOW_MESSAGE

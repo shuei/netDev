@@ -19,8 +19,8 @@
 static long init_ai_record(aiRecord *);
 static long read_ai(aiRecord *);
 static long ai_linear_convert(aiRecord *, int);
-static long config_ai_command(dbCommon *, int *, uint8_t *, int *, void *, int);
-static long parse_ai_response(dbCommon *, int *, uint8_t *, int *, void *, int);
+static long config_ai_command(dbCommon *, uint32_t *, uint8_t *, int *, void *, int);
+static long parse_ai_response(dbCommon *, uint32_t *, uint8_t *, int *, void *, int);
 
 FLOATDSET devAiKeyPlc = {
     6,
@@ -43,7 +43,8 @@ static long init_ai_record(aiRecord *pai)
 
     return netDevInitXxRecord((dbCommon *)pai,
                               &pai->inp,
-                              MPF_READ | KEY_GET_PROTO | DEFAULT_TIMEOUT,
+                              MPF_READ | KEY_GET_PROTO,
+                              0, 0, DEFAULT_TIMEOUT,
                               key_calloc(0, KEY_CMND_RDE),
                               key_parse_link,
                               config_ai_command,
@@ -72,7 +73,7 @@ static long ai_linear_convert(aiRecord *pai, int after)
 }
 
 static long config_ai_command(dbCommon *pxx,
-                              int *option,
+                              uint32_t *option,
                               uint8_t *buf,
                               int *len,
                               void *device,
@@ -93,7 +94,7 @@ static long config_ai_command(dbCommon *pxx,
 }
 
 static long parse_ai_response(dbCommon *pxx,
-                              int *option,
+                              uint32_t *option,
                               uint8_t *buf,
                               int *len,
                               void *device,

@@ -23,8 +23,8 @@
 //
 static long init_arrayout_record(arrayoutRecord *);
 static long write_arrayout(arrayoutRecord *);
-static long config_arrayout_command(dbCommon *, int *, uint8_t *, int *, void *, int);
-static long parse_arrayout_response(dbCommon *, int *, uint8_t *, int *, void *, int);
+static long config_arrayout_command(dbCommon *, uint32_t *, uint8_t *, int *, void *, int);
+static long parse_arrayout_response(dbCommon *, uint32_t *, uint8_t *, int *, void *, int);
 
 INTEGERDSET devAroYewPlc = {
     5,
@@ -47,7 +47,8 @@ static long init_arrayout_record(arrayoutRecord *prec)
     YEW_PLC *d = yew_calloc(0, 0, 0, kWord);
     long ret = netDevInitXxRecord((dbCommon *)prec,
                                   &prec->out,
-                                  MPF_WRITE | YEW_GET_PROTO | DEFAULT_TIMEOUT,
+                                  MPF_WRITE | YEW_PROTOCOL | MPF_ATFRONT,
+                                  yewSendTimeout, yewRecvTimeout, yewEpicsTimerTimeout,
                                   d,
                                   yew_parse_link,
                                   config_arrayout_command,
@@ -128,7 +129,7 @@ static long init_arrayout_record(arrayoutRecord *prec)
         }
 
     } else {
-        errlogPrintf("devYewPlc: %s: %s : unsupported FTVL %s\n", __func__, prec->name, ftvlstr);
+        errlogPrintf("devYewPlc: %s: %s : unsupported FTVL: %s\n", __func__, prec->name, ftvlstr);
         prec->pact = 1;
         return -1;
     }
@@ -156,7 +157,7 @@ static long write_arrayout(arrayoutRecord *prec)
 }
 
 static long config_arrayout_command(dbCommon *pxx,
-                                    int *option,
+                                    uint32_t *option,
                                     uint8_t *buf,
                                     int *len,
                                     void *device,
@@ -190,7 +191,7 @@ static long config_arrayout_command(dbCommon *pxx,
                                   DBF_SHORT,
                                   prec->nelm,
                                   option,
-                                  device
+                                  pxx
                                   );
     } else if (prec->ftvl == DBF_DOUBLE && d->conv == kLONG) {
         int32_t *val = d->val;
@@ -208,7 +209,7 @@ static long config_arrayout_command(dbCommon *pxx,
                                   DBF_LONG,
                                   prec->nelm,
                                   option,
-                                  device
+                                  pxx
                                   );
     } else if (prec->ftvl == DBF_DOUBLE && d->conv == kFLOAT) {
         float *val = d->val;
@@ -226,7 +227,7 @@ static long config_arrayout_command(dbCommon *pxx,
                                   DBF_FLOAT,
                                   prec->nelm,
                                   option,
-                                  device
+                                  pxx
                                   );
     } else if (prec->ftvl == DBF_FLOAT && (d->conv == kSHORT || d->conv == kUSHORT)) {
         int16_t *val = d->val;
@@ -244,7 +245,7 @@ static long config_arrayout_command(dbCommon *pxx,
                                   DBF_SHORT,
                                   prec->nelm,
                                   option,
-                                  device
+                                  pxx
                                   );
     } else if (prec->ftvl == DBF_FLOAT && d->conv == kLONG) {
         int32_t *val = d->val;
@@ -262,7 +263,7 @@ static long config_arrayout_command(dbCommon *pxx,
                                   DBF_LONG,
                                   prec->nelm,
                                   option,
-                                  device
+                                  pxx
                                   );
 #if 0
     } else if ((prec->ftvl == DBF_LONG||prec->ftvl == DBF_ULONG) && d->conv == kUSHORT) {
@@ -281,7 +282,7 @@ static long config_arrayout_command(dbCommon *pxx,
                                   DBF_USHORT,
                                   prec->nelm,
                                   option,
-                                  device
+                                  pxx
                                   );
     } else if ((prec->ftvl == DBF_LONG||prec->ftvl == DBF_ULONG) && d->conv == kSHORT) {
         int16_t *val = d->val;
@@ -299,7 +300,7 @@ static long config_arrayout_command(dbCommon *pxx,
                                   DBF_SHORT,
                                   prec->nelm,
                                   option,
-                                  device
+                                  pxx
                                   );
 #endif
     } else {
@@ -309,13 +310,13 @@ static long config_arrayout_command(dbCommon *pxx,
                                   prec->ftvl,
                                   prec->nelm,
                                   option,
-                                  d
+                                  pxx
                                   );
     }
 }
 
 static long parse_arrayout_response(dbCommon *pxx,
-                                    int *option,
+                                    uint32_t *option,
                                     uint8_t *buf,
                                     int *len,
                                     void *device,
@@ -336,7 +337,7 @@ static long parse_arrayout_response(dbCommon *pxx,
                                   0, // not used in yew_parse_response
                                   prec->nelm,
                                   option,
-                                  d
+                                  pxx
                                   );
 
     // set NOWT to the number of data points we've written
