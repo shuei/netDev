@@ -339,15 +339,16 @@ static long parse_arrayout_response(dbCommon *pxx,
                                   d
                                   );
 
-    switch (ret) {
-    case NOT_DONE:
-        prec->nowt = d->noff;
-        // why we don't have break here?
-    case 0:
-        prec->nowt = prec->nelm;
-    default:
-        ;
+    // set NOWT to the number of data points we've written
+    prec->nowt = d->noff / d->width;
+
+    // Sanity Check
+    if (ret == 0) {
+        if (prec->nowt != prec->nelm) {
+            errlogPrintf("devYewPlc: %s: %s NOWT and NELM don't match: NOWT=%d NELM=%d\n", __func__, prec->name, prec->nowt, prec->nelm);
+        }
     }
 
+    //
     return ret;
 }

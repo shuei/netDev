@@ -371,15 +371,17 @@ static long parse_waveform_response(dbCommon *pxx,
         printf("%s: %s %s : ret=%ld ndata=%d nleft=%d noff=%d\n", __FILE__, __func__, pxx->name, ret, prec->nelm, d->nleft, d->noff);
     }
 
-    switch (ret) {
-    case NOT_DONE:
-        prec->nord = d->noff;
-        // why we don't have break here?
-    case 0:
-        prec->nord = prec->nelm;
-    default:
-        ;
+
+    // set NORD to the number of data points we've read
+    prec->nord = d->noff / d->width;
+
+    // Sanity Check
+    if (ret == 0) {
+        if (prec->nord != prec->nelm) {
+            errlogPrintf("devYewPlc: %s: %s NORD and NELM don't match: NORD=%d NELM=%d\n", __func__, prec->name, prec->nord, prec->nelm);
+        }
     }
 
+    //
     return ret;
 }
