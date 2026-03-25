@@ -1,17 +1,26 @@
 Device Support for General Network Devices (netDev)
 ===================================================
 
-Table of Contents
-=================
-* [Overview](#overview)
-* [Yokogawa FA-M3 series PLCs ("<strong>Yew Plc</strong>")](#yokogawa-fa-m3-series-plcs-yew-plc)
-   * [Configure CPU Properties](#configure-cpu-properties)
-   * [Device Type (DTYP) Field](#device-type-dtyp-field)
-   * [Input / Output Link (INP/OUT) Fields](#input--output-link-inpout-fields)
-   * [Supported Record Types](#supported-record-types)
-   * [Accessing Relays and Registers](#accessing-relays-and-registers)
-   * [Accessing Special Modules](#accessing-special-modules)
-   * [Conversion Specifier](#conversion-specifier)
+**Table of Contents**
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+- [Overview](#overview)
+- [Yokogawa FA-M3 series PLCs ("**Yew Plc**")](#yokogawa-fa-m3-series-plcs-yew-plc)
+  - [Configure CPU Properties](#configure-cpu-properties)
+  - [Device Type (DTYP) Field](#device-type-dtyp-field)
+  - [Input / Output Link (INP/OUT) Fields](#input--output-link-inpout-fields)
+  - [Supported Record Types](#supported-record-types)
+  - [Accessing Relays and Registers](#accessing-relays-and-registers)
+  - [Accessing Special Modules](#accessing-special-modules)
+  - [Conversion Specifier](#conversion-specifier)
+  - [IOC shell commands](#ioc-shell-commands)
+    - [yewPlcProtocol](#yewplcprotocol)
+    - [yewPlcPort](#yewplcport)
+    - [yewPlcSendTimeout and yewPlcRecvTimeout](#yewplcsendtimeout-and-yewplcrecvtimeout)
+    - [yewPlcEpicsTimerTimeout](#yewplcepicstimertimeout)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 # Overview
 
@@ -32,7 +41,7 @@ but also undocumented features.
 
 Make sure that FA-M3 CPU is properly configured using WideField, in CPU Properties edit window.
 - Configure ethernet in the "ETHERNET" pane.
-- Configure higher-level link commands in the "HIGHER-LEVEL_LINK_SERVICE" pane. This device support has been developped using UDP. It should also work with TCP as well (though this has not been extensively tested). Furthermore, it supports binary data format only to communicate with the CPU. ASCII mode is **not** supported at all.
+- Configure higher-level link commands in the "HIGHER-LEVEL_LINK_SERVICE" pane. This device support has been developped using UDP. It should also work with TCP as well (though this **has not been extensively tested**). Furthermore, it supports binary data format only to communicate with the CPU. ASCII mode is **not** supported at all.
   - HLINK_PROTOCOL_A    : 1 (=UDP)
   - HLINK_DATA_FORMAT_A : 1 (=binary)
   - HLINK_PROTOCOL_B    : 1 (=UDP)
@@ -41,37 +50,21 @@ Make sure that FA-M3 CPU is properly configured using WideField, in CPU Properti
 
 For details, refer to **IM 34M06Q16-03** "FA-M3 Programming Tool WideField3 (Online)", H5 "CPU Properties".
 
-## Changing default protocol or port number in the startup script (st.cmd)
-
-You can change the default protocol and port number in the startup script (st.cmd) using yewPlcProtocol and yewPlcPort commands respectively.
-
-- yewPlcProtocol command switches the default protocol to TCP or UDP. The protocol specified in INP/OUT field takes precedece. The command must be called befor iocInit. Otherwise it has no effect.
-
-e.g.
-
-`yewPlcProtocol tcp`
-
-- yewPlcPort command switches the Yew Plc port number default to 0x3001(12889; for port-A) or 0x3003(12291; for port-B), in hexadecial or decimal format. The command must be called befor iocInit. Otherwise it has no effect.
-
-e.g.
-
-`yewPlcPort 0x3003`
-
 ## Device Type (DTYP) Field
 
 In order to use netDev, device type (DTYP) field must be set to "**Yew Plc**" in the record:
 
-`field(DTYP, "Yew Plc")`
+```field(DTYP, "Yew Plc")```
 
 ## Input / Output Link (INP/OUT) Fields
 
 General format for input (INP) and output (OUT) link fields are as following:
 
-`field(INP, "@hostname[([port][:protocol])][:cpu]#type[:]number[&conversion]")`
+```field(INP, "@hostname[([port][:protocol])][:cpu]#type[:]number[&conversion]")```
 
 e.g.
 
-`field(INP, "@192.168.1.1#I00100&L")`
+```field(INP, "@192.168.1.1#I00100&L")```
 
 - hostname   : hostname or IP address of the FA-M3 CPU (or Personal Computer Link Modules).
 - port       : Optional port number (defaults to 0x3001);  0x3001(12889; for port-A) or 0x3003(12291; for port-B).
@@ -257,3 +250,48 @@ Examples of conversion specifiers in output records are given in the table below
 | waveform(FTVL = DBF_ULONG)  | @192.168.1.1#D0001&L |  65535       | 0x0000 | 0xffff |
 | waveform(FTVL = DBF_ULONG)  | @192.168.1.1#D0001&L |  65537       | 0x0001 | 0x0001 |
 | waveform(FTVL = DBF_ULONG)  | @192.168.1.1#D0001&L |  4294967295  | 0xffff | 0xffff |
+
+## IOC shell commands
+
+### yewPlcProtocol
+
+`yewPlcProtocol` command specifies the default Yew Plc protocol to TCP or UDP (case insensitive). The protocol specified in INP/OUT field takes precedece. The command must be called befor `iocInit` in the startup script (such as `st.cmd`). Otherwise it has no effect.
+
+e.g.
+
+```yewPlcProtocol tcp```
+
+### yewPlcPort
+
+`yewPlcPort` command specifies the Yew Plc port number default to 0x3001(12889; for port-A) or 0x3003(12291; for port-B), in hexadecial or decimal format. The command must be called befor `iocInit` in the startup script (such as `st.cmd`). Otherwise it has no effect.
+
+e.g.
+
+```yewPlcPort 0x3003```
+
+### yewPlcSendTimeout and yewPlcRecvTimeout
+
+
+`yewPlcSendTimeout` and `yewPlcRecvTimeout` specifiy timeout for sending a command to Yew Plc or receiving a response from Yew Plc (since v1.4.0).
+Setting a value of 0 seconds disables the timeout.
+The default sending timeout is 0 seconds, receiving 1.0 sedonds.
+The command must be called befor `iocInit` in the startup script (such as `st.cmd`). Otherwise it has no effect.
+
+e.g.
+
+```yewPlcRecvTimeout 2.5```
+
+### yewPlcEpicsTimerTimeout
+
+`yewPlcEpicsTimeout` specifies the alternative timeout from sending a command to Yew Plc until receiving a response (compatible with behaviour prior to v1.4.0).
+Setting a value of 0 seconds disables the timeout.
+To enable this timeout, both yewPlcSendTimeout and yewPlcRecvTimeout must be disabled
+The command must be called befor `iocInit` in the startup script (such as `st.cmd`). Otherwise it has no effect.
+
+e.g.
+
+```
+yewPlcSendTimeout 0
+yewPlcRecvTimeout 0
+yewPlcEpicsTimerTimeout 1
+```
