@@ -109,7 +109,7 @@ static long config_mbbi_command(dbCommon *pxx,
                               0, // not used in yew_config_command
                               1,
                               option,
-                              device
+                              pxx
                               );
 }
 

@@ -104,7 +104,7 @@ static long config_bo_command(dbCommon *pxx,
                               DBF_ULONG,
                               1,
                               option,
-                              device
+                              pxx
                               );
 }
 
@@ -127,6 +127,6 @@ static long parse_bo_response(dbCommon *pxx,
                               0, // not used in yew_parse_response
                               1,
                               option,
-                              device
+                              pxx
                               );
 }

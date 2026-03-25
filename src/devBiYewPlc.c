@@ -102,7 +102,7 @@ static long config_bi_command(dbCommon *pxx,
                               0, // not used in yew_config_command
                               1,
                               option,
-                              device
+                              pxx
                               );
 }
 
@@ -127,6 +127,6 @@ static long parse_bi_response(dbCommon *pxx,
                               DBF_ULONG,
                               1,
                               option,
-                              device
+                              pxx
                               );
 }
