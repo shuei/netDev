@@ -471,7 +471,7 @@ PEER *drvNetMpfInitPeer(struct sockaddr_in peer_addr,
         }
 
         //Debug
-        errlogPrintf("%s: %s getbufsiz=%d bufsiz=%d\n", __FILE__, __func__, GET_BUFSIZE(option), SEND_BUF_SIZE(option));
+        //errlogPrintf("%s: %s getbufsiz=%d bufsiz=%d\n", __FILE__, __func__, GET_BUFSIZE(option), SEND_BUF_SIZE(option));
 
         LOGMSG("drvNetMpf: send buf size %d\n", SEND_BUF_SIZE(p->mpf.option));
         LOGMSG("drvNetMpf: recv buf size %d\n", RECV_BUF_SIZE(p->mpf.option));
