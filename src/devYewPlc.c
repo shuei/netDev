@@ -47,8 +47,8 @@ static int    yewPort         = 0x3001;  // 0x3001(12289):port-A, 0x3003(12291):
 static int    yewMaxBytes     = 64*2;    // Maximum transfer bytes allowed
 
 static double yewSendTimeout  = 0;
-static double yewRecvTimeout  = 0;
-static double yewEpicsTimerTimeout = DEFAULT_TIMEOUT;
+static double yewRecvTimeout  = DEFAULT_TIMEOUT;
+static double yewEpicsTimerTimeout = 0;
 
 //
 typedef enum {
