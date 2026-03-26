@@ -21,6 +21,7 @@ ToDo list for netDev
 - [ ] Consider ASLO/AOFF fields for ao records with &F (or &D) option.
 - [x] Round ao records to int16_t / uint16_t according to no-flag and '&U' flag.
 - [ ] Add support for aai/aao records for YewPlc.
+- [ ] Add support for aai/aao records for KeyPlc.
 - [x] Add support for mbbi/mbbo records for YewPlc
   - [x] Add &U option support
   - [x] Add &L option support
@@ -32,7 +33,7 @@ ToDo list for netDev
   - [x] Add &L option support
     - [x] set NOBT to 32 with &L option
   - [x] Add &U option support
-- [ ] Mark patternRecord as obsolete.
+- [ ] Mark arrayoutRecord as obsolete.
 - [x] Drop vxWorks support.
 - [x] Add Chino KE3000 series data logger.
 - [ ] Introduce pseudo device 'A' to access Yokogawa FA-M3 special modules.
@@ -40,5 +41,5 @@ ToDo list for netDev
 - [ ] Implement Data and Time Read command ($63), and Write command ($64)
 - [ ] Assign alphabetical device type for timer values and counter values on F3-M3 CPU.
 - [ ] Add support for timer preset value on FA-M3 CPU modules.
-- [ ] Support TCP mode for YewPlc.
+- [x] Support TCP mode for YewPlc.
 - [ ] More documentation.
