@@ -1040,9 +1040,6 @@ static void recv_task(PEER *p)
                                    + (p->recv_time.nsec - p->send_time_timeout.nsec) * 1e-6;
                 errlogPrintf("drvNetMpf: %s: %s Discarding timed out response: rtt=%.3f ms\n", __func__, t->record->name, rtt2);
                 //errlogPrintf("drvNetMpf: %s: %s Discarding timed out response: rtt=%.3f ms (%9d.%09u - %9d.%09u)\n", __func__, t->record->name, rtt2, p->recv_time.secPastEpoch, p->recv_time.nsec, p->send_time_timeout.secPastEpoch, p->send_time_timeout.nsec);
-                if (rtt2>5000) {
-                    abort();
-                }
             } else {
                 errlogPrintf("drvNetMpf: %s: %s Discarding unexpected response: rtt=%.3f ms\n", __func__, t->record->name, rtt);
                 //errlogPrintf("drvNetMpf: %s: %s Discarding unexpected response: rtt=%.3f ms (%9d.%09u - %9d.%09u)\n", __func__, t->record->name, rtt, p->recv_time.secPastEpoch, p->recv_time.nsec, p->send_time.secPastEpoch, p->send_time.nsec);
