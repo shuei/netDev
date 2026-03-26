@@ -20,7 +20,7 @@ ToDo list for netDev
 - [ ] Consider ASLO/AOFF and SMOO fields for ai records with &F (or &D) option.
 - [ ] Consider ASLO/AOFF fields for ao records with &F (or &D) option.
 - [x] Round ao records to int16_t / uint16_t according to no-flag and '&U' flag.
-- [ ] Add support for aai/aao records for YewPlc.
+- [x] Add support for aai/aao records for YewPlc.
 - [ ] Add support for aai/aao records for KeyPlc.
 - [x] Add support for mbbi/mbbo records for YewPlc
   - [x] Add &U option support

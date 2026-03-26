@@ -131,6 +131,8 @@ static void *yew_calloc(int cpu, uint8_t type, uint32_t addr, width_t width)
     return d;
 }
 
+#include "devAaiYewPlc.c"
+#include "devAaoYewPlc.c"
 #include "devAiYewPlc.c"
 #include "devAoYewPlc.c"
 #include "devBiYewPlc.c"

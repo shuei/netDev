@@ -108,16 +108,18 @@ static void *key_calloc(uint32_t addr, int cmnd)
     return d;
 }
 
-#include        "devBiKeyPlc.c"
-#include        "devBoKeyPlc.c"
-#include        "devLonginKeyPlc.c"
-#include        "devLongoutKeyPlc.c"
-#include        "devAiKeyPlc.c"
-#include        "devAoKeyPlc.c"
-#include        "devMbbiDirectKeyPlc.c"
-#include        "devMbboDirectKeyPlc.c"
-#include        "devWaveformKeyPlc.c"
-#include        "devArrayoutKeyPlc.c"
+#include "devAaiKeyPlc.c"
+#include "devAaoKeyPlc.c"
+#include "devAiKeyPlc.c"
+#include "devAoKeyPlc.c"
+#include "devBiKeyPlc.c"
+#include "devBoKeyPlc.c"
+#include "devLonginKeyPlc.c"
+#include "devLongoutKeyPlc.c"
+#include "devMbbiDirectKeyPlc.c"
+#include "devMbboDirectKeyPlc.c"
+#include "devWaveformKeyPlc.c"
+#include "devArrayoutKeyPlc.c"
 
 //
 // Link field parser for both command/response I/O and event driven I/O
