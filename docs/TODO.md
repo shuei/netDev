@@ -33,7 +33,8 @@ ToDo list for netDev
   - [x] Add &L option support
     - [x] set NOBT to 32 with &L option
   - [x] Add &U option support
-- [ ] Mark arrayoutRecord as obsolete.
+- [x] Mark arrayoutRecord as obsolete
+  - [ ] Drop arrayoutRecord support
 - [x] Drop vxWorks support.
 - [x] Add Chino KE3000 series data logger.
 - [ ] Introduce pseudo device 'A' to access Yokogawa FA-M3 special modules.

@@ -91,6 +91,8 @@ static long writeValue();
 static long init_record(arrayoutRecord *pao, int pass)
 {
     if (pass == 0) {
+        fprintf(stderr, "arrayout record is deprecated and scheduled for removal in a future release. Please use aao record instead: %s\n", pao->name);
+
         if (pao->nelm <= 0) {
             pao->nelm = 1;
         }

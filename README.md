@@ -11,14 +11,14 @@ This is a device support for network based devices.
 - Chino KE3000 series Data Loggers
 
 # Supported Records
-- arrayoutRecord
+- arrayoutRecord (deprecated)
 - channelsRecord
 - chansRecord
 - miwfRecord
 - patternRecord
 - statusRecord
 
-[docs/Install.md](docs/Install.md)  
-[docs/Manual.md](docs/Manual.md)  
-[docs/TODO.md](docs/TODO.md)  
+[docs/Install.md](docs/Install.md)
+[docs/Manual.md](docs/Manual.md)
+[docs/TODO.md](docs/TODO.md)
 
